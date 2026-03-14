@@ -433,13 +433,14 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
   } else if (isImpressPattern(type)) {
+    const scaleFactor = type === 'ripple_pattern' ? 0.25 : 0.1;
     const moduleDefaults = getPatternModuleDefaults(type);
-    mat.width = moduleDefaults.width * 0.1;
-    mat.height = moduleDefaults.height * 0.1;
+    mat.width = moduleDefaults.width * scaleFactor;
+    mat.height = moduleDefaults.height * scaleFactor;
     s.embossDepth = 50;
     const isZeroJointPattern = type === 'concave_pattern' || type === 'convex_pattern' || type === 'ripple_pattern';
     s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
-    s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
+    s.config.joints.verticalSize = type === 'convex_pattern' ? 10 : type === 'concave_pattern' ? 8 : type === 'ripple_pattern' ? 3 : (isZeroJointPattern ? 0 : 5);
     s.config.joints.linkedDimensions = true;
   }
 }

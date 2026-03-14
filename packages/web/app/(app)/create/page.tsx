@@ -350,6 +350,8 @@ export default function CreatePage() {
         ? 0.25
         : config.pattern.type === 'venzowood_2'
         ? 0.25
+        : config.pattern.type === 'ripple_pattern'
+        ? 0.25
         : 0.1;
     const targetRepeatHeight = isImpress
       ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
