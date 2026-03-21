@@ -437,8 +437,9 @@ function applyPatternSheetDefaults(s: EditorState) {
     mat.width = moduleDefaults.width * 0.1;
     mat.height = moduleDefaults.height * 0.1;
     s.embossDepth = 50;
-    s.config.joints.horizontalSize = 5;
-    s.config.joints.verticalSize = 5;
+    const isZeroJointPattern = type === 'concave_pattern' || type === 'convex_pattern' || type === 'ripple_pattern';
+    s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
+    s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
     s.config.joints.linkedDimensions = true;
   }
 }
