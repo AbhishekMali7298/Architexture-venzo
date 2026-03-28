@@ -22,12 +22,37 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
         background: 'transparent',
         display: 'flex',
         alignItems: 'flex-start',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         padding: '16px',
         zIndex: 99999,
       }}
     >
-      <div onClick={e => e.stopPropagation()} style={{ marginTop: 60 }}>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position: 'relative',
+          marginTop: 56,
+          marginLeft: '356px',
+          maxWidth: 'calc(100vw - 32px)',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: -10,
+            top: 72,
+            width: 20,
+            height: 20,
+            background: 'rgba(255,255,255,0.98)',
+            borderLeft: '1px solid rgba(15, 23, 42, 0.08)',
+            borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+            transform: 'rotate(45deg)',
+            borderBottomLeftRadius: 6,
+            boxShadow: '-8px 10px 20px rgba(15, 23, 42, 0.05)',
+            pointerEvents: 'none',
+          }}
+        />
         {children}
       </div>
     </div>,
