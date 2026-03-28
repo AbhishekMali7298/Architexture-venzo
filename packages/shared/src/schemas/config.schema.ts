@@ -80,28 +80,7 @@ export const patternCategorySchema = z.enum([
   'roofing',
 ]);
 
-export const patternTypeSchema = z.enum([
-  'none',
-  'running_bond',
-  'stack_bond',
-  'flemish_bond',
-  'english_bond',
-  'herringbone',
-  'chevron',
-  'basketweave',
-  'hexagonal',
-  'ashlar',
-  'stretcher_bond',
-  'soldier_course',
-  'crazy_paving',
-  'cobblestone',
-  'subway',
-  'pinwheel',
-  'windmill',
-  'parquet_straight',
-  'parquet_diagonal',
-  'versailles',
-]);
+export const patternTypeSchema = z.string().min(1);
 
 export const patternConfigSchema = z.object({
   type: patternTypeSchema,

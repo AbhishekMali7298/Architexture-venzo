@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styles from './create-editor.module.css';
 
 export function PatternThumb({
@@ -11,15 +12,20 @@ export function PatternThumb({
   alt?: string;
   size?: number;
 }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageSrc = src ?? undefined;
+  const showImage = Boolean(imageSrc) && !imageFailed;
+
   return (
     <div className={styles.thumbFrame}>
-      {src ? (
+      {showImage ? (
         <img
-          src={src}
+          src={imageSrc}
           alt={alt ?? 'Pattern preview'}
           width={size}
           height={size}
           style={{ width: size, height: size, objectFit: 'contain' }}
+          onError={() => setImageFailed(true)}
         />
       ) : (
         <svg

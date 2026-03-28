@@ -34,27 +34,7 @@ export type PatternCategory =
   | 'random'
   | 'roofing';
 
-export type PatternType =
-  | 'none'
-  | 'running_bond'
-  | 'stack_bond'
-  | 'flemish_bond'
-  | 'english_bond'
-  | 'herringbone'
-  | 'chevron'
-  | 'basketweave'
-  | 'hexagonal'
-  | 'ashlar'
-  | 'stretcher_bond'
-  | 'soldier_course'
-  | 'crazy_paving'
-  | 'cobblestone'
-  | 'subway'
-  | 'pinwheel'
-  | 'windmill'
-  | 'parquet_straight'
-  | 'parquet_diagonal'
-  | 'versailles';
+export type PatternType = string;
 
 export interface PatternConfig {
   type: PatternType;
