@@ -1,7 +1,6 @@
 'use client';
 
 import type { EdgeStyle } from '@textura/shared';
-import { getMaterialThumbnailUrl } from '../lib/material-assets';
 import { NumberField, RangeField, SectionCard, SelectField } from './field-controls';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
@@ -43,6 +42,8 @@ export function MaterialSettingsSection({
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
 }) {
+  const measurementUnit = 'mm';
+
   return (
     <SectionCard title="Material">
       <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
@@ -54,13 +55,27 @@ export function MaterialSettingsSection({
       </button>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Width" value={width} min={1} unit="mm" onChange={onWidthChange} />
-        <NumberField label="Height" value={height} min={1} unit="mm" onChange={onHeightChange} />
+        <NumberField label="Width" value={width} min={1} max={5000} unit={measurementUnit} onChange={onWidthChange} />
+        <NumberField label="Height" value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
       </div>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Horizontal Joint" value={jointHorizontal} min={0} unit="mm" onChange={onJointHorizontalChange} />
-        <NumberField label="Vertical Joint" value={jointVertical} min={0} unit="mm" onChange={onJointVerticalChange} />
+        <NumberField
+          label="Horizontal Joint"
+          value={jointHorizontal}
+          min={0}
+          max={500}
+          unit={measurementUnit}
+          onChange={onJointHorizontalChange}
+        />
+        <NumberField
+          label="Vertical Joint"
+          value={jointVertical}
+          min={0}
+          max={500}
+          unit={measurementUnit}
+          onChange={onJointVerticalChange}
+        />
       </div>
 
       <SelectField

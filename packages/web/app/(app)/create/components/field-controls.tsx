@@ -1,6 +1,13 @@
 import type { ReactNode } from 'react';
 import styles from './create-editor.module.css';
 
+function clampValue(value: number, min?: number, max?: number) {
+  let next = value;
+  if (typeof min === 'number') next = Math.max(min, next);
+  if (typeof max === 'number') next = Math.min(max, next);
+  return next;
+}
+
 export function SectionCard({
   title,
   action,
@@ -49,7 +56,10 @@ export function NumberField({
           min={min}
           max={max}
           step={step}
-          onChange={(event) => onChange(Number.parseFloat(event.target.value) || 0)}
+          onChange={(event) => {
+            const parsed = Number.parseFloat(event.target.value);
+            onChange(clampValue(Number.isFinite(parsed) ? parsed : 0, min, max));
+          }}
         />
         {unit ? <span className={styles.unitSuffix}>{unit}</span> : null}
       </span>
@@ -82,7 +92,7 @@ export function RangeField({
         min={min}
         max={max}
         step={step}
-        onChange={(event) => onChange(Number.parseFloat(event.target.value))}
+        onChange={(event) => onChange(clampValue(Number.parseFloat(event.target.value), min, max))}
       />
       <span className={styles.hint}>{value}</span>
     </label>

@@ -32,6 +32,7 @@ export function PatternSettingsSection({
 }) {
   const pattern = getPatternByType(patternType);
   if (!pattern) return null;
+  const measurementUnit = units === 'inches' ? 'in' : 'mm';
 
   return (
     <SectionCard title="Pattern">
@@ -44,8 +45,8 @@ export function PatternSettingsSection({
       </button>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Rows" value={rows} min={1} max={100} onChange={onRowsChange} />
-        <NumberField label="Columns" value={columns} min={1} max={100} onChange={onColumnsChange} />
+        <NumberField label="Rows" value={rows} min={1} max={100} step={1} onChange={onRowsChange} />
+        <NumberField label="Columns" value={columns} min={1} max={100} step={1} onChange={onColumnsChange} />
       </div>
 
       <div className={styles.gridTwo}>
@@ -61,7 +62,7 @@ export function PatternSettingsSection({
         />
       </div>
 
-      <div className={styles.hint}>{dimensionsHint}</div>
+      <div className={styles.hint}>{dimensionsHint} {measurementUnit === 'in' ? '(tile sizing shown in inches)' : ''}</div>
     </SectionCard>
   );
 }

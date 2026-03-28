@@ -10,7 +10,13 @@ import { MaterialSettingsSection } from './components/material-settings-section'
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
-import { exportPreviewPng, exportProjectJson } from './lib/project-export';
+import {
+  exportAlbedoPng,
+  exportBumpPlaceholderPng,
+  exportPreviewPng,
+  exportProjectJson,
+  exportRoughnessPlaceholderPng,
+} from './lib/project-export';
 import { formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
 
@@ -41,6 +47,7 @@ export default function CreatePage() {
   const [footerStatus, setFooterStatus] = useState('Local save and export are ready.');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isExportingPng, setIsExportingPng] = useState(false);
+  const [isExportingMaps, setIsExportingMaps] = useState(false);
 
   const material = config.materials[0]!;
 
@@ -108,6 +115,21 @@ export default function CreatePage() {
     }
   };
 
+  const handleExportMaps = async () => {
+    setIsExportingMaps(true);
+
+    try {
+      await exportAlbedoPng(config);
+      exportBumpPlaceholderPng(config);
+      exportRoughnessPlaceholderPng(config);
+      setFooterStatus('Downloaded albedo, bump placeholder, and roughness placeholder PNGs.');
+    } catch {
+      setFooterStatus('Map export failed. Please try again.');
+    } finally {
+      setIsExportingMaps(false);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <BackgroundCanvas />
@@ -142,10 +164,17 @@ export default function CreatePage() {
               </button>
             </div>
             <div className={styles.secondaryRow}>
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={handleExportMaps}
+                disabled={isExportingMaps}
+              >
+                {isExportingMaps ? 'Exporting Maps…' : 'Export Maps'}
+              </button>
               <button className={styles.secondaryButton} type="button" onClick={redo} disabled={!canRedo}>
                 Redo
               </button>
-              <div style={{ flex: 1 }} />
             </div>
             <div className={styles.footerMeta}>
               <p className={styles.statusText}>{footerStatus}</p>

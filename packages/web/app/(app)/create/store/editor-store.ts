@@ -22,6 +22,10 @@ interface HistoryEntry {
 
 const MAX_HISTORY = 50;
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
 // ======= Store Interface =======
 
 export interface EditorState {
@@ -237,9 +241,10 @@ export const useEditorStore = create<EditorState>()(
 
     setToneVariation: (variation) =>
       set((s) => {
+        pushHistory(s, `Tone variation → ${variation}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
-          mat.toneVariation = Math.max(0, Math.min(100, variation));
+          mat.toneVariation = clamp(variation, 0, 100);
         }
         bumpRender(s);
       }),
@@ -275,10 +280,12 @@ export const useEditorStore = create<EditorState>()(
 
     setLinkedDimensions: (linked) =>
       set((s) => {
+        pushHistory(s, `Linked joints → ${linked ? 'on' : 'off'}`);
         s.config.joints.linkedDimensions = linked;
         if (linked) {
           s.config.joints.verticalSize = s.config.joints.horizontalSize;
         }
+        bumpRender(s);
       }),
 
     // ===== Output Actions =====
@@ -293,6 +300,7 @@ export const useEditorStore = create<EditorState>()(
 
     setUnits: (units) =>
       set((s) => {
+        pushHistory(s, `Units → ${units}`);
         s.config.units = units;
         bumpRender(s);
       }),
