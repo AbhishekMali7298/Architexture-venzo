@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { getMaterialById, getMaterialCategory, MATERIAL_LIBRARY } from '@textura/shared';
+import { getMaterialById, getMaterialCategory } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
@@ -9,12 +9,8 @@ import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
+import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
 import { useEditorStore } from './store/editor-store';
-
-function findMaterialIdByColor(color: string): string | null {
-  const match = MATERIAL_LIBRARY.find((material) => material.source.color.toLowerCase() === color.toLowerCase());
-  return match?.id ?? null;
-}
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
@@ -24,7 +20,7 @@ export default function CreatePage() {
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setPatternAngle = useEditorStore((state) => state.setPatternAngle);
-  const setMaterialColor = useEditorStore((state) => state.setMaterialColor);
+  const setMaterialById = useEditorStore((state) => state.setMaterialById);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
@@ -42,19 +38,17 @@ export default function CreatePage() {
 
   const material = config.materials[0]!;
 
-  const selectedMaterialId = useMemo(() => {
-    if (material.source.type !== 'solid') return null;
-    return findMaterialIdByColor(material.source.color);
-  }, [material.source]);
-
   const selectedMaterial = useMemo(() => {
-    if (!selectedMaterialId) return null;
-    return getMaterialById(selectedMaterialId) ?? null;
-  }, [selectedMaterialId]);
+    if (!material.definitionId) return null;
+    return getMaterialById(material.definitionId) ?? null;
+  }, [material.definitionId]);
 
   const materialCategory = selectedMaterial
     ? getMaterialCategory(selectedMaterial.categoryId)?.displayName ?? selectedMaterial.categoryId
     : 'Custom material';
+
+  const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
+  const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
 
   const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${config.units}`;
 
@@ -99,7 +93,8 @@ export default function CreatePage() {
         <MaterialSettingsSection
           materialName={selectedMaterial?.name ?? 'Custom material'}
           materialCategory={materialCategory}
-          materialColor={material.source.type === 'solid' ? material.source.color : '#c8c8c8'}
+          materialColor={materialColor}
+          materialThumbnailUrl={materialThumbnailUrl}
           width={material.width}
           height={material.height}
           toneVariation={material.toneVariation}
@@ -126,13 +121,10 @@ export default function CreatePage() {
 
       {showMaterialModal ? (
         <MaterialPickerModal
-          currentMaterialId={selectedMaterialId}
+          currentMaterialId={material.definitionId}
           onClose={() => setShowMaterialModal(false)}
           onSelect={(nextMaterial) => {
-            setMaterialColor(nextMaterial.source.color);
-            setMaterialWidth(nextMaterial.defaults.width);
-            setMaterialHeight(nextMaterial.defaults.height);
-            setToneVariation(nextMaterial.metadata?.toneVariation ?? material.toneVariation);
+            setMaterialById(nextMaterial.id);
           }}
         />
       ) : null}

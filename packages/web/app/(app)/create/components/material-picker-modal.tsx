@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { MATERIAL_CATEGORIES, MATERIAL_LIBRARY, type MaterialDefinition } from '@textura/shared';
+import { getMaterialThumbnailUrl } from '../lib/material-assets';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
@@ -67,7 +68,7 @@ export function MaterialPickerModal({
                         onClose();
                       }}
                     >
-                      <MaterialThumb color={material.thumbnail.color} />
+                      <MaterialThumb color={material.swatchColor} src={getMaterialThumbnailUrl(material)} alt={material.name} />
                       <div>
                         <div className={styles.optionName}>{material.name}</div>
                         <div className={styles.optionMeta}>

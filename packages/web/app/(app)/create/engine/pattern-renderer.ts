@@ -1,5 +1,6 @@
-import type { TextureConfig } from '@textura/shared';
+import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
+import { getMaterialRenderableColor } from '../lib/material-assets';
 
 export interface RenderedJoint {
   x1: number;
@@ -52,7 +53,8 @@ export function renderToCanvas(
 
   for (const tile of layout.tiles) {
     const material = config.materials[tile.materialIndex] ?? config.materials[0]!;
-    const baseColor = material.source.type === 'solid' ? material.source.color : '#b0a090';
+    const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
+    const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b0a090');
     const variation = material.toneVariation;
     const tileColor = adjustBrightness(baseColor, (rng() - 0.5) * variation * 0.4);
 

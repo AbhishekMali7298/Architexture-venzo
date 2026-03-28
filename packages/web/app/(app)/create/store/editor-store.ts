@@ -8,7 +8,9 @@ import type {
   PatternType,
   PatternCategory,
   EdgeStyle,
+  MaterialDefinition,
 } from '@textura/shared';
+import { getMaterialById } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 // ======= History (Undo/Redo) =======
@@ -51,6 +53,8 @@ export interface EditorState {
 
   // Material
   setMaterialColor: (color: string) => void;
+  setMaterialById: (materialId: string) => void;
+  setMaterialDefinition: (material: MaterialDefinition) => void;
   setMaterialTint: (tint: string | null) => void;
   setMaterialWidth: (width: number) => void;
   setMaterialHeight: (height: number) => void;
@@ -151,7 +155,40 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Color → ${color}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
+          mat.definitionId = null;
           mat.source = { type: 'solid', color };
+        }
+        bumpRender(s);
+      }),
+
+    setMaterialById: (materialId) =>
+      set((s) => {
+        const definition = getMaterialById(materialId);
+        if (!definition) return;
+        pushHistory(s, `Material → ${definition.name}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (!mat) return;
+        mat.definitionId = definition.id;
+        mat.source = definition.source;
+        mat.width = definition.defaults.width;
+        mat.height = definition.defaults.height;
+        if (definition.metadata?.toneVariation !== undefined) {
+          mat.toneVariation = definition.metadata.toneVariation;
+        }
+        bumpRender(s);
+      }),
+
+    setMaterialDefinition: (definition) =>
+      set((s) => {
+        pushHistory(s, `Material → ${definition.name}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (!mat) return;
+        mat.definitionId = definition.id;
+        mat.source = definition.source;
+        mat.width = definition.defaults.width;
+        mat.height = definition.defaults.height;
+        if (definition.metadata?.toneVariation !== undefined) {
+          mat.toneVariation = definition.metadata.toneVariation;
         }
         bumpRender(s);
       }),

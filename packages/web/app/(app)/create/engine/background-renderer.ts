@@ -1,5 +1,6 @@
-import type { TextureConfig } from '@textura/shared';
+import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout } from './pattern-layouts';
+import { getMaterialRenderableColor } from '../lib/material-assets';
 
 function seededRng(seed: number) {
   let s = seed >>> 0;
@@ -102,7 +103,8 @@ export function renderBackground(
 ): void {
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
-  const baseColor = material.source.type === 'solid' ? material.source.color : '#b8b0a8';
+  const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
+  const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
   const baseRgb = hexToRgb(baseColor);
   const jointColor = config.joints.tint ?? '#d4cfc6';
   const edgeStyle = material.edges.style;

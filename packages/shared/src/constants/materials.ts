@@ -1,16 +1,19 @@
+import type { MaterialAssetRef, MaterialSource } from '../types/config';
+
+export type MaterialDefinitionSourceType = 'solid' | 'image' | 'upload' | 'generated';
+export type MaterialMapType = 'thumbnail' | 'albedo' | 'bump' | 'normal' | 'roughness';
+
 export interface MaterialDefinition {
   id: string;
   name: string;
   categoryId: string;
+  sourceType: MaterialDefinitionSourceType;
   swatchColor: string;
-  thumbnail: {
-    kind: 'swatch';
-    color: string;
-  };
-  source: {
-    kind: 'solid';
-    color: string;
-  };
+  thumbnail: MaterialAssetRef | null;
+  albedo: MaterialAssetRef | null;
+  bump: MaterialAssetRef | null;
+  normal: MaterialAssetRef | null;
+  roughness: MaterialAssetRef | null;
   defaults: {
     width: number;
     height: number;
@@ -18,12 +21,10 @@ export interface MaterialDefinition {
   metadata?: {
     finish?: string;
     toneVariation?: number;
+    featured?: boolean;
   };
+  source: MaterialSource;
 }
-
-/**
- * Material category definitions used by the Create editor.
- */
 
 export interface MaterialCategory {
   id: string;
@@ -32,6 +33,63 @@ export interface MaterialCategory {
   description: string;
 }
 
+function jpgAsset(path: string, size?: number): MaterialAssetRef {
+  return {
+    path,
+    mimeType: 'image/jpeg',
+    ...(size ? { width: size, height: size } : {}),
+  };
+}
+
+function imageMaterial(options: {
+  id: string;
+  name: string;
+  categoryId: string;
+  swatchColor: string;
+  thumbPath: string;
+  width: number;
+  height: number;
+  finish?: string;
+  toneVariation?: number;
+  featured?: boolean;
+}): MaterialDefinition {
+  const thumbnail = jpgAsset(options.thumbPath);
+  const metadata =
+    options.finish !== undefined || options.toneVariation !== undefined || options.featured !== undefined
+      ? {
+          ...(options.finish !== undefined ? { finish: options.finish } : {}),
+          ...(options.toneVariation !== undefined ? { toneVariation: options.toneVariation } : {}),
+          ...(options.featured !== undefined ? { featured: options.featured } : {}),
+        }
+      : null;
+
+  return {
+    id: options.id,
+    name: options.name,
+    categoryId: options.categoryId,
+    sourceType: 'image',
+    swatchColor: options.swatchColor,
+    thumbnail,
+    albedo: thumbnail,
+    bump: null,
+    normal: null,
+    roughness: null,
+    defaults: {
+      width: options.width,
+      height: options.height,
+    },
+    ...(metadata ? { metadata } : {}),
+    source: {
+      type: 'image',
+      asset: thumbnail,
+      fallbackColor: options.swatchColor,
+    },
+  };
+}
+
+/**
+ * Material category definitions used by the Create editor.
+ */
 export const MATERIAL_CATEGORIES: MaterialCategory[] = [
   { id: 'stone', displayName: 'Stone', icon: '🪨', description: 'Natural and cut stone materials' },
   { id: 'brick', displayName: 'Brick', icon: '🧱', description: 'Clay and concrete bricks' },
@@ -58,146 +116,162 @@ export const MATERIAL_CATEGORIES: MaterialCategory[] = [
 export const SPECIAL_SOURCES = {
   SOLID_FILL: 'solid',
   UPLOAD: 'upload',
+  GENERATED: 'generated',
 } as const;
 
 export const MATERIAL_LIBRARY: MaterialDefinition[] = [
-  {
+  imageMaterial({
     id: 'granite',
     name: 'Granite',
     categoryId: 'stone',
-    swatchColor: '#a0a0a0',
-    thumbnail: { kind: 'swatch', color: '#a0a0a0' },
-    source: { kind: 'solid', color: '#a0a0a0' },
-    defaults: { width: 300, height: 300 },
-    metadata: { finish: 'split-face', toneVariation: 42 },
-  },
-  {
+    swatchColor: '#d8d9d4',
+    thumbPath: 'materials/1/thumb_200.jpg',
+    width: 300,
+    height: 300,
+    finish: 'split-face',
+    toneVariation: 42,
+    featured: true,
+  }),
+  imageMaterial({
     id: 'limestone',
     name: 'Limestone',
     categoryId: 'stone',
-    swatchColor: '#c8c0b0',
-    thumbnail: { kind: 'swatch', color: '#c8c0b0' },
-    source: { kind: 'solid', color: '#c8c0b0' },
-    defaults: { width: 400, height: 200 },
-    metadata: { finish: 'honed', toneVariation: 24 },
-  },
-  {
+    swatchColor: '#d4cab9',
+    thumbPath: 'materials/33/thumb_200.jpg',
+    width: 400,
+    height: 200,
+    finish: 'honed',
+    toneVariation: 24,
+    featured: true,
+  }),
+  imageMaterial({
     id: 'travertine',
     name: 'Travertine',
     categoryId: 'stone',
-    swatchColor: '#d4c8a0',
-    thumbnail: { kind: 'swatch', color: '#d4c8a0' },
-    source: { kind: 'solid', color: '#d4c8a0' },
-    defaults: { width: 400, height: 200 },
-    metadata: { finish: 'filled', toneVariation: 28 },
-  },
-  {
+    swatchColor: '#ddd4c1',
+    thumbPath: 'materials/15/thumb_200.jpg',
+    width: 400,
+    height: 200,
+    finish: 'filled',
+    toneVariation: 28,
+    featured: true,
+  }),
+  imageMaterial({
+    id: 'white_marble',
+    name: 'White Marble',
+    categoryId: 'stone',
+    swatchColor: '#e9e9ea',
+    thumbPath: 'materials/82/thumb_200.jpg',
+    width: 400,
+    height: 400,
+    finish: 'polished',
+    toneVariation: 12,
+    featured: true,
+  }),
+  imageMaterial({
+    id: 'flagstone',
+    name: 'Flagstone',
+    categoryId: 'stone',
+    swatchColor: '#6f7971',
+    thumbPath: 'materials/97/thumb_200.jpg',
+    width: 450,
+    height: 450,
+    finish: 'cleft',
+    toneVariation: 18,
+    featured: true,
+  }),
+  imageMaterial({
+    id: 'reconstituted_stone',
+    name: 'Reconstituted Stone',
+    categoryId: 'stone',
+    swatchColor: '#d7d3c8',
+    thumbPath: 'materials/92/thumb_200.jpg',
+    width: 400,
+    height: 200,
+    finish: 'cast',
+    toneVariation: 16,
+  }),
+  imageMaterial({
     id: 'slate',
     name: 'Slate',
     categoryId: 'stone',
-    swatchColor: '#606870',
-    thumbnail: { kind: 'swatch', color: '#606870' },
-    source: { kind: 'solid', color: '#606870' },
-    defaults: { width: 300, height: 300 },
-    metadata: { finish: 'cleft', toneVariation: 36 },
-  },
-  {
-    id: 'red_brick',
-    name: 'Red Brick',
-    categoryId: 'brick',
-    swatchColor: '#b06048',
-    thumbnail: { kind: 'swatch', color: '#b06048' },
-    source: { kind: 'solid', color: '#b06048' },
-    defaults: { width: 215, height: 65 },
-    metadata: { finish: 'wirecut', toneVariation: 34 },
-  },
-  {
-    id: 'yellow_brick',
-    name: 'Yellow Brick',
-    categoryId: 'brick',
-    swatchColor: '#d4b870',
-    thumbnail: { kind: 'swatch', color: '#d4b870' },
-    source: { kind: 'solid', color: '#d4b870' },
-    defaults: { width: 215, height: 65 },
-    metadata: { finish: 'stock', toneVariation: 31 },
-  },
-  {
-    id: 'concrete_block',
-    name: 'Concrete Block',
-    categoryId: 'concrete',
-    swatchColor: '#909090',
-    thumbnail: { kind: 'swatch', color: '#909090' },
-    source: { kind: 'solid', color: '#909090' },
-    defaults: { width: 400, height: 200 },
-    metadata: { finish: 'ground-face', toneVariation: 18 },
-  },
-  {
-    id: 'oak',
-    name: 'Oak',
-    categoryId: 'wood',
-    swatchColor: '#c09060',
-    thumbnail: { kind: 'swatch', color: '#c09060' },
-    source: { kind: 'solid', color: '#c09060' },
-    defaults: { width: 600, height: 70 },
-    metadata: { finish: 'oiled', toneVariation: 30 },
-  },
-  {
-    id: 'walnut',
-    name: 'Walnut',
-    categoryId: 'wood',
-    swatchColor: '#704830',
-    thumbnail: { kind: 'swatch', color: '#704830' },
-    source: { kind: 'solid', color: '#704830' },
-    defaults: { width: 600, height: 70 },
-    metadata: { finish: 'satin', toneVariation: 26 },
-  },
-  {
-    id: 'pine',
-    name: 'Pine',
-    categoryId: 'wood',
-    swatchColor: '#d4b070',
-    thumbnail: { kind: 'swatch', color: '#d4b070' },
-    source: { kind: 'solid', color: '#d4b070' },
-    defaults: { width: 600, height: 95 },
-    metadata: { finish: 'brushed', toneVariation: 22 },
-  },
-  {
-    id: 'white_ceramic',
-    name: 'White Ceramic',
-    categoryId: 'tile',
-    swatchColor: '#f0f0f0',
-    thumbnail: { kind: 'swatch', color: '#f0f0f0' },
-    source: { kind: 'solid', color: '#f0f0f0' },
-    defaults: { width: 200, height: 100 },
-    metadata: { finish: 'gloss', toneVariation: 8 },
-  },
-  {
+    swatchColor: '#5d6770',
+    thumbPath: 'materials/101/thumb_200.jpg',
+    width: 300,
+    height: 300,
+    finish: 'cleft',
+    toneVariation: 30,
+  }),
+  imageMaterial({
+    id: 'blonde_sandstone',
+    name: 'Blonde Sandstone',
+    categoryId: 'stone',
+    swatchColor: '#d4b89f',
+    thumbPath: 'materials/90/thumb_200.jpg',
+    width: 450,
+    height: 300,
+    finish: 'sawn',
+    toneVariation: 18,
+  }),
+  imageMaterial({
+    id: 'basalt',
+    name: 'Basalt',
+    categoryId: 'stone',
+    swatchColor: '#4b4b4c',
+    thumbPath: 'materials/98/thumb_200.jpg',
+    width: 300,
+    height: 300,
+    finish: 'flamed',
+    toneVariation: 14,
+  }),
+  imageMaterial({
+    id: 'green_marble',
+    name: 'Green Marble',
+    categoryId: 'stone',
+    swatchColor: '#495652',
+    thumbPath: 'materials/40/thumb_200.jpg',
+    width: 400,
+    height: 400,
+    finish: 'polished',
+    toneVariation: 22,
+  }),
+  imageMaterial({
+    id: 'orange_onyx',
+    name: 'Orange Onyx',
+    categoryId: 'stone',
+    swatchColor: '#d39c72',
+    thumbPath: 'materials/93/thumb_200.jpg',
+    width: 400,
+    height: 400,
+    finish: 'polished',
+    toneVariation: 26,
+  }),
+  imageMaterial({
+    id: 'pink_granite',
+    name: 'Pink Granite',
+    categoryId: 'stone',
+    swatchColor: '#b68265',
+    thumbPath: 'materials/2/thumb_200.jpg',
+    width: 300,
+    height: 300,
+    finish: 'flamed',
+    toneVariation: 20,
+  }),
+  imageMaterial({
     id: 'terracotta',
     name: 'Terracotta',
     categoryId: 'tile',
-    swatchColor: '#c87848',
-    thumbnail: { kind: 'swatch', color: '#c87848' },
-    source: { kind: 'solid', color: '#c87848' },
-    defaults: { width: 200, height: 200 },
-    metadata: { finish: 'matte', toneVariation: 20 },
-  },
-  {
-    id: 'cement_tile',
-    name: 'Cement Tile',
-    categoryId: 'tile',
-    swatchColor: '#b0b0b0',
-    thumbnail: { kind: 'swatch', color: '#b0b0b0' },
-    source: { kind: 'solid', color: '#b0b0b0' },
-    defaults: { width: 200, height: 200 },
-    metadata: { finish: 'matt-sealed', toneVariation: 16 },
-  },
+    swatchColor: '#a75d45',
+    thumbPath: 'materials/48/thumb_200.jpg',
+    width: 200,
+    height: 200,
+    finish: 'matte',
+    toneVariation: 20,
+  }),
 ];
 
-/**
- * Get a material category by its ID.
- */
 export function getMaterialCategory(id: string): MaterialCategory | undefined {
-  return MATERIAL_CATEGORIES.find((c) => c.id === id);
+  return MATERIAL_CATEGORIES.find((category) => category.id === id);
 }
 
 export function getMaterialsByCategory(categoryId: string): MaterialDefinition[] {

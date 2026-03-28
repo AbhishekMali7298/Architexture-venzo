@@ -14,10 +14,28 @@ export const imageAdjustmentsWithOpacitySchema = imageAdjustmentsSchema.extend({
   opacity: z.number().min(0).max(100),
 });
 
+export const materialAssetRefSchema = z.object({
+  path: z.string().min(1),
+  mimeType: z.string().min(1),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+});
+
 export const materialSourceSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('library'), assetId: z.string().min(1) }),
   z.object({ type: z.literal('upload'), uploadId: z.string().min(1) }),
   z.object({ type: z.literal('solid'), color: z.string().regex(/^#[0-9a-fA-F]{6}$/) }),
+  z.object({
+    type: z.literal('image'),
+    asset: materialAssetRefSchema,
+    fallbackColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  }),
+  z.object({
+    type: z.literal('generated'),
+    recipe: z.string().min(1),
+    asset: materialAssetRefSchema.nullable(),
+    fallbackColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  }),
 ]);
 
 // ======= PBR =======
@@ -98,6 +116,7 @@ export const patternConfigSchema = z.object({
 
 export const materialConfigSchema = z.object({
   id: z.string().min(1),
+  definitionId: z.string().min(1).nullable(),
   source: materialSourceSchema,
   uploadWidth: z.number().positive().nullable(),
   width: z.number().positive(),

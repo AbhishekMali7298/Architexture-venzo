@@ -67,10 +67,19 @@ export interface PatternConfig {
 
 // ======= Material =======
 
+export interface MaterialAssetRef {
+  path: string;
+  mimeType: string;
+  width?: number;
+  height?: number;
+}
+
 export type MaterialSource =
   | { type: 'library'; assetId: string }
   | { type: 'upload'; uploadId: string }
-  | { type: 'solid'; color: string };
+  | { type: 'solid'; color: string }
+  | { type: 'image'; asset: MaterialAssetRef; fallbackColor: string }
+  | { type: 'generated'; recipe: string; asset: MaterialAssetRef | null; fallbackColor: string };
 
 export type SurfaceType = 'none' | 'vermiculated' | 'rough' | 'grooved' | 'voids';
 
@@ -80,6 +89,7 @@ export type PlacementMode = 'random' | 'defined' | 'manual';
 
 export interface MaterialConfig {
   id: string;
+  definitionId: string | null;
   source: MaterialSource;
   uploadWidth: number | null;
   width: number;

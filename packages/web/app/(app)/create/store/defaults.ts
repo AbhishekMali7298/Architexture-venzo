@@ -21,10 +21,15 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   materials: [
     {
       id: 'mat_1',
-      source: { type: 'solid', color: '#c8c8c8' },
+      definitionId: 'granite',
+      source: {
+        type: 'image',
+        asset: { path: 'materials/1/thumb_200.jpg', mimeType: 'image/jpeg', width: 200, height: 200 },
+        fallbackColor: '#d8d9d4',
+      },
       uploadWidth: null,
-      width: 200,
-      height: 100,
+      width: 300,
+      height: 300,
       minWidth: 10,
       minHeight: 10,
 
@@ -52,7 +57,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
 
       profile: null,
       finish: null,
-      toneVariation: 40,
+      toneVariation: 42,
       randomiseFillAngle: false,
 
       placement: {

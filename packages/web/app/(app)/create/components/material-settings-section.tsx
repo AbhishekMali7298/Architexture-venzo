@@ -1,6 +1,7 @@
 'use client';
 
 import type { EdgeStyle } from '@textura/shared';
+import { getMaterialThumbnailUrl } from '../lib/material-assets';
 import { NumberField, RangeField, SectionCard, SelectField } from './field-controls';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
@@ -9,6 +10,7 @@ export function MaterialSettingsSection({
   materialName,
   materialCategory,
   materialColor,
+  materialThumbnailUrl,
   width,
   height,
   toneVariation,
@@ -26,6 +28,7 @@ export function MaterialSettingsSection({
   materialName: string;
   materialCategory: string;
   materialColor: string;
+  materialThumbnailUrl?: string | null;
   width: number;
   height: number;
   toneVariation: number;
@@ -47,7 +50,7 @@ export function MaterialSettingsSection({
           <span className={styles.selectionLabel}>{materialName}</span>
           <span className={styles.selectionMeta}>{materialCategory}</span>
         </span>
-        <MaterialThumb color={materialColor} size={64} />
+        <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={64} />
       </button>
 
       <div className={styles.gridTwo}>

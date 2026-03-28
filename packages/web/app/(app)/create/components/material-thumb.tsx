@@ -8,18 +8,32 @@ function lighten(hex: string, amount: number): string {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
 }
 
-export function MaterialThumb({ color, size = 76 }: { color: string; size?: number }) {
+export function MaterialThumb({ color, src, alt, size = 76 }: { color: string; src?: string | null; alt?: string; size?: number }) {
   return (
     <div className={styles.thumbFrame}>
-      <div
-        style={{
-          width: size - 10,
-          height: size - 10,
-          borderRadius: '50%',
-          border: '1px solid rgba(15, 23, 42, 0.08)',
-          background: `radial-gradient(circle at 30% 30%, ${lighten(color, 22)}, transparent 58%), radial-gradient(circle at 70% 70%, ${lighten(color, -18)}, transparent 42%), ${color}`,
-        }}
-      />
+      {src ? (
+        <img
+          src={src}
+          alt={alt ?? 'Material thumbnail'}
+          style={{
+            width: size - 10,
+            height: size - 10,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: size - 10,
+            height: size - 10,
+            borderRadius: '50%',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            background: `radial-gradient(circle at 30% 30%, ${lighten(color, 22)}, transparent 58%), radial-gradient(circle at 70% 70%, ${lighten(color, -18)}, transparent 42%), ${color}`,
+          }}
+        />
+      )}
     </div>
   );
 }
