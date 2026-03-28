@@ -213,8 +213,8 @@ export function drawDottedBorder(
 ) {
   ctx.save();
   ctx.setLineDash([8, 6]);
-  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+  ctx.lineWidth = 2;
   ctx.strokeRect(x, y, width, height);
   ctx.restore();
 }
