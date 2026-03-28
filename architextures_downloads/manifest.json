@@ -1,0 +1,2718 @@
+[
+  {
+    "url": "https://architextures.org/dist/js/architextures.min.js?v=d4099203",
+    "category": "other",
+    "saved_to": "other/dist/js/architextures.min.js",
+    "bytes": 171725,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/favicon/ios/144.png",
+    "category": "other",
+    "saved_to": "other/favicon/ios/144.png",
+    "bytes": 4190,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/adjustments.svg",
+    "category": "icons",
+    "saved_to": "icons/adjustments.svg",
+    "bytes": 916,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/arrow-left.svg",
+    "category": "icons",
+    "saved_to": "icons/arrow-left.svg",
+    "bytes": 532,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/bookmark.svg",
+    "category": "icons",
+    "saved_to": "icons/bookmark.svg",
+    "bytes": 461,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/bump2.svg",
+    "category": "icons",
+    "saved_to": "icons/bump2.svg",
+    "bytes": 926,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/chain.svg",
+    "category": "icons",
+    "saved_to": "icons/chain.svg",
+    "bytes": 781,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/code.svg",
+    "category": "icons",
+    "saved_to": "icons/code.svg",
+    "bytes": 577,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/cursor.svg",
+    "category": "icons",
+    "saved_to": "icons/cursor.svg",
+    "bytes": 441,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/displacement.svg",
+    "category": "icons",
+    "saved_to": "icons/displacement.svg",
+    "bytes": 994,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/down.svg",
+    "category": "icons",
+    "saved_to": "icons/down.svg",
+    "bytes": 0,
+    "status": "error: The read operation timed out"
+  },
+  {
+    "url": "https://architextures.org/icon/download.svg",
+    "category": "icons",
+    "saved_to": "icons/download.svg",
+    "bytes": 366,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/edges.svg",
+    "category": "icons",
+    "saved_to": "icons/edges.svg",
+    "bytes": 889,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/eyedropper.svg",
+    "category": "icons",
+    "saved_to": "icons/eyedropper.svg",
+    "bytes": 729,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/finish.svg",
+    "category": "icons",
+    "saved_to": "icons/finish.svg",
+    "bytes": 953,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/kebab.svg",
+    "category": "icons",
+    "saved_to": "icons/kebab.svg",
+    "bytes": 310,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/link.svg",
+    "category": "icons",
+    "saved_to": "icons/link.svg",
+    "bytes": 547,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/locked.svg",
+    "category": "icons",
+    "saved_to": "icons/locked.svg",
+    "bytes": 853,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/megaphone.svg",
+    "category": "icons",
+    "saved_to": "icons/megaphone.svg",
+    "bytes": 1791,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/metalness.svg",
+    "category": "icons",
+    "saved_to": "icons/metalness.svg",
+    "bytes": 742,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/paint.svg",
+    "category": "icons",
+    "saved_to": "icons/paint.svg",
+    "bytes": 1035,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/plane.svg",
+    "category": "icons",
+    "saved_to": "icons/plane.svg",
+    "bytes": 347,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/plus.svg",
+    "category": "icons",
+    "saved_to": "icons/plus.svg",
+    "bytes": 565,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/profile.svg",
+    "category": "icons",
+    "saved_to": "icons/profile.svg",
+    "bytes": 881,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/question.svg",
+    "category": "icons",
+    "saved_to": "icons/question.svg",
+    "bytes": 1046,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/retile.svg",
+    "category": "icons",
+    "saved_to": "icons/retile.svg",
+    "bytes": 439,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/rotate.svg",
+    "category": "icons",
+    "saved_to": "icons/rotate.svg",
+    "bytes": 573,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/roughness.svg",
+    "category": "icons",
+    "saved_to": "icons/roughness.svg",
+    "bytes": 414,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/rules.svg",
+    "category": "icons",
+    "saved_to": "icons/rules.svg",
+    "bytes": 1675,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/search.svg",
+    "category": "icons",
+    "saved_to": "icons/search.svg",
+    "bytes": 483,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/settings-b.svg",
+    "category": "icons",
+    "saved_to": "icons/settings-b.svg",
+    "bytes": 1416,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/sphere.svg",
+    "category": "icons",
+    "saved_to": "icons/sphere.svg",
+    "bytes": 434,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/tick.svg",
+    "category": "icons",
+    "saved_to": "icons/tick.svg",
+    "bytes": 389,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/unlocked.svg",
+    "category": "icons",
+    "saved_to": "icons/unlocked.svg",
+    "bytes": 865,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/upload.svg",
+    "category": "icons",
+    "saved_to": "icons/upload.svg",
+    "bytes": 629,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/warning.svg",
+    "category": "icons",
+    "saved_to": "icons/warning.svg",
+    "bytes": 652,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/waving.svg",
+    "category": "icons",
+    "saved_to": "icons/waving.svg",
+    "bytes": 18635,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/icon/x.svg",
+    "category": "icons",
+    "saved_to": "icons/x.svg",
+    "bytes": 417,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/img/artx-logo.svg",
+    "category": "images",
+    "saved_to": "images/artx-logo.svg",
+    "bytes": 1149,
+    "status": "ok"
+  },
+  {
+    "url": "https://architextures.org/img/concrete2.svg",
+    "category": "images",
+    "saved_to": "images/concrete2.svg",
+    "bytes": 7308,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/js/es-module-shims/es-module-shims-2.js",
+    "category": "other",
+    "saved_to": "other/js/es-module-shims/es-module-shims-2.js",
+    "bytes": 48014,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/030c99e5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/030c99e5.svg",
+    "bytes": 1240,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/09d4b790.svg",
+    "category": "patterns",
+    "saved_to": "patterns/09d4b790.svg",
+    "bytes": 1722,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/09fcab03.svg",
+    "category": "patterns",
+    "saved_to": "patterns/09fcab03.svg",
+    "bytes": 738,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/0bcf2061.svg",
+    "category": "patterns",
+    "saved_to": "patterns/0bcf2061.svg",
+    "bytes": 1944,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/0bd9b0f7.svg",
+    "category": "patterns",
+    "saved_to": "patterns/0bd9b0f7.svg",
+    "bytes": 28301,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/0debddc5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/0debddc5.svg",
+    "bytes": 4523,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/11a49dc0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/11a49dc0.svg",
+    "bytes": 445,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/12c05e77.svg",
+    "category": "patterns",
+    "saved_to": "patterns/12c05e77.svg",
+    "bytes": 1092,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1411ac67.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1411ac67.svg",
+    "bytes": 666,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/150aded0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/150aded0.svg",
+    "bytes": 554,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/15435f86.svg",
+    "category": "patterns",
+    "saved_to": "patterns/15435f86.svg",
+    "bytes": 5631,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/157.svg",
+    "category": "patterns",
+    "saved_to": "patterns/157.svg",
+    "bytes": 33958,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/159.svg",
+    "category": "patterns",
+    "saved_to": "patterns/159.svg",
+    "bytes": 14277,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/15bec614.svg",
+    "category": "patterns",
+    "saved_to": "patterns/15bec614.svg",
+    "bytes": 604,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/160.svg",
+    "category": "patterns",
+    "saved_to": "patterns/160.svg",
+    "bytes": 147716,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/161.svg",
+    "category": "patterns",
+    "saved_to": "patterns/161.svg",
+    "bytes": 9544,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/179e2372.svg",
+    "category": "patterns",
+    "saved_to": "patterns/179e2372.svg",
+    "bytes": 729,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1b437a3f.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1b437a3f.svg",
+    "bytes": 2391,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1d5305e7.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1d5305e7.svg",
+    "bytes": 448,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1ea4157e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1ea4157e.svg",
+    "bytes": 2467,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1ed0852a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1ed0852a.svg",
+    "bytes": 4029,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/1fa27e77.svg",
+    "category": "patterns",
+    "saved_to": "patterns/1fa27e77.svg",
+    "bytes": 808,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/226.svg",
+    "category": "patterns",
+    "saved_to": "patterns/226.svg",
+    "bytes": 3946,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/2263a532.svg",
+    "category": "patterns",
+    "saved_to": "patterns/2263a532.svg",
+    "bytes": 15941,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/231.svg",
+    "category": "patterns",
+    "saved_to": "patterns/231.svg",
+    "bytes": 4915,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/232.svg",
+    "category": "patterns",
+    "saved_to": "patterns/232.svg",
+    "bytes": 871,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/233.svg",
+    "category": "patterns",
+    "saved_to": "patterns/233.svg",
+    "bytes": 506,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/234.svg",
+    "category": "patterns",
+    "saved_to": "patterns/234.svg",
+    "bytes": 2003,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/243.svg",
+    "category": "patterns",
+    "saved_to": "patterns/243.svg",
+    "bytes": 437,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/244b2c70.svg",
+    "category": "patterns",
+    "saved_to": "patterns/244b2c70.svg",
+    "bytes": 11158,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/249.svg",
+    "category": "patterns",
+    "saved_to": "patterns/249.svg",
+    "bytes": 10593,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/251.svg",
+    "category": "patterns",
+    "saved_to": "patterns/251.svg",
+    "bytes": 2048,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/25993d19.svg",
+    "category": "patterns",
+    "saved_to": "patterns/25993d19.svg",
+    "bytes": 408,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/260e50f2.svg",
+    "category": "patterns",
+    "saved_to": "patterns/260e50f2.svg",
+    "bytes": 12674,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/263.svg",
+    "category": "patterns",
+    "saved_to": "patterns/263.svg",
+    "bytes": 22984,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/266.svg",
+    "category": "patterns",
+    "saved_to": "patterns/266.svg",
+    "bytes": 21976,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/27122721.svg",
+    "category": "patterns",
+    "saved_to": "patterns/27122721.svg",
+    "bytes": 264,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/276.svg",
+    "category": "patterns",
+    "saved_to": "patterns/276.svg",
+    "bytes": 11255,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/277.svg",
+    "category": "patterns",
+    "saved_to": "patterns/277.svg",
+    "bytes": 1220,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/278.svg",
+    "category": "patterns",
+    "saved_to": "patterns/278.svg",
+    "bytes": 908,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/279.svg",
+    "category": "patterns",
+    "saved_to": "patterns/279.svg",
+    "bytes": 8845,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/280.svg",
+    "category": "patterns",
+    "saved_to": "patterns/280.svg",
+    "bytes": 1403,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/281.svg",
+    "category": "patterns",
+    "saved_to": "patterns/281.svg",
+    "bytes": 845,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/282.svg",
+    "category": "patterns",
+    "saved_to": "patterns/282.svg",
+    "bytes": 1395,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/283.svg",
+    "category": "patterns",
+    "saved_to": "patterns/283.svg",
+    "bytes": 1134,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/284.svg",
+    "category": "patterns",
+    "saved_to": "patterns/284.svg",
+    "bytes": 32015,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/286.svg",
+    "category": "patterns",
+    "saved_to": "patterns/286.svg",
+    "bytes": 2734,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/289.svg",
+    "category": "patterns",
+    "saved_to": "patterns/289.svg",
+    "bytes": 588,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/290.svg",
+    "category": "patterns",
+    "saved_to": "patterns/290.svg",
+    "bytes": 2332,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/291.svg",
+    "category": "patterns",
+    "saved_to": "patterns/291.svg",
+    "bytes": 1948,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/291f1ba5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/291f1ba5.svg",
+    "bytes": 4211,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/293.svg",
+    "category": "patterns",
+    "saved_to": "patterns/293.svg",
+    "bytes": 9744,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/294.svg",
+    "category": "patterns",
+    "saved_to": "patterns/294.svg",
+    "bytes": 1492,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/295.svg",
+    "category": "patterns",
+    "saved_to": "patterns/295.svg",
+    "bytes": 1595,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/29b7e0de.svg",
+    "category": "patterns",
+    "saved_to": "patterns/29b7e0de.svg",
+    "bytes": 8848,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/2bc445de.svg",
+    "category": "patterns",
+    "saved_to": "patterns/2bc445de.svg",
+    "bytes": 928,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/2e533750.svg",
+    "category": "patterns",
+    "saved_to": "patterns/2e533750.svg",
+    "bytes": 7876,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/2f00a69d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/2f00a69d.svg",
+    "bytes": 661,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/2fc59076.svg",
+    "category": "patterns",
+    "saved_to": "patterns/2fc59076.svg",
+    "bytes": 512,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/303.svg",
+    "category": "patterns",
+    "saved_to": "patterns/303.svg",
+    "bytes": 264010,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/304.svg",
+    "category": "patterns",
+    "saved_to": "patterns/304.svg",
+    "bytes": 206448,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/306.svg",
+    "category": "patterns",
+    "saved_to": "patterns/306.svg",
+    "bytes": 249413,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/307.svg",
+    "category": "patterns",
+    "saved_to": "patterns/307.svg",
+    "bytes": 739,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/309dfef9.svg",
+    "category": "patterns",
+    "saved_to": "patterns/309dfef9.svg",
+    "bytes": 654,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/310.svg",
+    "category": "patterns",
+    "saved_to": "patterns/310.svg",
+    "bytes": 586,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/311.svg",
+    "category": "patterns",
+    "saved_to": "patterns/311.svg",
+    "bytes": 0,
+    "status": "error: HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/312.svg",
+    "category": "patterns",
+    "saved_to": "patterns/312.svg",
+    "bytes": 1409,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/314.svg",
+    "category": "patterns",
+    "saved_to": "patterns/314.svg",
+    "bytes": 1117,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/315.svg",
+    "category": "patterns",
+    "saved_to": "patterns/315.svg",
+    "bytes": 782,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/317.svg",
+    "category": "patterns",
+    "saved_to": "patterns/317.svg",
+    "bytes": 379,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/318.svg",
+    "category": "patterns",
+    "saved_to": "patterns/318.svg",
+    "bytes": 436,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/320.svg",
+    "category": "patterns",
+    "saved_to": "patterns/320.svg",
+    "bytes": 829,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/322.svg",
+    "category": "patterns",
+    "saved_to": "patterns/322.svg",
+    "bytes": 761,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/323.svg",
+    "category": "patterns",
+    "saved_to": "patterns/323.svg",
+    "bytes": 707,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/32b29efb.svg",
+    "category": "patterns",
+    "saved_to": "patterns/32b29efb.svg",
+    "bytes": 856,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/33ee6c94.svg",
+    "category": "patterns",
+    "saved_to": "patterns/33ee6c94.svg",
+    "bytes": 853,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/342.svg",
+    "category": "patterns",
+    "saved_to": "patterns/342.svg",
+    "bytes": 1216,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/344.svg",
+    "category": "patterns",
+    "saved_to": "patterns/344.svg",
+    "bytes": 14363,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/349.svg",
+    "category": "patterns",
+    "saved_to": "patterns/349.svg",
+    "bytes": 2174,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/350.svg",
+    "category": "patterns",
+    "saved_to": "patterns/350.svg",
+    "bytes": 5108,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/351.svg",
+    "category": "patterns",
+    "saved_to": "patterns/351.svg",
+    "bytes": 2545,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/352.svg",
+    "category": "patterns",
+    "saved_to": "patterns/352.svg",
+    "bytes": 1792,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/353.svg",
+    "category": "patterns",
+    "saved_to": "patterns/353.svg",
+    "bytes": 1394,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/354.svg",
+    "category": "patterns",
+    "saved_to": "patterns/354.svg",
+    "bytes": 1842,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/356.svg",
+    "category": "patterns",
+    "saved_to": "patterns/356.svg",
+    "bytes": 4385,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/357.svg",
+    "category": "patterns",
+    "saved_to": "patterns/357.svg",
+    "bytes": 2840,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/358.svg",
+    "category": "patterns",
+    "saved_to": "patterns/358.svg",
+    "bytes": 5758,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/360.svg",
+    "category": "patterns",
+    "saved_to": "patterns/360.svg",
+    "bytes": 1090,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/362.svg",
+    "category": "patterns",
+    "saved_to": "patterns/362.svg",
+    "bytes": 688,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/363.svg",
+    "category": "patterns",
+    "saved_to": "patterns/363.svg",
+    "bytes": 899,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/364.svg",
+    "category": "patterns",
+    "saved_to": "patterns/364.svg",
+    "bytes": 1229,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/364f7be0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/364f7be0.svg",
+    "bytes": 1396,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/365.svg",
+    "category": "patterns",
+    "saved_to": "patterns/365.svg",
+    "bytes": 691,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/366.svg",
+    "category": "patterns",
+    "saved_to": "patterns/366.svg",
+    "bytes": 745,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/367.svg",
+    "category": "patterns",
+    "saved_to": "patterns/367.svg",
+    "bytes": 22962,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/368.svg",
+    "category": "patterns",
+    "saved_to": "patterns/368.svg",
+    "bytes": 26541,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/369.svg",
+    "category": "patterns",
+    "saved_to": "patterns/369.svg",
+    "bytes": 1202,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/36af70dc.svg",
+    "category": "patterns",
+    "saved_to": "patterns/36af70dc.svg",
+    "bytes": 698,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/370.svg",
+    "category": "patterns",
+    "saved_to": "patterns/370.svg",
+    "bytes": 804,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/371.svg",
+    "category": "patterns",
+    "saved_to": "patterns/371.svg",
+    "bytes": 2534,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/372.svg",
+    "category": "patterns",
+    "saved_to": "patterns/372.svg",
+    "bytes": 5684,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/374.svg",
+    "category": "patterns",
+    "saved_to": "patterns/374.svg",
+    "bytes": 2562,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/376.svg",
+    "category": "patterns",
+    "saved_to": "patterns/376.svg",
+    "bytes": 3451,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/377.svg",
+    "category": "patterns",
+    "saved_to": "patterns/377.svg",
+    "bytes": 3555,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/378.svg",
+    "category": "patterns",
+    "saved_to": "patterns/378.svg",
+    "bytes": 2306,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/379.svg",
+    "category": "patterns",
+    "saved_to": "patterns/379.svg",
+    "bytes": 2640,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/37cc456d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/37cc456d.svg",
+    "bytes": 7505,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/382.svg",
+    "category": "patterns",
+    "saved_to": "patterns/382.svg",
+    "bytes": 2858,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/384.svg",
+    "category": "patterns",
+    "saved_to": "patterns/384.svg",
+    "bytes": 15539,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/385.svg",
+    "category": "patterns",
+    "saved_to": "patterns/385.svg",
+    "bytes": 3848,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/387.svg",
+    "category": "patterns",
+    "saved_to": "patterns/387.svg",
+    "bytes": 1866,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/392.svg",
+    "category": "patterns",
+    "saved_to": "patterns/392.svg",
+    "bytes": 1766,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3973f6a4.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3973f6a4.svg",
+    "bytes": 2744,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/39cfdac7.svg",
+    "category": "patterns",
+    "saved_to": "patterns/39cfdac7.svg",
+    "bytes": 699,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3b0d5ae6.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3b0d5ae6.svg",
+    "bytes": 2349,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3b5896d2.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3b5896d2.svg",
+    "bytes": 883,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3d8cc05f.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3d8cc05f.svg",
+    "bytes": 6320,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3fad82dd.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3fad82dd.svg",
+    "bytes": 1513,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/3fd5d85c.svg",
+    "category": "patterns",
+    "saved_to": "patterns/3fd5d85c.svg",
+    "bytes": 9424,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/403.svg",
+    "category": "patterns",
+    "saved_to": "patterns/403.svg",
+    "bytes": 0,
+    "status": "error: HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/404.svg",
+    "category": "patterns",
+    "saved_to": "patterns/404.svg",
+    "bytes": 894,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/405.svg",
+    "category": "patterns",
+    "saved_to": "patterns/405.svg",
+    "bytes": 1261,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/408.svg",
+    "category": "patterns",
+    "saved_to": "patterns/408.svg",
+    "bytes": 7671,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/40fcb304.svg",
+    "category": "patterns",
+    "saved_to": "patterns/40fcb304.svg",
+    "bytes": 8164,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/411.svg",
+    "category": "patterns",
+    "saved_to": "patterns/411.svg",
+    "bytes": 3007,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/412.svg",
+    "category": "patterns",
+    "saved_to": "patterns/412.svg",
+    "bytes": 5176,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/41bfa413.svg",
+    "category": "patterns",
+    "saved_to": "patterns/41bfa413.svg",
+    "bytes": 1526,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/4428e431.svg",
+    "category": "patterns",
+    "saved_to": "patterns/4428e431.svg",
+    "bytes": 684,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/471cea37.svg",
+    "category": "patterns",
+    "saved_to": "patterns/471cea37.svg",
+    "bytes": 1565,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/47588bc3.svg",
+    "category": "patterns",
+    "saved_to": "patterns/47588bc3.svg",
+    "bytes": 540,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/4d84c48c.svg",
+    "category": "patterns",
+    "saved_to": "patterns/4d84c48c.svg",
+    "bytes": 3109,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/4da513b2.svg",
+    "category": "patterns",
+    "saved_to": "patterns/4da513b2.svg",
+    "bytes": 1745,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/4dba2103.svg",
+    "category": "patterns",
+    "saved_to": "patterns/4dba2103.svg",
+    "bytes": 6646,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/4edbdbfb.svg",
+    "category": "patterns",
+    "saved_to": "patterns/4edbdbfb.svg",
+    "bytes": 2878,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/5159fc08.svg",
+    "category": "patterns",
+    "saved_to": "patterns/5159fc08.svg",
+    "bytes": 578,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/53b647d2.svg",
+    "category": "patterns",
+    "saved_to": "patterns/53b647d2.svg",
+    "bytes": 629,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/53ca6555.svg",
+    "category": "patterns",
+    "saved_to": "patterns/53ca6555.svg",
+    "bytes": 3460,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/57cece06.svg",
+    "category": "patterns",
+    "saved_to": "patterns/57cece06.svg",
+    "bytes": 3519,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/59505101.svg",
+    "category": "patterns",
+    "saved_to": "patterns/59505101.svg",
+    "bytes": 2176,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/59e165da.svg",
+    "category": "patterns",
+    "saved_to": "patterns/59e165da.svg",
+    "bytes": 370,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/60029c22.svg",
+    "category": "patterns",
+    "saved_to": "patterns/60029c22.svg",
+    "bytes": 8991,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/60450ce9.svg",
+    "category": "patterns",
+    "saved_to": "patterns/60450ce9.svg",
+    "bytes": 910,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/61b0fd2b.svg",
+    "category": "patterns",
+    "saved_to": "patterns/61b0fd2b.svg",
+    "bytes": 7443,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/61f383c8.svg",
+    "category": "patterns",
+    "saved_to": "patterns/61f383c8.svg",
+    "bytes": 1068,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6206be9d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6206be9d.svg",
+    "bytes": 1004,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6281afa9.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6281afa9.svg",
+    "bytes": 448,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/631d84c4.svg",
+    "category": "patterns",
+    "saved_to": "patterns/631d84c4.svg",
+    "bytes": 4117,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/63b9e873.svg",
+    "category": "patterns",
+    "saved_to": "patterns/63b9e873.svg",
+    "bytes": 1458,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/64adbca4.svg",
+    "category": "patterns",
+    "saved_to": "patterns/64adbca4.svg",
+    "bytes": 862,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/651462b7.svg",
+    "category": "patterns",
+    "saved_to": "patterns/651462b7.svg",
+    "bytes": 960,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6724774d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6724774d.svg",
+    "bytes": 1804,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6842a934.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6842a934.svg",
+    "bytes": 3435,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6b6bf4b4.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6b6bf4b4.svg",
+    "bytes": 1399,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6b8692ad.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6b8692ad.svg",
+    "bytes": 2980,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6c6b096e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6c6b096e.svg",
+    "bytes": 3862,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6ce3eb63.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6ce3eb63.svg",
+    "bytes": 1048,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6de62439.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6de62439.svg",
+    "bytes": 2524,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6e3b1e39.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6e3b1e39.svg",
+    "bytes": 545,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/6fd80aec.svg",
+    "category": "patterns",
+    "saved_to": "patterns/6fd80aec.svg",
+    "bytes": 780,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/71426114.svg",
+    "category": "patterns",
+    "saved_to": "patterns/71426114.svg",
+    "bytes": 4917,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/71519f0e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/71519f0e.svg",
+    "bytes": 380,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/744e68d8.svg",
+    "category": "patterns",
+    "saved_to": "patterns/744e68d8.svg",
+    "bytes": 1962,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/76a2a8f3.svg",
+    "category": "patterns",
+    "saved_to": "patterns/76a2a8f3.svg",
+    "bytes": 5450,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/79e683c6.svg",
+    "category": "patterns",
+    "saved_to": "patterns/79e683c6.svg",
+    "bytes": 3388,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/7ad06e9a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/7ad06e9a.svg",
+    "bytes": 1728,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/7b62fdca.svg",
+    "category": "patterns",
+    "saved_to": "patterns/7b62fdca.svg",
+    "bytes": 4877,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/7b8878d6.svg",
+    "category": "patterns",
+    "saved_to": "patterns/7b8878d6.svg",
+    "bytes": 1847,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/7defa857.svg",
+    "category": "patterns",
+    "saved_to": "patterns/7defa857.svg",
+    "bytes": 4366,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/80ed1b9a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/80ed1b9a.svg",
+    "bytes": 31181,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/81f8c361.svg",
+    "category": "patterns",
+    "saved_to": "patterns/81f8c361.svg",
+    "bytes": 2924,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8895eb54.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8895eb54.svg",
+    "bytes": 3974,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/89474035.svg",
+    "category": "patterns",
+    "saved_to": "patterns/89474035.svg",
+    "bytes": 1268,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8a10fe1e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8a10fe1e.svg",
+    "bytes": 815,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8a1a510d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8a1a510d.svg",
+    "bytes": 2974,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8a2d2cf3.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8a2d2cf3.svg",
+    "bytes": 358,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8ddc818d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8ddc818d.svg",
+    "bytes": 3168,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/8e7ff7a8.svg",
+    "category": "patterns",
+    "saved_to": "patterns/8e7ff7a8.svg",
+    "bytes": 268,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9131a8d7.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9131a8d7.svg",
+    "bytes": 1632,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/926b244e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/926b244e.svg",
+    "bytes": 753,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/93b42d10.svg",
+    "category": "patterns",
+    "saved_to": "patterns/93b42d10.svg",
+    "bytes": 1423,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/94012908.svg",
+    "category": "patterns",
+    "saved_to": "patterns/94012908.svg",
+    "bytes": 3736,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9409ee1b.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9409ee1b.svg",
+    "bytes": 914,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9510be9f.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9510be9f.svg",
+    "bytes": 1351,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/96449cde.svg",
+    "category": "patterns",
+    "saved_to": "patterns/96449cde.svg",
+    "bytes": 4972,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/965a2f81.svg",
+    "category": "patterns",
+    "saved_to": "patterns/965a2f81.svg",
+    "bytes": 456,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/97a2b0f5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/97a2b0f5.svg",
+    "bytes": 827,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/99d9f773.svg",
+    "category": "patterns",
+    "saved_to": "patterns/99d9f773.svg",
+    "bytes": 1651,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9cbde93a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9cbde93a.svg",
+    "bytes": 11666,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9d8f572e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9d8f572e.svg",
+    "bytes": 1215,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9dbee7f6.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9dbee7f6.svg",
+    "bytes": 1356,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/9eec9bab.svg",
+    "category": "patterns",
+    "saved_to": "patterns/9eec9bab.svg",
+    "bytes": 460,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/a86ff70a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/a86ff70a.svg",
+    "bytes": 2331,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/a98f3041.svg",
+    "category": "patterns",
+    "saved_to": "patterns/a98f3041.svg",
+    "bytes": 1061,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/a9e26faa.svg",
+    "category": "patterns",
+    "saved_to": "patterns/a9e26faa.svg",
+    "bytes": 5013,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ab6c9fea.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ab6c9fea.svg",
+    "bytes": 548,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/adad5bdc.svg",
+    "category": "patterns",
+    "saved_to": "patterns/adad5bdc.svg",
+    "bytes": 600,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/aeb6e50d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/aeb6e50d.svg",
+    "bytes": 1575,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/aee95474.svg",
+    "category": "patterns",
+    "saved_to": "patterns/aee95474.svg",
+    "bytes": 1348,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/af5d9faf.svg",
+    "category": "patterns",
+    "saved_to": "patterns/af5d9faf.svg",
+    "bytes": 22685,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/alternatingFishscale.svg",
+    "category": "patterns",
+    "saved_to": "patterns/alternatingFishscale.svg",
+    "bytes": 12874,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ashlar.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ashlar.svg",
+    "bytes": 1572,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b12cd864.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b12cd864.svg",
+    "bytes": 11191,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b13d546d.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b13d546d.svg",
+    "bytes": 34138,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b1df7582.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b1df7582.svg",
+    "bytes": 472,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b2e16dd3.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b2e16dd3.svg",
+    "bytes": 876,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b3265d74.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b3265d74.svg",
+    "bytes": 1020,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b50b1d7e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b50b1d7e.svg",
+    "bytes": 2027,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b57c30d0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b57c30d0.svg",
+    "bytes": 1084,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b7a369d0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b7a369d0.svg",
+    "bytes": 949,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b81b0b61.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b81b0b61.svg",
+    "bytes": 596,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/b95722b3.svg",
+    "category": "patterns",
+    "saved_to": "patterns/b95722b3.svg",
+    "bytes": 1764,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/basketweave.svg",
+    "category": "patterns",
+    "saved_to": "patterns/basketweave.svg",
+    "bytes": 1755,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bbb8a778.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bbb8a778.svg",
+    "bytes": 1924,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bc5ad7c1.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bc5ad7c1.svg",
+    "bytes": 1126,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bf8b42db.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bf8b42db.svg",
+    "bytes": 4521,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bsAguisse.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bsAguisse.svg",
+    "bytes": 1398,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bsChevron.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bsChevron.svg",
+    "bytes": 1444,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bsMarelle.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bsMarelle.svg",
+    "bytes": 937,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/bsMoulin.svg",
+    "category": "patterns",
+    "saved_to": "patterns/bsMoulin.svg",
+    "bytes": 1094,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/c0b30da0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/c0b30da0.svg",
+    "bytes": 1543,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/c40227b0.svg",
+    "category": "patterns",
+    "saved_to": "patterns/c40227b0.svg",
+    "bytes": 461,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/c7da062e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/c7da062e.svg",
+    "bytes": 9313,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/c7f8dabc.svg",
+    "category": "patterns",
+    "saved_to": "patterns/c7f8dabc.svg",
+    "bytes": 460,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/c8b995c5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/c8b995c5.svg",
+    "bytes": 1326,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/cb0c7e15.svg",
+    "category": "patterns",
+    "saved_to": "patterns/cb0c7e15.svg",
+    "bytes": 5278,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/chevron.svg",
+    "category": "patterns",
+    "saved_to": "patterns/chevron.svg",
+    "bytes": 1284,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/circular.svg",
+    "category": "patterns",
+    "saved_to": "patterns/circular.svg",
+    "bytes": 676,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/common.svg",
+    "category": "patterns",
+    "saved_to": "patterns/common.svg",
+    "bytes": 1108,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/compass.svg",
+    "category": "patterns",
+    "saved_to": "patterns/compass.svg",
+    "bytes": 1729,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/corfu.svg",
+    "category": "patterns",
+    "saved_to": "patterns/corfu.svg",
+    "bytes": 41415,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/coursedAshlar.svg",
+    "category": "patterns",
+    "saved_to": "patterns/coursedAshlar.svg",
+    "bytes": 2361,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/cubic.svg",
+    "category": "patterns",
+    "saved_to": "patterns/cubic.svg",
+    "bytes": 1444,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/d2ff1e0e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/d2ff1e0e.svg",
+    "bytes": 1214,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/d56198ac.svg",
+    "category": "patterns",
+    "saved_to": "patterns/d56198ac.svg",
+    "bytes": 838,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/d751ab06.svg",
+    "category": "patterns",
+    "saved_to": "patterns/d751ab06.svg",
+    "bytes": 2010,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/d802e49a.svg",
+    "category": "patterns",
+    "saved_to": "patterns/d802e49a.svg",
+    "bytes": 1076,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/d88a5d2e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/d88a5d2e.svg",
+    "bytes": 979,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/dacadc1b.svg",
+    "category": "patterns",
+    "saved_to": "patterns/dacadc1b.svg",
+    "bytes": 960,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/df2772c5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/df2772c5.svg",
+    "bytes": 16245,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/diamond.svg",
+    "category": "patterns",
+    "saved_to": "patterns/diamond.svg",
+    "bytes": 361,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/doubleHerringbone.svg",
+    "category": "patterns",
+    "saved_to": "patterns/doubleHerringbone.svg",
+    "bytes": 1127,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/drystone.svg",
+    "category": "patterns",
+    "saved_to": "patterns/drystone.svg",
+    "bytes": 7759,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e1100fab.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e1100fab.svg",
+    "bytes": 7628,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e1bfe2fb.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e1bfe2fb.svg",
+    "bytes": 892,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e1d56994.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e1d56994.svg",
+    "bytes": 499,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e3032472.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e3032472.svg",
+    "bytes": 1713,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e305f723.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e305f723.svg",
+    "bytes": 11233,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e5fdacc5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e5fdacc5.svg",
+    "bytes": 1855,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/e9fedd1e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/e9fedd1e.svg",
+    "bytes": 1565,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ea0a8a51.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ea0a8a51.svg",
+    "bytes": 515,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ea8b75a8.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ea8b75a8.svg",
+    "bytes": 812,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ebac3e50.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ebac3e50.svg",
+    "bytes": 5582,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ec544cdc.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ec544cdc.svg",
+    "bytes": 1045,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ef0cf778.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ef0cf778.svg",
+    "bytes": 4731,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ef373950.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ef373950.svg",
+    "bytes": 8059,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/europeanFan.svg",
+    "category": "patterns",
+    "saved_to": "patterns/europeanFan.svg",
+    "bytes": 16220,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f0464078.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f0464078.svg",
+    "bytes": 4513,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f16bbab6.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f16bbab6.svg",
+    "bytes": 506,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f2be6522.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f2be6522.svg",
+    "bytes": 20366,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f32cbe26.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f32cbe26.svg",
+    "bytes": 930,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f5953590.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f5953590.svg",
+    "bytes": 2113,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/f821a357.svg",
+    "category": "patterns",
+    "saved_to": "patterns/f821a357.svg",
+    "bytes": 1121,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fa095780.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fa095780.svg",
+    "bytes": 3051,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fa6af9ff.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fa6af9ff.svg",
+    "bytes": 3471,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fbb6ba7e.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fbb6ba7e.svg",
+    "bytes": 1491,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fbef8013.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fbef8013.svg",
+    "bytes": 272,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fdf53df5.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fdf53df5.svg",
+    "bytes": 3765,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/fishscale.svg",
+    "category": "patterns",
+    "saved_to": "patterns/fishscale.svg",
+    "bytes": 604,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/flemish.svg",
+    "category": "patterns",
+    "saved_to": "patterns/flemish.svg",
+    "bytes": 897,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/french.svg",
+    "category": "patterns",
+    "saved_to": "patterns/french.svg",
+    "bytes": 791,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/herringbone.svg",
+    "category": "patterns",
+    "saved_to": "patterns/herringbone.svg",
+    "bytes": 1117,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/hexagonAndTriangle.svg",
+    "category": "patterns",
+    "saved_to": "patterns/hexagonAndTriangle.svg",
+    "bytes": 1022,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/hexagonWeave.svg",
+    "category": "patterns",
+    "saved_to": "patterns/hexagonWeave.svg",
+    "bytes": 2201,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/hexagonal.svg",
+    "category": "patterns",
+    "saved_to": "patterns/hexagonal.svg",
+    "bytes": 860,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/hopscotch.svg",
+    "category": "patterns",
+    "saved_to": "patterns/hopscotch.svg",
+    "bytes": 797,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/houndstooth.svg",
+    "category": "patterns",
+    "saved_to": "patterns/houndstooth.svg",
+    "bytes": 1500,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/hourglass.svg",
+    "category": "patterns",
+    "saved_to": "patterns/hourglass.svg",
+    "bytes": 10180,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/intersectingCircle.svg",
+    "category": "patterns",
+    "saved_to": "patterns/intersectingCircle.svg",
+    "bytes": 17786,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/isosceles.svg",
+    "category": "patterns",
+    "saved_to": "patterns/isosceles.svg",
+    "bytes": 1083,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/mansionWeave.svg",
+    "category": "patterns",
+    "saved_to": "patterns/mansionWeave.svg",
+    "bytes": 1442,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/mixedStones.svg",
+    "category": "patterns",
+    "saved_to": "patterns/mixedStones.svg",
+    "bytes": 3977,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/none.svg",
+    "category": "patterns",
+    "saved_to": "patterns/none.svg",
+    "bytes": 100,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/octagonSquare.svg",
+    "category": "patterns",
+    "saved_to": "patterns/octagonSquare.svg",
+    "bytes": 761,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/octagonStar.svg",
+    "category": "patterns",
+    "saved_to": "patterns/octagonStar.svg",
+    "bytes": 1267,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/ogeeFishscale.svg",
+    "category": "patterns",
+    "saved_to": "patterns/ogeeFishscale.svg",
+    "bytes": 12874,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/plus.svg",
+    "category": "patterns",
+    "saved_to": "patterns/plus.svg",
+    "bytes": 1090,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/plusSquare.svg",
+    "category": "patterns",
+    "saved_to": "patterns/plusSquare.svg",
+    "bytes": 895,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/roundedRubble.svg",
+    "category": "patterns",
+    "saved_to": "patterns/roundedRubble.svg",
+    "bytes": 27279,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/rubble.svg",
+    "category": "patterns",
+    "saved_to": "patterns/rubble.svg",
+    "bytes": 4191,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/stack.svg",
+    "category": "patterns",
+    "saved_to": "patterns/stack.svg",
+    "bytes": 395,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/staggered.svg",
+    "category": "patterns",
+    "saved_to": "patterns/staggered.svg",
+    "bytes": 1662,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/staggeredIsosceles.svg",
+    "category": "patterns",
+    "saved_to": "patterns/staggeredIsosceles.svg",
+    "bytes": 1083,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/starAndCross.svg",
+    "category": "patterns",
+    "saved_to": "patterns/starAndCross.svg",
+    "bytes": 2155,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/starAndHexagon.svg",
+    "category": "patterns",
+    "saved_to": "patterns/starAndHexagon.svg",
+    "bytes": 1921,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/stretcher.svg",
+    "category": "patterns",
+    "saved_to": "patterns/stretcher.svg",
+    "bytes": 698,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/swissCross.svg",
+    "category": "patterns",
+    "saved_to": "patterns/swissCross.svg",
+    "bytes": 1467,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/swissCrossSquare.svg",
+    "category": "patterns",
+    "saved_to": "patterns/swissCrossSquare.svg",
+    "bytes": 875,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/triangle.svg",
+    "category": "patterns",
+    "saved_to": "patterns/triangle.svg",
+    "bytes": 780,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/triangleChevron.svg",
+    "category": "patterns",
+    "saved_to": "patterns/triangleChevron.svg",
+    "bytes": 1038,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/triangleDiamond.svg",
+    "category": "patterns",
+    "saved_to": "patterns/triangleDiamond.svg",
+    "bytes": 1428,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/tripleHerringbone.svg",
+    "category": "patterns",
+    "saved_to": "patterns/tripleHerringbone.svg",
+    "bytes": 1316,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/variableHexagon.svg",
+    "category": "patterns",
+    "saved_to": "patterns/variableHexagon.svg",
+    "bytes": 745,
+    "status": "ok"
+  },
+  {
+    "url": "https://assets.architextures.org/patterns/windmill.svg",
+    "category": "patterns",
+    "saved_to": "patterns/windmill.svg",
+    "bytes": 970,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/brands/6/logo/original.png?s=200",
+    "category": "other",
+    "saved_to": "other/brands/6/logo/original.png",
+    "bytes": 2536,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/1/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/1/thumb_200.jpg",
+    "bytes": 10509,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/101/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/101/thumb_200.jpg",
+    "bytes": 6180,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/1025/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/1025/thumb_500.jpg",
+    "bytes": 42666,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/1034/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/1034/thumb_500.jpg",
+    "bytes": 69038,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/1040/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/1040/thumb_500.jpg",
+    "bytes": 46377,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/1043/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/1043/thumb_500.jpg",
+    "bytes": 89646,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/107/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/107/thumb_200.jpg",
+    "bytes": 11391,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/133/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/133/thumb_200.jpg",
+    "bytes": 12841,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/135/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/135/thumb_200.jpg",
+    "bytes": 12391,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/136/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/136/thumb_200.jpg",
+    "bytes": 7491,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/137/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/137/thumb_200.jpg",
+    "bytes": 9485,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/138/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/138/thumb_200.jpg",
+    "bytes": 6247,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/140/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/140/thumb_200.jpg",
+    "bytes": 6292,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/15/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/15/thumb_200.jpg",
+    "bytes": 6222,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/163/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/163/thumb_200.jpg",
+    "bytes": 17851,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/193/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/193/thumb_200.jpg",
+    "bytes": 7626,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/2/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/2/thumb_200.jpg",
+    "bytes": 8095,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/3/thumb_200.jpg",
+    "bytes": 4720,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3271/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/3271/thumb_500.jpg",
+    "bytes": 75642,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/33/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/33/thumb_200.jpg",
+    "bytes": 5673,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3613/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/3613/thumb_500.jpg",
+    "bytes": 102617,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3614/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/3614/thumb_500.jpg",
+    "bytes": 72828,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3618/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/3618/thumb_500.jpg",
+    "bytes": 77281,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/3680/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/3680/thumb_500.jpg",
+    "bytes": 68642,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/4/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/4/thumb_200.jpg",
+    "bytes": 9206,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/40/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/40/thumb_200.jpg",
+    "bytes": 10413,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/46/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/46/thumb_200.jpg",
+    "bytes": 6743,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/48/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/48/thumb_200.jpg",
+    "bytes": 4883,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/53/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/53/thumb_200.jpg",
+    "bytes": 6235,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/630/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/630/thumb_500.jpg",
+    "bytes": 25258,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/636/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/636/thumb_500.jpg",
+    "bytes": 80434,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/82/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/82/thumb_200.jpg",
+    "bytes": 2958,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/845/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/845/thumb_500.jpg",
+    "bytes": 84158,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/88/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/88/thumb_200.jpg",
+    "bytes": 2955,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/90/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/90/thumb_200.jpg",
+    "bytes": 3322,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/92/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/92/thumb_200.jpg",
+    "bytes": 4628,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/93/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/93/thumb_200.jpg",
+    "bytes": 5538,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/97/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/97/thumb_200.jpg",
+    "bytes": 4451,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/98/thumb/200.jpg",
+    "category": "materials",
+    "saved_to": "materials/98/thumb_200.jpg",
+    "bytes": 3837,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/materials/987/thumb/500.jpg",
+    "category": "materials",
+    "saved_to": "materials/987/thumb_500.jpg",
+    "bytes": 167284,
+    "status": "ok"
+  },
+  {
+    "url": "https://cdn.architextures.org/patterns/herringbone.svg",
+    "category": "patterns",
+    "saved_to": "patterns/herringbone.svg",
+    "bytes": 1117,
+    "status": "ok"
+  },
+  {
+    "url": "https://manufacturers.architextures.org/home",
+    "category": "other",
+    "saved_to": "other/home",
+    "bytes": 627335,
+    "status": "ok"
+  },
+  {
+    "url": "https://stories.architextures.org/",
+    "category": "other",
+    "saved_to": "other/",
+    "bytes": 0,
+    "status": "error: [Errno 21] Is a directory: 'architextures_downloads/other/'"
+  }
+]
