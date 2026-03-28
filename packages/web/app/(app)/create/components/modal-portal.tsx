@@ -19,7 +19,7 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.35)',
+        background: 'transparent',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
