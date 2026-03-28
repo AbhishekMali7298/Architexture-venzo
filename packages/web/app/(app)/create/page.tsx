@@ -9,6 +9,7 @@ import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
+import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
 import { formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
@@ -30,10 +31,16 @@ export default function CreatePage() {
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
+  const setUnits = useEditorStore((state) => state.setUnits);
+  const setShowBorder = useEditorStore((state) => state.setShowBorder);
+  const setTileBackground = useEditorStore((state) => state.setTileBackground);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
+  const showBorder = useEditorStore((state) => state.showBorder);
+  const tileBackground = useEditorStore((state) => state.tileBackground);
 
   const [showPatternModal, setShowPatternModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [footerStatus, setFooterStatus] = useState('Ready');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -62,7 +69,8 @@ export default function CreatePage() {
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
-  const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${config.units}`;
+  const unitLabel = config.units === 'inches' ? 'in' : 'mm';
+  const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${unitLabel}`;
 
   if (!isReady) {
     return null;
@@ -86,6 +94,7 @@ export default function CreatePage() {
       <CreateEditorShell
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onOpenSettings={() => setShowSettingsModal(true)}
         footer={
           <>
             <button className={styles.primaryButton} type="button" onClick={handleSaveProject}>
@@ -115,6 +124,7 @@ export default function CreatePage() {
           materialCategory={materialCategory}
           materialColor={materialColor}
           materialThumbnailUrl={materialThumbnailUrl}
+          units={config.units}
           materialTint={material.tint}
           width={material.width}
           height={material.height}
@@ -152,6 +162,18 @@ export default function CreatePage() {
           onSelect={(nextMaterial) => {
             setMaterialById(nextMaterial.id);
           }}
+        />
+      ) : null}
+
+      {showSettingsModal ? (
+        <SettingsModal
+          units={config.units}
+          tileBackground={tileBackground}
+          showBorder={showBorder}
+          onClose={() => setShowSettingsModal(false)}
+          onUnitsChange={setUnits}
+          onTileBackgroundChange={setTileBackground}
+          onShowBorderChange={setShowBorder}
         />
       ) : null}
     </div>

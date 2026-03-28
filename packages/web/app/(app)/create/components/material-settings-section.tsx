@@ -19,6 +19,7 @@ export function MaterialSettingsSection({
   jointHorizontal,
   jointVertical,
   linkedJoints,
+  units,
   onOpenPicker,
   onMaterialTintChange,
   onWidthChange,
@@ -43,6 +44,7 @@ export function MaterialSettingsSection({
   jointHorizontal: number;
   jointVertical: number;
   linkedJoints: boolean;
+  units: 'mm' | 'inches';
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
@@ -54,7 +56,7 @@ export function MaterialSettingsSection({
   onJointVerticalChange: (value: number) => void;
   onLinkedJointsChange: (value: boolean) => void;
 }) {
-  const measurementUnit = 'mm';
+  const measurementUnit = units === 'inches' ? 'in' : 'mm';
 
   return (
     <SectionCard title="Material">

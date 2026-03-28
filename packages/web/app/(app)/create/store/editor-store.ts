@@ -82,6 +82,8 @@ export interface EditorState {
   setActiveMaterialIndex: (index: number) => void;
   toggleLeftPanel: () => void;
   setZoom: (zoom: number) => void;
+  setShowBorder: (show: boolean) => void;
+  setTileBackground: (show: boolean) => void;
 
   // History
   undo: () => void;
@@ -105,6 +107,10 @@ function pushHistory(state: EditorState, label: string) {
 
 function bumpRender(state: EditorState) {
   state.renderVersion++;
+}
+
+function roundMeasurement(value: number) {
+  return Math.round(value * 1000) / 1000;
 }
 
 // ======= Store =======
@@ -314,8 +320,19 @@ export const useEditorStore = create<EditorState>()(
 
     setUnits: (units) =>
       set((s) => {
+        if (s.config.units === units) return;
         pushHistory(s, `Units → ${units}`);
+        const factor = units === 'inches' ? 1 / 25.4 : 25.4;
         s.config.units = units;
+        for (const material of s.config.materials) {
+          material.width = roundMeasurement(material.width * factor);
+          material.height = roundMeasurement(material.height * factor);
+          if (material.uploadWidth !== null) {
+            material.uploadWidth = roundMeasurement(material.uploadWidth * factor);
+          }
+        }
+        s.config.joints.horizontalSize = roundMeasurement(s.config.joints.horizontalSize * factor);
+        s.config.joints.verticalSize = roundMeasurement(s.config.joints.verticalSize * factor);
         bumpRender(s);
       }),
 
@@ -345,6 +362,16 @@ export const useEditorStore = create<EditorState>()(
     setActiveMaterialIndex: (index) => set((s) => { s.activeMaterialIndex = index; }),
     toggleLeftPanel: () => set((s) => { s.leftPanelOpen = !s.leftPanelOpen; }),
     setZoom: (zoom) => set((s) => { s.zoom = Math.max(0.1, Math.min(5, zoom)); }),
+    setShowBorder: (show) =>
+      set((s) => {
+        s.showBorder = show;
+        bumpRender(s);
+      }),
+    setTileBackground: (show) =>
+      set((s) => {
+        s.tileBackground = show;
+        bumpRender(s);
+      }),
 
     // ===== History =====
 

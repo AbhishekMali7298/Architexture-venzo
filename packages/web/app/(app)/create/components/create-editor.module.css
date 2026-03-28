@@ -255,6 +255,94 @@
   color: #0f172a;
 }
 
+.radioRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.settingsModalCard {
+  width: min(520px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+}
+
+.settingsModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.settingsModalTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.settingsCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.settingsCloseButton:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.settingsModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 20px;
+}
+
+.settingsIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settingsHeading {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.settingsText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.settingsSectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .footer {
   display: flex;
   flex-direction: column;

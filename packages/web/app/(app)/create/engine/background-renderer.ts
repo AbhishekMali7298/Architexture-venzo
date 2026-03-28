@@ -135,7 +135,7 @@ export function renderBackground(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null },
+  options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
 ): { x: number; y: number; width: number; height: number } | null {
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
@@ -169,29 +169,37 @@ export function renderBackground(
   ctx.fillStyle = jointColor;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  const startX = previewX - Math.ceil(previewX / Math.max(tileSetWidth, 1)) * tileSetWidth;
-  const startY = previewY - Math.ceil(previewY / Math.max(tileSetHeight, 1)) * tileSetHeight;
+  const drawLayoutAt = (offsetX: number, offsetY: number) => {
+    for (const tile of layout.tiles) {
+      drawTile(
+        ctx,
+        tile,
+        offsetX + tile.x * scale,
+        offsetY + tile.y * scale,
+        tile.width,
+        tile.height,
+        tile.rotation,
+        edgeStyle,
+        baseRgb,
+        toneVariation,
+        rng,
+        jointH,
+        jointV,
+        scale,
+        options?.materialImage,
+      );
+    }
+  };
 
-  for (let y = startY; y < canvasHeight + tileSetHeight; y += tileSetHeight) {
-    for (let x = startX; x < canvasWidth + tileSetWidth; x += tileSetWidth) {
-      for (const tile of layout.tiles) {
-        drawTile(
-          ctx,
-          tile,
-          x + tile.x * scale,
-          y + tile.y * scale,
-          tile.width,
-          tile.height,
-          tile.rotation,
-          edgeStyle,
-          baseRgb,
-          toneVariation,
-          rng,
-          jointH,
-          jointV,
-          scale,
-          options?.materialImage,
-        );
+  if (options?.tileBackground === false) {
+    drawLayoutAt(previewX, previewY);
+  } else {
+    const startX = previewX - Math.ceil(previewX / Math.max(tileSetWidth, 1)) * tileSetWidth;
+    const startY = previewY - Math.ceil(previewY / Math.max(tileSetHeight, 1)) * tileSetHeight;
+
+    for (let y = startY; y < canvasHeight + tileSetHeight; y += tileSetHeight) {
+      for (let x = startX; x < canvasWidth + tileSetWidth; x += tileSetWidth) {
+        drawLayoutAt(x, y);
       }
     }
   }
