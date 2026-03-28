@@ -9,11 +9,11 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   units: 'mm',
 
   pattern: {
-    type: 'herringbone',
-    category: 'paving',
-    rows: 8,
-    columns: 8,
-    angle: 45,
+    type: 'running_bond',
+    category: 'brick_bond',
+    rows: 6,
+    columns: 4,
+    angle: 0,
     stretchers: 1,
     weaves: 1,
   },
