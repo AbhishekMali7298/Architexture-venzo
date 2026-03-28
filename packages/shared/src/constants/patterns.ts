@@ -228,7 +228,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Chevron',
     description: 'V-shaped pattern with angled cuts',
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',
-    previewAssetPath: 'patterns/triangleChevron.svg',
+    previewAssetPath: 'patterns/chevron.svg',
     defaults: { rows: 6, columns: 4, angle: 45, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 50 },

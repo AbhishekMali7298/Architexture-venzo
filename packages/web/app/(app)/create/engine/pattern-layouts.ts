@@ -266,42 +266,45 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
 
 function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
-  const pieceHeight = Math.max(height, width / 2);
-  const shoulderY = Math.max(pieceHeight - height, 0);
+  const clampedAngle = Math.max(5, Math.min(85, angle || 45));
+  const angleRadians = (clampedAngle * Math.PI) / 180;
+  const mitreRise = Math.max(1, Math.min(height, pieceWidth * Math.tan(angleRadians)));
+  const shoulderY = Math.max((height - mitreRise) / 2, 0);
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const baseX = column * (width + verticalJoint);
-      const baseY = row * (pieceHeight + horizontalJoint);
+      const baseY = row * (height + horizontalJoint);
+
       tiles.push({
         x: baseX,
         y: baseY,
         width: pieceWidth,
-        height: pieceHeight,
+        height,
         rotation: 0,
         materialIndex: 0,
         clipPath: [
-          { x: 0, y: 0 },
-          { x: pieceWidth, y: 0 },
+          { x: 0, y: shoulderY + mitreRise },
           { x: pieceWidth, y: shoulderY },
-          { x: 0, y: pieceHeight },
+          { x: pieceWidth, y: height - shoulderY },
+          { x: 0, y: height },
         ],
       });
       tiles.push({
         x: baseX + pieceWidth,
         y: baseY,
         width: pieceWidth,
-        height: pieceHeight,
+        height,
         rotation: 0,
         materialIndex: 0,
         clipPath: [
           { x: 0, y: shoulderY },
-          { x: pieceWidth, y: 0 },
-          { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: pieceHeight },
+          { x: pieceWidth, y: shoulderY + mitreRise },
+          { x: pieceWidth, y: height },
+          { x: 0, y: height - shoulderY },
         ],
       });
     }
