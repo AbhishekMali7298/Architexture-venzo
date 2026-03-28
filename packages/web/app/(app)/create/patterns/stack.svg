@@ -1,0 +1,7 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="300" height="100">
+	<style type="text/css">path {stroke-width: 1; vector-effect: non-scaling-stroke; fill:none; stroke: #000; stroke-linecap: round; stroke-linejoin: miter;}</style>
+	<path d="m0 100v-100h300" />
+	<path d="m0 200v-100h300" />
+	<path d="m300 100v-100h300" />
+	<path d="m300 200v-100h300" />
+</svg>

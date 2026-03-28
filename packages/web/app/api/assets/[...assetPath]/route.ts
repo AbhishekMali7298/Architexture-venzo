@@ -3,6 +3,7 @@ import path from 'node:path';
 import { NextResponse } from 'next/server';
 
 const ASSET_ROOT = path.resolve(process.cwd(), '../../assets');
+const CREATE_PATTERN_ROOT = path.resolve(process.cwd(), 'app/(app)/create/patterns');
 
 function getContentType(filePath: string): string {
   const extension = path.extname(filePath).toLowerCase();
@@ -26,17 +27,33 @@ export async function GET(
   context: { params: Promise<{ assetPath: string[] }> },
 ) {
   const { assetPath } = await context.params;
-  const resolvedPath = path.resolve(ASSET_ROOT, ...assetPath);
+  const requestedRelativePath = assetPath.join('/');
+  const resolvedAssetPath = path.resolve(ASSET_ROOT, ...assetPath);
+  const resolvedCreatePatternPath = path.resolve(CREATE_PATTERN_ROOT, ...assetPath.slice(1));
 
-  if (!resolvedPath.startsWith(ASSET_ROOT)) {
+  if (!resolvedAssetPath.startsWith(ASSET_ROOT)) {
     return NextResponse.json({ error: 'Invalid asset path' }, { status: 400 });
   }
 
   try {
-    const file = await fs.readFile(resolvedPath);
+    let filePath = resolvedAssetPath;
+
+    if (
+      requestedRelativePath.startsWith('patterns/') &&
+      resolvedCreatePatternPath.startsWith(CREATE_PATTERN_ROOT)
+    ) {
+      try {
+        await fs.access(resolvedCreatePatternPath);
+        filePath = resolvedCreatePatternPath;
+      } catch {
+        filePath = resolvedAssetPath;
+      }
+    }
+
+    const file = await fs.readFile(filePath);
     return new NextResponse(file, {
       headers: {
-        'Content-Type': getContentType(resolvedPath),
+        'Content-Type': getContentType(filePath),
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
