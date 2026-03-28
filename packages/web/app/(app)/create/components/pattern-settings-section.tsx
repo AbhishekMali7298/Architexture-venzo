@@ -58,6 +58,7 @@ export function PatternSettingsSection({
           min={pattern.parameterRanges.angle.min}
           max={pattern.parameterRanges.angle.max}
           step={pattern.parameterRanges.angle.step}
+          commitOnChange
           onChange={onAngleChange}
         />
       ) : null}

@@ -36,6 +36,7 @@ function drawImageCover(
   y: number,
   width: number,
   height: number,
+  imageDrawBox?: { x: number; y: number; width: number; height: number },
 ) {
   const sourceWidth =
     image instanceof HTMLImageElement || image instanceof HTMLCanvasElement || image instanceof ImageBitmap
@@ -47,10 +48,11 @@ function drawImageCover(
       : height;
 
   const scale = Math.max(width / Math.max(sourceWidth, 1), height / Math.max(sourceHeight, 1));
+  const targetBox = imageDrawBox ?? { x, y, width, height };
   const drawWidth = sourceWidth * scale;
   const drawHeight = sourceHeight * scale;
-  const drawX = x + (width - drawWidth) / 2;
-  const drawY = y + (height - drawHeight) / 2;
+  const drawX = targetBox.x + (targetBox.width - drawWidth) / 2;
+  const drawY = targetBox.y + (targetBox.height - drawHeight) / 2;
 
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
@@ -66,9 +68,10 @@ export function fillMaterialSurface(
     fallbackFill: string;
     image?: CanvasImageSource | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
+    imageDrawBox?: { x: number; y: number; width: number; height: number };
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, clipPath } = options;
+  const { x, y, width, height, radius, fallbackFill, image, clipPath, imageDrawBox } = options;
 
   if (clipPath?.length) {
     tracePolygonPath(ctx, clipPath);
@@ -84,7 +87,7 @@ export function fillMaterialSurface(
   ctx.clip();
 
   if (image) {
-    drawImageCover(ctx, image, x, y, width, height);
+    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
   } else {
     ctx.fillStyle = fallbackFill;
     ctx.fillRect(x, y, width, height);

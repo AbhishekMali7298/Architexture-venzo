@@ -35,6 +35,7 @@ export function NumberField({
   max,
   step,
   unit,
+  commitOnChange,
   onChange,
 }: {
   label: string;
@@ -43,6 +44,7 @@ export function NumberField({
   max?: number;
   step?: number;
   unit?: string;
+  commitOnChange?: boolean;
   onChange: (value: number) => void;
 }) {
   const [draft, setDraft] = useState(() => String(Number.isFinite(value) ? value : 0));
@@ -63,7 +65,23 @@ export function NumberField({
           max={max}
           step={step}
           onChange={(event) => {
-            setDraft(event.target.value);
+            const nextDraft = event.target.value;
+            setDraft(nextDraft);
+
+            if (!commitOnChange) {
+              return;
+            }
+
+            if (nextDraft.trim() === '') {
+              return;
+            }
+
+            const parsed = Number.parseFloat(nextDraft);
+            if (!Number.isFinite(parsed)) {
+              return;
+            }
+
+            onChange(clampValue(parsed, min, max));
           }}
           onBlur={() => {
             if (draft.trim() === '') {

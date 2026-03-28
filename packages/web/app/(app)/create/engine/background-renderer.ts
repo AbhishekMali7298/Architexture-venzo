@@ -37,6 +37,7 @@ function drawTile(
   jointH: number,
   jointV: number,
   scale: number,
+  textureBox: { x: number; y: number; width: number; height: number },
   materialImage?: CanvasImageSource | null,
 ) {
   const insetX = (jointV * scale) / 2;
@@ -50,6 +51,7 @@ function drawTile(
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
+  const imageDelta = materialImage ? delta * 0.08 : delta;
   const radius =
     edgeStyle === 'handmade'
       ? 3 * scale
@@ -81,7 +83,7 @@ function drawTile(
     ctx.closePath();
   };
 
-  const tileFill = rgbAdjust(baseRgb, delta);
+  const tileFill = rgbAdjust(baseRgb, imageDelta);
   fillMaterialSurface(ctx, {
     x: insetX,
     y: insetY,
@@ -94,28 +96,38 @@ function drawTile(
       x: point.x * scale,
       y: point.y * scale,
     })),
+    imageDrawBox: materialImage
+      ? {
+          x: -(tile.x * scale),
+          y: -(tile.y * scale),
+          width: textureBox.width,
+          height: textureBox.height,
+        }
+      : undefined,
   });
 
-  if (materialImage && Math.abs(delta) > 0.25) {
+  if (materialImage && Math.abs(imageDelta) > 1.5) {
     ctx.save();
     traceTilePath();
     ctx.clip();
-    ctx.fillStyle = delta > 0 ? '#ffffff' : '#000000';
-    ctx.globalAlpha = Math.min(0.18, Math.abs(delta) / 60);
+    ctx.fillStyle = imageDelta > 0 ? '#ffffff' : '#000000';
+    ctx.globalAlpha = Math.min(0.04, Math.abs(imageDelta) / 120);
     ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
     ctx.restore();
   }
 
   if (edgeStyle !== 'none') {
     ctx.save();
-    ctx.globalAlpha = 0.07;
+    ctx.globalAlpha = materialImage ? 0.03 : 0.07;
     ctx.fillStyle = '#fff';
+    traceTilePath();
+    ctx.clip();
     ctx.fillRect(insetX, insetY, drawWidth * 0.5, drawHeight * 0.2);
     ctx.fillRect(insetX, insetY, drawWidth * 0.2, drawHeight * 0.5);
     ctx.restore();
   }
 
-  if (toneVariation > 15) {
+  if (!materialImage && toneVariation > 15) {
     ctx.save();
     ctx.globalAlpha = 0.025 + (toneVariation / 100) * 0.04;
     for (let i = 0; i < 12; i++) {
@@ -170,6 +182,13 @@ export function renderBackground(
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   const drawLayoutAt = (offsetX: number, offsetY: number) => {
+    const textureBox = {
+      x: offsetX,
+      y: offsetY,
+      width: tileSetWidth,
+      height: tileSetHeight,
+    };
+
     for (const tile of layout.tiles) {
       drawTile(
         ctx,
@@ -186,6 +205,7 @@ export function renderBackground(
         jointH,
         jointV,
         scale,
+        textureBox,
         options?.materialImage,
       );
     }
