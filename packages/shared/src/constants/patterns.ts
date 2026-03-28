@@ -235,8 +235,8 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 2, max: 50 },
       angle: { min: 15, max: 75, step: 1 },
     },
-    defaultUnitWidth: 200,
-    defaultUnitHeight: 50,
+    defaultUnitWidth: 400,
+    defaultUnitHeight: 100,
   },
   {
     type: 'pinwheel',

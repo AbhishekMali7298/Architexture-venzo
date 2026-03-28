@@ -270,47 +270,55 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const pieceWidth = Math.max(width / 2, 1);
   const clampedAngle = Math.max(5, Math.min(85, angle || 45));
   const angleRadians = (clampedAngle * Math.PI) / 180;
-  const mitreRise = Math.max(1, Math.min(height, pieceWidth * Math.tan(angleRadians)));
-  const shoulderY = Math.max((height - mitreRise) / 2, 0);
+  const pieceHeight = Math.max(height * 2, 1);
+  const mitreRise = Math.max(1, Math.min(pieceHeight, pieceWidth * Math.tan(angleRadians)));
+  const shoulderY = Math.max((pieceHeight - mitreRise) / 2, 0);
+  const rowStep = height + horizontalJoint;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const baseX = column * (width + verticalJoint);
-      const baseY = row * (height + horizontalJoint);
+      const baseY = row * rowStep - height;
 
       tiles.push({
         x: baseX,
         y: baseY,
         width: pieceWidth,
-        height,
+        height: pieceHeight,
         rotation: 0,
         materialIndex: 0,
         clipPath: [
-          { x: 0, y: shoulderY + mitreRise },
-          { x: pieceWidth, y: shoulderY },
-          { x: pieceWidth, y: height - shoulderY },
           { x: 0, y: height },
+          { x: pieceWidth, y: shoulderY },
+          { x: pieceWidth, y: shoulderY + height },
+          { x: 0, y: pieceHeight },
         ],
       });
       tiles.push({
         x: baseX + pieceWidth,
         y: baseY,
         width: pieceWidth,
-        height,
+        height: pieceHeight,
         rotation: 0,
         materialIndex: 0,
         clipPath: [
           { x: 0, y: shoulderY },
-          { x: pieceWidth, y: shoulderY + mitreRise },
           { x: pieceWidth, y: height },
-          { x: 0, y: height - shoulderY },
+          { x: pieceWidth, y: pieceHeight },
+          { x: 0, y: shoulderY + height },
         ],
       });
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  // Chevron pieces intentionally overlap adjacent rows; keep the repeat period
+  // tied to the user-facing module size so the border matches the editor controls.
+  return {
+    tiles,
+    totalWidth: columns * width + Math.max(0, columns - 1) * verticalJoint,
+    totalHeight: rows * height + Math.max(0, rows - 1) * horizontalJoint,
+  };
 }
 
 function layoutBasketweave(config: TextureConfig): PatternLayoutData {
