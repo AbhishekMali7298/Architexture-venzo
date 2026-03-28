@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, ReactNode, useState } from 'react';
+import { useEffect, type ReactNode, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export function Modal({ children, onClose }: { children: ReactNode; onClose: () => void }) {

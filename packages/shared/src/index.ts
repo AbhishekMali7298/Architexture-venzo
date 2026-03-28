@@ -33,6 +33,9 @@ export type {
   ExportStatus,
 } from './types/config';
 
+export type { PatternDefinition } from './constants/patterns';
+export type { MaterialDefinition, MaterialCategory } from './constants/materials';
+
 export type {
   PlanId,
   PlanFeatures,
@@ -114,8 +117,11 @@ export {
 
 export {
   MATERIAL_CATEGORIES,
+  MATERIAL_LIBRARY,
   SPECIAL_SOURCES,
   getMaterialCategory,
+  getMaterialById,
+  getMaterialsByCategory,
 } from './constants/materials';
 
 export {

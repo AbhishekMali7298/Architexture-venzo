@@ -1,4 +1,4 @@
-import type { TextureConfig, PatternConfig, MaterialConfig, JointsConfig, EditorTab, MapType } from '@textura/shared';
+import type { TextureConfig } from '@textura/shared';
 
 /**
  * Default texture configuration — used when creating a new project.
