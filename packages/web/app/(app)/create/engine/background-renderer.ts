@@ -1,6 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
+import { fillMaterialSurface, traceRoundedRectPath } from './material-fill';
 
 function seededRng(seed: number) {
   let s = seed >>> 0;
@@ -35,6 +36,7 @@ function drawTile(
   jointH: number,
   jointV: number,
   scale: number,
+  materialImage?: CanvasImageSource | null,
 ) {
   const insetX = (jointV * scale) / 2;
   const insetY = (jointH * scale) / 2;
@@ -47,8 +49,6 @@ function drawTile(
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
-  ctx.fillStyle = rgbAdjust(baseRgb, delta);
-
   const radius =
     edgeStyle === 'handmade'
       ? 3 * scale
@@ -58,17 +58,31 @@ function drawTile(
           ? 1.5 * scale
           : 0;
 
-  if (radius > 0) {
-    ctx.beginPath();
-    ctx.moveTo(insetX + radius, insetY);
-    ctx.arcTo(insetX + drawWidth, insetY, insetX + drawWidth, insetY + drawHeight, radius);
-    ctx.arcTo(insetX + drawWidth, insetY + drawHeight, insetX, insetY + drawHeight, radius);
-    ctx.arcTo(insetX, insetY + drawHeight, insetX, insetY, radius);
-    ctx.arcTo(insetX, insetY, insetX + drawWidth, insetY, radius);
-    ctx.closePath();
-    ctx.fill();
-  } else {
+  const tileFill = rgbAdjust(baseRgb, delta);
+  fillMaterialSurface(ctx, {
+    x: insetX,
+    y: insetY,
+    width: drawWidth,
+    height: drawHeight,
+    radius,
+    fallbackFill: tileFill,
+    image: materialImage,
+  });
+
+  if (materialImage && Math.abs(delta) > 0.25) {
+    ctx.save();
+    if (radius > 0) {
+      traceRoundedRectPath(ctx, insetX, insetY, drawWidth, drawHeight, radius);
+    } else {
+      ctx.beginPath();
+      ctx.rect(insetX, insetY, drawWidth, drawHeight);
+      ctx.closePath();
+    }
+    ctx.clip();
+    ctx.fillStyle = delta > 0 ? '#ffffff' : '#000000';
+    ctx.globalAlpha = Math.min(0.18, Math.abs(delta) / 60);
     ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
+    ctx.restore();
   }
 
   if (edgeStyle !== 'none') {
@@ -100,6 +114,7 @@ export function renderBackground(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
+  options?: { materialImage?: CanvasImageSource | null },
 ): void {
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
@@ -140,6 +155,7 @@ export function renderBackground(
           jointH,
           jointV,
           scale,
+          options?.materialImage,
         );
       }
     }

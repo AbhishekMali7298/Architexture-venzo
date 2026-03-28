@@ -1,14 +1,21 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { getMaterialById } from '@textura/shared';
 import { useEditorStore } from '../store/editor-store';
 import { renderToCanvas } from '../engine/pattern-renderer';
+import { getMaterialRenderableImageUrl } from '../lib/material-assets';
+import { useMaterialImage } from '../lib/material-image-cache';
 
 export function TextureCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const config = useEditorStore((s) => s.config);
   const renderVersion = useEditorStore((s) => s.renderVersion);
   const zoom = useEditorStore((s) => s.zoom);
+  const primaryMaterial = config.materials[0]!;
+  const selectedMaterial = primaryMaterial.definitionId ? getMaterialById(primaryMaterial.definitionId) : null;
+  const materialImageUrl = getMaterialRenderableImageUrl(primaryMaterial, selectedMaterial);
+  const materialImage = useMaterialImage(materialImageUrl);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,8 +32,8 @@ export function TextureCanvas() {
     ctx.scale(dpr, dpr);
 
     // Initial render
-    renderToCanvas(ctx, config, rect.width, rect.height);
-  }, [config, renderVersion]);
+    renderToCanvas(ctx, config, rect.width, rect.height, { materialImage });
+  }, [config, renderVersion, materialImage]);
 
   return (
     <div className="canvas-wrapper" style={{ transform: `scale(${zoom})` }}>

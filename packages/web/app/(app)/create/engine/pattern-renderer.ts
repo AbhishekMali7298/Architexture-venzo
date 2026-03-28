@@ -1,6 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
+import { fillMaterialSurface, traceRoundedRectPath } from './material-fill';
 
 export interface RenderedJoint {
   x1: number;
@@ -35,6 +36,7 @@ export function renderToCanvas(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
+  options?: { materialImage?: CanvasImageSource | null },
 ): void {
   const layout = computePatternLayout(config);
   const rng = seededRandom(config.seed);
@@ -71,20 +73,41 @@ export function renderToCanvas(
     const tileWidth = tile.width * scale - config.joints.verticalSize * scale;
     const tileHeight = tile.height * scale - config.joints.horizontalSize * scale;
 
-    ctx.fillStyle = tileColor;
     const cornerRadius = material.edges.style === 'handmade' ? 2 : material.edges.style === 'rough' ? 3 : 0;
-    if (cornerRadius > 0) {
-      roundRect(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
-      ctx.fill();
-    } else {
-      ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
+    fillMaterialSurface(ctx, {
+      x: tileX,
+      y: tileY,
+      width: tileWidth,
+      height: tileHeight,
+      radius: cornerRadius,
+      fallbackFill: tileColor,
+      image: options?.materialImage,
+    });
+
+    if (options?.materialImage) {
+      const variationStrength = Math.abs((rng() - 0.5) * variation * 0.015);
+      if (variationStrength > 0.001) {
+        ctx.save();
+        if (cornerRadius > 0) {
+          traceRoundedRectPath(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
+        } else {
+          ctx.beginPath();
+          ctx.rect(tileX, tileY, tileWidth, tileHeight);
+          ctx.closePath();
+        }
+        ctx.clip();
+        ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
+        ctx.globalAlpha = Math.min(0.16, variationStrength);
+        ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
+        ctx.restore();
+      }
     }
 
     if (material.edges.style !== 'none') {
       ctx.strokeStyle = 'rgba(0,0,0,0.12)';
       ctx.lineWidth = 1;
       if (cornerRadius > 0) {
-        roundRect(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
+        traceRoundedRectPath(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
         ctx.stroke();
       } else {
         ctx.strokeRect(tileX, tileY, tileWidth, tileHeight);
@@ -134,23 +157,6 @@ export function renderToCanvas(
   ctx.lineWidth = 2;
   ctx.strokeRect(offsetX - 2, offsetY - 2, layout.totalWidth * scale + 4, layout.totalHeight * scale + 4);
   ctx.setLineDash([]);
-}
-
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
 }
 
 function adjustBrightness(hex: string, amount: number): string {

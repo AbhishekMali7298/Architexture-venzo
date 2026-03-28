@@ -1,13 +1,20 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { getMaterialById } from '@textura/shared';
 import { useEditorStore } from '../store/editor-store';
 import { renderBackground, drawDottedBorder } from '../engine/background-renderer';
+import { getMaterialRenderableImageUrl } from '../lib/material-assets';
+import { useMaterialImage } from '../lib/material-image-cache';
 
 export function BackgroundCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const config = useEditorStore((s) => s.config);
   const renderVersion = useEditorStore((s) => s.renderVersion);
+  const primaryMaterial = config.materials[0]!;
+  const selectedMaterial = primaryMaterial.definitionId ? getMaterialById(primaryMaterial.definitionId) : null;
+  const materialImageUrl = getMaterialRenderableImageUrl(primaryMaterial, selectedMaterial);
+  const materialImage = useMaterialImage(materialImageUrl);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,7 +31,7 @@ export function BackgroundCanvas() {
 
       const ctx = canvas.getContext('2d')!;
       ctx.scale(dpr, dpr);
-      renderBackground(ctx, config, w, h);
+      renderBackground(ctx, config, w, h, { materialImage });
 
       // Draw the "texture boundary" dotted box (right side of screen)
       const panelW = 300;
@@ -39,7 +46,7 @@ export function BackgroundCanvas() {
     render();
     window.addEventListener('resize', render);
     return () => window.removeEventListener('resize', render);
-  }, [config, renderVersion]);
+  }, [config, renderVersion, materialImage]);
 
   return (
     <canvas
