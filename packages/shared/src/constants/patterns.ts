@@ -26,6 +26,22 @@ export interface PatternDefinition {
 }
 
 export const PATTERN_CATALOG: PatternDefinition[] = [
+  {
+    type: 'none',
+    category: 'random',
+    displayName: 'None',
+    description: 'Single material field without a repeated layout',
+    previewPath: '',
+    previewAssetPath: 'patterns/none.svg',
+    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
+    parameterRanges: {
+      rows: { min: 1, max: 1 },
+      columns: { min: 1, max: 1 },
+      angle: { min: 0, max: 0, step: 1 },
+    },
+    defaultUnitWidth: 1200,
+    defaultUnitHeight: 1200,
+  },
   // ===== Brick Bond =====
   {
     type: 'running_bond',
@@ -65,6 +81,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Flemish Bond',
     description: 'Alternating stretchers and headers in each course',
     previewPath: 'M0,0h12v10H0M12,0h20v10M32,0h8v10M0,10h8v10M8,10h20v10M28,10h12v10',
+    previewAssetPath: 'patterns/323.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -81,6 +98,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'English Bond',
     description: 'Alternating courses of stretchers and headers',
     previewPath: 'M0,0h40M0,10h40M0,20h40M0,30h40M0,0v10M20,0v10M0,10v10M10,10v10M20,10v10M30,10v10',
+    previewAssetPath: 'patterns/322.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -113,6 +131,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Soldier Course',
     description: 'Bricks standing vertically',
     previewPath: 'M0,0h8v40H0zM8,0h8v40M16,0h8v40M24,0h8v40M32,0h8v40',
+    previewAssetPath: 'patterns/stack.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -228,6 +247,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Pinwheel',
     description: 'Four rectangles around a central square',
     previewPath: 'M0,0h20v20H0M20,0h8v8M20,8h20v20M28,0h12v8',
+    previewAssetPath: 'patterns/322.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -243,6 +263,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Windmill',
     description: 'Four tiles arranged around a center in windmill formation',
     previewPath: 'M0,0h15v15H0M15,0h25v15M0,15h25v15M25,15h15v25M0,30h25v10M15,15h10v15',
+    previewAssetPath: 'patterns/323.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -258,6 +279,7 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Subway Tile',
     description: 'Classic subway tile with half offset',
     previewPath: 'M0,0h20v10H0zM20,0h20v10M10,10h20v10M0,10h10v10M30,10h10v10',
+    previewAssetPath: 'patterns/common.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },

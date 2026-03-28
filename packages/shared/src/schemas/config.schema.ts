@@ -81,6 +81,7 @@ export const patternCategorySchema = z.enum([
 ]);
 
 export const patternTypeSchema = z.enum([
+  'none',
   'running_bond',
   'stack_bond',
   'flemish_bond',

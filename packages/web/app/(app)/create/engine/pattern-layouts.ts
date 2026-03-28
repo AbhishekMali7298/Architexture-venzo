@@ -39,6 +39,25 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
   return { tiles, totalWidth, totalHeight };
 }
 
+function layoutNone(config: TextureConfig): PatternLayoutData {
+  const { width, height } = getMaterialMetrics(config);
+
+  return {
+    tiles: [
+      {
+        x: 0,
+        y: 0,
+        width,
+        height,
+        rotation: 0,
+        materialIndex: 0,
+      },
+    ],
+    totalWidth: width,
+    totalHeight: height,
+  };
+}
+
 function layoutRunningBond(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
@@ -108,21 +127,21 @@ function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
 
 function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const headerWidth = Math.max(width / 2, 1);
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
-    let cursorX = row % 2 === 1 ? -(headerWidth + verticalJoint) / 2 : 0;
+    let cursorX = row % 2 === 1 ? -(headerWidth + verticalJoint) : 0;
     for (let unit = 0; unit < columns * 2; unit++) {
-      const useHeader = (row + unit) % 2 === 0;
+      const useHeader = unit % 2 === 0;
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
         x: cursorX,
         y: row * (height + horizontalJoint),
         width: tileWidth,
         height,
-        rotation: angle,
+        rotation: 0,
         materialIndex: 0,
       });
       cursorX += tileWidth + verticalJoint;
@@ -191,32 +210,53 @@ function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
 
 function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-  const step = (width + height) / 2;
+  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
+  const step = width * 0.5;
   const tiles: PatternTile[] = [];
+  const useOrthogonal = Math.abs((((angle % 180) + 180) % 180) - 90) < 0.001;
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      const baseX = column * (step + verticalJoint);
-      const baseY = row * (step + horizontalJoint);
+      const baseX = column * (width + verticalJoint);
+      const baseY = row * (width + horizontalJoint);
 
-      tiles.push({
-        x: baseX,
-        y: baseY + height / 2,
-        width,
-        height,
-        rotation: -45,
-        materialIndex: 0,
-      });
+      if (useOrthogonal) {
+        tiles.push({
+          x: baseX,
+          y: baseY,
+          width,
+          height,
+          rotation: 0,
+          materialIndex: 0,
+        });
 
-      tiles.push({
-        x: baseX + width / 2,
-        y: baseY,
-        width,
-        height,
-        rotation: 45,
-        materialIndex: 0,
-      });
+        tiles.push({
+          x: baseX + width - height,
+          y: baseY + height,
+          width,
+          height,
+          rotation: 90,
+          materialIndex: 0,
+        });
+      } else {
+        tiles.push({
+          x: baseX,
+          y: baseY + step,
+          width,
+          height,
+          rotation: -45,
+          materialIndex: 0,
+        });
+
+        tiles.push({
+          x: baseX + step,
+          y: baseY,
+          width,
+          height,
+          rotation: 45,
+          materialIndex: 0,
+        });
+      }
     }
   }
 
@@ -227,7 +267,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
-  const pieceHeight = width / 2 + height;
+  const pieceHeight = Math.max(height, width / 2);
+  const shoulderY = Math.max(pieceHeight - height, 0);
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -244,7 +285,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
         clipPath: [
           { x: 0, y: 0 },
           { x: pieceWidth, y: 0 },
-          { x: pieceWidth, y: height },
+          { x: pieceWidth, y: shoulderY },
           { x: 0, y: pieceHeight },
         ],
       });
@@ -256,10 +297,10 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
         rotation: 0,
         materialIndex: 0,
         clipPath: [
-          { x: 0, y: 0 },
+          { x: 0, y: shoulderY },
           { x: pieceWidth, y: 0 },
           { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: height },
+          { x: 0, y: shoulderY },
         ],
       });
     }
@@ -409,10 +450,12 @@ function layoutAshlar(config: TextureConfig): PatternLayoutData {
 
 function layoutPinwheel(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const square = Math.min(width, height) * 0.5;
-  const unitWidth = width + square + verticalJoint * 2;
-  const unitHeight = height + square + horizontalJoint * 2;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const square = Math.max(Math.min(width, height), 1);
+  const armLength = square * 1.5;
+  const armThickness = square * 0.5;
+  const unitWidth = armLength + square + verticalJoint * 2;
+  const unitHeight = armLength + square + horizontalJoint * 2;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -420,10 +463,39 @@ function layoutPinwheel(config: TextureConfig): PatternLayoutData {
       const baseX = column * unitWidth;
       const baseY = row * unitHeight;
 
-      tiles.push({ x: baseX, y: baseY, width, height: square, rotation: angle, materialIndex: 0 });
-      tiles.push({ x: baseX + width + verticalJoint, y: baseY, width: square, height, rotation: angle + 90, materialIndex: 0 });
-      tiles.push({ x: baseX + square, y: baseY + height + horizontalJoint, width, height: square, rotation: angle + 180, materialIndex: 0 });
-      tiles.push({ x: baseX, y: baseY + square, width: square, height, rotation: angle + 270, materialIndex: 0 });
+      tiles.push({ x: baseX, y: baseY, width: armLength, height: armThickness, rotation: 0, materialIndex: 0 });
+      tiles.push({
+        x: baseX + armLength + verticalJoint,
+        y: baseY,
+        width: armThickness,
+        height: square,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX + square,
+        y: baseY + armLength + horizontalJoint,
+        width: armLength,
+        height: armThickness,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX,
+        y: baseY + armThickness,
+        width: armThickness,
+        height: square,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX + square,
+        y: baseY + armThickness,
+        width: square,
+        height: square,
+        rotation: 0,
+        materialIndex: 0,
+      });
     }
   }
 
@@ -432,10 +504,12 @@ function layoutPinwheel(config: TextureConfig): PatternLayoutData {
 
 function layoutWindmill(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const arm = Math.min(width, height) * 0.5;
-  const unitWidth = width + arm + verticalJoint * 2;
-  const unitHeight = height + arm + horizontalJoint * 2;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const square = Math.max(Math.min(width, height), 1);
+  const arm = square * 1.5;
+  const armThickness = square * 0.5;
+  const unitWidth = arm + square + verticalJoint * 2;
+  const unitHeight = arm + square + horizontalJoint * 2;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -443,17 +517,46 @@ function layoutWindmill(config: TextureConfig): PatternLayoutData {
       const baseX = column * unitWidth;
       const baseY = row * unitHeight;
 
-      tiles.push({ x: baseX, y: baseY, width: arm, height, rotation: angle, materialIndex: 0 });
-      tiles.push({ x: baseX + arm + verticalJoint, y: baseY, width, height: arm, rotation: angle + 90, materialIndex: 0 });
-      tiles.push({ x: baseX + width, y: baseY + arm + horizontalJoint, width: arm, height, rotation: angle + 180, materialIndex: 0 });
-      tiles.push({ x: baseX, y: baseY + height, width, height: arm, rotation: angle + 270, materialIndex: 0 });
+      tiles.push({ x: baseX, y: baseY, width: arm, height: armThickness, rotation: 0, materialIndex: 0 });
+      tiles.push({
+        x: baseX + arm + verticalJoint,
+        y: baseY,
+        width: armThickness,
+        height: arm,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX + armThickness,
+        y: baseY + arm + horizontalJoint,
+        width: arm,
+        height: armThickness,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX,
+        y: baseY + armThickness,
+        width: armThickness,
+        height: arm,
+        rotation: 0,
+        materialIndex: 0,
+      });
+      tiles.push({
+        x: baseX + armThickness,
+        y: baseY + armThickness,
+        width: square,
+        height: square,
+        rotation: 0,
+        materialIndex: 0,
+      });
     }
   }
 
   return withBounds(tiles, horizontalJoint, verticalJoint);
 }
-
 const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => PatternLayoutData>> = {
+  none: layoutNone,
   running_bond: layoutRunningBond,
   stack_bond: layoutStackBond,
   stretcher_bond: layoutStretcherBond,

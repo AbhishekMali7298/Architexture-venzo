@@ -35,6 +35,7 @@ export type PatternCategory =
   | 'roofing';
 
 export type PatternType =
+  | 'none'
   | 'running_bond'
   | 'stack_bond'
   | 'flemish_bond'

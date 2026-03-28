@@ -10,7 +10,7 @@ import type {
   EdgeStyle,
   MaterialDefinition,
 } from '@textura/shared';
-import { getMaterialById } from '@textura/shared';
+import { getMaterialById, getPatternByType } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 // ======= History (Undo/Redo) =======
@@ -127,9 +127,23 @@ export const useEditorStore = create<EditorState>()(
 
     setPatternType: (type, category) =>
       set((s) => {
+        const definition = getPatternByType(type);
         pushHistory(s, `Pattern → ${type}`);
         s.config.pattern.type = type;
         s.config.pattern.category = category;
+        if (definition) {
+          s.config.pattern.rows = definition.defaults.rows;
+          s.config.pattern.columns = definition.defaults.columns;
+          s.config.pattern.angle = definition.defaults.angle;
+          s.config.pattern.stretchers = definition.defaults.stretchers;
+          s.config.pattern.weaves = definition.defaults.weaves;
+
+          const activeMaterial = s.config.materials[s.activeMaterialIndex];
+          if (activeMaterial) {
+            activeMaterial.width = definition.defaultUnitWidth;
+            activeMaterial.height = definition.defaultUnitHeight;
+          }
+        }
         bumpRender(s);
       }),
 
