@@ -31,16 +31,11 @@ export function BackgroundCanvas() {
 
       const ctx = canvas.getContext('2d')!;
       ctx.scale(dpr, dpr);
-      renderBackground(ctx, config, w, h, { materialImage });
+      const previewBounds = renderBackground(ctx, config, w, h, { materialImage });
 
-      // Draw the "texture boundary" dotted box (right side of screen)
-      const panelW = 300;
-      const pad = 40;
-      const bx = panelW + pad;
-      const by = pad;
-      const bw = w - bx - pad;
-      const bh = h - by - pad;
-      drawDottedBorder(ctx, bx, by, bw, bh);
+      if (previewBounds) {
+        drawDottedBorder(ctx, previewBounds.x, previewBounds.y, previewBounds.width, previewBounds.height);
+      }
     };
 
     render();

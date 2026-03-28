@@ -136,7 +136,7 @@ export function renderBackground(
   canvasWidth: number,
   canvasHeight: number,
   options?: { materialImage?: CanvasImageSource | null },
-): void {
+): { x: number; y: number; width: number; height: number } | null {
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
@@ -149,18 +149,31 @@ export function renderBackground(
   const jointV = config.joints.verticalSize;
 
   const layout = getPatternLayout(config);
-  if (!layout.tiles.length) return;
+  if (!layout.tiles.length) return null;
 
-  const targetWidth = canvasWidth * 0.42;
-  const scale = targetWidth / Math.max(layout.totalWidth, 1);
+  const panelWidth = 320;
+  const outerPadding = 40;
+  const availableX = panelWidth + outerPadding;
+  const availableY = outerPadding;
+  const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
+  const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
+
+  const scaleX = (availableWidth * 0.94) / Math.max(layout.totalWidth, 1);
+  const scaleY = (availableHeight * 0.94) / Math.max(layout.totalHeight, 1);
+  const scale = Math.max(0.01, Math.min(scaleX, scaleY));
   const tileSetHeight = layout.totalHeight * scale;
   const tileSetWidth = layout.totalWidth * scale;
+  const previewX = availableX + (availableWidth - tileSetWidth) / 2;
+  const previewY = availableY + (availableHeight - tileSetHeight) / 2;
 
   ctx.fillStyle = jointColor;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  for (let y = -tileSetHeight; y < canvasHeight + tileSetHeight; y += tileSetHeight) {
-    for (let x = 0; x < canvasWidth + tileSetWidth; x += tileSetWidth) {
+  const startX = previewX - Math.ceil(previewX / Math.max(tileSetWidth, 1)) * tileSetWidth;
+  const startY = previewY - Math.ceil(previewY / Math.max(tileSetHeight, 1)) * tileSetHeight;
+
+  for (let y = startY; y < canvasHeight + tileSetHeight; y += tileSetHeight) {
+    for (let x = startX; x < canvasWidth + tileSetWidth; x += tileSetWidth) {
       for (const tile of layout.tiles) {
         drawTile(
           ctx,
@@ -182,6 +195,13 @@ export function renderBackground(
       }
     }
   }
+
+  return {
+    x: previewX,
+    y: previewY,
+    width: tileSetWidth,
+    height: tileSetHeight,
+  };
 }
 
 export function drawDottedBorder(
