@@ -70,6 +70,8 @@ export interface EditorState {
   // Output
   setOutputSize: (width: number, height: number) => void;
   setUnits: (units: 'mm' | 'inches') => void;
+  loadProjectConfig: (config: TextureConfig, options?: { resetHistory?: boolean; label?: string }) => void;
+  resetProject: () => void;
 
   // UI
   setActiveTab: (tab: EditorTab) => void;
@@ -292,6 +294,27 @@ export const useEditorStore = create<EditorState>()(
     setUnits: (units) =>
       set((s) => {
         s.config.units = units;
+        bumpRender(s);
+      }),
+
+    loadProjectConfig: (config, options) =>
+      set((s) => {
+        if (options?.resetHistory) {
+          s.undoStack = [];
+          s.redoStack = [];
+        } else {
+          pushHistory(s, options?.label ?? 'Load project');
+        }
+
+        s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
+        bumpRender(s);
+      }),
+
+    resetProject: () =>
+      set((s) => {
+        pushHistory(s, 'Reset project');
+        s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
+        bumpRender(s);
       }),
 
     // ===== UI Actions =====

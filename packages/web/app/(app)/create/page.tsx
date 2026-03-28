@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getMaterialById, getMaterialCategory } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
@@ -10,6 +10,8 @@ import { MaterialSettingsSection } from './components/material-settings-section'
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
+import { exportPreviewPng, exportProjectJson } from './lib/project-export';
+import { formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
 
 export default function CreatePage() {
@@ -28,6 +30,7 @@ export default function CreatePage() {
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setUnits = useEditorStore((state) => state.setUnits);
+  const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const undo = useEditorStore((state) => state.undo);
   const redo = useEditorStore((state) => state.redo);
   const canUndo = useEditorStore((state) => state.undoStack.length > 0);
@@ -35,8 +38,20 @@ export default function CreatePage() {
 
   const [showPatternModal, setShowPatternModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [footerStatus, setFooterStatus] = useState('Local save and export are ready.');
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [isExportingPng, setIsExportingPng] = useState(false);
 
   const material = config.materials[0]!;
+
+  useEffect(() => {
+    const savedProject = loadProjectFromStorage();
+    if (!savedProject) return;
+
+    loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
+    setLastSavedAt(savedProject.savedAt);
+    setFooterStatus(`Restored local project from ${formatSavedAt(savedProject.savedAt)}.`);
+  }, [loadProjectConfig]);
 
   const selectedMaterial = useMemo(() => {
     if (!material.definitionId) return null;
@@ -52,6 +67,47 @@ export default function CreatePage() {
 
   const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${config.units}`;
 
+  const handleSaveProject = () => {
+    const savedProject = saveProjectToStorage(config);
+    if (!savedProject) {
+      setFooterStatus('Local save is unavailable in this environment.');
+      return;
+    }
+
+    setLastSavedAt(savedProject.savedAt);
+    setFooterStatus(`Saved locally on ${formatSavedAt(savedProject.savedAt)}.`);
+  };
+
+  const handleLoadLast = () => {
+    const savedProject = loadProjectFromStorage();
+    if (!savedProject) {
+      setFooterStatus('No saved local project found yet.');
+      return;
+    }
+
+    loadProjectConfig(savedProject.config, { label: 'Load saved project' });
+    setLastSavedAt(savedProject.savedAt);
+    setFooterStatus(`Loaded local project from ${formatSavedAt(savedProject.savedAt)}.`);
+  };
+
+  const handleExportJson = async () => {
+    await exportProjectJson(config);
+    setFooterStatus('Downloaded project JSON.');
+  };
+
+  const handleExportPng = async () => {
+    setIsExportingPng(true);
+
+    try {
+      await exportPreviewPng(config);
+      setFooterStatus('Downloaded preview PNG.');
+    } catch {
+      setFooterStatus('Preview export failed. Please try again.');
+    } finally {
+      setIsExportingPng(false);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <BackgroundCanvas />
@@ -61,18 +117,42 @@ export default function CreatePage() {
         onTabChange={setActiveTab}
         footer={
           <>
-            <button className={styles.primaryButton} type="button">
+            <button className={styles.primaryButton} type="button" onClick={handleSaveProject}>
               Save Project
             </button>
             <div className={styles.secondaryRow}>
+              <button className={styles.secondaryButton} type="button" onClick={handleLoadLast}>
+                Load Last
+              </button>
+              <button className={styles.secondaryButton} type="button" onClick={handleExportJson}>
+                Export JSON
+              </button>
+            </div>
+            <div className={styles.secondaryRow}>
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={handleExportPng}
+                disabled={isExportingPng}
+              >
+                {isExportingPng ? 'Exporting…' : 'Export PNG'}
+              </button>
               <button className={styles.secondaryButton} type="button" onClick={undo} disabled={!canUndo}>
                 Undo
               </button>
+            </div>
+            <div className={styles.secondaryRow}>
               <button className={styles.secondaryButton} type="button" onClick={redo} disabled={!canRedo}>
                 Redo
               </button>
+              <div style={{ flex: 1 }} />
             </div>
-            <p className={styles.footerCopy}>Create editor foundations are now using modular UI and shared registries.</p>
+            <div className={styles.footerMeta}>
+              <p className={styles.statusText}>{footerStatus}</p>
+              <p className={styles.footerCopy}>
+                {lastSavedAt ? `Last local save: ${formatSavedAt(lastSavedAt)}.` : 'No local save yet.'}
+              </p>
+            </div>
           </>
         }
       >

@@ -258,6 +258,12 @@
   cursor: pointer;
 }
 
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
 .secondaryRow {
   display: flex;
   gap: 8px;
@@ -275,7 +281,22 @@
   cursor: pointer;
 }
 
+.footerMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusText {
+  min-height: 18px;
+  margin: 0;
+  font-size: 11px;
+  color: #475569;
+  text-align: center;
+}
+
 .footerCopy {
+  margin: 0;
   font-size: 11px;
   color: #64748b;
   text-align: center;

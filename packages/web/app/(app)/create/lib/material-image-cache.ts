@@ -9,7 +9,7 @@ type ImageRecord =
 
 const imageCache = new Map<string, ImageRecord>();
 
-function loadImage(url: string): Promise<HTMLImageElement> {
+export function loadMaterialImage(url: string): Promise<HTMLImageElement> {
   const cached = imageCache.get(url);
 
   if (cached?.status === 'loaded') {
@@ -60,7 +60,7 @@ export function useMaterialImage(url: string | null): HTMLImageElement | null {
 
     let cancelled = false;
 
-    loadImage(url)
+    loadMaterialImage(url)
       .then((nextImage) => {
         if (!cancelled) {
           setImage(nextImage);
