@@ -47,6 +47,7 @@ function imageMaterial(options: {
   categoryId: string;
   swatchColor: string;
   thumbPath: string;
+  albedoPath?: string;
   width: number;
   height: number;
   finish?: string;
@@ -54,6 +55,7 @@ function imageMaterial(options: {
   featured?: boolean;
 }): MaterialDefinition {
   const thumbnail = jpgAsset(options.thumbPath);
+  const albedo = jpgAsset(options.albedoPath ?? options.thumbPath);
   const metadata =
     options.finish !== undefined || options.toneVariation !== undefined || options.featured !== undefined
       ? {
@@ -70,7 +72,7 @@ function imageMaterial(options: {
     sourceType: 'image',
     swatchColor: options.swatchColor,
     thumbnail,
-    albedo: thumbnail,
+    albedo,
     bump: null,
     normal: null,
     roughness: null,
@@ -81,7 +83,7 @@ function imageMaterial(options: {
     ...(metadata ? { metadata } : {}),
     source: {
       type: 'image',
-      asset: thumbnail,
+      asset: albedo,
       fallbackColor: options.swatchColor,
     },
   };
@@ -125,7 +127,8 @@ export const MATERIAL_LIBRARY: MaterialDefinition[] = [
     name: 'Granite',
     categoryId: 'stone',
     swatchColor: '#d8d9d4',
-    thumbPath: 'materials/1/thumb_200.jpg',
+    thumbPath: 'materials/granite/granite thumb.jpg',
+    albedoPath: 'materials/granite/granite-oriiginal.jpg',
     width: 300,
     height: 300,
     finish: 'split-face',
