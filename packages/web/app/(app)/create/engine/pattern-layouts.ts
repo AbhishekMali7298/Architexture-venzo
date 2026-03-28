@@ -211,14 +211,15 @@ function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
 function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const step = width * 0.5;
+  const diagonalModule = Math.max(width, height) + Math.max(height, width * 0.25);
+  const step = diagonalModule / 2;
   const tiles: PatternTile[] = [];
   const useOrthogonal = Math.abs((((angle % 180) + 180) % 180) - 90) < 0.001;
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      const baseX = column * (width + verticalJoint);
-      const baseY = row * (width + horizontalJoint);
+      const baseX = column * (diagonalModule + verticalJoint);
+      const baseY = row * (diagonalModule + horizontalJoint);
 
       if (useOrthogonal) {
         tiles.push({
@@ -300,7 +301,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
           { x: 0, y: shoulderY },
           { x: pieceWidth, y: 0 },
           { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: shoulderY },
+          { x: 0, y: pieceHeight },
         ],
       });
     }
@@ -466,14 +467,14 @@ function layoutPinwheel(config: TextureConfig): PatternLayoutData {
       tiles.push({ x: baseX, y: baseY, width: armLength, height: armThickness, rotation: 0, materialIndex: 0 });
       tiles.push({
         x: baseX + armLength + verticalJoint,
-        y: baseY,
+        y: baseY + armThickness,
         width: armThickness,
         height: square,
         rotation: 0,
         materialIndex: 0,
       });
       tiles.push({
-        x: baseX + square,
+        x: baseX + armThickness,
         y: baseY + armLength + horizontalJoint,
         width: armLength,
         height: armThickness,
@@ -489,7 +490,7 @@ function layoutPinwheel(config: TextureConfig): PatternLayoutData {
         materialIndex: 0,
       });
       tiles.push({
-        x: baseX + square,
+        x: baseX + armThickness,
         y: baseY + armThickness,
         width: square,
         height: square,
