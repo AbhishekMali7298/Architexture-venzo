@@ -1,7 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
-import { fillMaterialSurface, traceRoundedRectPath } from './material-fill';
+import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
 export interface RenderedJoint {
   x1: number;
@@ -53,6 +53,35 @@ export function renderToCanvas(
   ctx.fillStyle = jointColor;
   ctx.fillRect(offsetX, offsetY, layout.totalWidth * scale, layout.totalHeight * scale);
 
+  const traceTilePath = (
+    tileX: number,
+    tileY: number,
+    tileWidth: number,
+    tileHeight: number,
+    tile: PatternTile,
+    cornerRadius: number,
+  ) => {
+    if (tile.clipPath?.length) {
+      tracePolygonPath(
+        ctx,
+        tile.clipPath.map((point) => ({
+          x: point.x * scale,
+          y: point.y * scale,
+        })),
+      );
+      return;
+    }
+
+    if (cornerRadius > 0) {
+      traceRoundedRectPath(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
+      return;
+    }
+
+    ctx.beginPath();
+    ctx.rect(tileX, tileY, tileWidth, tileHeight);
+    ctx.closePath();
+  };
+
   for (const tile of layout.tiles) {
     const material = config.materials[tile.materialIndex] ?? config.materials[0]!;
     const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
@@ -82,19 +111,17 @@ export function renderToCanvas(
       radius: cornerRadius,
       fallbackFill: tileColor,
       image: options?.materialImage,
+      clipPath: tile.clipPath?.map((point) => ({
+        x: point.x * scale,
+        y: point.y * scale,
+      })),
     });
 
     if (options?.materialImage) {
       const variationStrength = Math.abs((rng() - 0.5) * variation * 0.015);
       if (variationStrength > 0.001) {
         ctx.save();
-        if (cornerRadius > 0) {
-          traceRoundedRectPath(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
-        } else {
-          ctx.beginPath();
-          ctx.rect(tileX, tileY, tileWidth, tileHeight);
-          ctx.closePath();
-        }
+        traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
         ctx.clip();
         ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
         ctx.globalAlpha = Math.min(0.16, variationStrength);
@@ -106,12 +133,8 @@ export function renderToCanvas(
     if (material.edges.style !== 'none') {
       ctx.strokeStyle = 'rgba(0,0,0,0.12)';
       ctx.lineWidth = 1;
-      if (cornerRadius > 0) {
-        traceRoundedRectPath(ctx, tileX, tileY, tileWidth, tileHeight, cornerRadius);
-        ctx.stroke();
-      } else {
-        ctx.strokeRect(tileX, tileY, tileWidth, tileHeight);
-      }
+      traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
+      ctx.stroke();
     }
 
     if (variation > 10) {

@@ -15,6 +15,20 @@ export function traceRoundedRectPath(
   ctx.closePath();
 }
 
+export function tracePolygonPath(
+  ctx: CanvasRenderingContext2D,
+  points: ReadonlyArray<{ x: number; y: number }>,
+) {
+  if (!points.length) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0]!.x, points[0]!.y);
+  for (let index = 1; index < points.length; index++) {
+    const point = points[index]!;
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.closePath();
+}
+
 function drawImageCover(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
@@ -51,11 +65,14 @@ export function fillMaterialSurface(
     radius: number;
     fallbackFill: string;
     image?: CanvasImageSource | null;
+    clipPath?: ReadonlyArray<{ x: number; y: number }>;
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image } = options;
+  const { x, y, width, height, radius, fallbackFill, image, clipPath } = options;
 
-  if (radius > 0) {
+  if (clipPath?.length) {
+    tracePolygonPath(ctx, clipPath);
+  } else if (radius > 0) {
     traceRoundedRectPath(ctx, x, y, width, height, radius);
   } else {
     ctx.beginPath();

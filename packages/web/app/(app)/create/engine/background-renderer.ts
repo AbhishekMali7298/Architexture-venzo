@@ -1,7 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
-import { getPatternLayout } from './pattern-layouts';
+import { getPatternLayout, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
-import { fillMaterialSurface, traceRoundedRectPath } from './material-fill';
+import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
 function seededRng(seed: number) {
   let s = seed >>> 0;
@@ -24,6 +24,7 @@ function rgbAdjust([r, g, b]: [number, number, number], delta: number): string {
 
 function drawTile(
   ctx: CanvasRenderingContext2D,
+  tile: PatternTile,
   x: number,
   y: number,
   width: number,
@@ -58,6 +59,28 @@ function drawTile(
           ? 1.5 * scale
           : 0;
 
+  const traceTilePath = () => {
+    if (tile.clipPath?.length) {
+      tracePolygonPath(
+        ctx,
+        tile.clipPath.map((point) => ({
+          x: point.x * scale,
+          y: point.y * scale,
+        })),
+      );
+      return;
+    }
+
+    if (radius > 0) {
+      traceRoundedRectPath(ctx, insetX, insetY, drawWidth, drawHeight, radius);
+      return;
+    }
+
+    ctx.beginPath();
+    ctx.rect(insetX, insetY, drawWidth, drawHeight);
+    ctx.closePath();
+  };
+
   const tileFill = rgbAdjust(baseRgb, delta);
   fillMaterialSurface(ctx, {
     x: insetX,
@@ -67,17 +90,15 @@ function drawTile(
     radius,
     fallbackFill: tileFill,
     image: materialImage,
+    clipPath: tile.clipPath?.map((point) => ({
+      x: point.x * scale,
+      y: point.y * scale,
+    })),
   });
 
   if (materialImage && Math.abs(delta) > 0.25) {
     ctx.save();
-    if (radius > 0) {
-      traceRoundedRectPath(ctx, insetX, insetY, drawWidth, drawHeight, radius);
-    } else {
-      ctx.beginPath();
-      ctx.rect(insetX, insetY, drawWidth, drawHeight);
-      ctx.closePath();
-    }
+    traceTilePath();
     ctx.clip();
     ctx.fillStyle = delta > 0 ? '#ffffff' : '#000000';
     ctx.globalAlpha = Math.min(0.18, Math.abs(delta) / 60);
@@ -143,6 +164,7 @@ export function renderBackground(
       for (const tile of layout.tiles) {
         drawTile(
           ctx,
+          tile,
           x + tile.x * scale,
           y + tile.y * scale,
           tile.width,

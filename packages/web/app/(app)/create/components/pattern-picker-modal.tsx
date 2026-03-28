@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { PATTERN_CATALOG, PATTERN_CATEGORIES, type PatternCategory, type PatternType } from '@textura/shared';
+import { getPatternPreviewUrl } from '../lib/pattern-assets';
 import { Modal } from './modal-portal';
 import { PatternThumb } from './pattern-thumb';
 import styles from './create-editor.module.css';
@@ -77,7 +78,11 @@ export function PatternPickerModal({
                   onClose();
                 }}
               >
-                <PatternThumb path={pattern.previewPath} />
+                <PatternThumb
+                  path={pattern.previewPath}
+                  src={getPatternPreviewUrl(pattern)}
+                  alt={pattern.displayName}
+                />
                 <div>
                   <div className={styles.optionName}>{pattern.displayName}</div>
                   <div className={styles.optionMeta}>{pattern.description}</div>

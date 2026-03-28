@@ -1,6 +1,7 @@
 'use client';
 
 import { getPatternByType, type PatternType } from '@textura/shared';
+import { getPatternPreviewUrl } from '../lib/pattern-assets';
 import { NumberField, RangeField, SectionCard, SelectField } from './field-controls';
 import { PatternThumb } from './pattern-thumb';
 import styles from './create-editor.module.css';
@@ -41,7 +42,12 @@ export function PatternSettingsSection({
           <span className={styles.selectionLabel}>{pattern.displayName}</span>
           <span className={styles.selectionMeta}>{pattern.description}</span>
         </span>
-        <PatternThumb path={pattern.previewPath} size={64} />
+        <PatternThumb
+          path={pattern.previewPath}
+          src={getPatternPreviewUrl(pattern)}
+          alt={pattern.displayName}
+          size={64}
+        />
       </button>
 
       <div className={styles.gridTwo}>
