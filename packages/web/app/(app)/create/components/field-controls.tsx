@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import styles from './create-editor.module.css';
 
 function clampValue(value: number, min?: number, max?: number) {
@@ -45,6 +45,12 @@ export function NumberField({
   unit?: string;
   onChange: (value: number) => void;
 }) {
+  const [draft, setDraft] = useState(() => String(Number.isFinite(value) ? value : 0));
+
+  useEffect(() => {
+    setDraft(String(Number.isFinite(value) ? value : 0));
+  }, [value]);
+
   return (
     <label className={styles.field}>
       <span className={styles.fieldLabel}>{label}</span>
@@ -52,13 +58,30 @@ export function NumberField({
         <input
           className={`${styles.input} ${unit ? styles.inputWithSuffix : ''}`}
           type="number"
-          value={Number.isFinite(value) ? value : 0}
+          value={draft}
           min={min}
           max={max}
           step={step}
           onChange={(event) => {
-            const parsed = Number.parseFloat(event.target.value);
-            onChange(clampValue(Number.isFinite(parsed) ? parsed : 0, min, max));
+            setDraft(event.target.value);
+          }}
+          onBlur={() => {
+            if (draft.trim() === '') {
+              const fallback = clampValue(Number.isFinite(value) ? value : 0, min, max);
+              setDraft(String(fallback));
+              onChange(fallback);
+              return;
+            }
+
+            const parsed = Number.parseFloat(draft);
+            const nextValue = clampValue(Number.isFinite(parsed) ? parsed : value, min, max);
+            setDraft(String(nextValue));
+            onChange(nextValue);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.currentTarget.blur();
+            }
           }}
         />
         {unit ? <span className={styles.unitSuffix}>{unit}</span> : null}
