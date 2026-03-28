@@ -237,10 +237,28 @@
   color: #64748b;
 }
 
+.sectionDivider {
+  height: 1px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.subsectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
 .footer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   padding: 14px;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.98);
@@ -248,12 +266,12 @@
 
 .primaryButton {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 14px;
   border: 0;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0f172a, #334155);
+  border-radius: 16px;
+  background: #171717;
   color: #f8fafc;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -284,7 +302,7 @@
 .footerMeta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .statusText {

@@ -1,7 +1,7 @@
 'use client';
 
 import type { EdgeStyle } from '@textura/shared';
-import { NumberField, RangeField, SectionCard, SelectField } from './field-controls';
+import { CheckboxField, NumberField, RangeField, SectionCard, SelectField, TextField } from './field-controls';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
 
@@ -10,37 +10,49 @@ export function MaterialSettingsSection({
   materialCategory,
   materialColor,
   materialThumbnailUrl,
+  materialTint,
   width,
   height,
   toneVariation,
   edgeStyle,
+  jointTint,
   jointHorizontal,
   jointVertical,
+  linkedJoints,
   onOpenPicker,
+  onMaterialTintChange,
   onWidthChange,
   onHeightChange,
   onToneVariationChange,
   onEdgeStyleChange,
+  onJointTintChange,
   onJointHorizontalChange,
   onJointVerticalChange,
+  onLinkedJointsChange,
 }: {
   materialName: string;
   materialCategory: string;
   materialColor: string;
   materialThumbnailUrl?: string | null;
+  materialTint: string | null;
   width: number;
   height: number;
   toneVariation: number;
   edgeStyle: EdgeStyle;
+  jointTint: string | null;
   jointHorizontal: number;
   jointVertical: number;
+  linkedJoints: boolean;
   onOpenPicker: () => void;
+  onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
+  onJointTintChange: (value: string | null) => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
+  onLinkedJointsChange: (value: boolean) => void;
 }) {
   const measurementUnit = 'mm';
 
@@ -59,24 +71,7 @@ export function MaterialSettingsSection({
         <NumberField label="Height" value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
       </div>
 
-      <div className={styles.gridTwo}>
-        <NumberField
-          label="Horizontal Joint"
-          value={jointHorizontal}
-          min={0}
-          max={500}
-          unit={measurementUnit}
-          onChange={onJointHorizontalChange}
-        />
-        <NumberField
-          label="Vertical Joint"
-          value={jointVertical}
-          min={0}
-          max={500}
-          unit={measurementUnit}
-          onChange={onJointVerticalChange}
-        />
-      </div>
+      <TextField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 
       <SelectField
         label="Edges"
@@ -92,6 +87,32 @@ export function MaterialSettingsSection({
       />
 
       <RangeField label="Tone Variation" value={toneVariation} min={0} max={100} onChange={onToneVariationChange} />
+
+      <div className={styles.sectionDivider} />
+
+      <div className={styles.subsectionTitle}>Joints</div>
+      <TextField label="Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
+
+      <div className={styles.gridTwo}>
+        <NumberField
+          label="Horizontal"
+          value={jointHorizontal}
+          min={0}
+          max={500}
+          unit={measurementUnit}
+          onChange={onJointHorizontalChange}
+        />
+        <NumberField
+          label="Vertical"
+          value={jointVertical}
+          min={0}
+          max={500}
+          unit={measurementUnit}
+          onChange={onJointVerticalChange}
+        />
+      </div>
+
+      <CheckboxField label="Link joint dimensions" checked={linkedJoints} onChange={onLinkedJointsChange} />
     </SectionCard>
   );
 }
