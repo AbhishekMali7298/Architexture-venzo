@@ -36,16 +36,19 @@ export default function CreatePage() {
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [footerStatus, setFooterStatus] = useState('Ready');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   const material = config.materials[0]!;
 
   useEffect(() => {
     const savedProject = loadProjectFromStorage();
-    if (!savedProject) return;
+    if (savedProject) {
+      loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
+      setLastSavedAt(savedProject.savedAt);
+      setFooterStatus(`Restored ${formatSavedAt(savedProject.savedAt)}.`);
+    }
 
-    loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
-    setLastSavedAt(savedProject.savedAt);
-    setFooterStatus(`Restored ${formatSavedAt(savedProject.savedAt)}.`);
+    setIsReady(true);
   }, [loadProjectConfig]);
 
   const selectedMaterial = useMemo(() => {
@@ -60,6 +63,10 @@ export default function CreatePage() {
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
   const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${config.units}`;
+
+  if (!isReady) {
+    return null;
+  }
 
   const handleSaveProject = () => {
     const savedProject = saveProjectToStorage(config);
