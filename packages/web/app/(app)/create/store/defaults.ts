@@ -24,12 +24,15 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       definitionId: 'granite',
       source: {
         type: 'image',
-        asset: { path: 'materials/1/thumb_200.jpg', mimeType: 'image/jpeg', width: 200, height: 200 },
+        asset: {
+          path: 'materials/granite/granite-oriiginal.jpg',
+          mimeType: 'image/jpeg',
+        },
         fallbackColor: '#d8d9d4',
       },
       uploadWidth: null,
-      width: 300,
-      height: 300,
+      width: 400,
+      height: 100,
       minWidth: 10,
       minHeight: 10,
 
