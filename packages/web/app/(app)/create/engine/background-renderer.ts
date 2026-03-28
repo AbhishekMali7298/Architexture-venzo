@@ -212,9 +212,10 @@ export function drawDottedBorder(
   height: number,
 ) {
   ctx.save();
-  ctx.setLineDash([8, 6]);
+  ctx.setLineDash([2, 6]);
   ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
   ctx.strokeRect(x, y, width, height);
   ctx.restore();
 }
