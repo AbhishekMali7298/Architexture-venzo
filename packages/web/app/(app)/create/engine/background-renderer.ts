@@ -106,16 +106,6 @@ function drawTile(
       : undefined,
   });
 
-  if (materialImage && Math.abs(imageDelta) > 1.5) {
-    ctx.save();
-    traceTilePath();
-    ctx.clip();
-    ctx.fillStyle = imageDelta > 0 ? '#ffffff' : '#000000';
-    ctx.globalAlpha = Math.min(0.04, Math.abs(imageDelta) / 120);
-    ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
-    ctx.restore();
-  }
-
   if (edgeStyle !== 'none') {
     ctx.save();
     ctx.globalAlpha = materialImage ? 0.03 : 0.07;
@@ -124,6 +114,21 @@ function drawTile(
     ctx.clip();
     ctx.fillRect(insetX, insetY, drawWidth * 0.5, drawHeight * 0.2);
     ctx.fillRect(insetX, insetY, drawWidth * 0.2, drawHeight * 0.5);
+    ctx.restore();
+  }
+
+  if (materialImage && toneVariation > 0) {
+    ctx.save();
+    traceTilePath();
+    ctx.clip();
+    ctx.globalAlpha = 0.015 + (toneVariation / 100) * 0.03;
+    for (let i = 0; i < 10; i++) {
+      const nx = insetX + rng() * drawWidth;
+      const ny = insetY + rng() * drawHeight;
+      const size = 0.8 * scale + rng() * 1.2 * scale;
+      ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
+      ctx.fillRect(nx, ny, size, size);
+    }
     ctx.restore();
   }
 

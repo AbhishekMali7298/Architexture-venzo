@@ -9,7 +9,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   units: 'mm',
 
   pattern: {
-    type: 'running_bond',
+    type: 'stack_bond',
     category: 'brick_bond',
     rows: 6,
     columns: 4,

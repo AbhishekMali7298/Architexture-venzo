@@ -113,6 +113,32 @@ function roundMeasurement(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
+function sanitizePatternConfig(config: TextureConfig): TextureConfig {
+  const next = JSON.parse(JSON.stringify(config)) as TextureConfig;
+  const definition = getPatternByType(next.pattern.type) ?? getPatternByType('stack_bond');
+  if (!definition) {
+    return next;
+  }
+
+  if (definition.type !== next.pattern.type) {
+    next.pattern.type = definition.type;
+    next.pattern.category = definition.category;
+    next.pattern.rows = definition.defaults.rows;
+    next.pattern.columns = definition.defaults.columns;
+    next.pattern.angle = definition.defaults.angle;
+    next.pattern.stretchers = definition.defaults.stretchers;
+    next.pattern.weaves = definition.defaults.weaves;
+
+    const primaryMaterial = next.materials[0];
+    if (primaryMaterial) {
+      primaryMaterial.width = definition.defaultUnitWidth;
+      primaryMaterial.height = definition.defaultUnitHeight;
+    }
+  }
+
+  return next;
+}
+
 // ======= Store =======
 
 export const useEditorStore = create<EditorState>()(
@@ -345,14 +371,14 @@ export const useEditorStore = create<EditorState>()(
           pushHistory(s, options?.label ?? 'Load project');
         }
 
-        s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
+        s.config = sanitizePatternConfig(config);
         bumpRender(s);
       }),
 
     resetProject: () =>
       set((s) => {
         pushHistory(s, 'Reset project');
-        s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
+        s.config = sanitizePatternConfig(DEFAULT_TEXTURE_CONFIG);
         bumpRender(s);
       }),
 
