@@ -48,6 +48,11 @@ export function loadProjectFromStorage(): StoredCreateProject | null {
   }
 }
 
+export function clearProjectFromStorage() {
+  if (!canUseStorage()) return;
+  window.localStorage.removeItem(STORAGE_KEY);
+}
+
 export function formatSavedAt(savedAt: string): string {
   const date = new Date(savedAt);
   if (Number.isNaN(date.getTime())) {

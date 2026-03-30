@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getMaterialById, getMaterialCategory } from '@textura/shared';
+import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
@@ -11,8 +11,17 @@ import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
-import { formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
+import { exportPreviewPng, exportProjectJson } from './lib/project-export';
+import { clearProjectFromStorage, formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
+
+function encodeConfig(config: TextureConfig) {
+  return btoa(encodeURIComponent(JSON.stringify(config)));
+}
+
+function decodeConfig(encoded: string): TextureConfig {
+  return JSON.parse(decodeURIComponent(atob(encoded))) as TextureConfig;
+}
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
@@ -39,6 +48,7 @@ export default function CreatePage() {
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
   const setTileBackground = useEditorStore((state) => state.setTileBackground);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
+  const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
   const tileBackground = useEditorStore((state) => state.tileBackground);
 
@@ -52,11 +62,23 @@ export default function CreatePage() {
   const material = config.materials[0]!;
 
   useEffect(() => {
-    const savedProject = loadProjectFromStorage();
-    if (savedProject) {
-      loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
-      setLastSavedAt(savedProject.savedAt);
-      setFooterStatus(`Restored ${formatSavedAt(savedProject.savedAt)}.`);
+    const query = new URLSearchParams(window.location.search);
+    const sharedConfig = query.get('config');
+
+    if (sharedConfig) {
+      try {
+        loadProjectConfig(decodeConfig(sharedConfig), { resetHistory: true, label: 'Open shared texture' });
+        setFooterStatus('Loaded from shared link.');
+      } catch {
+        setFooterStatus('Could not open shared link.');
+      }
+    } else {
+      const savedProject = loadProjectFromStorage();
+      if (savedProject) {
+        loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
+        setLastSavedAt(savedProject.savedAt);
+        setFooterStatus(`Restored ${formatSavedAt(savedProject.savedAt)}.`);
+      }
     }
 
     setIsReady(true);
@@ -91,6 +113,45 @@ export default function CreatePage() {
     setFooterStatus('Saved.');
   };
 
+  const handleDownloadPreview = async () => {
+    try {
+      await exportPreviewPng(config);
+      setFooterStatus('Downloaded PNG.');
+    } catch {
+      setFooterStatus('Download failed.');
+    }
+  };
+
+  const handleExportProject = async () => {
+    try {
+      await exportProjectJson(config);
+      setFooterStatus('Downloaded project JSON.');
+    } catch {
+      setFooterStatus('Export failed.');
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('config', encodeConfig(config));
+      await navigator.clipboard.writeText(url.toString());
+      setFooterStatus('Share link copied.');
+    } catch {
+      setFooterStatus('Could not copy share link.');
+    }
+  };
+
+  const handleReset = () => {
+    resetProject();
+    clearProjectFromStorage();
+    setLastSavedAt(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('config');
+    window.history.replaceState({}, '', url.toString());
+    setFooterStatus('Reset project.');
+  };
+
   return (
     <div className={styles.page}>
       <BackgroundCanvas />
@@ -104,6 +165,22 @@ export default function CreatePage() {
             <button className={styles.primaryButton} type="button" onClick={handleSaveProject}>
               Save
             </button>
+            <div className={styles.secondaryRow}>
+              <button className={styles.secondaryButton} type="button" onClick={handleShare}>
+                Share Link
+              </button>
+              <button className={styles.secondaryButton} type="button" onClick={handleDownloadPreview}>
+                Download
+              </button>
+            </div>
+            <div className={styles.secondaryRow}>
+              <button className={styles.secondaryButton} type="button" onClick={handleExportProject}>
+                Export JSON
+              </button>
+              <button className={styles.secondaryButton} type="button" onClick={handleReset}>
+                Reset
+              </button>
+            </div>
             <div className={styles.footerMeta}>
               <p className={styles.statusText}>{footerStatus}</p>
               <p className={styles.footerCopy}>
