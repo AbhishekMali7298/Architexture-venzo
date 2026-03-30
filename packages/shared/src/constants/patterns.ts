@@ -25,7 +25,7 @@ export interface PatternDefinition {
   defaultUnitHeight: number;
 }
 
-export const PATTERN_CATALOG: PatternDefinition[] = [
+const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'none',
     category: 'random',
@@ -816,6 +816,10 @@ export const PATTERN_CATALOG: PatternDefinition[] = [
     defaultUnitHeight: 180,
   },
 ];
+
+export const PATTERN_CATALOG: PatternDefinition[] = ALL_PATTERN_CATALOG.filter(
+  (pattern) => typeof pattern.previewAssetPath === 'string' && pattern.previewAssetPath.length > 0,
+);
 
 /**
  * Get all patterns for a specific category.
