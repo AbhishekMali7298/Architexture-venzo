@@ -134,10 +134,11 @@ function drawTile(
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
 ) {
-  const insetX = (jointV * scale) / 2;
-  const insetY = (jointH * scale) / 2;
-  const drawWidth = width * scale - jointV * scale;
-  const drawHeight = height * scale - jointH * scale;
+  const hasClipPath = Boolean(tile.clipPath?.length);
+  const insetX = hasClipPath ? 0 : (jointV * scale) / 2;
+  const insetY = hasClipPath ? 0 : (jointH * scale) / 2;
+  const drawWidth = hasClipPath ? width * scale : width * scale - jointV * scale;
+  const drawHeight = hasClipPath ? height * scale : height * scale - jointH * scale;
 
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
@@ -367,69 +368,6 @@ function drawPreparedLayout(
   }
 
   ctx.restore();
-}
-
-export function getBackgroundModuleMetrics(
-  config: TextureConfig,
-  canvasWidth: number,
-  canvasHeight: number,
-) {
-  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
-  if (!scene) return null;
-
-  const borderInsetX = (scene.jointV * scene.scale) / 2;
-  const borderInsetY = (scene.jointH * scene.scale) / 2;
-
-  return {
-    tileSetWidth: scene.tileSetWidth,
-    tileSetHeight: scene.tileSetHeight,
-    previewX: scene.previewX,
-    previewY: scene.previewY,
-    previewWidth: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
-    previewHeight: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
-    borderInsetX,
-    borderInsetY,
-  };
-}
-
-export function renderPreviewOverlay(
-  ctx: CanvasRenderingContext2D,
-  config: TextureConfig,
-  canvasWidth: number,
-  canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null },
-): { x: number; y: number; width: number; height: number } | null {
-  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
-  if (!scene) return null;
-
-  drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);
-
-  const borderInsetX = (scene.jointV * scene.scale) / 2;
-  const borderInsetY = (scene.jointH * scene.scale) / 2;
-
-  return {
-    x: scene.previewX + borderInsetX,
-    y: scene.previewY + borderInsetY,
-    width: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
-    height: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
-  };
-}
-
-export function renderBackgroundModule(
-  ctx: CanvasRenderingContext2D,
-  config: TextureConfig,
-  canvasWidth: number,
-  canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null },
-) {
-  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
-  if (!scene) return null;
-
-  drawPreparedLayout(ctx, scene, 0, 0, options);
-  return {
-    width: scene.tileSetWidth,
-    height: scene.tileSetHeight,
-  };
 }
 
 export function renderBackground(

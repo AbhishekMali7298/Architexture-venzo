@@ -476,11 +476,11 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
+    const offsetX = row % 2 === 1 ? (hexWidth + verticalJoint) * 0.5 : 0;
     for (let column = 0; column < columns; column++) {
-      const offsetY = column % 2 === 1 ? hexHeight / 2 : 0;
       tiles.push({
-        x: column * (hexWidth * 0.75 + verticalJoint),
-        y: row * (hexHeight + horizontalJoint) + offsetY,
+        x: column * (hexWidth + verticalJoint) + offsetX,
+        y: row * (hexHeight * 0.75 + horizontalJoint),
         width: hexWidth,
         height: hexHeight,
         rotation: 0,
