@@ -2,6 +2,7 @@
 
 import { getPatternByType, type PatternType } from '@textura/shared';
 import { getPatternPreviewUrl } from '../lib/pattern-assets';
+import { getLocalPatternOptionByType } from '../lib/local-patterns';
 import { NumberField, SectionCard } from './field-controls';
 import { PatternThumb } from './pattern-thumb';
 import styles from './create-editor.module.css';
@@ -29,19 +30,20 @@ export function PatternSettingsSection({
 }) {
   const pattern = getPatternByType(patternType);
   if (!pattern) return null;
+  const localPattern = getLocalPatternOptionByType(patternType);
   const canAdjustAngle = pattern.parameterRanges.angle.max > pattern.parameterRanges.angle.min;
 
   return (
     <SectionCard title="Pattern">
       <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
         <span className={styles.selectionText}>
-          <span className={styles.selectionLabel}>{pattern.displayName}</span>
-          <span className={styles.selectionMeta}>{pattern.description}</span>
+          <span className={styles.selectionLabel}>{localPattern?.displayName ?? pattern.displayName}</span>
+          <span className={styles.selectionMeta}>{localPattern?.description ?? pattern.description}</span>
         </span>
         <PatternThumb
-          path={pattern.previewPath}
-          src={getPatternPreviewUrl(pattern)}
-          alt={pattern.displayName}
+          path=""
+          src={getPatternPreviewUrl(localPattern ?? pattern)}
+          alt={localPattern?.displayName ?? pattern.displayName}
           size={64}
         />
       </button>
