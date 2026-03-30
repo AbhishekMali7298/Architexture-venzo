@@ -1,4 +1,5 @@
 import type { TextureConfig, PatternType } from '@textura/shared';
+import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
 
 export interface PatternTile {
   x: number;
@@ -37,6 +38,41 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
   }
 
   return { tiles, totalWidth, totalHeight };
+}
+
+function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const refWidth = Math.max(module.referenceTileWidth, 1);
+  const refHeight = Math.max(module.referenceTileHeight, 1);
+  const scale = Math.max(0.01, Math.min(width / refWidth, height / refHeight));
+  const stepX = module.viewBoxWidth * scale + verticalJoint;
+  const stepY = module.viewBoxHeight * scale + horizontalJoint;
+  const tiles: PatternTile[] = [];
+
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const offsetX = column * stepX;
+      const offsetY = row * stepY;
+
+      for (const tile of module.tiles) {
+        tiles.push({
+          x: offsetX + tile.x * scale,
+          y: offsetY + tile.y * scale,
+          width: tile.width * scale,
+          height: tile.height * scale,
+          rotation: 0,
+          materialIndex: 0,
+          clipPath: tile.clipPath.map((point) => ({
+            x: point.x * scale,
+            y: point.y * scale,
+          })),
+        });
+      }
+    }
+  }
+
+  return withBounds(tiles, horizontalJoint, verticalJoint);
 }
 
 function layoutNone(config: TextureConfig): PatternLayoutData {
@@ -427,28 +463,29 @@ function layoutBasketweave(config: TextureConfig): PatternLayoutData {
 
 function layoutHexagonal(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-  const hexWidth = width;
-  const hexHeight = width * 1.1547;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const side = Math.max(1, Math.min(width, height) * 0.5);
+  const hexWidth = side * Math.sqrt(3);
+  const hexHeight = side * 2;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
-    const offsetX = row % 2 === 1 ? hexWidth / 2 : 0;
     for (let column = 0; column < columns; column++) {
+      const offsetY = column % 2 === 1 ? hexHeight / 2 : 0;
       tiles.push({
-        x: column * (hexWidth + verticalJoint) + offsetX,
-        y: row * (hexHeight * 0.75 + horizontalJoint),
+        x: column * (hexWidth * 0.75 + verticalJoint),
+        y: row * (hexHeight + horizontalJoint) + offsetY,
         width: hexWidth,
         height: hexHeight,
         rotation: 0,
         materialIndex: 0,
         clipPath: [
-          { x: hexWidth * 0.25, y: 0 },
-          { x: hexWidth * 0.75, y: 0 },
-          { x: hexWidth, y: hexHeight * 0.5 },
-          { x: hexWidth * 0.75, y: hexHeight },
-          { x: hexWidth * 0.25, y: hexHeight },
-          { x: 0, y: hexHeight * 0.5 },
+          { x: hexWidth * 0.5, y: 0 },
+          { x: hexWidth, y: hexHeight * 0.25 },
+          { x: hexWidth, y: hexHeight * 0.75 },
+          { x: hexWidth * 0.5, y: hexHeight },
+          { x: 0, y: hexHeight * 0.75 },
+          { x: 0, y: hexHeight * 0.25 },
         ],
       });
     }
@@ -652,6 +689,11 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
+  if (svgModule) {
+    return layoutFromSvgModule(config, svgModule);
+  }
+
   const layout = PATTERN_LAYOUTS[config.pattern.type] ?? layoutRunningBond;
   return layout(config);
 }
