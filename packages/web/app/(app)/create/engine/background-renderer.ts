@@ -134,11 +134,10 @@ function drawTile(
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
 ) {
-  const hasClipPath = Boolean(tile.clipPath?.length);
-  const insetX = 0;
-  const insetY = 0;
-  const drawWidth = width * scale;
-  const drawHeight = height * scale;
+  const insetX = (jointV * scale) / 2;
+  const insetY = (jointH * scale) / 2;
+  const drawWidth = Math.max(0, width * scale - jointV * scale);
+  const drawHeight = Math.max(0, height * scale - jointH * scale);
 
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
@@ -193,7 +192,7 @@ function drawTile(
       : undefined,
   });
 
-  if (edgeStyle !== 'none' && !hasClipPath) {
+  if (edgeStyle !== 'none') {
     ctx.save();
     ctx.globalAlpha = materialImage ? 0.03 : 0.07;
     ctx.fillStyle = '#fff';

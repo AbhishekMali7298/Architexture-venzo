@@ -14,6 +14,7 @@ const FILE_TO_PATTERN = {
   'chevron.svg': 'chevron',
   'herringbone.svg': 'herringbone',
   'hexagonal.svg': 'hexagonal',
+  'cubic.svg': 'cubic',
 };
 
 function tokenizePathData(d) {

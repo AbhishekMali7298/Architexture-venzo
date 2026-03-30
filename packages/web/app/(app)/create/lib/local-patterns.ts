@@ -66,6 +66,14 @@ export const LOCAL_PATTERN_OPTIONS: LocalPatternOption[] = [
     description: 'Honeycomb hexagonal tile pattern.',
     previewAssetPath: 'patterns/hexagonal.svg',
   },
+  {
+    id: 'cubic',
+    type: 'cubic',
+    category: 'geometric',
+    displayName: 'Cubic',
+    description: 'Isometric cube illusion using interlocking rhombus tiles.',
+    previewAssetPath: 'patterns/cubic.svg',
+  },
 ];
 
 export function getLocalPatternOptionByType(type: PatternType) {

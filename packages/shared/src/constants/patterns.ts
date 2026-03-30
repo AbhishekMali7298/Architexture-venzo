@@ -223,6 +223,22 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     defaultUnitHeight: 150,
   },
   {
+    type: 'cubic',
+    category: 'geometric',
+    displayName: 'Cubic',
+    description: 'Isometric cube illusion using interlocking rhombus tiles',
+    previewPath: '',
+    previewAssetPath: 'patterns/cubic.svg',
+    defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
+    parameterRanges: {
+      rows: { min: 2, max: 30 },
+      columns: { min: 2, max: 30 },
+      angle: { min: 0, max: 360, step: 1 },
+    },
+    defaultUnitWidth: 180,
+    defaultUnitHeight: 180,
+  },
+  {
     type: 'chevron',
     category: 'geometric',
     displayName: 'Chevron',
