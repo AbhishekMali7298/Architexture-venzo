@@ -326,23 +326,92 @@
   padding: 16px;
 }
 
-.colorNativeInput {
-  width: 100%;
-  height: 180px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
+.colorPickerCanvas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 50px;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.colorPalette {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: crosshair;
+}
+
+.colorPaletteWhite,
+.colorPaletteBlack {
+  position: absolute;
+  inset: 0;
+}
+
+.colorPaletteWhite {
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.colorPaletteBlack {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+}
+
+.colorPaletteHandle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.colorHue {
+  position: relative;
+  height: 260px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    #ff0000 0%,
+    #ffff00 16.66%,
+    #00ff00 33.33%,
+    #00ffff 50%,
+    #0000ff 66.66%,
+    #ff00ff 83.33%,
+    #ff0000 100%
+  );
+  cursor: ns-resize;
+}
+
+.colorHueHandle {
+  position: absolute;
+  left: 50%;
+  width: calc(100% + 6px);
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.25);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .colorPickerFooter {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) 46px auto;
   gap: 10px;
   padding: 0 16px 16px;
 }
 
 .colorFooterInput {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+}
+
+.colorPreviewChip {
+  width: 46px;
+  height: 46px;
+  border: 2px solid rgba(255, 255, 255, 0.94);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .primaryOutlineButton {

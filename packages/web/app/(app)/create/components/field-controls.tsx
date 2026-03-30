@@ -194,6 +194,61 @@ function normalizeHex(value: string) {
   return prefixed.toUpperCase();
 }
 
+function hexToRgb(hex: string): [number, number, number] {
+  const normalized = normalizeHex(hex);
+  const safeHex = /^#[0-9A-F]{6}$/.test(normalized) ? normalized : '#FFFFFF';
+  const value = Number.parseInt(safeHex.slice(1), 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  return `#${[r, g, b]
+    .map((channel) => Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase()}`;
+}
+
+function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const delta = max - min;
+  let hue = 0;
+
+  if (delta !== 0) {
+    if (max === red) hue = ((green - blue) / delta) % 6;
+    else if (max === green) hue = (blue - red) / delta + 2;
+    else hue = (red - green) / delta + 4;
+  }
+
+  hue = Math.round(hue * 60);
+  if (hue < 0) hue += 360;
+
+  const saturation = max === 0 ? 0 : delta / max;
+  const value = max;
+
+  return [hue, saturation, value];
+}
+
+function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
+  const hue = ((h % 360) + 360) % 360;
+  const chroma = v * s;
+  const x = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const match = v - chroma;
+  let rgb: [number, number, number] = [0, 0, 0];
+
+  if (hue < 60) rgb = [chroma, x, 0];
+  else if (hue < 120) rgb = [x, chroma, 0];
+  else if (hue < 180) rgb = [0, chroma, x];
+  else if (hue < 240) rgb = [0, x, chroma];
+  else if (hue < 300) rgb = [x, 0, chroma];
+  else rgb = [chroma, 0, x];
+
+  return rgb.map((channel) => (channel + match) * 255) as [number, number, number];
+}
+
 export function ColorField({
   label,
   value,
@@ -208,27 +263,72 @@ export function ColorField({
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputId = useId();
-  const colorInputRef = useRef<HTMLInputElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
+  const hueRef = useRef<HTMLDivElement>(null);
+  const [picker, setPicker] = useState(() => {
+    const [r, g, b] = hexToRgb(value);
+    const [h, s, v] = rgbToHsv(r, g, b);
+    return { h, s, v };
+  });
 
   useEffect(() => {
     setDraft(value);
+    const [r, g, b] = hexToRgb(value);
+    const [h, s, v] = rgbToHsv(r, g, b);
+    setPicker({ h, s, v });
   }, [value]);
 
   const previewColor = useMemo(() => {
-    const normalized = normalizeHex(draft);
-    return /^#[0-9A-F]{6}$/.test(normalized) ? normalized : '#FFFFFF';
-  }, [draft]);
+    const [r, g, b] = hsvToRgb(picker.h, picker.s, picker.v);
+    return rgbToHex(r, g, b);
+  }, [picker]);
+
+  const hueColor = useMemo(() => rgbToHex(...hsvToRgb(picker.h, 1, 1)), [picker.h]);
 
   const commit = () => {
-    const normalized = normalizeHex(draft);
-    if (/^#[0-9A-F]{6}$/.test(normalized)) {
-      onChange(normalized);
-      setDraft(normalized);
-    } else {
-      setDraft(value);
-    }
+    onChange(previewColor);
+    setDraft(previewColor);
     setOpen(false);
   };
+
+  const updateFromPalette = (clientX: number, clientY: number) => {
+    const palette = paletteRef.current;
+    if (!palette) return;
+    const rect = palette.getBoundingClientRect();
+    const x = clampValue(clientX - rect.left, 0, rect.width);
+    const y = clampValue(clientY - rect.top, 0, rect.height);
+    const nextS = rect.width === 0 ? 0 : x / rect.width;
+    const nextV = rect.height === 0 ? 0 : 1 - y / rect.height;
+    setPicker((current) => ({ ...current, s: nextS, v: nextV }));
+  };
+
+  const updateFromHue = (clientY: number) => {
+    const hueElement = hueRef.current;
+    if (!hueElement) return;
+    const rect = hueElement.getBoundingClientRect();
+    const y = clampValue(clientY - rect.top, 0, rect.height);
+    const nextHue = rect.height === 0 ? 0 : (y / rect.height) * 360;
+    setPicker((current) => ({ ...current, h: nextHue }));
+  };
+
+  const attachDrag = (
+    event: React.MouseEvent<HTMLDivElement>,
+    updater: (clientX: number, clientY: number) => void,
+  ) => {
+    event.preventDefault();
+    updater(event.clientX, event.clientY);
+    const onMove = (moveEvent: MouseEvent) => updater(moveEvent.clientX, moveEvent.clientY);
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const paletteHandleLeft = `${picker.s * 100}%`;
+  const paletteHandleTop = `${(1 - picker.v) * 100}%`;
+  const hueHandleTop = `${(picker.h / 360) * 100}%`;
 
   return (
     <div className={styles.field}>
@@ -240,7 +340,17 @@ export function ColorField({
             className={`${styles.input} ${styles.colorTextInput}`}
             type="text"
             value={draft}
-            onChange={(event) => setDraft(event.target.value.toUpperCase())}
+            onChange={(event) => {
+              const next = event.target.value.toUpperCase();
+              setDraft(next);
+              const normalized = normalizeHex(next);
+              if (/^#[0-9A-F]{6}$/.test(normalized)) {
+                const [r, g, b] = hexToRgb(normalized);
+                const [h, s, v] = rgbToHsv(r, g, b);
+                setPicker({ h, s, v });
+                onChange(normalized);
+              }
+            }}
             onBlur={() => {
               const normalized = normalizeHex(draft);
               if (/^#[0-9A-F]{6}$/.test(normalized)) {
@@ -277,33 +387,47 @@ export function ColorField({
             </div>
 
             <div className={styles.colorPickerBody}>
-              <input
-                ref={colorInputRef}
-                className={styles.colorNativeInput}
-                type="color"
-                value={previewColor}
-                onChange={(event) => {
-                  setDraft(event.target.value.toUpperCase());
-                  onChange(event.target.value.toUpperCase());
-                }}
-              />
+              <div className={styles.colorPickerCanvas}>
+                <div
+                  ref={paletteRef}
+                  className={styles.colorPalette}
+                  style={{ backgroundColor: hueColor }}
+                  onMouseDown={(event) => attachDrag(event, (clientX, clientY) => updateFromPalette(clientX, clientY))}
+                >
+                  <div className={styles.colorPaletteWhite} />
+                  <div className={styles.colorPaletteBlack} />
+                  <div
+                    className={styles.colorPaletteHandle}
+                    style={{ left: paletteHandleLeft, top: paletteHandleTop, background: previewColor }}
+                  />
+                </div>
+                <div
+                  ref={hueRef}
+                  className={styles.colorHue}
+                  onMouseDown={(event) => attachDrag(event, (_, clientY) => updateFromHue(clientY))}
+                >
+                  <div className={styles.colorHueHandle} style={{ top: hueHandleTop }} />
+                </div>
+              </div>
             </div>
 
             <div className={styles.colorPickerFooter}>
               <input
                 className={`${styles.input} ${styles.colorFooterInput}`}
                 type="text"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value.toUpperCase())}
+                value={previewColor}
+                onChange={(event) => {
+                  const normalized = normalizeHex(event.target.value);
+                  setDraft(event.target.value.toUpperCase());
+                  if (/^#[0-9A-F]{6}$/.test(normalized)) {
+                    const [r, g, b] = hexToRgb(normalized);
+                    const [h, s, v] = rgbToHsv(r, g, b);
+                    setPicker({ h, s, v });
+                    onChange(normalized);
+                  }
+                }}
               />
-              <button
-                className={styles.secondaryButton}
-                type="button"
-                aria-label="Open system color picker"
-                onClick={() => colorInputRef.current?.click()}
-              >
-                Pick
-              </button>
+              <span className={styles.colorPreviewChip} style={{ background: previewColor }} />
               <button className={styles.primaryOutlineButton} type="button" onClick={commit}>
                 OK
               </button>
