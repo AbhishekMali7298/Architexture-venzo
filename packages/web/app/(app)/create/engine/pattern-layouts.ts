@@ -148,11 +148,15 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const headerWidth = Math.max(width / 2, 1);
   const tiles: PatternTile[] = [];
   const stepY = height + horizontalJoint;
+  const pairWidth = width + headerWidth + verticalJoint * 2;
+  const halfPairOffset = pairWidth / 2;
 
   for (let row = 0; row < rows; row++) {
-    let cursorX = row % 2 === 1 ? -(headerWidth + verticalJoint) : 0;
-    for (let unit = 0; unit < columns * 2; unit++) {
-      const useHeader = unit % 2 === 0;
+    let cursorX = row % 2 === 1 ? -halfPairOffset : 0;
+    const startWithHeader = row % 2 === 0;
+
+    for (let unit = 0; unit < columns * 2 + 1; unit++) {
+      const useHeader = startWithHeader ? unit % 2 === 0 : unit % 2 === 1;
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
         x: cursorX,
