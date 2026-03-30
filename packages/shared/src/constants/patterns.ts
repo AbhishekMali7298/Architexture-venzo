@@ -818,7 +818,10 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
 ];
 
 export const PATTERN_CATALOG: PatternDefinition[] = ALL_PATTERN_CATALOG.filter(
-  (pattern) => typeof pattern.previewAssetPath === 'string' && pattern.previewAssetPath.length > 0,
+  (pattern) =>
+    typeof pattern.previewAssetPath === 'string' &&
+    pattern.previewAssetPath.length > 0 &&
+    (pattern.type === 'stack_bond' || pattern.type === 'chevron'),
 );
 
 /**
