@@ -12,6 +12,7 @@ import { PatternSettingsSection } from './components/pattern-settings-section';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
+import { getPatternLayout } from './engine/pattern-layouts';
 import {
   exportPreviewJpg,
   exportPreviewPdf,
@@ -103,7 +104,12 @@ export default function CreatePage() {
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
   const unitLabel = config.units === 'inches' ? 'in' : 'mm';
-  const dimensionsHint = `${config.pattern.rows * (material.height + config.joints.horizontalSize)} × ${config.pattern.columns * (material.width + config.joints.verticalSize)} ${unitLabel}`;
+  const dimensionsHint = useMemo(() => {
+    const layout = getPatternLayout(config);
+    const width = Math.round(layout.totalWidth);
+    const height = Math.round(layout.totalHeight);
+    return `${width} × ${height} ${unitLabel}`;
+  }, [config, unitLabel]);
 
   if (!isReady) {
     return null;
