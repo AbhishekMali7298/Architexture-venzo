@@ -695,11 +695,15 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
+  if (proceduralLayout) {
+    return proceduralLayout(config);
+  }
+
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   if (svgModule) {
     return layoutFromSvgModule(config, svgModule);
   }
 
-  const layout = PATTERN_LAYOUTS[config.pattern.type] ?? layoutRunningBond;
-  return layout(config);
+  return layoutRunningBond(config);
 }
