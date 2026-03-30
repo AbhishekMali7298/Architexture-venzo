@@ -184,11 +184,11 @@ function drawTile(
     clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight) : undefined,
     imageDrawBox: materialImage
       ? {
-          x: -(tile.x * scale),
-          y: -(tile.y * scale),
-          width: textureBox.width,
-          height: textureBox.height,
-        }
+        x: -(tile.x * scale),
+        y: -(tile.y * scale),
+        width: textureBox.width,
+        height: textureBox.height,
+      }
       : undefined,
   });
 
@@ -279,7 +279,7 @@ function prepareBackgroundScene(
   canvasWidth: number,
   canvasHeight: number,
 ): PreparedBackgroundScene | null {
-  const previewDensity = 0.82;
+  const previewDensity = 0.95;
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
   const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
