@@ -291,6 +291,13 @@ export function renderBackground(
       height: tileSetHeight,
     };
 
+    ctx.save();
+    // Constrain each repeated layout to its repeat module so overflowing bond rows
+    // are clipped at the preview edge instead of leaving interior whitespace.
+    ctx.beginPath();
+    ctx.rect(offsetX, offsetY, tileSetWidth, tileSetHeight);
+    ctx.clip();
+
     for (const tile of layout.tiles) {
       drawTile(
         ctx,
@@ -312,6 +319,8 @@ export function renderBackground(
         options?.materialImage,
       );
     }
+
+    ctx.restore();
   };
 
   if (options?.tileBackground === false) {
