@@ -279,7 +279,7 @@ function prepareBackgroundScene(
   canvasWidth: number,
   canvasHeight: number,
 ): PreparedBackgroundScene | null {
-  const previewDensity = 0.95;
+  const previewDensity = 1.02;
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
   const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
