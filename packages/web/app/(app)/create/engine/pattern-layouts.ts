@@ -118,13 +118,15 @@ function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
   const cycle = Math.max(2, stretchers + 1);
   const offsetStep = (width + verticalJoint) / cycle;
   const tiles: PatternTile[] = [];
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
 
   for (let row = 0; row < rows; row++) {
     const offset = (row % cycle) * offsetStep;
     for (let column = -1; column < columns; column++) {
       tiles.push({
-        x: column * (width + verticalJoint) + offset,
-        y: row * (height + horizontalJoint),
+        x: column * stepX + offset,
+        y: row * stepY,
         width,
         height,
         rotation: angle,
@@ -133,7 +135,11 @@ function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
@@ -141,6 +147,7 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const headerWidth = Math.max(width / 2, 1);
   const tiles: PatternTile[] = [];
+  const stepY = height + horizontalJoint;
 
   for (let row = 0; row < rows; row++) {
     let cursorX = row % 2 === 1 ? -(headerWidth + verticalJoint) : 0;
@@ -149,7 +156,7 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
         x: cursorX,
-        y: row * (height + horizontalJoint),
+        y: row * stepY,
         width: tileWidth,
         height,
         rotation: 0,
@@ -159,7 +166,11 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * (width + verticalJoint),
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
@@ -167,13 +178,15 @@ function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const headerWidth = Math.max(width / 2, 1);
   const tiles: PatternTile[] = [];
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
 
   for (let row = 0; row < rows; row++) {
     if (row % 2 === 0) {
       for (let column = 0; column < columns; column++) {
         tiles.push({
-          x: column * (width + verticalJoint),
-          y: row * (height + horizontalJoint),
+          x: column * stepX,
+          y: row * stepY,
           width,
           height,
           rotation: angle,
@@ -186,7 +199,7 @@ function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
     for (let column = 0; column < columns * 2; column++) {
       tiles.push({
         x: column * (headerWidth + verticalJoint),
-        y: row * (height + horizontalJoint),
+        y: row * stepY,
         width: headerWidth,
         height,
         rotation: angle,
@@ -195,7 +208,11 @@ function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
