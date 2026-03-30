@@ -62,13 +62,20 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
+  const halfOffset = stepX / 2;
 
   for (let row = 0; row < rows; row++) {
-    const offset = row % 2 === 1 ? (width + verticalJoint) / 2 : 0;
-    for (let column = 0; column < columns; column++) {
+    const isOffsetRow = row % 2 === 1;
+    const startColumn = isOffsetRow ? -1 : 0;
+    const endColumn = isOffsetRow ? columns : columns - 1;
+    const offset = isOffsetRow ? halfOffset : 0;
+
+    for (let column = startColumn; column <= endColumn; column++) {
       tiles.push({
-        x: column * (width + verticalJoint) + offset,
-        y: row * (height + horizontalJoint),
+        x: column * stepX + offset,
+        y: row * stepY,
         width,
         height,
         rotation: angle,
@@ -77,7 +84,11 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutStackBond(config: TextureConfig): PatternLayoutData {

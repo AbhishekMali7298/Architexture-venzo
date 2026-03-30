@@ -327,11 +327,14 @@ export function renderBackground(
     }
   }
 
+  const borderInsetX = (jointV * scale) / 2;
+  const borderInsetY = (jointH * scale) / 2;
+
   return {
-    x: previewX,
-    y: previewY,
-    width: tileSetWidth,
-    height: tileSetHeight,
+    x: previewX + borderInsetX,
+    y: previewY + borderInsetY,
+    width: Math.max(0, tileSetWidth - borderInsetX * 2),
+    height: Math.max(0, tileSetHeight - borderInsetY * 2),
   };
 }
 
