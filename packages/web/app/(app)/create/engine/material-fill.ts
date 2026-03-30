@@ -70,11 +70,12 @@ export function fillMaterialSurface(
     radius: number;
     fallbackFill: string;
     image?: CanvasImageSource | null;
+    tintColor?: string | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
     imageDrawBox?: { x: number; y: number; width: number; height: number };
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, clipPath, imageDrawBox } = options;
+  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox } = options;
 
   if (clipPath?.length) {
     tracePolygonPath(ctx, clipPath);
@@ -91,6 +92,17 @@ export function fillMaterialSurface(
 
   if (image) {
     drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
+    if (tintColor) {
+      ctx.fillStyle = tintColor;
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillRect(x, y, width, height);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = tintColor;
+      ctx.fillRect(x, y, width, height);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
   } else {
     ctx.fillStyle = fallbackFill;
     ctx.fillRect(x, y, width, height);

@@ -368,9 +368,11 @@ export function ColorField({
           />
         </label>
         <button className={styles.iconButton} type="button" aria-label={`Open ${label.toLowerCase()} picker`} onClick={() => setOpen(true)}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M12 3a3 3 0 0 0-3 3c0 1.1.6 2 1.3 2.6l-5.9 5.9a2 2 0 0 0 0 2.8l1.6 1.6a2 2 0 0 0 2.8 0l5.9-5.9A3.9 3.9 0 0 0 18 12a3 3 0 0 0-3-3c-.7 0-1.4.2-2 .5L11.5 8A3 3 0 0 0 12 3Z" />
-            <path d="m5 19 2 2" />
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 4.5 19.5 10c.7.7.7 1.8 0 2.5l-4.2 4.2c-.4.4-.9.6-1.4.6H9.5a2 2 0 0 1-2-2v-4.4c0-.5.2-1 .6-1.4l4.2-4.2c.7-.7 1.8-.7 2.5 0Z" />
+            <path d="m12 6 6 6" />
+            <path d="M6 18h8" />
+            <path d="M5 20.5h10" />
           </svg>
         </button>
         {action}

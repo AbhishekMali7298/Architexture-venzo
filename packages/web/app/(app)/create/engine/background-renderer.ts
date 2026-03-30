@@ -104,6 +104,17 @@ function applyAdjustmentsToHex(
   return rgbToHex(hslToRgb(h, s, l));
 }
 
+function blendHex(baseHex: string, tintHex: string, strength: number) {
+  const base = hexToRgb(baseHex);
+  const tint = hexToRgb(tintHex);
+  const mix = Math.max(0, Math.min(1, strength));
+  return rgbToHex([
+    base[0] + (tint[0] - base[0]) * mix,
+    base[1] + (tint[1] - base[1]) * mix,
+    base[2] + (tint[2] - base[2]) * mix,
+  ]);
+}
+
 function drawTile(
   ctx: CanvasRenderingContext2D,
   tile: PatternTile,
@@ -120,6 +131,7 @@ function drawTile(
   jointV: number,
   scale: number,
   textureBox: { x: number; y: number; width: number; height: number },
+  tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
 ) {
   const insetX = (jointV * scale) / 2;
@@ -174,6 +186,7 @@ function drawTile(
     radius,
     fallbackFill: tileFill,
     image: materialImage,
+    tintColor,
     clipPath: tile.clipPath?.map((point) => ({
       x: point.x * scale,
       y: point.y * scale,
@@ -239,7 +252,8 @@ export function renderBackground(
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
-  const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
+  const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
+  const baseColor = material.tint ? blendHex(sourceColor, material.tint, 0.88) : sourceColor;
   const baseRgb = hexToRgb(baseColor);
   const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
   const edgeStyle = material.edges.style;
@@ -293,6 +307,7 @@ export function renderBackground(
         jointV,
         scale,
         textureBox,
+        material.tint,
         options?.materialImage,
       );
     }
