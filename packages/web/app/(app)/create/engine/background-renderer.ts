@@ -157,13 +157,7 @@ function drawTile(
 
   const traceTilePath = () => {
     if (tile.clipPath?.length) {
-      tracePolygonPath(
-        ctx,
-        tile.clipPath.map((point) => ({
-          x: point.x * scale,
-          y: point.y * scale,
-        })),
-      );
+      tracePolygonPath(ctx, fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight));
       return;
     }
 
@@ -187,10 +181,7 @@ function drawTile(
     fallbackFill: tileFill,
     image: materialImage,
     tintColor,
-    clipPath: tile.clipPath?.map((point) => ({
-      x: point.x * scale,
-      y: point.y * scale,
-    })),
+    clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight) : undefined,
     imageDrawBox: materialImage
       ? {
           x: -(tile.x * scale),
@@ -242,21 +233,58 @@ function drawTile(
   ctx.restore();
 }
 
-export function renderBackground(
-  ctx: CanvasRenderingContext2D,
+interface PreparedBackgroundScene {
+  layout: ReturnType<typeof getPatternLayout>;
+  scale: number;
+  tileSetWidth: number;
+  tileSetHeight: number;
+  previewX: number;
+  previewY: number;
+  jointH: number;
+  jointV: number;
+  edgeStyle: string;
+  baseRgb: [number, number, number];
+  toneVariation: number;
+  tintColor?: string | null;
+}
+
+function fitClipPathToTile(
+  clipPath: ReadonlyArray<{ x: number; y: number }>,
+  scale: number,
+  tileX: number,
+  tileY: number,
+  tileWidth: number,
+  tileHeight: number,
+) {
+  const scaledPoints = clipPath.map((point) => ({
+    x: point.x * scale,
+    y: point.y * scale,
+  }));
+
+  const minX = Math.min(...scaledPoints.map((point) => point.x));
+  const maxX = Math.max(...scaledPoints.map((point) => point.x));
+  const minY = Math.min(...scaledPoints.map((point) => point.y));
+  const maxY = Math.max(...scaledPoints.map((point) => point.y));
+  const sourceWidth = Math.max(maxX - minX, 1);
+  const sourceHeight = Math.max(maxY - minY, 1);
+
+  return scaledPoints.map((point) => ({
+    x: tileX + ((point.x - minX) / sourceWidth) * tileWidth,
+    y: tileY + ((point.y - minY) / sourceHeight) * tileHeight,
+  }));
+}
+
+function prepareBackgroundScene(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
-): { x: number; y: number; width: number; height: number } | null {
+): PreparedBackgroundScene | null {
   const previewDensity = 0.82;
-  const rng = seededRng(config.seed);
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
   const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
   const baseColor = material.tint ? blendHex(sourceColor, material.tint, 0.88) : sourceColor;
   const baseRgb = hexToRgb(baseColor);
-  const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
   const edgeStyle = material.edges.style;
   const toneVariation = material.toneVariation;
   const jointH = config.joints.horizontalSize;
@@ -280,70 +308,165 @@ export function renderBackground(
   const previewX = availableX + (availableWidth - tileSetWidth) / 2;
   const previewY = availableY + (availableHeight - tileSetHeight) / 2;
 
+  return {
+    layout,
+    scale,
+    tileSetWidth,
+    tileSetHeight,
+    previewX,
+    previewY,
+    jointH,
+    jointV,
+    edgeStyle,
+    baseRgb,
+    toneVariation,
+    tintColor: material.tint,
+  };
+}
+
+function drawPreparedLayout(
+  ctx: CanvasRenderingContext2D,
+  scene: PreparedBackgroundScene,
+  offsetX: number,
+  offsetY: number,
+  options?: { materialImage?: CanvasImageSource | null },
+) {
+  const rng = seededRng(0x9e3779b9);
+  const textureBox = {
+    x: offsetX,
+    y: offsetY,
+    width: scene.tileSetWidth,
+    height: scene.tileSetHeight,
+  };
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(offsetX, offsetY, scene.tileSetWidth, scene.tileSetHeight);
+  ctx.clip();
+
+  for (const tile of scene.layout.tiles) {
+    drawTile(
+      ctx,
+      tile,
+      offsetX + tile.x * scene.scale,
+      offsetY + tile.y * scene.scale,
+      tile.width,
+      tile.height,
+      tile.rotation,
+      scene.edgeStyle,
+      scene.baseRgb,
+      scene.toneVariation,
+      rng,
+      scene.jointH,
+      scene.jointV,
+      scene.scale,
+      textureBox,
+      scene.tintColor,
+      options?.materialImage,
+    );
+  }
+
+  ctx.restore();
+}
+
+export function getBackgroundModuleMetrics(
+  config: TextureConfig,
+  canvasWidth: number,
+  canvasHeight: number,
+) {
+  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
+  if (!scene) return null;
+
+  const borderInsetX = (scene.jointV * scene.scale) / 2;
+  const borderInsetY = (scene.jointH * scene.scale) / 2;
+
+  return {
+    tileSetWidth: scene.tileSetWidth,
+    tileSetHeight: scene.tileSetHeight,
+    previewX: scene.previewX,
+    previewY: scene.previewY,
+    previewWidth: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
+    previewHeight: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
+    borderInsetX,
+    borderInsetY,
+  };
+}
+
+export function renderPreviewOverlay(
+  ctx: CanvasRenderingContext2D,
+  config: TextureConfig,
+  canvasWidth: number,
+  canvasHeight: number,
+  options?: { materialImage?: CanvasImageSource | null },
+): { x: number; y: number; width: number; height: number } | null {
+  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
+  if (!scene) return null;
+
+  drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);
+
+  const borderInsetX = (scene.jointV * scene.scale) / 2;
+  const borderInsetY = (scene.jointH * scene.scale) / 2;
+
+  return {
+    x: scene.previewX + borderInsetX,
+    y: scene.previewY + borderInsetY,
+    width: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
+    height: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
+  };
+}
+
+export function renderBackgroundModule(
+  ctx: CanvasRenderingContext2D,
+  config: TextureConfig,
+  canvasWidth: number,
+  canvasHeight: number,
+  options?: { materialImage?: CanvasImageSource | null },
+) {
+  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
+  if (!scene) return null;
+
+  drawPreparedLayout(ctx, scene, 0, 0, options);
+  return {
+    width: scene.tileSetWidth,
+    height: scene.tileSetHeight,
+  };
+}
+
+export function renderBackground(
+  ctx: CanvasRenderingContext2D,
+  config: TextureConfig,
+  canvasWidth: number,
+  canvasHeight: number,
+  options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
+): { x: number; y: number; width: number; height: number } | null {
+  const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
+  const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
+  if (!scene) return null;
+
   ctx.fillStyle = jointColor;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  const drawLayoutAt = (offsetX: number, offsetY: number) => {
-    const textureBox = {
-      x: offsetX,
-      y: offsetY,
-      width: tileSetWidth,
-      height: tileSetHeight,
-    };
-
-    ctx.save();
-    // Constrain each repeated layout to its repeat module so overflowing bond rows
-    // are clipped at the preview edge instead of leaving interior whitespace.
-    ctx.beginPath();
-    ctx.rect(offsetX, offsetY, tileSetWidth, tileSetHeight);
-    ctx.clip();
-
-    for (const tile of layout.tiles) {
-      drawTile(
-        ctx,
-        tile,
-        offsetX + tile.x * scale,
-        offsetY + tile.y * scale,
-        tile.width,
-        tile.height,
-        tile.rotation,
-        edgeStyle,
-        baseRgb,
-        toneVariation,
-        rng,
-        jointH,
-        jointV,
-        scale,
-        textureBox,
-        material.tint,
-        options?.materialImage,
-      );
-    }
-
-    ctx.restore();
-  };
-
   if (options?.tileBackground === false) {
-    drawLayoutAt(previewX, previewY);
+    drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);
   } else {
-    const startX = previewX - Math.ceil(previewX / Math.max(tileSetWidth, 1)) * tileSetWidth;
-    const startY = previewY - Math.ceil(previewY / Math.max(tileSetHeight, 1)) * tileSetHeight;
+    const startX = scene.previewX - Math.ceil(scene.previewX / Math.max(scene.tileSetWidth, 1)) * scene.tileSetWidth;
+    const startY = scene.previewY - Math.ceil(scene.previewY / Math.max(scene.tileSetHeight, 1)) * scene.tileSetHeight;
 
-    for (let y = startY; y < canvasHeight + tileSetHeight; y += tileSetHeight) {
-      for (let x = startX; x < canvasWidth + tileSetWidth; x += tileSetWidth) {
-        drawLayoutAt(x, y);
+    for (let y = startY; y < canvasHeight + scene.tileSetHeight; y += scene.tileSetHeight) {
+      for (let x = startX; x < canvasWidth + scene.tileSetWidth; x += scene.tileSetWidth) {
+        drawPreparedLayout(ctx, scene, x, y, options);
       }
     }
   }
 
-  const borderInsetX = (jointV * scale) / 2;
-  const borderInsetY = (jointH * scale) / 2;
+  const borderInsetX = (scene.jointV * scene.scale) / 2;
+  const borderInsetY = (scene.jointH * scene.scale) / 2;
 
   return {
-    x: previewX + borderInsetX,
-    y: previewY + borderInsetY,
-    width: Math.max(0, tileSetWidth - borderInsetX * 2),
-    height: Math.max(0, tileSetHeight - borderInsetY * 2),
+    x: scene.previewX + borderInsetX,
+    y: scene.previewY + borderInsetY,
+    width: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
+    height: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
   };
 }
 

@@ -62,13 +62,7 @@ export function renderToCanvas(
     cornerRadius: number,
   ) => {
     if (tile.clipPath?.length) {
-      tracePolygonPath(
-        ctx,
-        tile.clipPath.map((point) => ({
-          x: point.x * scale,
-          y: point.y * scale,
-        })),
-      );
+      tracePolygonPath(ctx, fitClipPathToTile(tile.clipPath, scale, tileX, tileY, tileWidth, tileHeight));
       return;
     }
 
@@ -111,10 +105,7 @@ export function renderToCanvas(
       radius: cornerRadius,
       fallbackFill: tileColor,
       image: options?.materialImage,
-      clipPath: tile.clipPath?.map((point) => ({
-        x: point.x * scale,
-        y: point.y * scale,
-      })),
+      clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, tileX, tileY, tileWidth, tileHeight) : undefined,
     });
 
     if (options?.materialImage) {
@@ -180,6 +171,32 @@ export function renderToCanvas(
   ctx.lineWidth = 2;
   ctx.strokeRect(offsetX - 2, offsetY - 2, layout.totalWidth * scale + 4, layout.totalHeight * scale + 4);
   ctx.setLineDash([]);
+}
+
+function fitClipPathToTile(
+  clipPath: ReadonlyArray<{ x: number; y: number }>,
+  scale: number,
+  tileX: number,
+  tileY: number,
+  tileWidth: number,
+  tileHeight: number,
+) {
+  const scaledPoints = clipPath.map((point) => ({
+    x: point.x * scale,
+    y: point.y * scale,
+  }));
+
+  const minX = Math.min(...scaledPoints.map((point) => point.x));
+  const maxX = Math.max(...scaledPoints.map((point) => point.x));
+  const minY = Math.min(...scaledPoints.map((point) => point.y));
+  const maxY = Math.max(...scaledPoints.map((point) => point.y));
+  const sourceWidth = Math.max(maxX - minX, 1);
+  const sourceHeight = Math.max(maxY - minY, 1);
+
+  return scaledPoints.map((point) => ({
+    x: tileX + ((point.x - minX) / sourceWidth) * tileWidth,
+    y: tileY + ((point.y - minY) / sourceHeight) * tileHeight,
+  }));
 }
 
 function adjustBrightness(hex: string, amount: number): string {
