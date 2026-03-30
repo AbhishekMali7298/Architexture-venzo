@@ -58,6 +58,14 @@ export const LOCAL_PATTERN_OPTIONS: LocalPatternOption[] = [
     description: 'Zigzag paving layout from your uploaded preview.',
     previewAssetPath: 'patterns/herringbone.svg',
   },
+  {
+    id: 'hexagonal',
+    type: 'hexagonal',
+    category: 'geometric',
+    displayName: 'Hexagonal',
+    description: 'Honeycomb hexagonal tile pattern.',
+    previewAssetPath: 'patterns/hexagonal.svg',
+  },
 ];
 
 export function getLocalPatternOptionByType(type: PatternType) {
