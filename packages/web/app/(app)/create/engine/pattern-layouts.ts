@@ -473,14 +473,16 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
   const side = Math.max(1, Math.min(width, height) * 0.5);
   const hexWidth = side * Math.sqrt(3);
   const hexHeight = side * 2;
+  const effectiveJointX = verticalJoint * 0.2;
+  const effectiveJointY = horizontalJoint * 0.2;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
-    const offsetX = row % 2 === 1 ? (hexWidth + verticalJoint) * 0.5 : 0;
+    const offsetX = row % 2 === 1 ? (hexWidth + effectiveJointX) * 0.5 : 0;
     for (let column = 0; column < columns; column++) {
       tiles.push({
-        x: column * (hexWidth + verticalJoint) + offsetX,
-        y: row * (hexHeight * 0.75 + horizontalJoint),
+        x: column * (hexWidth + effectiveJointX) + offsetX,
+        y: row * (hexHeight * 0.75 + effectiveJointY),
         width: hexWidth,
         height: hexHeight,
         rotation: 0,

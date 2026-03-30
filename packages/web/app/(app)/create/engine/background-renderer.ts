@@ -135,10 +135,10 @@ function drawTile(
   materialImage?: CanvasImageSource | null,
 ) {
   const hasClipPath = Boolean(tile.clipPath?.length);
-  const insetX = hasClipPath ? 0 : (jointV * scale) / 2;
-  const insetY = hasClipPath ? 0 : (jointH * scale) / 2;
-  const drawWidth = hasClipPath ? width * scale : width * scale - jointV * scale;
-  const drawHeight = hasClipPath ? height * scale : height * scale - jointH * scale;
+  const insetX = 0;
+  const insetY = 0;
+  const drawWidth = width * scale;
+  const drawHeight = height * scale;
 
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
@@ -193,7 +193,7 @@ function drawTile(
       : undefined,
   });
 
-  if (edgeStyle !== 'none') {
+  if (edgeStyle !== 'none' && !hasClipPath) {
     ctx.save();
     ctx.globalAlpha = materialImage ? 0.03 : 0.07;
     ctx.fillStyle = '#fff';
@@ -401,10 +401,10 @@ export function renderBackground(
   const borderInsetY = (scene.jointH * scene.scale) / 2;
 
   return {
-    x: scene.previewX + borderInsetX,
-    y: scene.previewY + borderInsetY,
-    width: Math.max(0, scene.tileSetWidth - borderInsetX * 2),
-    height: Math.max(0, scene.tileSetHeight - borderInsetY * 2),
+    x: scene.previewX,
+    y: scene.previewY,
+    width: Math.max(0, scene.tileSetWidth),
+    height: Math.max(0, scene.tileSetHeight),
   };
 }
 
