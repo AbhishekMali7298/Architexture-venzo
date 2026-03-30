@@ -1,8 +1,11 @@
 'use client';
 
+import type { ImageAdjustments } from '@textura/shared';
 import type { EdgeStyle } from '@textura/shared';
-import { CheckboxField, NumberField, RangeField, SectionCard, SelectField, TextField } from './field-controls';
+import { useState } from 'react';
+import { CheckboxField, ColorField, NumberField, RangeField, SectionCard, SelectField, SliderField } from './field-controls';
 import { MaterialThumb } from './material-thumb';
+import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
 export function MaterialSettingsSection({
@@ -19,6 +22,9 @@ export function MaterialSettingsSection({
   jointHorizontal,
   jointVertical,
   linkedJoints,
+  jointAdjustments,
+  jointRecess,
+  jointConcave,
   units,
   onOpenPicker,
   onMaterialTintChange,
@@ -30,6 +36,9 @@ export function MaterialSettingsSection({
   onJointHorizontalChange,
   onJointVerticalChange,
   onLinkedJointsChange,
+  onJointAdjustmentChange,
+  onJointRecessChange,
+  onJointConcaveChange,
 }: {
   materialName: string;
   materialCategory: string;
@@ -44,6 +53,9 @@ export function MaterialSettingsSection({
   jointHorizontal: number;
   jointVertical: number;
   linkedJoints: boolean;
+  jointAdjustments: ImageAdjustments;
+  jointRecess: boolean;
+  jointConcave: boolean;
   units: 'mm' | 'inches';
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
@@ -55,7 +67,11 @@ export function MaterialSettingsSection({
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
   onLinkedJointsChange: (value: boolean) => void;
+  onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
+  onJointRecessChange: (value: boolean) => void;
+  onJointConcaveChange: (value: boolean) => void;
 }) {
+  const [showJointAdjustments, setShowJointAdjustments] = useState(false);
   const measurementUnit = units === 'inches' ? 'in' : 'mm';
 
   return (
@@ -73,7 +89,7 @@ export function MaterialSettingsSection({
         <NumberField label="Height" value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
       </div>
 
-      <TextField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
+      <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 
       <SelectField
         label="Edges"
@@ -93,7 +109,31 @@ export function MaterialSettingsSection({
       <div className={styles.sectionDivider} />
 
       <div className={styles.subsectionTitle}>Joints</div>
-      <TextField label="Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
+      <ColorField
+        label="Tint"
+        value={jointTint ?? '#FFFFFF'}
+        onChange={(value) => onJointTintChange(value || null)}
+        action={
+          <button
+            className={styles.iconButton}
+            type="button"
+            aria-label="Open joint adjustments"
+            onClick={() => setShowJointAdjustments(true)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M4 21v-7" />
+              <path d="M4 10V3" />
+              <path d="M12 21v-9" />
+              <path d="M12 8V3" />
+              <path d="M20 21v-4" />
+              <path d="M20 13V3" />
+              <path d="M1 10h6" />
+              <path d="M9 8h6" />
+              <path d="M17 13h6" />
+            </svg>
+          </button>
+        }
+      />
 
       <div className={styles.gridTwo}>
         <NumberField
@@ -115,6 +155,66 @@ export function MaterialSettingsSection({
       </div>
 
       <CheckboxField label="Link joint dimensions" checked={linkedJoints} onChange={onLinkedJointsChange} />
+      <CheckboxField label="Recess joints" checked={jointRecess} onChange={onJointRecessChange} />
+      <CheckboxField label="Concave joints" checked={jointConcave} onChange={onJointConcaveChange} />
+
+      {showJointAdjustments ? (
+        <Modal onClose={() => setShowJointAdjustments(false)}>
+          <div className={styles.popoverCard}>
+            <div className={styles.popoverHeader}>
+              <h3 className={styles.popoverTitle}>Joint Adjustments</h3>
+              <button
+                className={styles.popoverCloseButton}
+                type="button"
+                onClick={() => setShowJointAdjustments(false)}
+                aria-label="Close joint adjustments"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.adjustmentsPanel}>
+              <SliderField
+                label="Brightness"
+                value={jointAdjustments.brightness}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('brightness', value)}
+                onReset={() => onJointAdjustmentChange('brightness', 0)}
+              />
+              <SliderField
+                label="Contrast"
+                value={jointAdjustments.contrast}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('contrast', value)}
+                onReset={() => onJointAdjustmentChange('contrast', 0)}
+              />
+              <SliderField
+                label="Hue"
+                value={jointAdjustments.hue}
+                min={-180}
+                max={180}
+                onChange={(value) => onJointAdjustmentChange('hue', value)}
+                onReset={() => onJointAdjustmentChange('hue', 0)}
+              />
+              <SliderField
+                label="Saturation"
+                value={jointAdjustments.saturation}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('saturation', value)}
+                onReset={() => onJointAdjustmentChange('saturation', 0)}
+              />
+              <CheckboxField
+                label="Invert Colors"
+                checked={jointAdjustments.invertColors}
+                onChange={(value) => onJointAdjustmentChange('invertColors', value)}
+              />
+            </div>
+          </div>
+        </Modal>
+      ) : null}
     </SectionCard>
   );
 }

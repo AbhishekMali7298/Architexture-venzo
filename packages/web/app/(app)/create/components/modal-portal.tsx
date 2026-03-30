@@ -32,7 +32,7 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
         style={{
           position: 'relative',
           marginTop: 56,
-          marginLeft: '356px',
+          marginLeft: '424px',
           maxWidth: 'calc(100vw - 32px)',
         }}
       >

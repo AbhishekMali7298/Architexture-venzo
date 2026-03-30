@@ -22,6 +22,88 @@ function rgbAdjust([r, g, b]: [number, number, number], delta: number): string {
   return `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
 }
 
+function rgbToHex([r, g, b]: [number, number, number]) {
+  return `#${[r, g, b]
+    .map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+function hexToHsl(hex: string): [number, number, number] {
+  const [r, g, b] = hexToRgb(hex).map((value) => value / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const lightness = (max + min) / 2;
+  const delta = max - min;
+
+  if (delta === 0) {
+    return [0, 0, lightness];
+  }
+
+  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  let hue = 0;
+
+  switch (max) {
+    case r:
+      hue = (g - b) / delta + (g < b ? 6 : 0);
+      break;
+    case g:
+      hue = (b - r) / delta + 2;
+      break;
+    default:
+      hue = (r - g) / delta + 4;
+      break;
+  }
+
+  return [hue * 60, saturation, lightness];
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  const hue = ((h % 360) + 360) % 360;
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const segment = hue / 60;
+  const x = chroma * (1 - Math.abs((segment % 2) - 1));
+  let rgb: [number, number, number] = [0, 0, 0];
+
+  if (segment >= 0 && segment < 1) rgb = [chroma, x, 0];
+  else if (segment < 2) rgb = [x, chroma, 0];
+  else if (segment < 3) rgb = [0, chroma, x];
+  else if (segment < 4) rgb = [0, x, chroma];
+  else if (segment < 5) rgb = [x, 0, chroma];
+  else rgb = [chroma, 0, x];
+
+  const match = l - chroma / 2;
+  return rgb.map((value) => (value + match) * 255) as [number, number, number];
+}
+
+function applyAdjustmentsToHex(
+  hex: string,
+  adjustments: TextureConfig['joints']['adjustments'],
+) {
+  let [r, g, b] = hexToRgb(hex);
+
+  if (adjustments.invertColors) {
+    r = 255 - r;
+    g = 255 - g;
+    b = 255 - b;
+  }
+
+  const brightnessDelta = (adjustments.brightness / 100) * 255;
+  r += brightnessDelta;
+  g += brightnessDelta;
+  b += brightnessDelta;
+
+  const contrastFactor = (259 * (adjustments.contrast + 255)) / (255 * (259 - adjustments.contrast));
+  r = contrastFactor * (r - 128) + 128;
+  g = contrastFactor * (g - 128) + 128;
+  b = contrastFactor * (b - 128) + 128;
+
+  let [h, s, l] = hexToHsl(rgbToHex([r, g, b]));
+  h += adjustments.hue;
+  s = Math.max(0, Math.min(1, s * (1 + adjustments.saturation / 100)));
+
+  return rgbToHex(hslToRgb(h, s, l));
+}
+
 function drawTile(
   ctx: CanvasRenderingContext2D,
   tile: PatternTile,
@@ -159,7 +241,7 @@ export function renderBackground(
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
   const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
   const baseRgb = hexToRgb(baseColor);
-  const jointColor = config.joints.tint ?? '#d4cfc6';
+  const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
   const edgeStyle = material.edges.style;
   const toneVariation = material.toneVariation;
   const jointH = config.joints.horizontalSize;
@@ -168,7 +250,7 @@ export function renderBackground(
   const layout = getPatternLayout(config);
   if (!layout.tiles.length) return null;
 
-  const panelWidth = 320;
+  const panelWidth = 410;
   const outerPadding = 40;
   const availableX = panelWidth + outerPadding;
   const availableY = outerPadding;

@@ -9,6 +9,7 @@ import type {
   PatternCategory,
   EdgeStyle,
   MaterialDefinition,
+  ImageAdjustments,
 } from '@textura/shared';
 import { getMaterialById, getPatternByType } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
@@ -70,6 +71,9 @@ export interface EditorState {
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
+  setJointAdjustment: (key: keyof ImageAdjustments, value: number | boolean) => void;
+  setJointRecess: (value: boolean) => void;
+  setJointConcave: (value: boolean) => void;
 
   // Output
   setOutputSize: (width: number, height: number) => void;
@@ -331,6 +335,35 @@ export const useEditorStore = create<EditorState>()(
         if (linked) {
           s.config.joints.verticalSize = s.config.joints.horizontalSize;
         }
+        bumpRender(s);
+      }),
+
+    setJointAdjustment: (key, value) =>
+      set((s) => {
+        pushHistory(s, `Joint ${key} → ${String(value)}`);
+        if (key === 'invertColors') {
+          s.config.joints.adjustments.invertColors = Boolean(value);
+        } else {
+          const nextValue =
+            key === 'hue'
+              ? clamp(Number(value), -180, 180)
+              : clamp(Number(value), -100, 100);
+          s.config.joints.adjustments[key] = nextValue as never;
+        }
+        bumpRender(s);
+      }),
+
+    setJointRecess: (value) =>
+      set((s) => {
+        pushHistory(s, `Recess joints → ${value ? 'on' : 'off'}`);
+        s.config.joints.recess = value;
+        bumpRender(s);
+      }),
+
+    setJointConcave: (value) =>
+      set((s) => {
+        pushHistory(s, `Concave joints → ${value ? 'on' : 'off'}`);
+        s.config.joints.concave = value;
         bumpRender(s);
       }),
 

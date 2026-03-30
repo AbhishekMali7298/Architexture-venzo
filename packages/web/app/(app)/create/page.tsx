@@ -32,6 +32,9 @@ export default function CreatePage() {
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
+  const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
+  const setJointRecess = useEditorStore((state) => state.setJointRecess);
+  const setJointConcave = useEditorStore((state) => state.setJointConcave);
   const setUnits = useEditorStore((state) => state.setUnits);
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
   const setTileBackground = useEditorStore((state) => state.setTileBackground);
@@ -137,6 +140,9 @@ export default function CreatePage() {
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
           linkedJoints={config.joints.linkedDimensions}
+          jointAdjustments={config.joints.adjustments}
+          jointRecess={config.joints.recess}
+          jointConcave={config.joints.concave}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
@@ -147,6 +153,9 @@ export default function CreatePage() {
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onLinkedJointsChange={setLinkedDimensions}
+          onJointAdjustmentChange={setJointAdjustment}
+          onJointRecessChange={setJointRecess}
+          onJointConcaveChange={setJointConcave}
         />
       </CreateEditorShell>
 
