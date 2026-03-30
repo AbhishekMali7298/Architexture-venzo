@@ -47,8 +47,11 @@ function drawImageCover(
       ? image.height
       : height;
 
-  const scale = Math.max(width / Math.max(sourceWidth, 1), height / Math.max(sourceHeight, 1));
   const targetBox = imageDrawBox ?? { x, y, width, height };
+  const scale = Math.max(
+    targetBox.width / Math.max(sourceWidth, 1),
+    targetBox.height / Math.max(sourceHeight, 1),
+  );
   const drawWidth = sourceWidth * scale;
   const drawHeight = sourceHeight * scale;
   const drawX = targetBox.x + (targetBox.width - drawWidth) / 2;

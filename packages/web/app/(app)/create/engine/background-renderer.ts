@@ -51,7 +51,7 @@ function drawTile(
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
-  const imageDelta = materialImage ? delta * 0.08 : delta;
+  const imageDelta = materialImage ? 0 : delta;
   const radius =
     edgeStyle === 'handmade'
       ? 3 * scale
