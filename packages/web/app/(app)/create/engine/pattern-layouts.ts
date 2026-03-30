@@ -347,13 +347,15 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const pieceHeight = Math.max(height * 2, 1);
   const mitreRise = Math.max(1, Math.min(pieceHeight, pieceWidth * Math.tan(angleRadians)));
   const shoulderY = Math.max((pieceHeight - mitreRise) / 2, 0);
-  const rowStep = height + horizontalJoint;
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
   const tiles: PatternTile[] = [];
 
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
-      const baseX = column * (width + verticalJoint);
-      const baseY = row * rowStep - height;
+  // Draw one bleed ring around the module so clipped edges tile seamlessly.
+  for (let row = -1; row <= rows; row++) {
+    for (let column = -1; column <= columns; column++) {
+      const baseX = column * stepX;
+      const baseY = row * stepY - height;
 
       tiles.push({
         x: baseX,
@@ -390,8 +392,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   // tied to the user-facing module size so the border matches the editor controls.
   return {
     tiles,
-    totalWidth: columns * width + Math.max(0, columns - 1) * verticalJoint,
-    totalHeight: rows * height + Math.max(0, rows - 1) * horizontalJoint,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
   };
 }
 
@@ -475,14 +477,21 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
   const hexHeight = side * 2;
   const effectiveJointX = verticalJoint * 0.2;
   const effectiveJointY = horizontalJoint * 0.2;
+  const stepX = hexWidth + effectiveJointX;
+  const stepY = hexHeight * 0.75 + effectiveJointY;
   const tiles: PatternTile[] = [];
 
-  for (let row = 0; row < rows; row++) {
-    const offsetX = row % 2 === 1 ? (hexWidth + effectiveJointX) * 0.5 : 0;
-    for (let column = 0; column < columns; column++) {
+  // Generate bleed tiles outside bounds so repeating and preview clipping are seam-free.
+  for (let row = -1; row <= rows; row++) {
+    const oddRow = Math.abs(row % 2) === 1;
+    const offsetX = oddRow ? stepX * 0.5 : 0;
+    const startColumn = oddRow ? -1 : 0;
+    const endColumn = oddRow ? columns : columns - 1;
+
+    for (let column = startColumn; column <= endColumn; column++) {
       tiles.push({
-        x: column * (hexWidth + effectiveJointX) + offsetX,
-        y: row * (hexHeight * 0.75 + effectiveJointY),
+        x: column * stepX + offsetX,
+        y: row * stepY,
         width: hexWidth,
         height: hexHeight,
         rotation: 0,
@@ -499,7 +508,11 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutAshlar(config: TextureConfig): PatternLayoutData {
