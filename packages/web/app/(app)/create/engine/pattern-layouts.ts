@@ -42,12 +42,14 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
 
 function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const { width, height } = getMaterialMetrics(config);
   const refWidth = Math.max(module.referenceTileWidth, 1);
   const refHeight = Math.max(module.referenceTileHeight, 1);
   const scale = Math.max(0.01, Math.min(width / refWidth, height / refHeight));
-  const stepX = module.viewBoxWidth * scale + verticalJoint;
-  const stepY = module.viewBoxHeight * scale + horizontalJoint;
+  const moduleWidth = module.viewBoxWidth * scale;
+  const moduleHeight = module.viewBoxHeight * scale;
+  const stepX = moduleWidth;
+  const stepY = moduleHeight;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -72,7 +74,11 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    totalWidth: columns * moduleWidth,
+    totalHeight: rows * moduleHeight,
+  };
 }
 
 function layoutNone(config: TextureConfig): PatternLayoutData {
