@@ -42,6 +42,11 @@ async function resolvePreviewMaterialImage(config: TextureConfig): Promise<HTMLI
 }
 
 export async function exportPreviewPng(config: TextureConfig) {
+  const canvas = await renderExportCanvas(config);
+  downloadUrl(canvas.toDataURL('image/png'), `textura-preview-${createSlug(config.pattern.type)}.png`);
+}
+
+async function renderExportCanvas(config: TextureConfig) {
   const canvas = document.createElement('canvas');
   canvas.width = config.output.widthPx;
   canvas.height = config.output.heightPx;
@@ -53,8 +58,7 @@ export async function exportPreviewPng(config: TextureConfig) {
 
   const materialImage = await resolvePreviewMaterialImage(config);
   renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage });
-
-  downloadUrl(canvas.toDataURL('image/png'), `textura-preview-${createSlug(config.pattern.type)}.png`);
+  return canvas;
 }
 
 function createMapCanvas(config: TextureConfig) {
@@ -75,6 +79,82 @@ export async function exportAlbedoPng(config: TextureConfig) {
   const materialImage = await resolvePreviewMaterialImage(config);
   renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage });
   downloadUrl(canvas.toDataURL('image/png'), `textura-albedo-${createSlug(config.pattern.type)}.png`);
+}
+
+export async function exportPreviewJpg(config: TextureConfig) {
+  const canvas = await renderExportCanvas(config);
+  downloadUrl(canvas.toDataURL('image/jpeg', 0.92), `textura-preview-${createSlug(config.pattern.type)}.jpg`);
+}
+
+export async function exportPreviewSvg(config: TextureConfig) {
+  const canvas = await renderExportCanvas(config);
+  const pngDataUrl = canvas.toDataURL('image/png');
+  const svg = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">`,
+    `<image href="${pngDataUrl}" width="${canvas.width}" height="${canvas.height}" />`,
+    '</svg>',
+  ].join('');
+  const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  downloadUrl(url, `textura-preview-${createSlug(config.pattern.type)}.svg`);
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function concatBytes(parts: Uint8Array[]) {
+  const total = parts.reduce((sum, part) => sum + part.length, 0);
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    result.set(part, offset);
+    offset += part.length;
+  }
+  return result;
+}
+
+function buildPdfWithJpeg(jpegBytes: Uint8Array, width: number, height: number) {
+  const encoder = new TextEncoder();
+  const objects: Uint8Array[] = [
+    encoder.encode('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n'),
+    encoder.encode('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n'),
+    encoder.encode(
+      `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /XObject << /Im0 4 0 R >> /ProcSet [/PDF /ImageC] >> /Contents 5 0 R >>\nendobj\n`,
+    ),
+    concatBytes([
+      encoder.encode(
+        `4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`,
+      ),
+      jpegBytes,
+      encoder.encode('\nendstream\nendobj\n'),
+    ]),
+  ];
+  const contentStream = `q\n${width} 0 0 ${height} 0 0 cm\n/Im0 Do\nQ\n`;
+  objects.push(encoder.encode(`5 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`));
+
+  const header = encoder.encode('%PDF-1.3\n');
+  const body = concatBytes(objects);
+  const xrefOffset = header.length + body.length;
+  const xrefEntries = ['0000000000 65535 f '];
+  let runningOffset = header.length;
+
+  for (const object of objects) {
+    xrefEntries.push(`${String(runningOffset).padStart(10, '0')} 00000 n `);
+    runningOffset += object.length;
+  }
+
+  const trailer = encoder.encode(
+    `xref\n0 ${xrefEntries.length}\n${xrefEntries.join('\n')}\ntrailer\n<< /Size ${xrefEntries.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`,
+  );
+
+  return new Blob([header, body, trailer], { type: 'application/pdf' });
+}
+
+export async function exportPreviewPdf(config: TextureConfig) {
+  const canvas = await renderExportCanvas(config);
+  const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) => char.charCodeAt(0));
+  const blob = buildPdfWithJpeg(jpegBytes, canvas.width, canvas.height);
+  const url = URL.createObjectURL(blob);
+  downloadUrl(url, `textura-preview-${createSlug(config.pattern.type)}.pdf`);
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function exportPlaceholderMap(config: TextureConfig, kind: 'bump' | 'roughness') {

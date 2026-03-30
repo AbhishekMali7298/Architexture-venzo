@@ -9,9 +9,15 @@ import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { PatternSettingsSection } from './components/pattern-settings-section';
+import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
-import { exportPreviewPng, exportProjectJson } from './lib/project-export';
+import {
+  exportPreviewJpg,
+  exportPreviewPdf,
+  exportPreviewPng,
+  exportPreviewSvg,
+} from './lib/project-export';
 import { clearProjectFromStorage, formatSavedAt, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
 
@@ -55,6 +61,7 @@ export default function CreatePage() {
   const [showPatternModal, setShowPatternModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const [footerStatus, setFooterStatus] = useState('Ready');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -113,21 +120,16 @@ export default function CreatePage() {
     setFooterStatus('Saved.');
   };
 
-  const handleDownloadPreview = async () => {
+  const handleDownloadPreview = async (format: ExportFormat) => {
     try {
-      await exportPreviewPng(config);
-      setFooterStatus('Downloaded PNG.');
+      if (format === 'png') await exportPreviewPng(config);
+      if (format === 'svg') await exportPreviewSvg(config);
+      if (format === 'jpg') await exportPreviewJpg(config);
+      if (format === 'pdf') await exportPreviewPdf(config);
+      setFooterStatus(`Downloaded ${format.toUpperCase()}.`);
+      setShowSaveModal(false);
     } catch {
       setFooterStatus('Download failed.');
-    }
-  };
-
-  const handleExportProject = async () => {
-    try {
-      await exportProjectJson(config);
-      setFooterStatus('Downloaded project JSON.');
-    } catch {
-      setFooterStatus('Export failed.');
     }
   };
 
@@ -162,21 +164,10 @@ export default function CreatePage() {
         onOpenSettings={() => setShowSettingsModal(true)}
         footer={
           <>
-            <button className={styles.primaryButton} type="button" onClick={handleSaveProject}>
+            <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
               Save
             </button>
             <div className={styles.secondaryRow}>
-              <button className={styles.secondaryButton} type="button" onClick={handleShare}>
-                Share Link
-              </button>
-              <button className={styles.secondaryButton} type="button" onClick={handleDownloadPreview}>
-                Download
-              </button>
-            </div>
-            <div className={styles.secondaryRow}>
-              <button className={styles.secondaryButton} type="button" onClick={handleExportProject}>
-                Export JSON
-              </button>
               <button className={styles.secondaryButton} type="button" onClick={handleReset}>
                 Reset
               </button>
@@ -263,6 +254,15 @@ export default function CreatePage() {
           onUnitsChange={setUnits}
           onTileBackgroundChange={setTileBackground}
           onShowBorderChange={setShowBorder}
+        />
+      ) : null}
+
+      {showSaveModal ? (
+        <SaveExportModal
+          onClose={() => setShowSaveModal(false)}
+          onSaveLocal={handleSaveProject}
+          onShare={handleShare}
+          onDownload={handleDownloadPreview}
         />
       ) : null}
     </div>
