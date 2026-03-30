@@ -249,6 +249,7 @@ export function renderBackground(
   canvasHeight: number,
   options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
 ): { x: number; y: number; width: number; height: number } | null {
+  const previewDensity = 0.82;
   const rng = seededRng(config.seed);
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
@@ -273,7 +274,7 @@ export function renderBackground(
 
   const scaleX = (availableWidth * 0.94) / Math.max(layout.totalWidth, 1);
   const scaleY = (availableHeight * 0.94) / Math.max(layout.totalHeight, 1);
-  const scale = Math.max(0.01, Math.min(scaleX, scaleY));
+  const scale = Math.max(0.01, Math.min(scaleX, scaleY) * previewDensity);
   const tileSetHeight = layout.totalHeight * scale;
   const tileSetWidth = layout.totalWidth * scale;
   const previewX = availableX + (availableWidth - tileSetWidth) / 2;
