@@ -130,7 +130,6 @@ function drawTile(
   jointH: number,
   jointV: number,
   scale: number,
-  textureBox: { x: number; y: number; width: number; height: number },
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
 ) {
@@ -185,10 +184,10 @@ function drawTile(
     clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight) : undefined,
     imageDrawBox: materialImage
       ? {
-        x: -(tile.x * scale),
-        y: -(tile.y * scale),
-        width: textureBox.width,
-        height: textureBox.height,
+        x: insetX,
+        y: insetY,
+        width: Math.max(drawWidth, 1),
+        height: Math.max(drawHeight, 1),
       }
       : undefined,
   });
@@ -352,12 +351,6 @@ function drawPreparedLayout(
   options?: { materialImage?: CanvasImageSource | null },
 ) {
   const rng = seededRng(0x9e3779b9);
-  const textureBox = {
-    x: offsetX,
-    y: offsetY,
-    width: scene.tileSetWidth,
-    height: scene.tileSetHeight,
-  };
 
   ctx.save();
   ctx.beginPath();
@@ -380,7 +373,6 @@ function drawPreparedLayout(
       scene.jointH,
       scene.jointV,
       scene.scale,
-      textureBox,
       scene.tintColor,
       options?.materialImage,
     );
