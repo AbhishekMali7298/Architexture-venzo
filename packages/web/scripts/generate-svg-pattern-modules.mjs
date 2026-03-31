@@ -419,8 +419,12 @@ async function generate() {
     }
 
     const override = MODULE_OVERRIDES[patternType];
-    const referenceTileWidth = override?.referenceTileWidth ?? median(tiles.map((tile) => tile.width));
-    const referenceTileHeight = override?.referenceTileHeight ?? median(tiles.map((tile) => tile.height));
+    const referenceTileWidth =
+      override?.referenceTileWidth ??
+      (tiles.length > 0 ? median(tiles.map((tile) => tile.width)) : viewBox.width);
+    const referenceTileHeight =
+      override?.referenceTileHeight ??
+      (tiles.length > 0 ? median(tiles.map((tile) => tile.height)) : viewBox.height);
 
     modules[patternType] = {
       viewBoxWidth: viewBox.width,

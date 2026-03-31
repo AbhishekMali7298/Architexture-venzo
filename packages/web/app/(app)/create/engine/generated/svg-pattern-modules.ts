@@ -4040,8 +4040,8 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "diamond": {
     "viewBoxWidth": 600,
     "viewBoxHeight": 100,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 600,
+    "referenceTileHeight": 100,
     "tiles": [],
     "strokes": [
       {
@@ -7561,8 +7561,8 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "french": {
     "viewBoxWidth": 1000,
     "viewBoxHeight": 1000,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 1000,
+    "referenceTileHeight": 1000,
     "tiles": [],
     "strokes": [
       {
@@ -8302,8 +8302,8 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "hopscotch": {
     "viewBoxWidth": 1000,
     "viewBoxHeight": 1000,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 1000,
+    "referenceTileHeight": 1000,
     "tiles": [],
     "strokes": [
       {
@@ -11017,8 +11017,8 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "stack": {
     "viewBoxWidth": 300,
     "viewBoxHeight": 100,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 300,
+    "referenceTileHeight": 100,
     "tiles": [],
     "strokes": [
       {
@@ -11094,8 +11094,8 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "stack_bond": {
     "viewBoxWidth": 300,
     "viewBoxHeight": 100,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 300,
+    "referenceTileHeight": 100,
     "tiles": [],
     "strokes": [
       {

@@ -110,7 +110,7 @@ function normalizeLayoutBounds(
 
 function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height } = getMaterialMetrics(config);
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const refWidth = Math.max(module.referenceTileWidth, 1);
   const refHeight = Math.max(module.referenceTileHeight, 1);
   const scale = Math.max(0.01, Math.min(width / refWidth, height / refHeight));
@@ -168,12 +168,7 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
     }
   }
 
-  return {
-    tiles,
-    strokes,
-    totalWidth: columns * repeatWidth,
-    totalHeight: rows * repeatHeight,
-  };
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint);
 }
 
 function layoutNone(config: TextureConfig): PatternLayoutData {
