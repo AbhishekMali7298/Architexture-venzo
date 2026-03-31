@@ -165,11 +165,13 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         const definition = getPatternByType(type);
         pushHistory(s, `Pattern → ${type}`);
+        const currentRows = s.config.pattern.rows;
+        const currentColumns = s.config.pattern.columns;
         s.config.pattern.type = type;
         s.config.pattern.category = category;
         if (definition) {
-          s.config.pattern.rows = definition.defaults.rows;
-          s.config.pattern.columns = definition.defaults.columns;
+          s.config.pattern.rows = Math.max(1, Math.min(100, currentRows));
+          s.config.pattern.columns = Math.max(1, Math.min(100, currentColumns));
           s.config.pattern.angle = definition.defaults.angle;
           s.config.pattern.stretchers = definition.defaults.stretchers;
           s.config.pattern.weaves = definition.defaults.weaves;
