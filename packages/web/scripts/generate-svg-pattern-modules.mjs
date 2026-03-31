@@ -9,6 +9,15 @@ const ROOT = path.resolve(__dirname, '..');
 const PATTERN_DIR = path.join(ROOT, 'public/patterns');
 const OUTPUT_FILE = path.join(ROOT, 'app/(app)/create/engine/generated/svg-pattern-modules.ts');
 
+const MODULE_OVERRIDES = {
+  fishscale: {
+    referenceTileWidth: 1000,
+    referenceTileHeight: 1000,
+    repeatWidth: 1000,
+    repeatHeight: 500,
+  },
+};
+
 function tokenizePathData(d) {
   return d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) ?? [];
 }
@@ -409,14 +418,17 @@ async function generate() {
       });
     }
 
-    const referenceTileWidth = median(tiles.map((tile) => tile.width));
-    const referenceTileHeight = median(tiles.map((tile) => tile.height));
+    const override = MODULE_OVERRIDES[patternType];
+    const referenceTileWidth = override?.referenceTileWidth ?? median(tiles.map((tile) => tile.width));
+    const referenceTileHeight = override?.referenceTileHeight ?? median(tiles.map((tile) => tile.height));
 
     modules[patternType] = {
       viewBoxWidth: viewBox.width,
       viewBoxHeight: viewBox.height,
       referenceTileWidth,
       referenceTileHeight,
+      ...(override?.repeatWidth ? { repeatWidth: override.repeatWidth } : {}),
+      ...(override?.repeatHeight ? { repeatHeight: override.repeatHeight } : {}),
       tiles,
       strokes,
     };
@@ -449,6 +461,8 @@ export interface SvgPatternModule {
   viewBoxHeight: number;
   referenceTileWidth: number;
   referenceTileHeight: number;
+  repeatWidth?: number;
+  repeatHeight?: number;
   tiles: SvgPatternModuleTile[];
   strokes: SvgPatternModuleStroke[];
 }

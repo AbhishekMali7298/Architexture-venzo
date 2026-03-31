@@ -20,6 +20,8 @@ export interface SvgPatternModule {
   viewBoxHeight: number;
   referenceTileWidth: number;
   referenceTileHeight: number;
+  repeatWidth?: number;
+  repeatHeight?: number;
   tiles: SvgPatternModuleTile[];
   strokes: SvgPatternModuleStroke[];
 }
@@ -6486,8 +6488,10 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
   "fishscale": {
     "viewBoxWidth": 1000,
     "viewBoxHeight": 1000,
-    "referenceTileWidth": 1,
-    "referenceTileHeight": 1,
+    "referenceTileWidth": 1000,
+    "referenceTileHeight": 1000,
+    "repeatWidth": 1000,
+    "repeatHeight": 500,
     "tiles": [],
     "strokes": [
       {

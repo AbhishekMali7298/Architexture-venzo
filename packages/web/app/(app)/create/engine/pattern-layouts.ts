@@ -116,8 +116,10 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
   const scale = Math.max(0.01, Math.min(width / refWidth, height / refHeight));
   const moduleWidth = module.viewBoxWidth * scale;
   const moduleHeight = module.viewBoxHeight * scale;
-  const stepX = moduleWidth;
-  const stepY = moduleHeight;
+  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scale;
+  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scale;
+  const stepX = repeatWidth;
+  const stepY = repeatHeight;
   const tiles: PatternTile[] = [];
   const strokes: PatternStroke[] = [];
 
@@ -169,8 +171,8 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
   return {
     tiles,
     strokes,
-    totalWidth: columns * moduleWidth,
-    totalHeight: rows * moduleHeight,
+    totalWidth: columns * repeatWidth,
+    totalHeight: rows * repeatHeight,
   };
 }
 
