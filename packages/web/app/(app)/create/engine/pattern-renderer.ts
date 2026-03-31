@@ -1,5 +1,5 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
-import { getPatternLayout, type PatternTile } from './pattern-layouts';
+import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
@@ -13,6 +13,7 @@ export interface RenderedJoint {
 
 export interface PatternLayout {
   tiles: PatternTile[];
+  strokes: PatternStroke[];
   joints: RenderedJoint[];
   totalWidth: number;
   totalHeight: number;
@@ -91,10 +92,11 @@ export function renderToCanvas(
       ctx.translate(-(tile.width * scale) / 2, -(tile.height * scale) / 2);
     }
 
-    const tileX = (config.joints.verticalSize * scale) / 2;
-    const tileY = (config.joints.horizontalSize * scale) / 2;
-    const tileWidth = tile.width * scale - config.joints.verticalSize * scale;
-    const tileHeight = tile.height * scale - config.joints.horizontalSize * scale;
+    const applyInset = tile.applyJointInset !== false;
+    const tileX = applyInset ? (config.joints.verticalSize * scale) / 2 : 0;
+    const tileY = applyInset ? (config.joints.horizontalSize * scale) / 2 : 0;
+    const tileWidth = applyInset ? tile.width * scale - config.joints.verticalSize * scale : tile.width * scale;
+    const tileHeight = applyInset ? tile.height * scale - config.joints.horizontalSize * scale : tile.height * scale;
 
     const cornerRadius = material.edges.style === 'handmade' ? 2 : material.edges.style === 'rough' ? 3 : 0;
     fillMaterialSurface(ctx, {
@@ -121,7 +123,7 @@ export function renderToCanvas(
       }
     }
 
-    if (material.edges.style !== 'none') {
+    if (material.edges.style !== 'none' && !tile.skipEdgeStroke) {
       ctx.strokeStyle = 'rgba(0,0,0,0.12)';
       ctx.lineWidth = 1;
       traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
@@ -140,6 +142,19 @@ export function renderToCanvas(
       ctx.globalAlpha = 1;
     }
 
+    ctx.restore();
+  }
+
+  if (layout.strokes.length > 0) {
+    ctx.save();
+    ctx.strokeStyle = jointColor;
+    ctx.lineWidth = Math.max(1, ((config.joints.horizontalSize + config.joints.verticalSize) / 2) * scale);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    for (const stroke of layout.strokes) {
+      traceStrokePath(ctx, stroke, scale, offsetX, offsetY);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -171,6 +186,23 @@ export function renderToCanvas(
   ctx.lineWidth = 2;
   ctx.strokeRect(offsetX - 2, offsetY - 2, layout.totalWidth * scale + 4, layout.totalHeight * scale + 4);
   ctx.setLineDash([]);
+}
+
+function traceStrokePath(
+  ctx: CanvasRenderingContext2D,
+  stroke: PatternStroke,
+  scale: number,
+  offsetX: number,
+  offsetY: number,
+) {
+  if (!stroke.points.length) return;
+  ctx.beginPath();
+  ctx.moveTo(offsetX + stroke.points[0].x * scale, offsetY + stroke.points[0].y * scale);
+  for (let index = 1; index < stroke.points.length; index++) {
+    const point = stroke.points[index]!;
+    ctx.lineTo(offsetX + point.x * scale, offsetY + point.y * scale);
+  }
+  if (stroke.closed) ctx.closePath();
 }
 
 function fitClipPathToTile(

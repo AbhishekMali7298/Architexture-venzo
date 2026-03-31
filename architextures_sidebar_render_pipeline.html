@@ -1,0 +1,181 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1rem 0;display:flex;flex-direction:column;gap:0}
+.section{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:10px}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none;background:var(--color-background-secondary)}
+.sec-hdr:hover{background:var(--color-background-tertiary)}
+.sec-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.sec-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.tag-pattern{background:#E6F1FB;color:#0C447C}
+.tag-material{background:#E1F5EE;color:#085041}
+.tag-joint{background:#FAEEDA;color:#633806}
+.tag-surface{background:#EEEDFE;color:#3C3489}
+.tag-pbr{background:#FAECE7;color:#712B13}
+.chevron{font-size:12px;color:var(--color-text-tertiary);transition:transform 0.2s}
+.chevron.open{transform:rotate(180deg)}
+.sec-body{display:none;background:var(--color-background-primary)}
+.sec-body.open{display:block}
+.ctrl-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ctrl-row:last-child{border-bottom:none}
+.ctrl-name{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:130px;flex-shrink:0;padding-top:2px}
+.ctrl-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.55;flex:1}
+.ctrl-code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 6px;color:var(--color-text-primary);display:inline-block;margin-top:4px}
+.pipe-box{margin:0 14px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;overflow:hidden}
+.pipe-step{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.pipe-step:last-child{border-bottom:none}
+.pipe-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.p-blue{background:#E6F1FB;color:#0C447C}
+.p-green{background:#E1F5EE;color:#085041}
+.p-amber{background:#FAEEDA;color:#633806}
+.p-purple{background:#EEEDFE;color:#3C3489}
+.pipe-txt{color:var(--color-text-primary);flex:1}
+.pipe-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.note{font-size:11px;color:var(--color-text-secondary);padding:8px 14px 10px;line-height:1.5;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+</style>
+<div class="wrap">
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">How pattern change triggers a full re-render</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-pattern">Core pipeline</span><span class="chevron open">▼</span></div>
+</div>
+<div class="sec-body open">
+<div class="pipe-box">
+<div class="pipe-step"><span class="pipe-num p-blue">1</span><div><div class="pipe-txt">User changes any control (slider, dropdown, input)</div><div class="pipe-sub">Event fires: input / change / click on sidebar element</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-blue">2</span><div><div class="pipe-txt">State object mutated immediately</div><div class="pipe-sub"><span class="ctrl-code">state.pattern.rows = 4</span> — plain JS object, no framework</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-blue">3</span><div><div class="pipe-txt">scheduleRender() called</div><div class="pipe-sub">Debounced ~20ms + requestAnimationFrame — prevents thrashing on slider drag</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-green">4</span><div><div class="pipe-txt">Pattern algorithm computes tile grid</div><div class="pipe-sub">Pure function → returns array of {x, y, w, h, rotation} for every tile</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-green">5</span><div><div class="pipe-txt">Canvas cleared → drawImage() loop</div><div class="pipe-sub">For each tile: ctx.save → translate → rotate → drawImage(materialImg) → restore</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-amber">6</span><div><div class="pipe-txt">Pixel adjustment pass (ImageData)</div><div class="pipe-sub">getImageData → per-pixel brightness/hue/saturation → putImageData</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-amber">7</span><div><div class="pipe-txt">Joint rendering pass</div><div class="pipe-sub">Draws gap lines OR fills joint material image into joint regions</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-purple">8</span><div><div class="pipe-txt">Edge + surface overlay passes</div><div class="pipe-sub">Profile shadows, finish texture composited at reduced opacity</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-purple">9</span><div><div class="pipe-txt">Canvas → CSS background + 3D preview update</div><div class="pipe-sub">canvas.toDataURL() or CSS paint API → body bg tiles it; Three.js texture.needsUpdate=true</div></div></div>
+</div>
+<div class="note">Total time: ~5–20ms on modern CPU. No server involved. The same render() function runs server-side (node-canvas) for high-res downloads — identical logic, just bigger canvas.</div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">Pattern section — every control explained</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-pattern">Pattern</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Pattern picker (rotate icon)</span><div class="ctrl-desc">Opens the "Choose Pattern" modal. Patterns are categorised: Brick Bond, Paving, Parquetry, Geometric, Organic, Random, Roofing. Each pattern is a pure JS function that receives {rows, cols, tileW, tileH, angle, stretchers} and returns an array of tile positions. Changing pattern swaps this function — the rest of the render pipeline is identical.<br><span class="ctrl-code">state.pattern.id = 'herringbone' → recompute grid → re-render</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Rows</span><div class="ctrl-desc">Number of tile rows in the output canvas. Directly controls how many times the drawImage() loop iterates vertically. Higher = more tiles = smaller tiles at fixed canvas size. Affects perceived scale in the real-world preview.<br><span class="ctrl-code">state.pattern.rows = N → grid recomputed</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Columns</span><div class="ctrl-desc">Number of tile columns. Works identically to Rows on the horizontal axis. Combined with Rows, these two values determine the total tile count = rows × cols (plus partial tiles at edges).<br><span class="ctrl-code">state.pattern.cols = N</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Weaves</span><div class="ctrl-desc">Visible for basket-weave / parquetry patterns. Controls how many tiles form each "bundle" before the direction alternates. A weave of 2 = pairs of 2 horizontal then 2 vertical tiles alternating. The algorithm uses this to group tiles before applying the rotation offset.<br><span class="ctrl-code">state.pattern.weaves = N</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Angle</span><div class="ctrl-desc">Rotates the entire tile grid. Implemented as ctx.rotate() applied to the whole canvas context before the tile loop, then rotated back. At 45° all tiles draw diagonally — this is how the diagonal herringbone variant works.<br><span class="ctrl-code">ctx.rotate(state.pattern.angle * Math.PI/180)</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Stretchers</span><div class="ctrl-desc">For brick bond patterns: controls how many stretcher courses appear between header courses. A "running bond" has infinite stretchers (all stretchers). A "Flemish bond" alternates stretcher+header per row. This value changes which row-type pattern function is called for odd vs even rows.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Size readout (32 × 32")</span><div class="ctrl-desc">Live display of the total canvas tile area in real-world units. Calculated from tile width/height × rows/cols + joint sizes, then converted using the unit scale factor (mm or inches). Updates on every render — purely a derived display value, not a state input.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">Material section — every control explained</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-material">Material</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Material picker</span><div class="ctrl-desc">Opens "Choose Material" panel. Categories: Stone, Brick, Wood, Terrazzo, Concrete, Metal, Tile, Fabric, Wallpaper, Carpet, Surfaces, Finishes, Landscaping, Insulation, Organic, Acoustic. Selecting a material fetches the full-res JPG from CDN (if not cached), stores it as an HTMLImageElement in JS memory, then triggers a full re-render. All subsequent renders use the cached image — no re-fetch.<br><span class="ctrl-code">state.material.img = new Image(); img.src = cdnUrl; img.onload = render</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Upload width (")</span><div class="ctrl-desc">The real-world width of the uploaded/selected material image in inches. Critical for scaling: it tells the renderer how many pixels in the source image = 1 inch. If your granite image is 2000px wide and represents 24", the scale factor = 2000/24 = 83.3px per inch. This ensures tiles drawn at "215mm wide" use the correct slice of the source image.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Width / Height (")</span><div class="ctrl-desc">Real-world dimensions of each individual tile. These are the main sizing controls. Internally converted to canvas pixels using the unit scale: <span class="ctrl-code">pixelW = (tileWidthInches / uploadWidthInches) * sourceImg.width</span>. The drawImage() call uses these pixel dimensions as the destination rectangle size.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Min Width / Min Height</span><div class="ctrl-desc">For "Random" placement patterns, tiles can vary in size. Min Width/Height set the lower bound of the randomisation range. The algorithm picks a random value between Min and the main Width/Height for each tile individually using Math.random(). Without this, random patterns would be uniform-sized.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Light Intensity</span><div class="ctrl-desc">Applies a directional lighting simulation. Implemented as a radial or linear gradient overlay at low opacity composited on top of the finished texture. Brighter areas simulate a light source hitting the surface. Uses ctx.globalCompositeOperation = 'overlay' or 'soft-light'.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Surface (None / vermiculated / roughGrooved / voids)</span><div class="ctrl-desc">Overlays a pre-drawn surface texture pattern on top of the material tiles. These are small tileable canvas patterns (not images) drawn procedurally: vermiculated = irregular worm-like indentations, roughGrooved = parallel scratches, voids = random circular cutouts. Applied via ctx.drawImage() of a pre-rendered offscreen canvas at ~30–50% opacity.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Surface Scale</span><div class="ctrl-desc">Scales the surface pattern canvas before compositing. Implemented by scaling the offscreen canvas dimensions. Smaller scale = more repetitions of the pattern = finer texture.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Adjustments (Levels, Hue, Tint)</span><div class="ctrl-desc">Opens the Adjustments modal (Brightness, Contrast, Hue, Saturation, Invert). These are applied per-tile via getImageData/putImageData pixel manipulation. Each slider stores a value in state, and the pixel loop applies all adjustments in sequence per tile draw. Done after each drawImage() on that tile's region — not globally, which allows per-material adjustments when multiple materials are used.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Tint</span><div class="ctrl-desc">Opens colour picker. Applies a colour overlay using <span class="ctrl-code">ctx.globalCompositeOperation = 'multiply'</span> + <span class="ctrl-code">ctx.fillStyle = tintColour</span>. Multiply blending darkens the image toward the tint colour while preserving texture detail. A white tint = no effect.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Edges</span><div class="ctrl-desc">Opens "Edge settings" modal: Style, Scale, Width. Draws a border effect around each individual tile's perimeter. Implemented as a separate strokeRect() call per tile after drawImage(), with a semi-transparent stroke. Simulates the slightly darker or lighter edge where a tile meets a joint. Style controls whether it's a simple stroke, a shadow/highlight combo, or a chamfered bevel.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Profile</span><div class="ctrl-desc">Opens "Surface Profile" modal with Profile type, Repetitions, Gradient options. Simulates 3D surface relief on the tile edge. Draws a gradient shadow on the inner border of each tile to simulate a raised or recessed edge. The gradient goes from dark (at the very edge) to transparent (toward tile centre). Repetitions = how many concentric rings of this gradient are drawn.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Finish</span><div class="ctrl-desc">Opens "Surface Finish" modal. Composites a finish texture (polished, brushed, matte) over the material. Uses a pre-rendered noise or pattern canvas at low opacity with a specific blend mode. The Scale control resizes this finish pattern relative to tile size.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Tone variation</span><div class="ctrl-desc">Per-tile brightness randomisation. For each tile drawn, a random brightness offset within ±toneVariation range is computed and applied via ImageData. This is what makes textures look non-repetitive — identical tile images are drawn at slightly different brightness levels. Higher value = more visible variation.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Randomise fill angle</span><div class="ctrl-desc">Per-tile rotation randomisation. Instead of all tiles using the same rotation (from the pattern), each tile gets a random ±N° offset applied on top. The drawImage() call wraps each tile in ctx.save/rotate/drawImage/restore. Most useful for organic/stone patterns to break the repetitive look.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Add Another Material (Pro)</span><div class="ctrl-desc">Adds a second material slot with its own: material image, placement mode (Random/Defined/Manual), frequency, placement rules, and all the same adjustments. The render loop now calls a placement algorithm per tile to decide which material to draw — the "Rules" define which rows/columns get material A vs B, and frequency sets the ratio.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">Joints section — every control explained</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-joint">Joints</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Joint material picker</span><div class="ctrl-desc">The joint (mortar/grout) area is the gap between tiles. This picker sets what fills that gap. Options: Solid Fill (pure colour), or a material image (concrete, stone, etc.). If an image material is chosen, it's drawn into the joint regions using a separate drawImage() pass with the joint width as the destination rect size.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Joint Tint</span><div class="ctrl-desc">Colour overlay on the joint material. Works identically to the tile tint — multiply blend mode. For solid-fill joints this effectively IS the joint colour. For image joints it tints the material.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Joint Adjustments (icon)</span><div class="ctrl-desc">Opens the "Joint Adjustments" modal — identical controls to material adjustments (Brightness, Contrast, Hue, Saturation, Invert) but applied only to the joint pixels. Lets you darken mortar independently of tiles.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Horizontal (") + lock icon</span><div class="ctrl-desc">Horizontal joint gap width in real-world units. Converts to pixels via unit scale. The tile grid spacing formula is: <span class="ctrl-code">cellWidth = tileWidth + horizontalJoint</span>. All tile x-positions are offset by this gap. The lock icon links/unlinks horizontal and vertical joint sizes so they change together.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Vertical (")</span><div class="ctrl-desc">Vertical joint gap height. Works identically to Horizontal on the Y axis. <span class="ctrl-code">cellHeight = tileHeight + verticalJoint</span>.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Shadow opacity</span><div class="ctrl-desc">Draws a drop shadow inside the joint region to simulate depth between the tile surface and the mortar. Implemented as a semi-transparent gradient from the tile edge into the joint channel. Higher value = joint appears deeper/recessed.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Recess joints</span><div class="ctrl-desc">Toggle that makes joints appear physically recessed (lower than tile surface). Adds a darker gradient along both sides of each joint line. Combines with Shadow opacity to create a convincing 3D mortar channel effect.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Concave joints</span><div class="ctrl-desc">Changes joint cross-section from flat to curved (tooled/raked mortar profile). Draws a curved highlight/shadow pair along the joint — lighter at the top, darker at the bottom — simulating a concave mortar tool finish.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">PBR maps — how bump / normal / roughness / displacement work</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-pbr">PBR (Pro)</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Bump map</span><div class="ctrl-desc">Generates a grayscale bump map from the finished texture canvas. Source image options: None (flat), Grayscale (uses luminance of the texture directly — brighter = higher), Find edges (runs a Sobel edge-detection filter on ImageData to highlight tile borders and surface details). The result is a second canvas exported alongside the main texture.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Normal map</span><div class="ctrl-desc">Converts the bump/grayscale source into a RGB normal map. Each pixel's normal vector is encoded as (R=X, G=Y, B=Z). Computed from the bump map by calculating the gradient (slope) between adjacent pixels using a finite difference kernel. The "Edge depth" slider scales the Z component — higher = stronger/deeper normals.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Displacement map</span><div class="ctrl-desc">Same generation logic as bump but intended for geometry displacement in 3D renderers. The "Geometry" slider controls how much black-to-white range is compressed. "Edge depth" amplifies the joint channels specifically, making mortar lines appear as physical recesses in 3D mesh displacement.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Roughness map</span><div class="ctrl-desc">Generates a PBR roughness map. "Base roughness" slider sets a uniform base level (0=mirror, 1=fully diffuse). Source image overlays texture-driven variation on top of this base. The result is: roughnessPixel = clamp(baseRoughness + sourcePixelLuminance * opacity). Joints are typically kept at high roughness (near 1.0).</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Metalness map</span><div class="ctrl-desc">Same as roughness but for the metalness PBR channel. "Base metalness" = uniform level. Source image adds variation. Most architectural materials are at 0 metalness (dielectric) — this is mainly useful for metal tile/cladding materials.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Invert colors (per map)</span><div class="ctrl-desc">Inverts the generated map: 255-pixel for each channel. Useful when your source image's dark areas should be "high" not "low" on the bump, or when a renderer expects inverted normals.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">Placement rules logic (multi-material)</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-surface">Placement</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Placement: Random</span><div class="ctrl-desc">Each tile independently rolls Math.random() and is assigned material A or B based on the Frequency value. Frequency = 0.3 means 30% chance of material B per tile. No spatial pattern — purely stochastic.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Placement: Defined (Rules)</span><div class="ctrl-desc">Opens the "Placement Rules" modal. Rows and Columns each have Hit/Miss/Hit/Miss toggles plus Shift. This creates a checkerboard-style rule: "on row 1 use materialA, row 2 use materialB, row 3 materialA..." combined with column rules. Shift offsets the alternating pattern by N tiles. Internally a 2D lookup: <span class="ctrl-code">getMaterial(row, col) = rowRule[row % rowPeriod] && colRule[col % colPeriod] ? matA : matB</span></div></div>
+<div class="ctrl-row"><span class="ctrl-name">Placement: Manual</span><div class="ctrl-desc">User can click individual tiles in the preview to assign material A or B to that specific tile. The state stores a sparse map of {tileIndex: materialId} overrides. The render loop checks this override map before the random/defined logic.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Frequency</span><div class="ctrl-desc">In Random mode: probability (0–1) of each tile getting the second material. In Defined mode: the density/period of the Hit pattern — higher frequency = more tiles use material B.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">Settings panel — global controls</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-surface">Settings</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="ctrl-row"><span class="ctrl-name">Units (mm / inches)</span><div class="ctrl-desc">Sets the global unit scale factor. All dimension inputs (width, height, joint size) display in this unit. Internally everything is stored in a base unit (likely mm), and all display values are converted on render. Switching units reconverts all displayed values without changing the actual stored dimensions.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Tile in background</span><div class="ctrl-desc">When ON: takes the rendered canvas and sets it as the CSS background-image of the page body using background-repeat: repeat. The browser handles infinite tiling for free. When OFF: shows only the single tile canvas with no repetition. This is purely a CSS toggle — no re-render needed.</div></div>
+<div class="ctrl-row"><span class="ctrl-name">Show image border</span><div class="ctrl-desc">Toggles a visible blue dashed border around the single tile canvas. Implemented as an absolutely-positioned div overlay. Helps visualise where the seamless repeat boundary is.</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-hdr" onclick="tog(this)">
+<span class="sec-title">What makes it seamlessly tileable — the key math</span>
+<div style="display:flex;align-items:center;gap:8px"><span class="sec-tag tag-pattern">Seamless logic</span><span class="chevron">▼</span></div>
+</div>
+<div class="sec-body">
+<div class="pipe-box">
+<div class="pipe-step"><span class="pipe-num p-blue">A</span><div><div class="pipe-txt">Canvas size = exactly N complete tile+joint cycles</div><div class="pipe-sub">canvasW = cols × (tileW + jointH) — no partial tiles at right edge</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-blue">B</span><div><div class="pipe-txt">Offset tiles (running bond) wrap at boundary</div><div class="pipe-sub">Half-tile at the right edge = same half-tile at left edge. Modulo math: drawX = (x + offset) % canvasW. The tile is split and drawn twice — at the right edge AND at x=0.</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-green">C</span><div><div class="pipe-txt">Source material image is already tileable</div><div class="pipe-sub">CDN images are pre-prepared as seamless textures. The drawImage() crops a region that tiles correctly.</div></div></div>
+<div class="pipe-step"><span class="pipe-num p-green">D</span><div><div class="pipe-txt">Tone variation uses a seeded random per tile</div><div class="pipe-sub">Random seed = hash(row, col). Same tile position always gets same brightness offset → the repeat looks consistent at the seam.</div></div></div>
+</div>
+<div class="note">This is why "Rows" and "Columns" must be integers — fractional tile counts break the seamless wrap. The size readout (32×32") is always the exact tile area with no remainder.</div>
+</div>
+</div>
+
+</div>
+<script>
+function tog(hdr){
+  const body=hdr.nextElementSibling;
+  const chev=hdr.querySelector('.chevron');
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+</script>

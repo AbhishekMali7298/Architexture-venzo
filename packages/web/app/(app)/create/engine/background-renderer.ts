@@ -1,5 +1,5 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
-import { getPatternLayout, type PatternTile } from './pattern-layouts';
+import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
@@ -134,10 +134,11 @@ function drawTile(
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
 ) {
-  const insetX = (jointV * scale) / 2;
-  const insetY = (jointH * scale) / 2;
-  const drawWidth = Math.max(0, width * scale - jointV * scale);
-  const drawHeight = Math.max(0, height * scale - jointH * scale);
+  const applyInset = tile.applyJointInset !== false;
+  const insetX = applyInset ? (jointV * scale) / 2 : 0;
+  const insetY = applyInset ? (jointH * scale) / 2 : 0;
+  const drawWidth = Math.max(0, applyInset ? width * scale - jointV * scale : width * scale);
+  const drawHeight = Math.max(0, applyInset ? height * scale - jointH * scale : height * scale);
 
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
@@ -192,7 +193,7 @@ function drawTile(
       : undefined,
   });
 
-  if (edgeStyle !== 'none') {
+  if (edgeStyle !== 'none' && !tile.skipEdgeStroke) {
     ctx.save();
     ctx.globalAlpha = materialImage ? 0.03 : 0.07;
     ctx.fillStyle = '#fff';
@@ -245,7 +246,25 @@ interface PreparedBackgroundScene {
   edgeStyle: string;
   baseRgb: [number, number, number];
   toneVariation: number;
+  jointColor: string;
   tintColor?: string | null;
+}
+
+function traceStrokePath(
+  ctx: CanvasRenderingContext2D,
+  stroke: PatternStroke,
+  scale: number,
+  offsetX: number,
+  offsetY: number,
+) {
+  if (!stroke.points.length) return;
+  ctx.beginPath();
+  ctx.moveTo(offsetX + stroke.points[0].x * scale, offsetY + stroke.points[0].y * scale);
+  for (let index = 1; index < stroke.points.length; index++) {
+    const point = stroke.points[index]!;
+    ctx.lineTo(offsetX + point.x * scale, offsetY + point.y * scale);
+  }
+  if (stroke.closed) ctx.closePath();
 }
 
 function fitClipPathToTile(
@@ -317,6 +336,7 @@ function prepareBackgroundScene(
     previewY,
     jointH,
     jointV,
+    jointColor: applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments),
     edgeStyle,
     baseRgb,
     toneVariation,
@@ -364,6 +384,19 @@ function drawPreparedLayout(
       scene.tintColor,
       options?.materialImage,
     );
+  }
+
+  if (scene.layout.strokes.length > 0) {
+    ctx.save();
+    ctx.strokeStyle = scene.jointColor;
+    ctx.lineWidth = Math.max(1, ((scene.jointH + scene.jointV) / 2) * scene.scale);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    for (const stroke of scene.layout.strokes) {
+      traceStrokePath(ctx, stroke, scene.scale, offsetX, offsetY);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   ctx.restore();

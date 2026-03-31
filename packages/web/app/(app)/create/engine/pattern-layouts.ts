@@ -9,10 +9,18 @@ export interface PatternTile {
   rotation: number;
   materialIndex: number;
   clipPath?: { x: number; y: number }[];
+  applyJointInset?: boolean;
+  skipEdgeStroke?: boolean;
+}
+
+export interface PatternStroke {
+  points: { x: number; y: number }[];
+  closed: boolean;
 }
 
 export interface PatternLayoutData {
   tiles: PatternTile[];
+  strokes: PatternStroke[];
   totalWidth: number;
   totalHeight: number;
 }
@@ -37,7 +45,7 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
     totalHeight = Math.max(totalHeight, tile.y + tile.height + horizontalJoint);
   }
 
-  return { tiles, totalWidth, totalHeight };
+  return { tiles, strokes: [], totalWidth, totalHeight };
 }
 
 function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
@@ -51,11 +59,25 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
   const stepX = moduleWidth;
   const stepY = moduleHeight;
   const tiles: PatternTile[] = [];
+  const strokes: PatternStroke[] = [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const offsetX = column * stepX;
       const offsetY = row * stepY;
+
+      if (module.tiles.length === 0 && module.strokes.length > 0) {
+        tiles.push({
+          x: offsetX,
+          y: offsetY,
+          width: moduleWidth,
+          height: moduleHeight,
+          rotation: 0,
+          materialIndex: 0,
+          applyJointInset: false,
+          skipEdgeStroke: true,
+        });
+      }
 
       for (const tile of module.tiles) {
         tiles.push({
@@ -71,11 +93,22 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
           })),
         });
       }
+
+      for (const stroke of module.strokes) {
+        strokes.push({
+          points: stroke.points.map((point) => ({
+            x: offsetX + point.x * scale,
+            y: offsetY + point.y * scale,
+          })),
+          closed: stroke.closed,
+        });
+      }
     }
   }
 
   return {
     tiles,
+    strokes,
     totalWidth: columns * moduleWidth,
     totalHeight: rows * moduleHeight,
   };
@@ -95,6 +128,7 @@ function layoutNone(config: TextureConfig): PatternLayoutData {
         materialIndex: 0,
       },
     ],
+    strokes: [],
     totalWidth: width,
     totalHeight: height,
   };
@@ -128,6 +162,7 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
   };
@@ -179,6 +214,7 @@ function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
   };
@@ -214,6 +250,7 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * (width + verticalJoint),
     totalHeight: rows * stepY,
   };
@@ -256,6 +293,7 @@ function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
   };
@@ -392,6 +430,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   // tied to the user-facing module size so the border matches the editor controls.
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
   };
@@ -510,6 +549,7 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
   };
@@ -718,6 +758,7 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
 
   return {
     tiles,
+    strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY + height * 0.45,
   };
@@ -742,11 +783,9 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   if (
     svgModule &&
-    svgModule.tiles.length > 0 &&
+    (svgModule.tiles.length > 0 || svgModule.strokes.length > 0) &&
     svgModule.viewBoxWidth > 0 &&
-    svgModule.viewBoxHeight > 0 &&
-    svgModule.referenceTileWidth > 0 &&
-    svgModule.referenceTileHeight > 0
+    svgModule.viewBoxHeight > 0
   ) {
     return layoutFromSvgModule(config, svgModule);
   }
