@@ -238,6 +238,8 @@ interface PreparedBackgroundScene {
   scale: number;
   tileSetWidth: number;
   tileSetHeight: number;
+  layoutDrawOffsetX: number;
+  layoutDrawOffsetY: number;
   previewX: number;
   previewY: number;
   jointH: number;
@@ -310,6 +312,10 @@ function prepareBackgroundScene(
 
   const layout = getPatternLayout(config);
   if (!layout.tiles.length) return null;
+  const repeatWidth = layout.repeatWidth ?? layout.totalWidth;
+  const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
+  const repeatOffsetX = layout.repeatOffsetX ?? 0;
+  const repeatOffsetY = layout.repeatOffsetY ?? 0;
 
   const panelWidth = 410;
   const outerPadding = 40;
@@ -318,11 +324,11 @@ function prepareBackgroundScene(
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
 
-  const scaleX = (availableWidth * 0.94) / Math.max(layout.totalWidth, 1);
-  const scaleY = (availableHeight * 0.94) / Math.max(layout.totalHeight, 1);
+  const scaleX = (availableWidth * 0.94) / Math.max(repeatWidth, 1);
+  const scaleY = (availableHeight * 0.94) / Math.max(repeatHeight, 1);
   const scale = Math.max(0.01, Math.min(scaleX, scaleY) * previewDensity);
-  const tileSetHeight = layout.totalHeight * scale;
-  const tileSetWidth = layout.totalWidth * scale;
+  const tileSetHeight = repeatHeight * scale;
+  const tileSetWidth = repeatWidth * scale;
   const previewX = availableX + (availableWidth - tileSetWidth) / 2;
   const previewY = availableY + (availableHeight - tileSetHeight) / 2;
 
@@ -331,6 +337,8 @@ function prepareBackgroundScene(
     scale,
     tileSetWidth,
     tileSetHeight,
+    layoutDrawOffsetX: -repeatOffsetX * scale,
+    layoutDrawOffsetY: -repeatOffsetY * scale,
     previewX,
     previewY,
     jointH,
@@ -356,13 +364,15 @@ function drawPreparedLayout(
   ctx.beginPath();
   ctx.rect(offsetX, offsetY, scene.tileSetWidth, scene.tileSetHeight);
   ctx.clip();
+  const drawOffsetX = offsetX + scene.layoutDrawOffsetX;
+  const drawOffsetY = offsetY + scene.layoutDrawOffsetY;
 
   for (const tile of scene.layout.tiles) {
     drawTile(
       ctx,
       tile,
-      offsetX + tile.x * scene.scale,
-      offsetY + tile.y * scene.scale,
+      drawOffsetX + tile.x * scene.scale,
+      drawOffsetY + tile.y * scene.scale,
       tile.width,
       tile.height,
       tile.rotation,
@@ -387,7 +397,7 @@ function drawPreparedLayout(
       ctx.lineWidth = stroke.width
         ? Math.max(1, stroke.width * scene.scale)
         : Math.max(1, ((scene.jointH + scene.jointV) / 2) * scene.scale);
-      traceStrokePath(ctx, stroke, scene.scale, offsetX, offsetY);
+      traceStrokePath(ctx, stroke, scene.scale, drawOffsetX, drawOffsetY);
       ctx.stroke();
     }
     ctx.restore();

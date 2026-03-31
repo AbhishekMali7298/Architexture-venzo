@@ -24,6 +24,10 @@ export interface PatternLayoutData {
   strokes: PatternStroke[];
   totalWidth: number;
   totalHeight: number;
+  repeatWidth?: number;
+  repeatHeight?: number;
+  repeatOffsetX?: number;
+  repeatOffsetY?: number;
 }
 
 function getMaterialMetrics(config: TextureConfig) {
@@ -46,7 +50,16 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
     totalHeight = Math.max(totalHeight, tile.y + tile.height + horizontalJoint);
   }
 
-  return { tiles, strokes: [], totalWidth, totalHeight };
+  return {
+    tiles,
+    strokes: [],
+    totalWidth,
+    totalHeight,
+    repeatWidth: totalWidth,
+    repeatHeight: totalHeight,
+    repeatOffsetX: 0,
+    repeatOffsetY: 0,
+  };
 }
 
 function normalizeLayoutBounds(
@@ -54,9 +67,19 @@ function normalizeLayoutBounds(
   strokes: PatternStroke[],
   horizontalJoint: number,
   verticalJoint: number,
+  repeatBounds?: { width: number; height: number },
 ): PatternLayoutData {
   if (tiles.length === 0 && strokes.length === 0) {
-    return { tiles, strokes, totalWidth: 0, totalHeight: 0 };
+    return {
+      tiles,
+      strokes,
+      totalWidth: 0,
+      totalHeight: 0,
+      repeatWidth: repeatBounds?.width ?? 0,
+      repeatHeight: repeatBounds?.height ?? 0,
+      repeatOffsetX: 0,
+      repeatOffsetY: 0,
+    };
   }
 
   let minX = Number.POSITIVE_INFINITY;
@@ -106,6 +129,10 @@ function normalizeLayoutBounds(
     strokes: normalizedStrokes,
     totalWidth: Math.max(0, maxX + offsetX),
     totalHeight: Math.max(0, maxY + offsetY),
+    repeatWidth: repeatBounds?.width ?? Math.max(0, maxX + offsetX),
+    repeatHeight: repeatBounds?.height ?? Math.max(0, maxY + offsetY),
+    repeatOffsetX: offsetX,
+    repeatOffsetY: offsetY,
   };
 }
 
@@ -170,7 +197,10 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
     }
   }
 
-  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint);
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
+    width: columns * repeatWidth,
+    height: rows * repeatHeight,
+  });
 }
 
 function layoutNone(config: TextureConfig): PatternLayoutData {

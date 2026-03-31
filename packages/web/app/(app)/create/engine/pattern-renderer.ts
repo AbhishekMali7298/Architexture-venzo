@@ -17,6 +17,10 @@ export interface PatternLayout {
   joints: RenderedJoint[];
   totalWidth: number;
   totalHeight: number;
+  repeatWidth?: number;
+  repeatHeight?: number;
+  repeatOffsetX?: number;
+  repeatOffsetY?: number;
 }
 
 function seededRandom(seed: number) {
@@ -41,18 +45,24 @@ export function renderToCanvas(
 ): void {
   const layout = computePatternLayout(config);
   const rng = seededRandom(config.seed);
+  const repeatWidth = layout.repeatWidth ?? layout.totalWidth;
+  const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
+  const repeatOffsetX = layout.repeatOffsetX ?? 0;
+  const repeatOffsetY = layout.repeatOffsetY ?? 0;
 
-  const scaleX = canvasWidth / Math.max(layout.totalWidth, 1);
-  const scaleY = canvasHeight / Math.max(layout.totalHeight, 1);
+  const scaleX = canvasWidth / Math.max(repeatWidth, 1);
+  const scaleY = canvasHeight / Math.max(repeatHeight, 1);
   const scale = Math.min(scaleX, scaleY) * 0.9;
-  const offsetX = (canvasWidth - layout.totalWidth * scale) / 2;
-  const offsetY = (canvasHeight - layout.totalHeight * scale) / 2;
+  const offsetX = (canvasWidth - repeatWidth * scale) / 2;
+  const offsetY = (canvasHeight - repeatHeight * scale) / 2;
+  const drawOffsetX = offsetX - repeatOffsetX * scale;
+  const drawOffsetY = offsetY - repeatOffsetY * scale;
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   const jointColor = config.joints.tint ?? '#d4cfc6';
   ctx.fillStyle = jointColor;
-  ctx.fillRect(offsetX, offsetY, layout.totalWidth * scale, layout.totalHeight * scale);
+  ctx.fillRect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
 
   const traceTilePath = (
     tileX: number,
@@ -85,7 +95,7 @@ export function renderToCanvas(
     const tileColor = adjustBrightness(baseColor, (rng() - 0.5) * variation * 0.4);
 
     ctx.save();
-    ctx.translate(offsetX + tile.x * scale, offsetY + tile.y * scale);
+    ctx.translate(drawOffsetX + tile.x * scale, drawOffsetY + tile.y * scale);
     if (tile.rotation !== 0) {
       ctx.translate((tile.width * scale) / 2, (tile.height * scale) / 2);
       ctx.rotate((tile.rotation * Math.PI) / 180);
@@ -154,7 +164,7 @@ export function renderToCanvas(
       ctx.lineWidth = stroke.width
         ? Math.max(1, stroke.width * scale)
         : Math.max(1, ((config.joints.horizontalSize + config.joints.verticalSize) / 2) * scale);
-      traceStrokePath(ctx, stroke, scale, offsetX, offsetY);
+      traceStrokePath(ctx, stroke, scale, drawOffsetX, drawOffsetY);
       ctx.stroke();
     }
     ctx.restore();
@@ -166,8 +176,8 @@ export function renderToCanvas(
     ctx.lineWidth = Math.max(1, config.joints.horizontalSize * scale * 0.5);
 
     for (const tile of layout.tiles) {
-      const tileX = offsetX + tile.x * scale + (config.joints.verticalSize * scale) / 2;
-      const tileY = offsetY + tile.y * scale + (config.joints.horizontalSize * scale) / 2;
+      const tileX = drawOffsetX + tile.x * scale + (config.joints.verticalSize * scale) / 2;
+      const tileY = drawOffsetY + tile.y * scale + (config.joints.horizontalSize * scale) / 2;
       const tileWidth = tile.width * scale - config.joints.verticalSize * scale;
       const tileHeight = tile.height * scale - config.joints.horizontalSize * scale;
 
@@ -186,7 +196,7 @@ export function renderToCanvas(
   ctx.setLineDash([6, 4]);
   ctx.strokeStyle = 'rgba(100, 140, 240, 0.5)';
   ctx.lineWidth = 2;
-  ctx.strokeRect(offsetX - 2, offsetY - 2, layout.totalWidth * scale + 4, layout.totalHeight * scale + 4);
+  ctx.strokeRect(offsetX - 2, offsetY - 2, repeatWidth * scale + 4, repeatHeight * scale + 4);
   ctx.setLineDash([]);
 }
 
