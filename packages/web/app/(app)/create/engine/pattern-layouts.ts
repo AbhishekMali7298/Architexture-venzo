@@ -288,13 +288,14 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const stepY = height + horizontalJoint;
   const pairWidth = width + headerWidth + verticalJoint * 2;
   const halfPairOffset = pairWidth / 2;
-  const unitsPerRow = Math.max(columns + 1, 2);
+  const moduleWidth = Math.max(columns, 1) * halfPairOffset;
 
   for (let row = 0; row < rows; row++) {
     let cursorX = row % 2 === 1 ? -halfPairOffset : 0;
-    const startWithHeader = row % 2 === 0;
+    const startWithHeader = row % 2 === 1;
+    let unit = 0;
 
-    for (let unit = 0; unit < unitsPerRow; unit++) {
+    while (cursorX < moduleWidth + width) {
       const useHeader = startWithHeader ? unit % 2 === 0 : unit % 2 === 1;
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
@@ -306,10 +307,16 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
         materialIndex: 0,
       });
       cursorX += tileWidth + verticalJoint;
+      unit += 1;
     }
   }
 
-  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint);
+  return {
+    tiles,
+    strokes: [],
+    totalWidth: moduleWidth,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
