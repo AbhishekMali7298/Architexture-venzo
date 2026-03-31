@@ -130,14 +130,14 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'ashlar',
     category: 'paving',
-    rowColMode: 'module',
+    rowColMode: 'grid',
     displayName: 'Ashlar',
     description: 'Cut stone with varying sizes in a coursed pattern',
     previewPath: 'M0,0h25v14H0M25,0h15v14M0,14h15v14M15,14h25v14',
     previewAssetPath: 'patterns/ashlar.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 1, max: 30 }, columns: { min: 1, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
-    defaultUnitWidth: 400, defaultUnitHeight: 200,
+    defaultUnitWidth: 400, defaultUnitHeight: 400,
   },
   {
     type: 'cubic',

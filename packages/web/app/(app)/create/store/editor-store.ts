@@ -168,8 +168,6 @@ export const useEditorStore = create<EditorState>()(
         const currentRows = s.config.pattern.rows;
         const currentColumns = s.config.pattern.columns;
         const activeMaterial = s.config.materials[s.activeMaterialIndex];
-        const currentWidth = activeMaterial?.width;
-        const currentHeight = activeMaterial?.height;
         s.config.pattern.type = type;
         s.config.pattern.category = category;
         if (definition) {
@@ -180,8 +178,8 @@ export const useEditorStore = create<EditorState>()(
           s.config.pattern.weaves = definition.defaults.weaves;
 
           if (activeMaterial) {
-            activeMaterial.width = Math.max(activeMaterial.minWidth, currentWidth ?? definition.defaultUnitWidth);
-            activeMaterial.height = Math.max(activeMaterial.minHeight, currentHeight ?? definition.defaultUnitHeight);
+            activeMaterial.width = Math.max(activeMaterial.minWidth, definition.defaultUnitWidth);
+            activeMaterial.height = Math.max(activeMaterial.minHeight, definition.defaultUnitHeight);
           }
         }
         bumpRender(s);
