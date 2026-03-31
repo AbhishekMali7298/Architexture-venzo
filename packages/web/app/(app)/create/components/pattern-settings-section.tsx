@@ -12,6 +12,9 @@ export function PatternSettingsSection({
   columns,
   angle,
   dimensionsHint,
+  rowsLabel = 'Rows',
+  columnsLabel = 'Columns',
+  semanticsHint,
   onOpenPicker,
   onRowsChange,
   onColumnsChange,
@@ -22,6 +25,9 @@ export function PatternSettingsSection({
   columns: number;
   angle: number;
   dimensionsHint: string;
+  rowsLabel?: string;
+  columnsLabel?: string;
+  semanticsHint?: string;
   onOpenPicker: () => void;
   onRowsChange: (value: number) => void;
   onColumnsChange: (value: number) => void;
@@ -47,8 +53,8 @@ export function PatternSettingsSection({
       </button>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Rows" value={rows} min={1} max={100} step={1} onChange={onRowsChange} />
-        <NumberField label="Columns" value={columns} min={1} max={100} step={1} onChange={onColumnsChange} />
+        <NumberField label={rowsLabel} value={rows} min={1} max={100} step={1} onChange={onRowsChange} />
+        <NumberField label={columnsLabel} value={columns} min={1} max={100} step={1} onChange={onColumnsChange} />
       </div>
 
       {canAdjustAngle ? (
@@ -63,6 +69,7 @@ export function PatternSettingsSection({
         />
       ) : null}
 
+      {semanticsHint ? <div className={styles.hint}>{semanticsHint}</div> : null}
       <div className={styles.hint}>{dimensionsHint}</div>
     </SectionCard>
   );

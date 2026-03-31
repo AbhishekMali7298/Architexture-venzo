@@ -1,4 +1,4 @@
-import type { TextureConfig, PatternType } from '@textura/shared';
+import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
 
 export interface PatternTile {
@@ -779,9 +779,13 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const patternDefinition = getPatternByType(config.pattern.type);
+  const shouldUseSvgModule = patternDefinition?.rowColMode !== 'grid';
+
   // SVG-based layouts take absolute priority as they correctly define the geometry
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   if (
+    shouldUseSvgModule &&
     svgModule &&
     (svgModule.tiles.length > 0 || svgModule.strokes.length > 0) &&
     svgModule.viewBoxWidth > 0 &&

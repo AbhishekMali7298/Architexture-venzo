@@ -104,6 +104,18 @@ export default function CreatePage() {
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
   const unitLabel = config.units === 'inches' ? 'in' : 'mm';
+  const simpleVisibleCountPatterns = new Set([
+    'stack_bond',
+    'running_bond',
+    'stretcher_bond',
+    'flemish_bond',
+    'staggered',
+    'french',
+  ]);
+  const usesVisibleCounts = simpleVisibleCountPatterns.has(config.pattern.type);
+  const rowColumnSemanticsHint = usesVisibleCounts
+    ? 'Rows and columns control the visible repeat count inside one module for this bond pattern.'
+    : 'Rows and columns control repeated module count for this pattern, not a direct visible tile count.';
   const dimensionsHint = useMemo(() => {
     const layout = getPatternLayout(config);
     const width = Math.round(layout.totalWidth);
@@ -193,6 +205,9 @@ export default function CreatePage() {
           columns={config.pattern.columns}
           angle={config.pattern.angle}
           dimensionsHint={dimensionsHint}
+          rowsLabel={usesVisibleCounts ? 'Rows' : 'Module rows'}
+          columnsLabel={usesVisibleCounts ? 'Columns' : 'Module cols'}
+          semanticsHint={rowColumnSemanticsHint}
           onOpenPicker={() => setShowPatternModal(true)}
           onRowsChange={setPatternRows}
           onColumnsChange={setPatternColumns}

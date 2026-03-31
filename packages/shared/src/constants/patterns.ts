@@ -3,6 +3,7 @@ import type { PatternCategory, PatternType, PatternConfig } from '../types/confi
 export interface PatternDefinition {
   type: PatternType;
   category: PatternCategory;
+  rowColMode: 'grid' | 'module';
   displayName: string;
   description: string;
   previewPath: string;
@@ -29,6 +30,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'none',
     category: 'random',
+    rowColMode: 'module',
     displayName: 'None',
     description: 'Single material field without a repeated layout',
     previewPath: '',
@@ -44,6 +46,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'running_bond',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'Common',
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
@@ -55,6 +58,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'stack_bond',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'Stack',
     description: 'Bricks stacked directly on top of each other',
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',
@@ -66,6 +70,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'stretcher_bond',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'Stretcher',
     description: 'All stretchers with variable offset',
     previewPath: 'M0,0h20v12H0zM20,0h20v12M0,12h10v12M10,12h20v12M30,12h10v12',
@@ -77,6 +82,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'flemish_bond',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'Flemish',
     description: 'Alternating stretchers and headers in each course',
     previewPath: 'M0,0h12v10H0M12,0h20v10M32,0h8v10M0,10h8v10M8,10h20v10M28,10h12v10',
@@ -88,6 +94,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'herringbone',
     category: 'paving',
+    rowColMode: 'module',
     displayName: 'Herringbone',
     description: 'V-shaped zigzag pattern at 45° or 90°',
     previewPath: 'M0,20h20v20H0M20,0h20v20z',
@@ -99,6 +106,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'chevron',
     category: 'geometric',
+    rowColMode: 'module',
     displayName: 'Chevron',
     description: 'V-shaped pattern with angled cuts',
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',
@@ -110,6 +118,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'staggered',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'Staggered',
     description: 'Staggered masonry layout',
     previewPath: '',
@@ -121,6 +130,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'ashlar',
     category: 'paving',
+    rowColMode: 'module',
     displayName: 'Ashlar',
     description: 'Cut stone with varying sizes in a coursed pattern',
     previewPath: 'M0,0h25v14H0M25,0h15v14M0,14h15v14M15,14h25v14',
@@ -132,6 +142,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'cubic',
     category: 'geometric',
+    rowColMode: 'module',
     displayName: 'Cubic',
     description: 'Isometric cube illusion using interlocking rhombus tiles',
     previewPath: '',
@@ -143,6 +154,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'hexagonal',
     category: 'geometric',
+    rowColMode: 'module',
     displayName: 'Hexagonal',
     description: 'Honeycomb hexagonal tile pattern',
     previewPath: 'M20,2 L36,12 L36,28 L20,38 L4,28 L4,12z',
@@ -154,6 +166,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'basketweave',
     category: 'paving',
+    rowColMode: 'module',
     displayName: 'Basketweave',
     description: 'Pairs of bricks alternating horizontal/vertical',
     previewPath: 'M0,0h20v8H0M0,8h8v20M8,28h20v8M28,8h8v20',
@@ -165,6 +178,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'hopscotch',
     category: 'paving',
+    rowColMode: 'module',
     displayName: 'Hopscotch',
     description: 'Mixed-size paving in hopscotch arrangement',
     previewPath: '',
@@ -176,6 +190,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'diamond',
     category: 'geometric',
+    rowColMode: 'module',
     displayName: 'Diamond',
     description: 'Diamond shape lattice',
     previewPath: '',
@@ -187,6 +202,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'intersecting_circle',
     category: 'geometric',
+    rowColMode: 'module',
     displayName: 'Circular',
     description: 'Circle lattice with overlapping arcs',
     previewPath: '',
@@ -198,6 +214,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'fishscale',
     category: 'roofing',
+    rowColMode: 'module',
     displayName: 'Fishscale',
     description: 'Scaled shingle pattern with rounded edges',
     previewPath: '',
@@ -209,6 +226,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'french',
     category: 'brick_bond',
+    rowColMode: 'grid',
     displayName: 'French',
     description: 'French bond style masonry layout',
     previewPath: '',
