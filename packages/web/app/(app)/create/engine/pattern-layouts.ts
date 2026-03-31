@@ -766,21 +766,22 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const stepX = width + verticalJoint;
   const stepY = Math.max(height * 0.55 + horizontalJoint, 1);
-  const tiles: PatternTile[] = [];
+  const scallopWidth = width;
+  const scallopHeight = height;
   const shoulderSamples = 8;
   const arcSamples = 18;
-  const centerX = width / 2;
-  const midY = height / 2;
-  const radius = Math.max(width / 2, 1);
-  const clipPath: { x: number; y: number }[] = [];
+  const centerX = scallopWidth / 2;
+  const midY = scallopHeight / 2;
+  const radius = Math.max(scallopWidth / 2, 1);
+  const scallopPoints: { x: number; y: number }[] = [];
 
-  // Fishscale is a closed scallop: a pointed crown at the top, curved shoulders,
-  // and a rounded lower belly. The old fallback only traced a single arc, so the
-  // closed polygon became an inverted cap/wedge instead of the actual scale shape.
+  // Build a scallop outline path. We use strokes over a continuous material fill
+  // instead of clipping each tile into a separate fishscale, which leaves gaps
+  // between rows and does not match the original Architextures behavior.
   for (let sample = 0; sample <= shoulderSamples; sample++) {
     const t = sample / shoulderSamples;
     const inv = 1 - t;
-    clipPath.push({
+    scallopPoints.push({
       x: inv * inv * centerX + 2 * inv * t * 0 + t * t * 0,
       y: inv * inv * 0 + 2 * inv * t * 0 + t * t * midY,
     });
@@ -789,7 +790,7 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
   for (let sample = 1; sample < arcSamples; sample++) {
     const t = sample / arcSamples;
     const theta = Math.PI - Math.PI * t;
-    clipPath.push({
+    scallopPoints.push({
       x: centerX + Math.cos(theta) * radius,
       y: midY + Math.sin(theta) * radius,
     });
@@ -798,33 +799,42 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
   for (let sample = shoulderSamples; sample >= 0; sample--) {
     const t = sample / shoulderSamples;
     const inv = 1 - t;
-    clipPath.push({
-      x: inv * inv * width + 2 * inv * t * width + t * t * centerX,
+    scallopPoints.push({
+      x: inv * inv * scallopWidth + 2 * inv * t * scallopWidth + t * t * centerX,
       y: inv * inv * midY + 2 * inv * t * 0 + t * t * 0,
     });
   }
 
-  for (let row = 0; row < rows; row++) {
+  const totalWidth = columns * stepX;
+  const totalHeight = rows * stepY + scallopHeight * 0.45;
+  const tiles: PatternTile[] = [
+    {
+      x: 0,
+      y: 0,
+      width: totalWidth,
+      height: totalHeight,
+      rotation: 0,
+      materialIndex: 0,
+      applyJointInset: false,
+      skipEdgeStroke: true,
+    },
+  ];
+  const strokes: PatternStroke[] = [];
+
+  for (let row = -1; row < rows + 1; row++) {
     const offsetX = row % 2 === 1 ? stepX / 2 : 0;
-    for (let column = -1; column < columns; column++) {
-      tiles.push({
-        x: column * stepX + offsetX,
-        y: row * stepY,
-        width,
-        height,
-        rotation: 0,
-        materialIndex: 0,
-        clipPath,
+    for (let column = -1; column < columns + 1; column++) {
+      strokes.push({
+        points: scallopPoints.map((point) => ({
+          x: column * stepX + offsetX + point.x,
+          y: row * stepY + point.y,
+        })),
+        closed: true,
       });
     }
   }
 
-  return {
-    tiles,
-    strokes: [],
-    totalWidth: columns * stepX,
-    totalHeight: rows * stepY + height * 0.45,
-  };
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint);
 }
 
 const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => PatternLayoutData>> = {
