@@ -48,6 +48,66 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
   return { tiles, strokes: [], totalWidth, totalHeight };
 }
 
+function normalizeLayoutBounds(
+  tiles: PatternTile[],
+  strokes: PatternStroke[],
+  horizontalJoint: number,
+  verticalJoint: number,
+): PatternLayoutData {
+  if (tiles.length === 0 && strokes.length === 0) {
+    return { tiles, strokes, totalWidth: 0, totalHeight: 0 };
+  }
+
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const tile of tiles) {
+    minX = Math.min(minX, tile.x);
+    minY = Math.min(minY, tile.y);
+    maxX = Math.max(maxX, tile.x + tile.width + verticalJoint);
+    maxY = Math.max(maxY, tile.y + tile.height + horizontalJoint);
+  }
+
+  for (const stroke of strokes) {
+    for (const point of stroke.points) {
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    }
+  }
+
+  const offsetX = Number.isFinite(minX) ? -Math.min(minX, 0) : 0;
+  const offsetY = Number.isFinite(minY) ? -Math.min(minY, 0) : 0;
+
+  const normalizedTiles = offsetX === 0 && offsetY === 0
+    ? tiles
+    : tiles.map((tile) => ({
+        ...tile,
+        x: tile.x + offsetX,
+        y: tile.y + offsetY,
+      }));
+
+  const normalizedStrokes = offsetX === 0 && offsetY === 0
+    ? strokes
+    : strokes.map((stroke) => ({
+        ...stroke,
+        points: stroke.points.map((point) => ({
+          x: point.x + offsetX,
+          y: point.y + offsetY,
+        })),
+      }));
+
+  return {
+    tiles: normalizedTiles,
+    strokes: normalizedStrokes,
+    totalWidth: Math.max(0, maxX + offsetX),
+    totalHeight: Math.max(0, maxY + offsetY),
+  };
+}
+
 function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height } = getMaterialMetrics(config);
@@ -228,12 +288,13 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const stepY = height + horizontalJoint;
   const pairWidth = width + headerWidth + verticalJoint * 2;
   const halfPairOffset = pairWidth / 2;
+  const unitsPerRow = Math.max(columns + 1, 2);
 
   for (let row = 0; row < rows; row++) {
     let cursorX = row % 2 === 1 ? -halfPairOffset : 0;
     const startWithHeader = row % 2 === 0;
 
-    for (let unit = 0; unit < columns * 2 + 1; unit++) {
+    for (let unit = 0; unit < unitsPerRow; unit++) {
       const useHeader = startWithHeader ? unit % 2 === 0 : unit % 2 === 1;
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
@@ -248,12 +309,7 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return {
-    tiles,
-    strokes: [],
-    totalWidth: columns * (width + verticalJoint),
-    totalHeight: rows * stepY,
-  };
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint);
 }
 
 function layoutEnglishBond(config: TextureConfig): PatternLayoutData {
