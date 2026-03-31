@@ -72,7 +72,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/stretcher_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 }, stretchers: { min: 1, max: 10 } },
-    defaultUnitWidth: 215, defaultUnitHeight: 65,
+    defaultUnitWidth: 400, defaultUnitHeight: 400,
   },
   {
     type: 'flemish_bond',
