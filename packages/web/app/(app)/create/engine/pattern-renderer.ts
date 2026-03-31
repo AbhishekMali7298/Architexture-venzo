@@ -148,10 +148,12 @@ export function renderToCanvas(
   if (layout.strokes.length > 0) {
     ctx.save();
     ctx.strokeStyle = jointColor;
-    ctx.lineWidth = Math.max(1, ((config.joints.horizontalSize + config.joints.verticalSize) / 2) * scale);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (const stroke of layout.strokes) {
+      ctx.lineWidth = stroke.width
+        ? Math.max(1, stroke.width * scale)
+        : Math.max(1, ((config.joints.horizontalSize + config.joints.verticalSize) / 2) * scale);
       traceStrokePath(ctx, stroke, scale, offsetX, offsetY);
       ctx.stroke();
     }

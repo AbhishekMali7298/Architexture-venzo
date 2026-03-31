@@ -381,10 +381,12 @@ function drawPreparedLayout(
   if (scene.layout.strokes.length > 0) {
     ctx.save();
     ctx.strokeStyle = scene.jointColor;
-    ctx.lineWidth = Math.max(1, ((scene.jointH + scene.jointV) / 2) * scene.scale);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (const stroke of scene.layout.strokes) {
+      ctx.lineWidth = stroke.width
+        ? Math.max(1, stroke.width * scene.scale)
+        : Math.max(1, ((scene.jointH + scene.jointV) / 2) * scene.scale);
       traceStrokePath(ctx, stroke, scene.scale, offsetX, offsetY);
       ctx.stroke();
     }

@@ -16,6 +16,7 @@ export interface PatternTile {
 export interface PatternStroke {
   points: { x: number; y: number }[];
   closed: boolean;
+  width?: number;
 }
 
 export interface PatternLayoutData {
@@ -163,6 +164,7 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
             y: offsetY + point.y * scale,
           })),
           closed: stroke.closed,
+          width: scale,
         });
       }
     }
