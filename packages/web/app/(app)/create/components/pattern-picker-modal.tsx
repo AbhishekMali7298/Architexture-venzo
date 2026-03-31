@@ -1,9 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { PATTERN_CATEGORIES, type PatternCategory, type PatternType } from '@textura/shared';
+import { PATTERN_CATEGORIES, PATTERN_CATALOG, type PatternCategory, type PatternType } from '@textura/shared';
 import { getPatternPreviewUrl } from '../lib/pattern-assets';
-import { LOCAL_PATTERN_OPTIONS } from '../lib/local-patterns';
 import { Modal } from './modal-portal';
 import { PatternThumb } from './pattern-thumb';
 import styles from './create-editor.module.css';
@@ -22,7 +21,7 @@ export function PatternPickerModal({
 
   const filteredPatterns = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return LOCAL_PATTERN_OPTIONS.filter((pattern) => {
+    return PATTERN_CATALOG.filter((pattern) => {
       const categoryMatch = category === 'all' || pattern.category === category;
       if (!categoryMatch) return false;
       if (!query) return true;
@@ -71,7 +70,7 @@ export function PatternPickerModal({
           <div className={styles.optionGrid}>
             {filteredPatterns.map((pattern) => (
               <button
-                key={pattern.id}
+                key={pattern.type}
                 className={`${styles.optionButton} ${currentPattern === pattern.type ? styles.optionButtonActive : ''}`}
                 type="button"
                 onClick={() => {
@@ -80,7 +79,7 @@ export function PatternPickerModal({
                 }}
               >
                 <PatternThumb
-                  path=""
+                  path={pattern.previewPath}
                   src={getPatternPreviewUrl(pattern)}
                   alt={pattern.displayName}
                 />

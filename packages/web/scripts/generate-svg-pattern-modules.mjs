@@ -3,19 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const PATTERN_DIR = path.join(ROOT, 'packages/web/app/(app)/create/patterns');
+const PATTERN_DIR = path.join(ROOT, 'packages/web/public/patterns');
 const OUTPUT_FILE = path.join(ROOT, 'packages/web/app/(app)/create/engine/generated/svg-pattern-modules.ts');
-
-const FILE_TO_PATTERN = {
-  'common.svg': 'running_bond',
-  'stack.svg': 'stack_bond',
-  'flemish.svg': 'flemish_bond',
-  'stretcher.svg': 'stretcher_bond',
-  'chevron.svg': 'chevron',
-  'herringbone.svg': 'herringbone',
-  'hexagonal.svg': 'hexagonal',
-  'cubic.svg': 'cubic',
-};
 
 function tokenizePathData(d) {
   return d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) ?? [];
@@ -121,7 +110,11 @@ async function generate() {
   const modules = {};
   const diagnostics = [];
 
-  for (const [filename, patternType] of Object.entries(FILE_TO_PATTERN)) {
+  const files = await fs.readdir(PATTERN_DIR);
+  for (const filename of files) {
+    if (!filename.endsWith('.svg')) continue;
+    
+    const patternType = path.basename(filename, '.svg');
     const fullPath = path.join(PATTERN_DIR, filename);
     const svg = await fs.readFile(fullPath, 'utf8');
     const viewBox = parseSvgViewBox(svg);

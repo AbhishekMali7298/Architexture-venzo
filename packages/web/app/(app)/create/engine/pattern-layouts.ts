@@ -665,7 +665,7 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
   flemish_bond: layoutFlemishBond,
   english_bond: layoutEnglishBond,
   soldier_course: layoutSoldierCourse,
-  subway: layoutRunningBond,
+  subway: layoutRunningBond, // A variant of running bond
   herringbone: layoutHerringbone,
   chevron: layoutChevron,
   basketweave: layoutBasketweave,
@@ -673,52 +673,21 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
   ashlar: layoutAshlar,
   pinwheel: layoutPinwheel,
   windmill: layoutWindmill,
-  parquet_straight: layoutStackBond,
-  parquet_diagonal: layoutHerringbone,
-  versailles: layoutPinwheel,
-  cobblestone: layoutAshlar,
-  crazy_paving: layoutAshlar,
-  fishscale: layoutHexagonal,
-  french: layoutEnglishBond,
-  hexagon_and_triangle: layoutHexagonal,
-  hexagon_weave: layoutHexagonal,
-  hopscotch: layoutPinwheel,
-  houndstooth: layoutPinwheel,
-  hourglass: layoutChevron,
-  intersecting_circle: layoutHexagonal,
-  isosceles: layoutChevron,
-  mansion_weave: layoutBasketweave,
-  mixed_stones: layoutAshlar,
-  octagon_square: layoutPinwheel,
-  octagon_star: layoutPinwheel,
-  ogee_fishscale: layoutHexagonal,
-  plus: layoutPinwheel,
-  plus_square: layoutPinwheel,
-  rounded_rubble: layoutAshlar,
-  rubble: layoutAshlar,
-  staggered: layoutRunningBond,
-  staggered_isosceles: layoutChevron,
-  star_and_cross: layoutPinwheel,
-  star_and_hexagon: layoutHexagonal,
-  swiss_cross: layoutPinwheel,
-  swiss_cross_square: layoutPinwheel,
-  triangle: layoutChevron,
-  triangle_chevron: layoutChevron,
-  triangle_diamond: layoutChevron,
-  triple_herringbone: layoutHerringbone,
-  variable_hexagon: layoutHexagonal,
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
-  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
-  if (proceduralLayout) {
-    return proceduralLayout(config);
-  }
-
+  // SVG-based layouts take absolute priority as they correctly define the geometry
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   if (svgModule) {
     return layoutFromSvgModule(config, svgModule);
   }
 
+  // Fallback to procedural layout for standard simple brick bonds
+  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
+  if (proceduralLayout) {
+    return proceduralLayout(config);
+  }
+
+  // Absolute fallback
   return layoutRunningBond(config);
 }

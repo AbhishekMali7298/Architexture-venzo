@@ -49,7 +49,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Running Bond',
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
-    previewAssetPath: 'patterns/staggered.svg',
+    previewAssetPath: 'patterns/running_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -65,7 +65,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Stack Bond',
     description: 'Bricks stacked directly on top of each other',
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',
-    previewAssetPath: 'patterns/stack.svg',
+    previewAssetPath: 'patterns/stack_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -81,7 +81,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Flemish Bond',
     description: 'Alternating stretchers and headers in each course',
     previewPath: 'M0,0h12v10H0M12,0h20v10M32,0h8v10M0,10h8v10M8,10h20v10M28,10h12v10',
-    previewAssetPath: 'patterns/flemish.svg',
+    previewAssetPath: 'patterns/flemish_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -113,7 +113,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Stretcher Bond',
     description: 'All stretchers with variable offset',
     previewPath: 'M0,0h20v12H0zM20,0h20v12M0,12h10v12M10,12h20v12M30,12h10v12',
-    previewAssetPath: 'patterns/stretcher.svg',
+    previewAssetPath: 'patterns/english_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -147,7 +147,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Herringbone',
     description: 'V-shaped zigzag pattern at 45° or 90°',
     previewPath: 'M0,20h20v20H0M20,0h20v20z',
-    previewAssetPath: 'patterns/herringbone.svg',
+    previewAssetPath: 'patterns/soldier_course.svg',
     defaults: { rows: 8, columns: 8, angle: 45, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 50 },
@@ -179,7 +179,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Cobblestone',
     description: 'Irregular rounded stone paving',
     previewPath: 'M5,5 Q20,2 35,5 Q38,20 35,35 Q20,38 5,35 Q2,20 5,5z',
-    previewAssetPath: 'patterns/roundedRubble.svg',
+    previewAssetPath: 'patterns/basketweave.svg',
     defaults: { rows: 8, columns: 8, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 50 },
@@ -212,7 +212,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Hexagonal',
     description: 'Honeycomb hexagonal tile pattern',
     previewPath: 'M20,2 L36,12 L36,28 L20,38 L4,28 L4,12z',
-    previewAssetPath: 'patterns/hexagonal.svg',
+    previewAssetPath: 'patterns/ashlar.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -275,7 +275,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Windmill',
     description: 'Four tiles arranged around a center in windmill formation',
     previewPath: 'M0,0h15v15H0M15,0h25v15M0,15h25v15M25,15h15v25M0,30h25v10M15,15h10v15',
-    previewAssetPath: 'patterns/windmill.svg',
+    previewAssetPath: 'patterns/pinwheel.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -291,7 +291,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Subway Tile',
     description: 'Classic subway tile with half offset',
     previewPath: 'M0,0h20v10H0zM20,0h20v10M10,10h20v10M0,10h10v10M30,10h10v10',
-    previewAssetPath: 'patterns/staggered.svg',
+    previewAssetPath: 'patterns/subway.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
@@ -356,7 +356,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Crazy Paving',
     description: 'Irregular, random-shaped stones',
     previewPath: 'M0,15 L18,0 L40,8 L32,28 L15,40 L0,25z M18,0 L40,8 M0,15 L15,40',
-    previewAssetPath: 'patterns/rubble.svg',
+    previewAssetPath: 'patterns/parquet_straight.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -404,7 +404,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Hexagon And Triangle',
     description: 'Mixed hexagon and triangle tessellation',
     previewPath: '',
-    previewAssetPath: 'patterns/hexagonAndTriangle.svg',
+    previewAssetPath: 'patterns/hexagon_and_triangle.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -420,7 +420,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Hexagon Weave',
     description: 'Interlocking hexagonal weave pattern',
     previewPath: '',
-    previewAssetPath: 'patterns/hexagonWeave.svg',
+    previewAssetPath: 'patterns/hexagon_weave.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -484,7 +484,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Intersecting Circle',
     description: 'Circle lattice with overlapping arcs',
     previewPath: '',
-    previewAssetPath: 'patterns/intersectingCircle.svg',
+    previewAssetPath: 'patterns/intersecting_circle.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -516,7 +516,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Mansion Weave',
     description: 'Decorative woven parquet layout',
     previewPath: '',
-    previewAssetPath: 'patterns/mansionWeave.svg',
+    previewAssetPath: 'patterns/mansion_weave.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 2 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -533,7 +533,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Mixed Stones',
     description: 'Mixed-size stone paving composition',
     previewPath: '',
-    previewAssetPath: 'patterns/mixedStones.svg',
+    previewAssetPath: 'patterns/mixed_stones.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -549,7 +549,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Octagon Square',
     description: 'Octagons linked with inset squares',
     previewPath: '',
-    previewAssetPath: 'patterns/octagonSquare.svg',
+    previewAssetPath: 'patterns/octagon_square.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -565,7 +565,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Octagon Star',
     description: 'Octagonal pattern with star infill',
     previewPath: '',
-    previewAssetPath: 'patterns/octagonStar.svg',
+    previewAssetPath: 'patterns/octagon_star.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -581,7 +581,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Ogee Fishscale',
     description: 'Ogee-edged fishscale tile layout',
     previewPath: '',
-    previewAssetPath: 'patterns/ogeeFishscale.svg',
+    previewAssetPath: 'patterns/ogee_fishscale.svg',
     defaults: { rows: 8, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 40 },
@@ -613,7 +613,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Plus Square',
     description: 'Plus and square interlocking pattern',
     previewPath: '',
-    previewAssetPath: 'patterns/plusSquare.svg',
+    previewAssetPath: 'patterns/plus_square.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -629,7 +629,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Rounded Rubble',
     description: 'Rounded rubble stone layout',
     previewPath: '',
-    previewAssetPath: 'patterns/roundedRubble.svg',
+    previewAssetPath: 'patterns/rounded_rubble.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -677,7 +677,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Staggered Isosceles',
     description: 'Staggered angular isosceles arrangement',
     previewPath: '',
-    previewAssetPath: 'patterns/staggeredIsosceles.svg',
+    previewAssetPath: 'patterns/staggered_isosceles.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -693,7 +693,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Star And Cross',
     description: 'Star and cross tiled composition',
     previewPath: '',
-    previewAssetPath: 'patterns/starAndCross.svg',
+    previewAssetPath: 'patterns/star_and_cross.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -709,7 +709,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Star And Hexagon',
     description: 'Star and hexagon tessellation',
     previewPath: '',
-    previewAssetPath: 'patterns/starAndHexagon.svg',
+    previewAssetPath: 'patterns/star_and_hexagon.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -725,7 +725,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Swiss Cross',
     description: 'Swiss cross motif pattern',
     previewPath: '',
-    previewAssetPath: 'patterns/swissCross.svg',
+    previewAssetPath: 'patterns/swiss_cross.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -741,7 +741,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Swiss Cross Square',
     description: 'Swiss cross with square infill',
     previewPath: '',
-    previewAssetPath: 'patterns/swissCrossSquare.svg',
+    previewAssetPath: 'patterns/swiss_cross_square.svg',
     defaults: { rows: 5, columns: 5, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 20 },
@@ -773,7 +773,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Triangle Chevron',
     description: 'Chevron built from triangular modules',
     previewPath: '',
-    previewAssetPath: 'patterns/triangleChevron.svg',
+    previewAssetPath: 'patterns/triangle_chevron.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -789,7 +789,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Triangle Diamond',
     description: 'Diamond geometry built from triangles',
     previewPath: '',
-    previewAssetPath: 'patterns/triangleDiamond.svg',
+    previewAssetPath: 'patterns/triangle_diamond.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
@@ -805,7 +805,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Triple Herringbone',
     description: 'Three-part herringbone arrangement',
     previewPath: '',
-    previewAssetPath: 'patterns/tripleHerringbone.svg',
+    previewAssetPath: 'patterns/triple_herringbone.svg',
     defaults: { rows: 8, columns: 6, angle: 45, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 40 },
@@ -821,7 +821,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Variable Hexagon',
     description: 'Hexagonal grid with varied proportions',
     previewPath: '',
-    previewAssetPath: 'patterns/variableHexagon.svg',
+    previewAssetPath: 'patterns/variable_hexagon.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 2, max: 30 },
