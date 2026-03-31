@@ -847,9 +847,16 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
 
   // SVG-based layouts take absolute priority as they correctly define the geometry
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
+  const hasValidReferenceTile =
+    svgModule &&
+    Number.isFinite(svgModule.referenceTileWidth) &&
+    Number.isFinite(svgModule.referenceTileHeight) &&
+    svgModule.referenceTileWidth > 1 &&
+    svgModule.referenceTileHeight > 1;
   if (
     shouldUseSvgModule &&
     svgModule &&
+    hasValidReferenceTile &&
     (svgModule.tiles.length > 0 || svgModule.strokes.length > 0) &&
     svgModule.viewBoxWidth > 0 &&
     svgModule.viewBoxHeight > 0
