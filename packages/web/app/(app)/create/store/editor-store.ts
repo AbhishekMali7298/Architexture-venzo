@@ -167,6 +167,9 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Pattern → ${type}`);
         const currentRows = s.config.pattern.rows;
         const currentColumns = s.config.pattern.columns;
+        const activeMaterial = s.config.materials[s.activeMaterialIndex];
+        const currentWidth = activeMaterial?.width;
+        const currentHeight = activeMaterial?.height;
         s.config.pattern.type = type;
         s.config.pattern.category = category;
         if (definition) {
@@ -176,10 +179,9 @@ export const useEditorStore = create<EditorState>()(
           s.config.pattern.stretchers = definition.defaults.stretchers;
           s.config.pattern.weaves = definition.defaults.weaves;
 
-          const activeMaterial = s.config.materials[s.activeMaterialIndex];
           if (activeMaterial) {
-            activeMaterial.width = definition.defaultUnitWidth;
-            activeMaterial.height = definition.defaultUnitHeight;
+            activeMaterial.width = Math.max(activeMaterial.minWidth, currentWidth ?? definition.defaultUnitWidth);
+            activeMaterial.height = Math.max(activeMaterial.minHeight, currentHeight ?? definition.defaultUnitHeight);
           }
         }
         bumpRender(s);
