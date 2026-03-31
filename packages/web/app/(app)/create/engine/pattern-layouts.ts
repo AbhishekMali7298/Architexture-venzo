@@ -664,18 +664,40 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
   const stepX = width + verticalJoint;
   const stepY = Math.max(height * 0.55 + horizontalJoint, 1);
   const tiles: PatternTile[] = [];
-  const arcSamples = 20;
-  const radius = Math.max(width / 2, 1);
+  const shoulderSamples = 8;
+  const arcSamples = 18;
   const centerX = width / 2;
-  const centerY = height;
+  const midY = height / 2;
+  const radius = Math.max(width / 2, 1);
   const clipPath: { x: number; y: number }[] = [];
 
-  for (let sample = 0; sample <= arcSamples; sample++) {
+  // Fishscale is a closed scallop: a pointed crown at the top, curved shoulders,
+  // and a rounded lower belly. The old fallback only traced a single arc, so the
+  // closed polygon became an inverted cap/wedge instead of the actual scale shape.
+  for (let sample = 0; sample <= shoulderSamples; sample++) {
+    const t = sample / shoulderSamples;
+    const inv = 1 - t;
+    clipPath.push({
+      x: inv * inv * centerX + 2 * inv * t * 0 + t * t * 0,
+      y: inv * inv * 0 + 2 * inv * t * 0 + t * t * midY,
+    });
+  }
+
+  for (let sample = 1; sample < arcSamples; sample++) {
     const t = sample / arcSamples;
     const theta = Math.PI - Math.PI * t;
     clipPath.push({
       x: centerX + Math.cos(theta) * radius,
-      y: centerY - Math.sin(theta) * radius,
+      y: midY + Math.sin(theta) * radius,
+    });
+  }
+
+  for (let sample = shoulderSamples; sample >= 0; sample--) {
+    const t = sample / shoulderSamples;
+    const inv = 1 - t;
+    clipPath.push({
+      x: inv * inv * width + 2 * inv * t * width + t * t * centerX,
+      y: inv * inv * midY + 2 * inv * t * 0 + t * t * 0,
     });
   }
 
