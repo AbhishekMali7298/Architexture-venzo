@@ -657,29 +657,38 @@ function layoutAshlar(config: TextureConfig): PatternLayoutData {
     [1, 0.5, 1.5],
   ];
   const rowHeights = [0.75, 0.5, 0.6];
+  const stepY = height + horizontalJoint;
+  const repeatWidth = Math.max(columns, 1) * (width + verticalJoint);
+  const repeatHeight = Math.max(rows, 1) * stepY;
+  const wrapIndex = (value: number, length: number) => ((value % length) + length) % length;
 
-  for (let row = 0; row < rows; row++) {
-    const heightFactor = rowHeights[row % rowHeights.length]!;
+  for (let row = -1; row <= rows; row++) {
+    const heightFactor = rowHeights[wrapIndex(row, rowHeights.length)]!;
     const tileHeight = Math.max(height * heightFactor, 1);
-    const widths = rowPatterns[row % rowPatterns.length]!;
-    let cursorX = 0;
+    const widths = rowPatterns[wrapIndex(row, rowPatterns.length)]!;
+    let cursorX = -repeatWidth;
+    let unit = 0;
 
-    for (let column = 0; column < columns; column++) {
-      const widthFactor = widths[column % widths.length]!;
+    while (cursorX < repeatWidth * 2) {
+      const widthFactor = widths[unit % widths.length]!;
       const tileWidth = Math.max(width * widthFactor, 1);
       tiles.push({
         x: cursorX,
-        y: row * (height + horizontalJoint),
+        y: row * stepY,
         width: tileWidth,
         height: tileHeight,
         rotation: 0,
         materialIndex: 0,
       });
       cursorX += tileWidth + verticalJoint;
+      unit += 1;
     }
   }
 
-  return withBounds(tiles, horizontalJoint, verticalJoint);
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
+    width: repeatWidth,
+    height: repeatHeight,
+  });
 }
 
 function layoutPinwheel(config: TextureConfig): PatternLayoutData {
