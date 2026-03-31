@@ -19,6 +19,7 @@ function parsePathPoints(d) {
   let subpathStartX = 0;
   let subpathStartY = 0;
   const points = [];
+  let isClosed = false;
 
   const readNumber = () => {
     if (index >= tokens.length) return null;
@@ -81,6 +82,8 @@ function parsePathPoints(d) {
     if (lower === 'z') {
       x = subpathStartX;
       y = subpathStartY;
+      isClosed = true;
+      index += 1;
       continue;
     }
 
@@ -88,7 +91,7 @@ function parsePathPoints(d) {
   }
 
   if (points.length < 3) return null;
-  return points;
+  return { points, isClosed };
 }
 
 function parseSvgViewBox(svg) {
@@ -126,12 +129,12 @@ async function generate() {
     for (const pathMatch of pathMatches) {
       const d = pathMatch[1];
       if (!d) continue;
-      const points = parsePathPoints(d);
-      if (!points) continue;
-      const minX = Math.min(...points.map((point) => point.x));
-      const maxX = Math.max(...points.map((point) => point.x));
-      const minY = Math.min(...points.map((point) => point.y));
-      const maxY = Math.max(...points.map((point) => point.y));
+      const parsed = parsePathPoints(d);
+      if (!parsed || !parsed.isClosed) continue;
+      const minX = Math.min(...parsed.points.map((point) => point.x));
+      const maxX = Math.max(...parsed.points.map((point) => point.x));
+      const minY = Math.min(...parsed.points.map((point) => point.y));
+      const maxY = Math.max(...parsed.points.map((point) => point.y));
       const width = maxX - minX;
       const height = maxY - minY;
       if (width <= 0 || height <= 0) continue;
@@ -141,7 +144,7 @@ async function generate() {
         y: minY - viewBox.minY,
         width,
         height,
-        clipPath: points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
+        clipPath: parsed.points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
       });
     }
 

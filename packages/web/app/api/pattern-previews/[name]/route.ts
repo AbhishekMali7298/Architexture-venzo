@@ -1,10 +1,19 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+const FILENAME_ALIASES: Record<string, string[]> = {
+  'running_bond.svg': ['common.svg'],
+  'stack_bond.svg': ['stack.svg'],
+  'stretcher_bond.svg': ['stretcher.svg'],
+  'flemish_bond.svg': ['flemish.svg'],
+  'intersecting_circle.svg': ['circular.svg'],
+};
+
 async function resolvePatternFile(name: string) {
+  const candidateNames = [name, ...(FILENAME_ALIASES[name] ?? [])];
   const candidates = [
-    path.join(process.cwd(), 'app/(app)/create/patterns', name),
-    path.join(process.cwd(), 'packages/web/app/(app)/create/patterns', name),
+    ...candidateNames.map((candidateName) => path.join(process.cwd(), 'public/patterns', candidateName)),
+    ...candidateNames.map((candidateName) => path.join(process.cwd(), 'packages/web/public/patterns', candidateName)),
   ];
 
   for (const candidate of candidates) {
@@ -36,7 +45,7 @@ export async function GET(
     return new Response(content, {
       headers: {
         'content-type': 'image/svg+xml; charset=utf-8',
-        'cache-control': 'public, max-age=3600',
+        'cache-control': 'no-store, max-age=0, must-revalidate',
       },
     });
   } catch {

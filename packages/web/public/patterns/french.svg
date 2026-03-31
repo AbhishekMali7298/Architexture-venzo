@@ -1,1 +1,23 @@
-<svg width="350" height="350" version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 350"><style type="text/css">path {stroke-width: 1; vector-effect: non-scaling-stroke; fill:none; stroke: #000; stroke-linecap: round; stroke-linejoin: miter;}</style><path d="M0,0L250,0L250,75L250,175L250,250L175,250L75,250L0,250z"></path><path d="M250,75L350,75L350,175L250,175z"></path><path d="M75,250L175,250L175,350L75,350z"></path><path d="M-100,-175L0,-175L0,-100L75,-100L75,0L0,0L0,75L-100,75L-100,0L-175,0L-175,-100L-100,-100z"></path><path d="M250,-175L350,-175L350,-100L425,-100L425,0L350,0L350,75L250,75L250,0L175,0L175,-100L250,-100z"></path><path d="M-100,175L0,175L0,250L75,250L75,350L0,350L0,425L-100,425L-100,350L-175,350L-175,250L-100,250z"></path><path d="M250,175L350,175L350,250L425,250L425,350L350,350L350,425L250,425L250,350L175,350L175,250L250,250z"></path></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <defs>
+    <style type="text/css">path {stroke-width: 1; vector-effect: non-scaling-stroke; fill:none; stroke: #000; stroke-linecap: round; stroke-linejoin: round;}</style>
+  </defs>
+  <path d="M46,380H379"/>
+  <path d="M0,713H213"/>
+  <path d="M879,46h121"/>
+  <path d="M0,46H379"/>
+  <path d="M0,212.5H46"/>
+  <path d="M379,545.993V0"/>
+  <path d="M213,1000.01V380"/>
+  <path d="M46,713.006V46"/>
+  <path d="M213,46V0"/>
+  <path d="M879,212V0"/>
+  <path d="M879,1000V712"/>
+  <path d="M379,1000V879"/>
+  <path d="M1000.01,212H379"/>
+  <path d="M712.505,546H213"/>
+  <path d="M713,712.005V212"/>
+  <path d="M546,879.414V546"/>
+  <path d="M1000.01,712H546"/>
+  <path d="M879.015,879H213"/>
+</svg>

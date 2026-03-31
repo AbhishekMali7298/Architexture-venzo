@@ -657,28 +657,75 @@ function layoutWindmill(config: TextureConfig): PatternLayoutData {
 
   return withBounds(tiles, horizontalJoint, verticalJoint);
 }
+
+function layoutFishscale(config: TextureConfig): PatternLayoutData {
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const stepX = width + verticalJoint;
+  const stepY = Math.max(height * 0.55 + horizontalJoint, 1);
+  const tiles: PatternTile[] = [];
+  const arcSamples = 20;
+  const radius = Math.max(width / 2, 1);
+  const centerX = width / 2;
+  const centerY = height;
+  const clipPath: { x: number; y: number }[] = [];
+
+  for (let sample = 0; sample <= arcSamples; sample++) {
+    const t = sample / arcSamples;
+    const theta = Math.PI - Math.PI * t;
+    clipPath.push({
+      x: centerX + Math.cos(theta) * radius,
+      y: centerY - Math.sin(theta) * radius,
+    });
+  }
+
+  for (let row = 0; row < rows; row++) {
+    const offsetX = row % 2 === 1 ? stepX / 2 : 0;
+    for (let column = -1; column < columns; column++) {
+      tiles.push({
+        x: column * stepX + offsetX,
+        y: row * stepY,
+        width,
+        height,
+        rotation: 0,
+        materialIndex: 0,
+        clipPath,
+      });
+    }
+  }
+
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY + height * 0.45,
+  };
+}
+
 const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => PatternLayoutData>> = {
   none: layoutNone,
   running_bond: layoutRunningBond,
   stack_bond: layoutStackBond,
   stretcher_bond: layoutStretcherBond,
   flemish_bond: layoutFlemishBond,
-  english_bond: layoutEnglishBond,
-  soldier_course: layoutSoldierCourse,
-  subway: layoutRunningBond, // A variant of running bond
   herringbone: layoutHerringbone,
   chevron: layoutChevron,
   basketweave: layoutBasketweave,
   hexagonal: layoutHexagonal,
   ashlar: layoutAshlar,
-  pinwheel: layoutPinwheel,
-  windmill: layoutWindmill,
+  fishscale: layoutFishscale,
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
   // SVG-based layouts take absolute priority as they correctly define the geometry
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
-  if (svgModule) {
+  if (
+    svgModule &&
+    svgModule.tiles.length > 0 &&
+    svgModule.viewBoxWidth > 0 &&
+    svgModule.viewBoxHeight > 0 &&
+    svgModule.referenceTileWidth > 0 &&
+    svgModule.referenceTileHeight > 0
+  ) {
     return layoutFromSvgModule(config, svgModule);
   }
 

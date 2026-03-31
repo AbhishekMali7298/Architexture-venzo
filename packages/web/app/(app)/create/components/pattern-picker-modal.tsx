@@ -1,11 +1,31 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { PATTERN_CATEGORIES, PATTERN_CATALOG, type PatternCategory, type PatternType } from '@textura/shared';
+import { PATTERN_CATEGORIES, PATTERN_CATALOG, getPatternByType, type PatternCategory, type PatternType } from '@textura/shared';
 import { getPatternPreviewUrl } from '../lib/pattern-assets';
 import { Modal } from './modal-portal';
 import { PatternThumb } from './pattern-thumb';
 import styles from './create-editor.module.css';
+
+const UPLOADED_PATTERN_TYPES = new Set<PatternType>([
+  'none',
+  'stack_bond',
+  'stretcher_bond',
+  'herringbone',
+  'flemish_bond',
+  'running_bond',
+  'chevron',
+  'staggered',
+  'ashlar',
+  'cubic',
+  'hexagonal',
+  'basketweave',
+  'hopscotch',
+  'diamond',
+  'intersecting_circle',
+  'fishscale',
+  'french',
+]);
 
 export function PatternPickerModal({
   currentPattern,
@@ -20,8 +40,14 @@ export function PatternPickerModal({
   const [category, setCategory] = useState<'all' | PatternCategory>('all');
 
   const filteredPatterns = useMemo(() => {
+    const availablePatterns = PATTERN_CATALOG.filter((pattern) => UPLOADED_PATTERN_TYPES.has(pattern.type));
+    const nonePattern = getPatternByType('none');
+    if (nonePattern && UPLOADED_PATTERN_TYPES.has('none')) {
+      availablePatterns.unshift(nonePattern);
+    }
+
     const query = search.trim().toLowerCase();
-    return PATTERN_CATALOG.filter((pattern) => {
+    return availablePatterns.filter((pattern) => {
       const categoryMatch = category === 'all' || pattern.category === category;
       if (!categoryMatch) return false;
       if (!query) return true;

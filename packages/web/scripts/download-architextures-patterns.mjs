@@ -12,66 +12,24 @@ import https from 'node:https';
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'packages/web/public/patterns');
 
-// ─── Pattern hash → pattern_type mapping ───
-// These hashes were extracted from the Architextures DevTools Sources panel.
-// The CDN URL pattern is: https://assets.architextures.org/patterns/{hash}.svg
+// Only keep the supported pattern set used in the Create UI.
 const PATTERN_MAP = {
-  // Brick Bond
-  '0bcf2061': 'stack_bond',
   '1d5305e7': 'running_bond',
+  '0bcf2061': 'stack_bond',
   '1fa27e77': 'stretcher_bond',
   '3fad62dd': 'flemish_bond',
-  '4d84c48c': 'english_bond',
-  '3b5896d2': 'french',
-  '6fd80aec': 'soldier_course',
-  '2f0a69d': 'staggered',
-
-  // Paving
   '1ea4157e': 'herringbone',
+  '7defa857': 'chevron',
+  '2f0a69d': 'staggered',
+  '3d8cc05f': 'ashlar',
+  '4da513b2': 'cubic',
+  '2e533750': 'hexagonal',
   '2bc445de': 'basketweave',
   '1b437a3f': 'hopscotch',
-  '0debddc5': 'diamond',  
-  '1ed0852a': 'cobblestone',
-  '3d8cc05f': 'ashlar',
-  '6ce3eb63': 'mixed_stones',
-
-  // Geometric
-  '2e533750': 'hexagonal',
-  '7defa857': 'chevron',
-  '6de62439': 'pinwheel',
-  '2fc59076': 'windmill',
-  '4da513b2': 'cubic',
-  '6e3b1e39': 'triangle',
-  '7b62fdca': 'triangle_chevron',
-  '7b8878d6': 'triangle_diamond',
-  '3b0d5ae6': 'isosceles',
-  '6b6bf4b4': 'staggered_isosceles',
-  '4dba2103': 'hourglass',
+  '0debddc5': 'diamond',
   '4edbdbfb': 'intersecting_circle',
-  '3fd5d85c': 'octagon_square',
-  '6b8692ad': 'octagon_star',
-  '4da513b2': 'plus',
-  '6c6b096e': 'plus_square',
-  '7ad06e9a': 'swiss_cross',
-  'abc12345': 'swiss_cross_square',
-  '6de62439': 'star_and_cross',
-  '2e533750': 'star_and_hexagon',
-  '0bd9b0f7': 'hexagon_weave',
-
-  // Parquetry
-  '1d5305e7': 'parquet_straight',
-  '3fad62dd': 'mansion_weave',
-  '7defa857': 'houndstooth',
-  '1ea4157e': 'triple_herringbone',
-
-  // Roofing
   '1ed0852a': 'fishscale',
-  '6e3b1e39': 'ogee_fishscale',
-
-  // Organic
-  '3d8cc05f': 'crazy_paving',
-  '1ed0852a': 'rounded_rubble',
-  '3d8cc05f': 'rubble',
+  '3b5896d2': 'french',
 };
 
 function fetch(url) {

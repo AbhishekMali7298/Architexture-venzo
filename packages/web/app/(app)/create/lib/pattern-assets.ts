@@ -6,5 +6,5 @@ export function getPatternPreviewUrl(
   if (!pattern?.previewAssetPath) return null;
   const filename = pattern.previewAssetPath.split('/').pop();
   if (!filename) return null;
-  return `/api/pattern-previews/${encodeURIComponent(filename)}`;
+  return `/api/pattern-previews/${encodeURIComponent(filename)}?v=uploaded-svg-1`;
 }
