@@ -109,12 +109,13 @@ export default function CreatePage() {
     'running_bond',
     'stretcher_bond',
     'flemish_bond',
+    'chevron',
     'staggered',
     'french',
   ]);
   const usesVisibleCounts = simpleVisibleCountPatterns.has(config.pattern.type);
   const rowColumnSemanticsHint = usesVisibleCounts
-    ? 'Rows and columns control the visible repeat count inside one module for this bond pattern.'
+    ? 'Rows and columns control the visible repeat count inside one repeat for this pattern.'
     : 'Rows and columns control repeated module count for this pattern, not a direct visible tile count.';
   const dimensionsHint = useMemo(() => {
     const layout = getPatternLayout(config);
