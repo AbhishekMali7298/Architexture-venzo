@@ -25,6 +25,16 @@ const PATTERNS = [
   'french',
 ] as const;
 
+const MODULE_PARITY_PATTERNS = [
+  'flemish_bond',
+  'ashlar',
+  'cubic',
+  'hopscotch',
+  'diamond',
+  'intersecting_circle',
+  'french',
+] as const;
+
 function createPatternConfig(type: (typeof PATTERNS)[number]): TextureConfig {
   const pattern = getPatternByType(type);
   if (!pattern) {
@@ -114,6 +124,36 @@ describe('pattern layouts', () => {
     expect(getPatternLayout(hexagonal).repeatHeight).toBe(SVG_PATTERN_MODULES.hexagonal.viewBoxHeight);
   });
 
+  it.each(MODULE_PARITY_PATTERNS)('matches the authored module repeat at reference scale for %s', (type) => {
+    const config = createPatternConfig(type);
+    const module = SVG_PATTERN_MODULES[type];
+    config.materials[0]!.width = module.referenceTileWidth;
+    config.materials[0]!.height = module.referenceTileHeight;
+    config.pattern.rows = 1;
+    config.pattern.columns = 1;
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.repeatWidth).toBe(module.repeatWidth ?? module.viewBoxWidth);
+    expect(layout.repeatHeight).toBe(module.repeatHeight ?? module.viewBoxHeight);
+    expect(layout.totalWidth).toBeGreaterThanOrEqual(layout.repeatWidth ?? 0);
+    expect(layout.totalHeight).toBeGreaterThanOrEqual(layout.repeatHeight ?? 0);
+  });
+
+  it.each(MODULE_PARITY_PATTERNS)('scales module repeat counts directly with rows and columns for %s', (type) => {
+    const config = createPatternConfig(type);
+    const module = SVG_PATTERN_MODULES[type];
+    config.materials[0]!.width = module.referenceTileWidth;
+    config.materials[0]!.height = module.referenceTileHeight;
+    config.pattern.rows = 2;
+    config.pattern.columns = 3;
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * 3);
+    expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * 2);
+  });
+
   it('uses the explicit fishscale repeat height from the authored module', () => {
     const config = createPatternConfig('fishscale');
     config.materials[0]!.width = SVG_PATTERN_MODULES.fishscale.referenceTileWidth;
@@ -162,5 +202,24 @@ describe('pattern layouts', () => {
 
     expect(diagonalLayout.repeatWidth).not.toBe(orthogonalLayout.repeatWidth);
     expect(diagonalLayout.repeatHeight).not.toBe(orthogonalLayout.repeatHeight);
+  });
+
+  it('changes chevron clip geometry when angle changes while preserving repeat bounds', () => {
+    const shallow = createPatternConfig('chevron');
+    shallow.pattern.rows = 1;
+    shallow.pattern.columns = 1;
+    shallow.pattern.angle = 25;
+
+    const steep = createPatternConfig('chevron');
+    steep.pattern.rows = 1;
+    steep.pattern.columns = 1;
+    steep.pattern.angle = 65;
+
+    const shallowLayout = getPatternLayout(shallow);
+    const steepLayout = getPatternLayout(steep);
+
+    expect(shallowLayout.repeatWidth ?? shallowLayout.totalWidth).toBe(steepLayout.repeatWidth ?? steepLayout.totalWidth);
+    expect(shallowLayout.repeatHeight ?? shallowLayout.totalHeight).toBe(steepLayout.repeatHeight ?? steepLayout.totalHeight);
+    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 });

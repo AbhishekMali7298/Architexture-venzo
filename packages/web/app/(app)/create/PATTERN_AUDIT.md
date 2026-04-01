@@ -36,3 +36,30 @@ Source of truth in code:
 - `stretcher_bond` remains procedural because `stretchers` is a live layout parameter and the authored SVG module represents only one stagger configuration.
 - `herringbone` is hybrid: `45°` uses the authored Architextures module, while `90°` uses the procedural orthogonal layout so the angle control remains truthful.
 - `running_bond`, `stack_bond`, `flemish_bond`, `ashlar`, `hexagonal`, and `fishscale` now route through the Architextures-derived SVG module data for closer visual parity.
+
+## Fully Matched
+
+- `none`
+- `running_bond`
+- `stack_bond`
+- `flemish_bond`
+- `staggered`
+- `ashlar`
+- `cubic`
+- `hexagonal`
+- `hopscotch`
+- `diamond`
+- `intersecting_circle`
+- `fishscale`
+- `french`
+
+## Still Approximate
+
+- `stretcher_bond`
+  because the live `stretchers` parameter requires procedural offsets and the checked-in SVG module only captures one authored stagger state
+- `herringbone`
+  because `45°` uses the authored module while `90°` remains a procedural orthogonal fallback
+- `chevron`
+  because the mitre cut is parameterized by `angle`, so the layout is still procedural rather than a fixed Architextures-authored module replay
+- `basketweave`
+  because `weaves` is now supported procedurally, but the grouped-brick module is not a direct replay of the authored Architextures basketweave SVG geometry

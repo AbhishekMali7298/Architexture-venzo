@@ -46,7 +46,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'running_bond',
     category: 'brick_bond',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Common',
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
@@ -58,7 +58,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'stack_bond',
     category: 'brick_bond',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Stack',
     description: 'Bricks stacked directly on top of each other',
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',
@@ -82,7 +82,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'flemish_bond',
     category: 'brick_bond',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Flemish',
     description: 'Alternating stretchers and headers in each course',
     previewPath: 'M0,0h12v10H0M12,0h20v10M32,0h8v10M0,10h8v10M8,10h20v10M28,10h12v10',
@@ -118,7 +118,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'staggered',
     category: 'brick_bond',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Staggered',
     description: 'Staggered masonry layout',
     previewPath: '',
@@ -130,7 +130,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'ashlar',
     category: 'paving',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Ashlar',
     description: 'Cut stone with varying sizes in a coursed pattern',
     previewPath: 'M0,0h25v14H0M25,0h15v14M0,14h15v14M15,14h25v14',
@@ -226,7 +226,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'french',
     category: 'brick_bond',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'French',
     description: 'French bond style masonry layout',
     previewPath: '',
