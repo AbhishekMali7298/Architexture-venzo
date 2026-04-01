@@ -318,8 +318,8 @@ function prepareBackgroundScene(
   const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
   const repeatOffsetX = layout.repeatOffsetX ?? 0;
   const repeatOffsetY = layout.repeatOffsetY ?? 0;
-  const previewWidth = layout.totalWidth;
-  const previewHeight = layout.totalHeight;
+  const previewWidth = repeatWidth;
+  const previewHeight = repeatHeight;
 
   const panelWidth = 410;
   const outerPadding = 40;

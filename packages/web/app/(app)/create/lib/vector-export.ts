@@ -73,6 +73,10 @@ export async function buildPreviewSvg(config: TextureConfig) {
     );
   }
 
+  defs.push(
+    `<clipPath id="pattern-repeat-clip"><rect x="${svgNumber(frame.offsetX)}" y="${svgNumber(frame.offsetY)}" width="${svgNumber(frame.repeatWidth * frame.scale)}" height="${svgNumber(frame.repeatHeight * frame.scale)}" /></clipPath>`,
+  );
+
   const tileMarkup: string[] = [];
   for (const tile of frame.layout.tiles) {
     const materialForTile = config.materials[tile.materialIndex] ?? material;
@@ -112,8 +116,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
     defs.length > 0 ? `<defs>${defs.join('')}</defs>` : '',
     `<rect x="${svgNumber(frame.offsetX)}" y="${svgNumber(frame.offsetY)}" width="${svgNumber(frame.repeatWidth * frame.scale)}" height="${svgNumber(frame.repeatHeight * frame.scale)}" fill="${jointFill}" />`,
-    tileMarkup.join(''),
-    strokeMarkup,
+    `<g clip-path="url(#pattern-repeat-clip)">${tileMarkup.join('')}${strokeMarkup}</g>`,
     '</svg>',
   ].join('');
 }
@@ -139,6 +142,8 @@ export async function buildVectorPdf(config: TextureConfig) {
   const fill = getMaterialRenderableColor(material?.source ?? { type: 'solid', color: '#b8b0a8' }, definition?.swatchColor ?? '#b8b0a8');
   const joint = config.joints.tint ?? '#d4cfc6';
   const commands: string[] = [
+    'q',
+    `${svgNumber(frame.offsetX)} ${svgNumber(height - frame.offsetY - frame.repeatHeight * frame.scale)} ${svgNumber(frame.repeatWidth * frame.scale)} ${svgNumber(frame.repeatHeight * frame.scale)} re W n`,
     `${rgbToPdf(joint)} rg`,
     `${svgNumber(frame.offsetX)} ${svgNumber(height - frame.offsetY - frame.repeatHeight * frame.scale)} ${svgNumber(frame.repeatWidth * frame.scale)} ${svgNumber(frame.repeatHeight * frame.scale)} re f`,
   ];
@@ -153,6 +158,7 @@ export async function buildVectorPdf(config: TextureConfig) {
       `${svgNumber(x)} ${svgNumber(height - y - tileHeight)} ${svgNumber(tileWidth)} ${svgNumber(tileHeight)} re f`,
     );
   }
+  commands.push('Q');
 
   const encoder = new TextEncoder();
   const content = commands.join('\n');

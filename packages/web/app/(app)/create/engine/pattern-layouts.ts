@@ -535,10 +535,11 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutBasketweave(config: TextureConfig): PatternLayoutData {
-  const { rows, columns } = config.pattern;
+  const { rows, columns, weaves } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-  const moduleWidth = width + height * 2 + verticalJoint * 2;
-  const moduleHeight = width + height * 2 + horizontalJoint * 2;
+  const weaveCount = Math.max(1, weaves);
+  const moduleWidth = width + height * weaveCount + verticalJoint * weaveCount;
+  const moduleHeight = width + height * weaveCount + horizontalJoint * weaveCount;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -547,58 +548,46 @@ function layoutBasketweave(config: TextureConfig): PatternLayoutData {
       const baseY = row * moduleHeight;
       const flip = (row + column) % 2 === 1;
 
+      // Each basket groups `weaveCount` bricks in one direction, then alternates
+      // orientation in the neighboring cell to preserve the classic weave rhythm.
       if (!flip) {
-        tiles.push({ x: baseX, y: baseY, width, height, rotation: 0, materialIndex: 0 });
-        tiles.push({ x: baseX, y: baseY + height + horizontalJoint, width, height, rotation: 0, materialIndex: 0 });
-        tiles.push({
-          x: baseX + width + verticalJoint,
-          y: baseY,
-          width: height,
-          height: width,
-          rotation: 0,
-          materialIndex: 0,
-        });
-        tiles.push({
-          x: baseX + width + height + verticalJoint * 2,
-          y: baseY,
-          width: height,
-          height: width,
-          rotation: 0,
-          materialIndex: 0,
-        });
+        for (let weave = 0; weave < weaveCount; weave++) {
+          tiles.push({
+            x: baseX,
+            y: baseY + weave * (height + horizontalJoint),
+            width,
+            height,
+            rotation: 0,
+            materialIndex: 0,
+          });
+          tiles.push({
+            x: baseX + width + verticalJoint + weave * (height + verticalJoint),
+            y: baseY,
+            width: height,
+            height: width,
+            rotation: 0,
+            materialIndex: 0,
+          });
+        }
       } else {
-        tiles.push({
-          x: baseX,
-          y: baseY,
-          width: height,
-          height: width,
-          rotation: 0,
-          materialIndex: 0,
-        });
-        tiles.push({
-          x: baseX + height + verticalJoint,
-          y: baseY,
-          width: height,
-          height: width,
-          rotation: 0,
-          materialIndex: 0,
-        });
-        tiles.push({
-          x: baseX,
-          y: baseY + width + horizontalJoint,
-          width,
-          height,
-          rotation: 0,
-          materialIndex: 0,
-        });
-        tiles.push({
-          x: baseX,
-          y: baseY + width + height + horizontalJoint * 2,
-          width,
-          height,
-          rotation: 0,
-          materialIndex: 0,
-        });
+        for (let weave = 0; weave < weaveCount; weave++) {
+          tiles.push({
+            x: baseX + weave * (height + verticalJoint),
+            y: baseY,
+            width: height,
+            height: width,
+            rotation: 0,
+            materialIndex: 0,
+          });
+          tiles.push({
+            x: baseX,
+            y: baseY + width + horizontalJoint + weave * (height + horizontalJoint),
+            width,
+            height,
+            rotation: 0,
+            materialIndex: 0,
+          });
+        }
       }
     }
   }
@@ -906,6 +895,16 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  if (config.pattern.type === 'herringbone') {
+    const normalizedAngle = ((config.pattern.angle % 180) + 180) % 180;
+    // The authored Architextures module matches the diagonal herringbone.
+    // Keep a procedural escape hatch for the orthogonal 90-degree variant so
+    // the angle control still reflects a real geometry change.
+    if (Math.abs(normalizedAngle - 90) < 0.001) {
+      return layoutHerringbone(config);
+    }
+  }
+
   const layoutSource = getPatternLayoutSource(config.pattern.type);
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   const hasValidReferenceTile =

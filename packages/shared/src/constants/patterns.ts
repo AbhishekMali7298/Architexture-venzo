@@ -52,7 +52,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
     previewAssetPath: 'patterns/running_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {
@@ -64,7 +64,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',
     previewAssetPath: 'patterns/stack_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {
@@ -88,7 +88,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,0h12v10H0M12,0h20v10M32,0h8v10M0,10h8v10M8,10h20v10M28,10h12v10',
     previewAssetPath: 'patterns/flemish_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 }, stretchers: { min: 1, max: 5 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {
@@ -124,7 +124,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/staggered.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {
@@ -136,7 +136,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,0h25v14H0M25,0h15v14M0,14h15v14M15,14h25v14',
     previewAssetPath: 'patterns/ashlar.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 30 }, columns: { min: 1, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 30 }, columns: { min: 1, max: 30 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 400, defaultUnitHeight: 400,
   },
   {
@@ -148,7 +148,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/cubic.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 180, defaultUnitHeight: 180,
   },
   {
@@ -160,7 +160,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M20,2 L36,12 L36,28 L20,38 L4,28 L4,12z',
     previewAssetPath: 'patterns/hexagonal.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 150, defaultUnitHeight: 150,
   },
   {
@@ -172,7 +172,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,0h20v8H0M0,8h8v20M8,28h20v8M28,8h8v20',
     previewAssetPath: 'patterns/basketweave.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 2 },
-    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 360, step: 1 }, weaves: { min: 1, max: 5 } },
+    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 0, step: 1 }, weaves: { min: 1, max: 5 } },
     defaultUnitWidth: 200, defaultUnitHeight: 100,
   },
   {
@@ -184,7 +184,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/hopscotch.svg',
     defaults: { rows: 4, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 20 }, columns: { min: 2, max: 20 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 20 }, columns: { min: 2, max: 20 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 300, defaultUnitHeight: 300,
   },
   {
@@ -196,7 +196,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/diamond.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 180, defaultUnitHeight: 180,
   },
   {
@@ -208,7 +208,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/intersecting_circle.svg',
     defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 30 }, columns: { min: 2, max: 30 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 180, defaultUnitHeight: 180,
   },
   {
@@ -220,7 +220,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/fishscale.svg',
     defaults: { rows: 8, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 40 }, columns: { min: 2, max: 40 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 40 }, columns: { min: 2, max: 40 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 180, defaultUnitHeight: 140,
   },
   {
@@ -232,7 +232,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: '',
     previewAssetPath: 'patterns/french.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   }
 ];

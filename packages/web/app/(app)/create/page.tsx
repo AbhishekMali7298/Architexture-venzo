@@ -110,8 +110,8 @@ export default function CreatePage() {
   const patternSidebarSchema = getPatternSidebarSchema(config.pattern.type);
   const dimensionsHint = useMemo(() => {
     const layout = getPatternLayout(config);
-    const width = Math.round(layout.totalWidth);
-    const height = Math.round(layout.totalHeight);
+    const width = Math.round(layout.repeatWidth ?? layout.totalWidth);
+    const height = Math.round(layout.repeatHeight ?? layout.totalHeight);
     return `${width} × ${height} ${unitLabel}`;
   }, [config, unitLabel]);
 

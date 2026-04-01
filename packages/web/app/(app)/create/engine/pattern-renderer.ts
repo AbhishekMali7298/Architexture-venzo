@@ -55,6 +55,11 @@ export function renderToCanvas(
   ctx.fillStyle = jointColor;
   ctx.fillRect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
+  ctx.clip();
+
   const traceTilePath = (
     tileX: number,
     tileY: number,
@@ -178,6 +183,8 @@ export function renderToCanvas(
       ctx.stroke();
     }
   }
+
+  ctx.restore();
 
   ctx.setLineDash([6, 4]);
   ctx.strokeStyle = 'rgba(100, 140, 240, 0.5)';
