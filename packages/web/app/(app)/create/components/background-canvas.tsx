@@ -42,7 +42,14 @@ export function BackgroundCanvas() {
       });
 
       if (previewBounds && showBorder) {
-        drawDottedBorder(ctx, previewBounds.x, previewBounds.y, previewBounds.width, previewBounds.height);
+        drawDottedBorder(
+          ctx,
+          previewBounds.x,
+          previewBounds.y,
+          previewBounds.width,
+          previewBounds.height,
+          previewBounds.outline,
+        );
       }
     };
 

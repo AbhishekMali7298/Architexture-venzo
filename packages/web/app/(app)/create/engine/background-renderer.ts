@@ -238,6 +238,8 @@ interface PreparedBackgroundScene {
   scale: number;
   tileSetWidth: number;
   tileSetHeight: number;
+  previewWidth: number;
+  previewHeight: number;
   layoutDrawOffsetX: number;
   layoutDrawOffsetY: number;
   previewX: number;
@@ -316,6 +318,8 @@ function prepareBackgroundScene(
   const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
   const repeatOffsetX = layout.repeatOffsetX ?? 0;
   const repeatOffsetY = layout.repeatOffsetY ?? 0;
+  const previewWidth = layout.totalWidth;
+  const previewHeight = layout.totalHeight;
 
   const panelWidth = 410;
   const outerPadding = 40;
@@ -324,19 +328,23 @@ function prepareBackgroundScene(
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
 
-  const scaleX = (availableWidth * 0.94) / Math.max(repeatWidth, 1);
-  const scaleY = (availableHeight * 0.94) / Math.max(repeatHeight, 1);
+  const scaleX = (availableWidth * 0.94) / Math.max(previewWidth, 1);
+  const scaleY = (availableHeight * 0.94) / Math.max(previewHeight, 1);
   const scale = Math.max(0.01, Math.min(scaleX, scaleY) * previewDensity);
   const tileSetHeight = repeatHeight * scale;
   const tileSetWidth = repeatWidth * scale;
-  const previewX = availableX + (availableWidth - tileSetWidth) / 2;
-  const previewY = availableY + (availableHeight - tileSetHeight) / 2;
+  const scaledPreviewWidth = previewWidth * scale;
+  const scaledPreviewHeight = previewHeight * scale;
+  const previewX = availableX + (availableWidth - scaledPreviewWidth) / 2;
+  const previewY = availableY + (availableHeight - scaledPreviewHeight) / 2;
 
   return {
     layout,
     scale,
     tileSetWidth,
     tileSetHeight,
+    previewWidth: scaledPreviewWidth,
+    previewHeight: scaledPreviewHeight,
     layoutDrawOffsetX: -repeatOffsetX * scale,
     layoutDrawOffsetY: -repeatOffsetY * scale,
     previewX,
@@ -412,7 +420,7 @@ export function renderBackground(
   canvasWidth: number,
   canvasHeight: number,
   options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
-): { x: number; y: number; width: number; height: number } | null {
+): { x: number; y: number; width: number; height: number; outline?: ReadonlyArray<{ x: number; y: number }> } | null {
   const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
   if (!scene) return null;
@@ -439,8 +447,9 @@ export function renderBackground(
   return {
     x: scene.previewX,
     y: scene.previewY,
-    width: Math.max(0, scene.tileSetWidth),
-    height: Math.max(0, scene.tileSetHeight),
+    width: Math.max(0, scene.previewWidth),
+    height: Math.max(0, scene.previewHeight),
+    outline: scene.layout.previewOutline,
   };
 }
 
@@ -450,12 +459,26 @@ export function drawDottedBorder(
   y: number,
   width: number,
   height: number,
+  outline?: ReadonlyArray<{ x: number; y: number }>,
 ) {
   ctx.save();
   ctx.setLineDash([2, 6]);
   ctx.strokeStyle = 'rgba(0,0,0,0.75)';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
-  ctx.strokeRect(x, y, width, height);
+  ctx.beginPath();
+
+  if (outline && outline.length > 1) {
+    ctx.moveTo(x + outline[0]!.x * width, y + outline[0]!.y * height);
+    for (let index = 1; index < outline.length; index++) {
+      const point = outline[index]!;
+      ctx.lineTo(x + point.x * width, y + point.y * height);
+    }
+    ctx.closePath();
+  } else {
+    ctx.rect(x, y, width, height);
+  }
+
+  ctx.stroke();
   ctx.restore();
 }

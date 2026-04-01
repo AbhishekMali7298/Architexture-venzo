@@ -28,6 +28,7 @@ export interface PatternLayoutData {
   repeatHeight?: number;
   repeatOffsetX?: number;
   repeatOffsetY?: number;
+  previewOutline?: { x: number; y: number }[];
 }
 
 function getMaterialMetrics(config: TextureConfig) {
@@ -59,6 +60,7 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
     repeatHeight: totalHeight,
     repeatOffsetX: 0,
     repeatOffsetY: 0,
+    previewOutline: undefined,
   };
 }
 
@@ -79,6 +81,7 @@ function normalizeLayoutBounds(
       repeatHeight: repeatBounds?.height ?? 0,
       repeatOffsetX: 0,
       repeatOffsetY: 0,
+      previewOutline: undefined,
     };
   }
 
@@ -133,6 +136,7 @@ function normalizeLayoutBounds(
     repeatHeight: repeatBounds?.height ?? Math.max(0, maxY + offsetY),
     repeatOffsetX: offsetX,
     repeatOffsetY: offsetY,
+    previewOutline: undefined,
   };
 }
 
@@ -220,6 +224,7 @@ function layoutNone(config: TextureConfig): PatternLayoutData {
     strokes: [],
     totalWidth: width,
     totalHeight: height,
+    previewOutline: undefined,
   };
 }
 
@@ -639,11 +644,23 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
     }
   }
 
+  const totalWidth = columns * stepX;
+  const totalHeight = rows * stepY;
+  const outlineInsetY = Math.min(hexHeight * 0.25, totalHeight / 2);
+
   return {
     tiles,
     strokes: [],
-    totalWidth: columns * stepX,
-    totalHeight: rows * stepY,
+    totalWidth,
+    totalHeight,
+    previewOutline: [
+      { x: 0, y: outlineInsetY / totalHeight },
+      { x: 0.5, y: 0 },
+      { x: 1, y: outlineInsetY / totalHeight },
+      { x: 1, y: (totalHeight - outlineInsetY) / totalHeight },
+      { x: 0.5, y: 1 },
+      { x: 0, y: (totalHeight - outlineInsetY) / totalHeight },
+    ],
   };
 }
 
@@ -892,6 +909,7 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
   const patternDefinition = getPatternByType(config.pattern.type);
   const shouldUseSvgModule = patternDefinition?.rowColMode !== 'grid';
+  const shouldPreferProceduralLayout = config.pattern.type === 'hexagonal';
 
   // SVG-based layouts take absolute priority as they correctly define the geometry
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
@@ -902,6 +920,7 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     svgModule.referenceTileWidth > 1 &&
     svgModule.referenceTileHeight > 1;
   if (
+    !shouldPreferProceduralLayout &&
     shouldUseSvgModule &&
     svgModule &&
     hasValidReferenceTile &&
