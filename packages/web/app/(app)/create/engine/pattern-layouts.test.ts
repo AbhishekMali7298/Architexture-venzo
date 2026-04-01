@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getPatternByType, type TextureConfig } from '@textura/shared';
+import { USE_SVG_CHEVRON_PARITY } from '../lib/pattern-repeat-semantics';
 import { getPatternSidebarSchema } from '../lib/pattern-sidebar-schema';
 import { getPatternLayout } from './pattern-layouts';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
@@ -220,8 +221,42 @@ describe('pattern layouts', () => {
 
     expect(shallowLayout.repeatWidth).toBe(steepLayout.repeatWidth);
     expect(shallowLayout.repeatHeight).toBe(steepLayout.repeatHeight);
-    expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
-    expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
-    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+
+    if (USE_SVG_CHEVRON_PARITY) {
+      const chevronScale = Math.min(
+        shallow.materials[0]!.width / SVG_PATTERN_MODULES.chevron.referenceTileWidth,
+        shallow.materials[0]!.height / SVG_PATTERN_MODULES.chevron.referenceTileHeight,
+      );
+      expect(shallowLayout.repeatWidth).toBe((SVG_PATTERN_MODULES.chevron.repeatWidth ?? SVG_PATTERN_MODULES.chevron.viewBoxWidth) * chevronScale);
+      expect(shallowLayout.repeatHeight).toBe((SVG_PATTERN_MODULES.chevron.repeatHeight ?? SVG_PATTERN_MODULES.chevron.viewBoxHeight) * chevronScale);
+      expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
+    } else {
+      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
+      expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+    }
+  });
+
+  it('keeps Chevron deterministic under the comparison flag', () => {
+    const config = createPatternConfig('chevron');
+    config.pattern.rows = 1;
+    config.pattern.columns = 1;
+
+    const layout = getPatternLayout(config);
+
+    if (USE_SVG_CHEVRON_PARITY) {
+      config.materials[0]!.width = SVG_PATTERN_MODULES.chevron.referenceTileWidth;
+      config.materials[0]!.height = SVG_PATTERN_MODULES.chevron.referenceTileHeight;
+      const moduleLayout = getPatternLayout(config);
+      expect(getPatternSidebarSchema('chevron').layoutSource).toBe('svg-module');
+      expect(moduleLayout.repeatWidth).toBe(SVG_PATTERN_MODULES.chevron.repeatWidth ?? SVG_PATTERN_MODULES.chevron.viewBoxWidth);
+      expect(moduleLayout.repeatHeight).toBe(SVG_PATTERN_MODULES.chevron.repeatHeight ?? SVG_PATTERN_MODULES.chevron.viewBoxHeight);
+    } else {
+      expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
+      expect(layout.repeatWidth).toBe(config.materials[0]!.width + config.joints.verticalSize);
+      expect(layout.repeatHeight).toBe(config.materials[0]!.height + config.joints.horizontalSize);
+      expect(layout.repeatOffsetX).toBeGreaterThan(0);
+      expect(layout.repeatOffsetY).toBeGreaterThan(0);
+    }
   });
 });

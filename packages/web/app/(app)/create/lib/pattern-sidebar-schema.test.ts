@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { USE_SVG_CHEVRON_PARITY } from './pattern-repeat-semantics';
 import { getPatternSidebarSchema } from './pattern-sidebar-schema';
 
 describe('pattern sidebar schema', () => {
@@ -45,5 +46,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.columnsMeaning).toContain('mirrored chevron pair module');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
+    expect(schema.layoutSource).toBe(USE_SVG_CHEVRON_PARITY ? 'svg-module' : 'procedural');
+    expect(schema.angleMeaning).toContain(USE_SVG_CHEVRON_PARITY ? 'cosmetic' : 'procedural');
   });
 });

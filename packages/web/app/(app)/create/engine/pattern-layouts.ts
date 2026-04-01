@@ -922,6 +922,9 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     svgModule.viewBoxWidth > 0 &&
     svgModule.viewBoxHeight > 0;
 
+  // Chevron parity is currently an explicit A/B comparison controlled by the
+  // shared repeat-semantics layer. Leave the procedural path intact so we can
+  // compare the authored module against the existing fallback safely.
   if (layoutSource === 'svg-module' && canUseSvgModule) {
     return layoutFromSvgModule(config, svgModule);
   }

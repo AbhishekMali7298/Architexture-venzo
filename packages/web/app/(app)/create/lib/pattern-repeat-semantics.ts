@@ -30,6 +30,10 @@ export interface PatternRepeatFrame extends PatternRepeatBox {
   previewOutline?: ReadonlyArray<{ x: number; y: number }>;
 }
 
+// Temporary A/B switch for Chevron parity work. Keep the procedural path intact
+// until we decide whether the authored module is a better long-term match.
+export const USE_SVG_CHEVRON_PARITY = true;
+
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
   running_bond: 'svg-module',
@@ -327,6 +331,10 @@ function buildFallbackSemantics(type: PatternType): PatternRepeatSemantics {
 }
 
 export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
+  if (type === 'chevron' && USE_SVG_CHEVRON_PARITY) {
+    return 'svg-module';
+  }
+
   return PATTERN_LAYOUT_SOURCE[type] ?? 'procedural';
 }
 
@@ -336,11 +344,25 @@ export function getPatternRepeatSemantics(type: PatternType): PatternRepeatSeman
     return buildFallbackSemantics(type);
   }
 
-  return {
+  const semantics: PatternRepeatSemantics = {
     patternType: type,
     layoutSource: getPatternLayoutSource(type),
     ...override,
   };
+
+  if (type === 'chevron') {
+    return {
+      ...semantics,
+      angleMeaning: USE_SVG_CHEVRON_PARITY
+        ? 'Angle stays visible for comparison, but it is currently cosmetic relative to the authored SVG Chevron module.'
+        : 'Angle changes the procedural mitre cut. This fallback path is kept for parity comparison against the authored Chevron module.',
+      semanticHint: USE_SVG_CHEVRON_PARITY
+        ? 'Temporary A/B mode: Chevron is using the authored SVG module for parity comparison. Rows and columns size the authored repeat, while angle is still only an approximate comparison control.'
+        : 'Temporary A/B mode: Chevron is using the procedural fallback. Rows and columns size the bordered repeat box while angle changes the procedural mitre geometry.',
+    };
+  }
+
+  return semantics;
 }
 
 export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepeatBox | null {
@@ -360,7 +382,7 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
     }
   }
 
-  if (config.pattern.type === 'chevron') {
+  if (config.pattern.type === 'chevron' && !USE_SVG_CHEVRON_PARITY) {
     return {
       repeatWidth: Math.max(1, config.pattern.columns) * (material.width + config.joints.verticalSize),
       repeatHeight: Math.max(1, config.pattern.rows) * (material.height + config.joints.horizontalSize),

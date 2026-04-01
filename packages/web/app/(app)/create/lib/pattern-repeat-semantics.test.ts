@@ -7,6 +7,7 @@ import {
   getCanonicalPatternRepeatBox,
   getPatternDimensionsHintSize,
   resolvePatternRepeatFrame,
+  USE_SVG_CHEVRON_PARITY,
 } from './pattern-repeat-semantics';
 
 function createPatternConfig(type: 'flemish_bond' | 'chevron'): TextureConfig {
@@ -82,22 +83,43 @@ describe('pattern repeat semantics', () => {
     const steepFrame = resolvePatternRepeatFrame(steep, steepLayout);
     const canonical = getCanonicalPatternRepeatBox(shallow);
 
-    expect(canonical).toEqual({
-      repeatWidth: 3 * (400 + shallow.joints.verticalSize),
-      repeatHeight: 2 * (100 + shallow.joints.horizontalSize),
-    });
+    expect(canonical).toEqual(
+      USE_SVG_CHEVRON_PARITY
+        ? {
+            repeatWidth:
+              3
+              * (SVG_PATTERN_MODULES.chevron.repeatWidth ?? SVG_PATTERN_MODULES.chevron.viewBoxWidth)
+              * Math.min(400 / SVG_PATTERN_MODULES.chevron.referenceTileWidth, 100 / SVG_PATTERN_MODULES.chevron.referenceTileHeight),
+            repeatHeight:
+              2
+              * (SVG_PATTERN_MODULES.chevron.repeatHeight ?? SVG_PATTERN_MODULES.chevron.viewBoxHeight)
+              * Math.min(400 / SVG_PATTERN_MODULES.chevron.referenceTileWidth, 100 / SVG_PATTERN_MODULES.chevron.referenceTileHeight),
+          }
+        : {
+            repeatWidth: 3 * (400 + shallow.joints.verticalSize),
+            repeatHeight: 2 * (100 + shallow.joints.horizontalSize),
+          },
+    );
     expect(shallowFrame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(shallowFrame.repeatHeight).toBe(canonical?.repeatHeight);
     expect(steepFrame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(steepFrame.repeatHeight).toBe(canonical?.repeatHeight);
-    expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
-    expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
-    expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
-    expect(shallowLayout.totalHeight).toBeGreaterThan(shallowFrame.repeatHeight);
-    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+
+    if (USE_SVG_CHEVRON_PARITY) {
+      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
+      expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
+    } else {
+      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
+      expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
+      expect(shallowLayout.totalHeight).toBeGreaterThan(shallowFrame.repeatHeight);
+      expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+    }
+
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      width: shallowFrame.repeatWidth,
-      height: shallowFrame.repeatHeight,
+      width: Math.round(shallowFrame.repeatWidth),
+      height: Math.round(shallowFrame.repeatHeight),
     });
   });
 });
