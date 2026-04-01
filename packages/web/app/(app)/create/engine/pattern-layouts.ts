@@ -322,14 +322,14 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   const stepY = height + horizontalJoint;
   const pairWidth = width + headerWidth + verticalJoint * 2;
   const halfPairOffset = pairWidth / 2;
-  const moduleWidth = Math.max(columns, 1) * halfPairOffset;
+  const totalWidth = Math.max(columns, 1) * halfPairOffset;
 
   for (let row = 0; row < rows; row++) {
     let cursorX = row % 2 === 1 ? -halfPairOffset : 0;
     const startWithHeader = row % 2 === 1;
     let unit = 0;
 
-    while (cursorX < moduleWidth + width) {
+    while (cursorX < totalWidth + width) {
       const useHeader = startWithHeader ? unit % 2 === 0 : unit % 2 === 1;
       const tileWidth = useHeader ? headerWidth : width;
       tiles.push({
@@ -348,7 +348,7 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
   return {
     tiles,
     strokes: [],
-    totalWidth: moduleWidth,
+    totalWidth,
     totalHeight: rows * stepY,
   };
 }
@@ -611,10 +611,8 @@ function layoutHexagonal(config: TextureConfig): PatternLayoutData {
   const side = Math.max(1, Math.min(width, height) * 0.5);
   const hexWidth = side * Math.sqrt(3);
   const hexHeight = side * 2;
-  const effectiveJointX = verticalJoint * 0.2;
-  const effectiveJointY = horizontalJoint * 0.2;
-  const stepX = hexWidth + effectiveJointX;
-  const stepY = hexHeight * 0.75 + effectiveJointY;
+  const stepX = hexWidth + verticalJoint;
+  const stepY = hexHeight * 0.75 + horizontalJoint;
   const tiles: PatternTile[] = [];
 
   // Generate bleed tiles outside bounds so repeating and preview clipping are seam-free.
