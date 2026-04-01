@@ -218,8 +218,10 @@ describe('pattern layouts', () => {
     const shallowLayout = getPatternLayout(shallow);
     const steepLayout = getPatternLayout(steep);
 
-    expect(shallowLayout.repeatWidth ?? shallowLayout.totalWidth).toBe(steepLayout.repeatWidth ?? steepLayout.totalWidth);
-    expect(shallowLayout.repeatHeight ?? shallowLayout.totalHeight).toBe(steepLayout.repeatHeight ?? steepLayout.totalHeight);
+    expect(shallowLayout.repeatWidth).toBe(steepLayout.repeatWidth);
+    expect(shallowLayout.repeatHeight).toBe(steepLayout.repeatHeight);
+    expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+    expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
     expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 });

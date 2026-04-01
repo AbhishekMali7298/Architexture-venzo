@@ -106,7 +106,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'chevron',
     category: 'geometric',
-    rowColMode: 'grid',
+    rowColMode: 'module',
     displayName: 'Chevron',
     description: 'V-shaped pattern with angled cuts',
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',

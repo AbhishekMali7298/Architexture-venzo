@@ -37,4 +37,13 @@ describe('pattern sidebar schema', () => {
     const schema = getPatternSidebarSchema('herringbone');
     expect(schema.fields.map((field) => field.id)).toContain('angle');
   });
+
+  it('describes chevron rows and columns as repeat modules while keeping simple field labels', () => {
+    const schema = getPatternSidebarSchema('chevron');
+
+    expect(schema.rowsMeaning).toContain('repeat one chevron band module');
+    expect(schema.columnsMeaning).toContain('mirrored chevron pair module');
+    expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
+    expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
+  });
 });

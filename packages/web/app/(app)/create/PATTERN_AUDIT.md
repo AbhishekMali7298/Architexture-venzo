@@ -3,6 +3,7 @@
 This document records the current editor-side pattern strategy for the create flow.
 
 Source of truth in code:
+- `packages/web/app/(app)/create/lib/pattern-repeat-semantics.ts`
 - `packages/web/app/(app)/create/lib/pattern-sidebar-schema.ts`
 - `packages/web/app/(app)/create/engine/pattern-layouts.ts`
 
@@ -14,9 +15,9 @@ Source of truth in code:
 | `stack_bond` | svg-module | repeated stack-bond modules | repeated stack-bond modules | no | none |
 | `running_bond` | svg-module | repeated running-bond modules | repeated running-bond modules | no | none |
 | `stretcher_bond` | procedural | visible brick courses | visible brick slots before bleed clipping | yes | `stretchers` |
-| `flemish_bond` | svg-module | repeated Flemish bond modules | repeated Flemish bond modules | no | none |
+| `flemish_bond` | svg-module | authored Flemish repeat modules | authored Flemish repeat modules | no | none |
 | `herringbone` | hybrid | repeated herringbone modules | repeated herringbone modules | yes: `45°` module, `90°` orthogonal fallback | none |
-| `chevron` | procedural | visible chevron bands | visible chevron pairs | yes | none |
+| `chevron` | procedural + canonical repeat semantics | chevron band modules | mirrored chevron pair modules | yes | none |
 | `staggered` | svg-module | repeated staggered modules | repeated staggered modules | no | none |
 | `ashlar` | svg-module | repeated ashlar modules | repeated ashlar modules | no | none |
 | `cubic` | svg-module | repeated cube modules | repeated cube modules | no | none |
@@ -30,8 +31,10 @@ Source of truth in code:
 
 ## Notes
 
-- Repeat bounds are now the shared source of truth for the preview border, background tiling, dimensions hint, SVG export, and simple vector PDF export. Bleed geometry is clipped to the repeat in preview and export.
+- Repeat bounds are now resolved through `pattern-repeat-semantics.ts`, which gives the create page, preview frame, background tiling, SVG export, and simple vector PDF export a single repeat contract for cleaned-up patterns.
 - SVG-module patterns repeat authored modules from `svg-pattern-modules.ts`; the UI describes those controls as module counts where the repeat does not map 1:1 to visible tile counts.
+- `flemish_bond` now explicitly treats one row/column as one authored repeat module, and its dimensions hint and dashed frame are both derived from the same authored repeat size.
+- `chevron` now treats the bordered repeat as the source of truth and normalizes its bleed tiles around that box. Angle changes the mitre geometry, but not the repeat frame, dimensions hint, or export framing.
 - `basketweave` remains procedural because `weaves` is now a live layout parameter. The geometry is still an approximation of Architextures rather than a direct replay of the authored SVG module.
 - `stretcher_bond` remains procedural because `stretchers` is a live layout parameter and the authored SVG module represents only one stagger configuration.
 - `herringbone` is hybrid: `45°` uses the authored Architextures module, while `90°` uses the procedural orthogonal layout so the angle control remains truthful.
@@ -60,6 +63,15 @@ Source of truth in code:
 - `herringbone`
   because `45°` uses the authored module while `90°` remains a procedural orthogonal fallback
 - `chevron`
-  because the mitre cut is parameterized by `angle`, so the layout is still procedural rather than a fixed Architextures-authored module replay
+  because the repeat semantics are now canonicalized, but the mitre cut is still parameterized procedurally rather than replayed from a fixed Architextures-authored module
 - `basketweave`
   because `weaves` is now supported procedurally, but the grouped-brick module is not a direct replay of the authored Architextures basketweave SVG geometry
+
+## Semantics Cleanup Still To Apply
+
+- `herringbone`
+  because the 90-degree fallback still owns its repeat contract in layout code instead of the shared semantics layer
+- `basketweave`
+  because the `weaves`-driven module sizing is still defined procedurally in the layout function
+- `stretcher_bond`
+  because the visible-repeat semantics and stagger-cycle sizing are still coupled directly to the procedural layout

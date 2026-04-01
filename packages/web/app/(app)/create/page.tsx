@@ -13,6 +13,7 @@ import { SaveExportModal, type ExportFormat } from './components/save-export-mod
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
 import { getPatternLayout } from './engine/pattern-layouts';
+import { getPatternDimensionsHintSize } from './lib/pattern-repeat-semantics';
 import { getPatternSidebarSchema } from './lib/pattern-sidebar-schema';
 import {
   exportPreviewJpg,
@@ -110,8 +111,7 @@ export default function CreatePage() {
   const patternSidebarSchema = getPatternSidebarSchema(config.pattern.type);
   const dimensionsHint = useMemo(() => {
     const layout = getPatternLayout(config);
-    const width = Math.round(layout.repeatWidth ?? layout.totalWidth);
-    const height = Math.round(layout.repeatHeight ?? layout.totalHeight);
+    const { width, height } = getPatternDimensionsHintSize(config, layout);
     return `${width} × ${height} ${unitLabel}`;
   }, [config, unitLabel]);
 

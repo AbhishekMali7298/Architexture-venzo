@@ -1,5 +1,6 @@
 import type { TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
+import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 
 export interface PatternRenderFrame {
   layout: ReturnType<typeof getPatternLayout>;
@@ -29,10 +30,8 @@ export function computePatternRenderFrame(
   paddingFactor = 0.9,
 ): PatternRenderFrame {
   const layout = getPatternLayout(config);
-  const repeatWidth = layout.repeatWidth ?? layout.totalWidth;
-  const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
-  const repeatOffsetX = layout.repeatOffsetX ?? 0;
-  const repeatOffsetY = layout.repeatOffsetY ?? 0;
+  const repeatFrame = resolvePatternRepeatFrame(config, layout);
+  const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
   const scaleX = canvasWidth / Math.max(repeatWidth, 1);
   const scaleY = canvasHeight / Math.max(repeatHeight, 1);
   const scale = Math.min(scaleX, scaleY) * paddingFactor;

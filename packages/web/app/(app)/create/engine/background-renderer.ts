@@ -1,6 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
+import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
 function seededRng(seed: number) {
@@ -251,6 +252,7 @@ interface PreparedBackgroundScene {
   toneVariation: number;
   jointColor: string;
   tintColor?: string | null;
+  outline?: ReadonlyArray<{ x: number; y: number }>;
 }
 
 function traceStrokePath(
@@ -314,10 +316,8 @@ function prepareBackgroundScene(
 
   const layout = getPatternLayout(config);
   if (!layout.tiles.length) return null;
-  const repeatWidth = layout.repeatWidth ?? layout.totalWidth;
-  const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
-  const repeatOffsetX = layout.repeatOffsetX ?? 0;
-  const repeatOffsetY = layout.repeatOffsetY ?? 0;
+  const repeatFrame = resolvePatternRepeatFrame(config, layout);
+  const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
   const previewWidth = repeatWidth;
   const previewHeight = repeatHeight;
 
@@ -356,6 +356,7 @@ function prepareBackgroundScene(
     baseRgb,
     toneVariation,
     tintColor: material.tint,
+    outline: repeatFrame.previewOutline,
   };
 }
 
@@ -441,15 +442,12 @@ export function renderBackground(
     }
   }
 
-  const borderInsetX = (scene.jointV * scene.scale) / 2;
-  const borderInsetY = (scene.jointH * scene.scale) / 2;
-
   return {
     x: scene.previewX,
     y: scene.previewY,
     width: Math.max(0, scene.previewWidth),
     height: Math.max(0, scene.previewHeight),
-    outline: scene.layout.previewOutline,
+    outline: scene.outline,
   };
 }
 

@@ -1,6 +1,6 @@
 import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
-import { getPatternLayoutSource } from '../lib/pattern-sidebar-schema';
+import { getCanonicalPatternRepeatBox, getPatternLayoutSource } from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
   x: number;
@@ -202,9 +202,11 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
     }
   }
 
+  const canonicalRepeat = getCanonicalPatternRepeatBox(config);
+
   return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
-    width: columns * repeatWidth,
-    height: rows * repeatHeight,
+    width: canonicalRepeat?.repeatWidth ?? columns * repeatWidth,
+    height: canonicalRepeat?.repeatHeight ?? rows * repeatHeight,
   });
 }
 
@@ -483,8 +485,9 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const pieceHeight = Math.max(height * 2, 1);
   const mitreRise = Math.max(1, Math.min(pieceHeight, pieceWidth * Math.tan(angleRadians)));
   const shoulderY = Math.max((pieceHeight - mitreRise) / 2, 0);
-  const stepX = width + verticalJoint;
-  const stepY = height + horizontalJoint;
+  const canonicalRepeat = getCanonicalPatternRepeatBox(config);
+  const stepX = (canonicalRepeat?.repeatWidth ?? Math.max(columns, 1) * (width + verticalJoint)) / Math.max(columns, 1);
+  const stepY = (canonicalRepeat?.repeatHeight ?? Math.max(rows, 1) * (height + horizontalJoint)) / Math.max(rows, 1);
   const tiles: PatternTile[] = [];
 
   // Draw one bleed ring around the module so clipped edges tile seamlessly.
@@ -526,12 +529,10 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
 
   // Chevron pieces intentionally overlap adjacent rows; keep the repeat period
   // tied to the user-facing module size so the border matches the editor controls.
-  return {
-    tiles,
-    strokes: [],
-    totalWidth: columns * stepX,
-    totalHeight: rows * stepY,
-  };
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
+    width: canonicalRepeat?.repeatWidth ?? columns * stepX,
+    height: canonicalRepeat?.repeatHeight ?? rows * stepY,
+  });
 }
 
 function layoutBasketweave(config: TextureConfig): PatternLayoutData {
