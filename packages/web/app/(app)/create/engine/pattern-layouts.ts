@@ -1,5 +1,6 @@
 import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
+import { getPatternLayoutSource } from '../lib/pattern-sidebar-schema';
 
 export interface PatternTile {
   x: number;
@@ -905,11 +906,7 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
-  const patternDefinition = getPatternByType(config.pattern.type);
-  const shouldUseSvgModule = patternDefinition?.rowColMode !== 'grid';
-  const shouldPreferProceduralLayout = config.pattern.type === 'hexagonal';
-
-  // SVG-based layouts take absolute priority as they correctly define the geometry
+  const layoutSource = getPatternLayoutSource(config.pattern.type);
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   const hasValidReferenceTile =
     svgModule &&
@@ -917,24 +914,25 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     Number.isFinite(svgModule.referenceTileHeight) &&
     svgModule.referenceTileWidth > 1 &&
     svgModule.referenceTileHeight > 1;
-  if (
-    !shouldPreferProceduralLayout &&
-    shouldUseSvgModule &&
+  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
+  const canUseSvgModule =
     svgModule &&
     hasValidReferenceTile &&
     (svgModule.tiles.length > 0 || svgModule.strokes.length > 0) &&
     svgModule.viewBoxWidth > 0 &&
-    svgModule.viewBoxHeight > 0
-  ) {
+    svgModule.viewBoxHeight > 0;
+
+  if (layoutSource === 'svg-module' && canUseSvgModule) {
     return layoutFromSvgModule(config, svgModule);
   }
 
-  // Fallback to procedural layout for standard simple brick bonds
-  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
   if (proceduralLayout) {
     return proceduralLayout(config);
   }
 
-  // Absolute fallback
+  if (canUseSvgModule) {
+    return layoutFromSvgModule(config, svgModule);
+  }
+
   return layoutRunningBond(config);
 }

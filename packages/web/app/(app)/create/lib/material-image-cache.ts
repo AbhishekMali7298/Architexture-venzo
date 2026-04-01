@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 
 type ImageRecord =
-  | { status: 'loading'; promise: Promise<HTMLImageElement> }
-  | { status: 'loaded'; image: HTMLImageElement }
-  | { status: 'error' };
+  | { status: 'loading'; promise: Promise<HTMLImageElement>; requestedAt: number }
+  | { status: 'loaded'; image: HTMLImageElement; requestedAt: number }
+  | { status: 'error'; requestedAt: number };
 
 const imageCache = new Map<string, ImageRecord>();
 
@@ -25,17 +25,17 @@ export function loadMaterialImage(url: string): Promise<HTMLImageElement> {
     image.decoding = 'async';
     image.crossOrigin = 'anonymous';
     image.onload = () => {
-      imageCache.set(url, { status: 'loaded', image });
+      imageCache.set(url, { status: 'loaded', image, requestedAt: Date.now() });
       resolve(image);
     };
     image.onerror = () => {
-      imageCache.set(url, { status: 'error' });
+      imageCache.set(url, { status: 'error', requestedAt: Date.now() });
       reject(new Error(`Failed to load material image: ${url}`));
     };
     image.src = url;
   });
 
-  imageCache.set(url, { status: 'loading', promise });
+  imageCache.set(url, { status: 'loading', promise, requestedAt: Date.now() });
   return promise;
 }
 
@@ -60,6 +60,8 @@ export function useMaterialImage(url: string | null): HTMLImageElement | null {
 
     let cancelled = false;
 
+    // Keep showing the previous successful image while the next one loads.
+    // This avoids visible flicker when switching between similar materials.
     loadMaterialImage(url)
       .then((nextImage) => {
         if (!cancelled) {

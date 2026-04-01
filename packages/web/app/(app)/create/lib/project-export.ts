@@ -4,6 +4,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/pattern-renderer';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
+import { buildPreviewSvg, buildVectorPdf } from './vector-export';
 
 function downloadUrl(url: string, filename: string) {
   const anchor = document.createElement('a');
@@ -87,13 +88,7 @@ export async function exportPreviewJpg(config: TextureConfig) {
 }
 
 export async function exportPreviewSvg(config: TextureConfig) {
-  const canvas = await renderExportCanvas(config);
-  const pngDataUrl = canvas.toDataURL('image/png');
-  const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">`,
-    `<image href="${pngDataUrl}" width="${canvas.width}" height="${canvas.height}" />`,
-    '</svg>',
-  ].join('');
+  const svg = await buildPreviewSvg(config);
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
   downloadUrl(url, `textura-preview-${createSlug(config.pattern.type)}.svg`);
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -148,6 +143,14 @@ function buildPdfWithJpeg(jpegBytes: Uint8Array, width: number, height: number) 
 }
 
 export async function exportPreviewPdf(config: TextureConfig) {
+  const vectorPdf = await buildVectorPdf(config);
+  if (vectorPdf) {
+    const vectorUrl = URL.createObjectURL(vectorPdf);
+    downloadUrl(vectorUrl, `textura-preview-${createSlug(config.pattern.type)}.pdf`);
+    window.setTimeout(() => URL.revokeObjectURL(vectorUrl), 0);
+    return;
+  }
+
   const canvas = await renderExportCanvas(config);
   const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
   const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) => char.charCodeAt(0));

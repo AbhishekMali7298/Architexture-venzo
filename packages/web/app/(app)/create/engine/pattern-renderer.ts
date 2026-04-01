@@ -2,6 +2,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
+import { computePatternRenderFrame, fitClipPathToTile, getTileRenderBox } from './render-geometry';
 
 export interface RenderedJoint {
   x1: number;
@@ -43,20 +44,10 @@ export function renderToCanvas(
   canvasHeight: number,
   options?: { materialImage?: CanvasImageSource | null },
 ): void {
-  const layout = computePatternLayout(config);
+  const frame = computePatternRenderFrame(config, canvasWidth, canvasHeight);
+  const layout = { ...frame.layout, joints: [] };
   const rng = seededRandom(config.seed);
-  const repeatWidth = layout.repeatWidth ?? layout.totalWidth;
-  const repeatHeight = layout.repeatHeight ?? layout.totalHeight;
-  const repeatOffsetX = layout.repeatOffsetX ?? 0;
-  const repeatOffsetY = layout.repeatOffsetY ?? 0;
-
-  const scaleX = canvasWidth / Math.max(repeatWidth, 1);
-  const scaleY = canvasHeight / Math.max(repeatHeight, 1);
-  const scale = Math.min(scaleX, scaleY) * 0.9;
-  const offsetX = (canvasWidth - repeatWidth * scale) / 2;
-  const offsetY = (canvasHeight - repeatHeight * scale) / 2;
-  const drawOffsetX = offsetX - repeatOffsetX * scale;
-  const drawOffsetY = offsetY - repeatOffsetY * scale;
+  const { repeatWidth, repeatHeight, scale, offsetX, offsetY, drawOffsetX, drawOffsetY } = frame;
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -103,12 +94,7 @@ export function renderToCanvas(
     }
 
     const applyInset = tile.applyJointInset !== false;
-    const tileX = applyInset ? (config.joints.verticalSize * scale) / 2 : 0;
-    const tileY = applyInset ? (config.joints.horizontalSize * scale) / 2 : 0;
-    const tileWidth = applyInset ? tile.width * scale - config.joints.verticalSize * scale : tile.width * scale;
-    const tileHeight = applyInset ? tile.height * scale - config.joints.horizontalSize * scale : tile.height * scale;
-
-    const cornerRadius = material.edges.style === 'handmade' ? 2 : material.edges.style === 'rough' ? 3 : 0;
+    const { tileX, tileY, tileWidth, tileHeight, cornerRadius } = getTileRenderBox(tile, config, scale);
     fillMaterialSurface(ctx, {
       x: tileX,
       y: tileY,
@@ -215,32 +201,6 @@ function traceStrokePath(
     ctx.lineTo(offsetX + point.x * scale, offsetY + point.y * scale);
   }
   if (stroke.closed) ctx.closePath();
-}
-
-function fitClipPathToTile(
-  clipPath: ReadonlyArray<{ x: number; y: number }>,
-  scale: number,
-  tileX: number,
-  tileY: number,
-  tileWidth: number,
-  tileHeight: number,
-) {
-  const scaledPoints = clipPath.map((point) => ({
-    x: point.x * scale,
-    y: point.y * scale,
-  }));
-
-  const minX = Math.min(...scaledPoints.map((point) => point.x));
-  const maxX = Math.max(...scaledPoints.map((point) => point.x));
-  const minY = Math.min(...scaledPoints.map((point) => point.y));
-  const maxY = Math.max(...scaledPoints.map((point) => point.y));
-  const sourceWidth = Math.max(maxX - minX, 1);
-  const sourceHeight = Math.max(maxY - minY, 1);
-
-  return scaledPoints.map((point) => ({
-    x: tileX + ((point.x - minX) / sourceWidth) * tileWidth,
-    y: tileY + ((point.y - minY) / sourceHeight) * tileHeight,
-  }));
 }
 
 function adjustBrightness(hex: string, amount: number): string {
