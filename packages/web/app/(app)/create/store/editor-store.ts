@@ -13,6 +13,7 @@ import type {
 } from '@textura/shared';
 import { getMaterialById, getPatternByType } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
+import { applyPatternTypeSelection, sanitizePatternConfig } from './pattern-config-utils';
 
 // ======= History (Undo/Redo) =======
 
@@ -55,6 +56,8 @@ export interface EditorState {
   setPatternRows: (rows: number) => void;
   setPatternColumns: (columns: number) => void;
   setPatternAngle: (angle: number) => void;
+  setPatternStretchers: (stretchers: number) => void;
+  setPatternWeaves: (weaves: number) => void;
 
   // Material
   setMaterialColor: (color: string) => void;
@@ -117,32 +120,6 @@ function roundMeasurement(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
-function sanitizePatternConfig(config: TextureConfig): TextureConfig {
-  const next = JSON.parse(JSON.stringify(config)) as TextureConfig;
-  const definition = getPatternByType(next.pattern.type) ?? getPatternByType('stack_bond');
-  if (!definition) {
-    return next;
-  }
-
-  if (definition.type !== next.pattern.type) {
-    next.pattern.type = definition.type;
-    next.pattern.category = definition.category;
-    next.pattern.rows = definition.defaults.rows;
-    next.pattern.columns = definition.defaults.columns;
-    next.pattern.angle = definition.defaults.angle;
-    next.pattern.stretchers = definition.defaults.stretchers;
-    next.pattern.weaves = definition.defaults.weaves;
-
-    const primaryMaterial = next.materials[0];
-    if (primaryMaterial) {
-      primaryMaterial.width = definition.defaultUnitWidth;
-      primaryMaterial.height = definition.defaultUnitHeight;
-    }
-  }
-
-  return next;
-}
-
 // ======= Store =======
 
 export const useEditorStore = create<EditorState>()(
@@ -163,27 +140,8 @@ export const useEditorStore = create<EditorState>()(
 
     setPatternType: (type, category) =>
       set((s) => {
-        const definition = getPatternByType(type);
         pushHistory(s, `Pattern → ${type}`);
-        const currentRows = s.config.pattern.rows;
-        const currentColumns = s.config.pattern.columns;
-        const activeMaterial = s.config.materials[s.activeMaterialIndex];
-        s.config.pattern.type = type;
-        s.config.pattern.category = category;
-        if (definition) {
-          s.config.pattern.rows = Math.max(1, Math.min(100, currentRows));
-          s.config.pattern.columns = Math.max(1, Math.min(100, currentColumns));
-          s.config.pattern.angle = definition.defaults.angle;
-          s.config.pattern.stretchers = definition.defaults.stretchers;
-          s.config.pattern.weaves = definition.defaults.weaves;
-
-          if (activeMaterial) {
-            // Keep the user's current module dimensions when switching patterns.
-            // Architextures treats pattern changes as a layout change, not a size reset.
-            activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
-            activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);
-          }
-        }
+        s.config = applyPatternTypeSelection(s.config, type, category, s.activeMaterialIndex);
         bumpRender(s);
       }),
 
@@ -205,6 +163,26 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Angle → ${angle}°`);
         s.config.pattern.angle = ((angle % 360) + 360) % 360;
+        bumpRender(s);
+      }),
+
+    setPatternStretchers: (stretchers) =>
+      set((s) => {
+        const definition = getPatternByType(s.config.pattern.type);
+        const min = definition?.parameterRanges.stretchers?.min ?? 1;
+        const max = definition?.parameterRanges.stretchers?.max ?? 100;
+        pushHistory(s, `Stretchers → ${stretchers}`);
+        s.config.pattern.stretchers = clamp(stretchers, min, max);
+        bumpRender(s);
+      }),
+
+    setPatternWeaves: (weaves) =>
+      set((s) => {
+        const definition = getPatternByType(s.config.pattern.type);
+        const min = definition?.parameterRanges.weaves?.min ?? 1;
+        const max = definition?.parameterRanges.weaves?.max ?? 100;
+        pushHistory(s, `Weaves → ${weaves}`);
+        s.config.pattern.weaves = clamp(weaves, min, max);
         bumpRender(s);
       }),
 

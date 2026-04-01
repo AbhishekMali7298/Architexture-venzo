@@ -16,6 +16,9 @@ export function MaterialSettingsSection({
   materialTint,
   width,
   height,
+  widthLabel = 'Width',
+  heightLabel = 'Height',
+  dimensionHint,
   toneVariation,
   edgeStyle,
   jointTint,
@@ -47,6 +50,9 @@ export function MaterialSettingsSection({
   materialTint: string | null;
   width: number;
   height: number;
+  widthLabel?: string;
+  heightLabel?: string;
+  dimensionHint?: string;
   toneVariation: number;
   edgeStyle: EdgeStyle;
   jointTint: string | null;
@@ -85,9 +91,10 @@ export function MaterialSettingsSection({
       </button>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Width" value={width} min={1} max={5000} unit={measurementUnit} onChange={onWidthChange} />
-        <NumberField label="Height" value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
+        <NumberField label={widthLabel} value={width} min={1} max={5000} unit={measurementUnit} onChange={onWidthChange} />
+        <NumberField label={heightLabel} value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
       </div>
+      {dimensionHint ? <div className={styles.hint}>{dimensionHint}</div> : null}
 
       <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 

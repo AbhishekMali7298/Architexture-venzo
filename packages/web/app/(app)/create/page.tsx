@@ -13,6 +13,7 @@ import { SaveExportModal, type ExportFormat } from './components/save-export-mod
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
 import { getPatternLayout } from './engine/pattern-layouts';
+import { getPatternSidebarSchema } from './lib/pattern-sidebar-schema';
 import {
   exportPreviewJpg,
   exportPreviewPdf,
@@ -38,6 +39,8 @@ export default function CreatePage() {
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setPatternAngle = useEditorStore((state) => state.setPatternAngle);
+  const setPatternStretchers = useEditorStore((state) => state.setPatternStretchers);
+  const setPatternWeaves = useEditorStore((state) => state.setPatternWeaves);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
@@ -104,19 +107,7 @@ export default function CreatePage() {
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
   const unitLabel = config.units === 'inches' ? 'in' : 'mm';
-  const simpleVisibleCountPatterns = new Set([
-    'stack_bond',
-    'running_bond',
-    'stretcher_bond',
-    'flemish_bond',
-    'chevron',
-    'staggered',
-    'french',
-  ]);
-  const usesVisibleCounts = simpleVisibleCountPatterns.has(config.pattern.type);
-  const rowColumnSemanticsHint = usesVisibleCounts
-    ? 'Rows and columns control the visible repeat count inside one repeat for this pattern.'
-    : 'Rows and columns control repeated module count for this pattern, not a direct visible tile count.';
+  const patternSidebarSchema = getPatternSidebarSchema(config.pattern.type);
   const dimensionsHint = useMemo(() => {
     const layout = getPatternLayout(config);
     const width = Math.round(layout.totalWidth);
@@ -205,14 +196,17 @@ export default function CreatePage() {
           rows={config.pattern.rows}
           columns={config.pattern.columns}
           angle={config.pattern.angle}
+          stretchers={config.pattern.stretchers}
+          weaves={config.pattern.weaves}
+          fields={patternSidebarSchema.fields}
           dimensionsHint={dimensionsHint}
-          rowsLabel={usesVisibleCounts ? 'Rows' : 'Module rows'}
-          columnsLabel={usesVisibleCounts ? 'Columns' : 'Module cols'}
-          semanticsHint={rowColumnSemanticsHint}
+          semanticsHint={patternSidebarSchema.semanticHint}
           onOpenPicker={() => setShowPatternModal(true)}
           onRowsChange={setPatternRows}
           onColumnsChange={setPatternColumns}
           onAngleChange={setPatternAngle}
+          onStretchersChange={setPatternStretchers}
+          onWeavesChange={setPatternWeaves}
         />
 
         <MaterialSettingsSection
@@ -224,6 +218,9 @@ export default function CreatePage() {
           materialTint={material.tint}
           width={material.width}
           height={material.height}
+          widthLabel={patternSidebarSchema.materialWidthLabel}
+          heightLabel={patternSidebarSchema.materialHeightLabel}
+          dimensionHint={patternSidebarSchema.dimensionsMeaning}
           toneVariation={material.toneVariation}
           edgeStyle={material.edges.style}
           jointTint={config.joints.tint}

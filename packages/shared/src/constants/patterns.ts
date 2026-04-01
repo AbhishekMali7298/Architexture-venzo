@@ -252,7 +252,7 @@ export function getPatternsByCategory(category: PatternCategory): PatternDefinit
  * Get a pattern definition by its type.
  */
 export function getPatternByType(type: PatternType): PatternDefinition | undefined {
-  return PATTERN_CATALOG.find((p) => p.type === type);
+  return ALL_PATTERN_CATALOG.find((p) => p.type === type);
 }
 
 /**
