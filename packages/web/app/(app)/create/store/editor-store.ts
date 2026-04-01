@@ -178,8 +178,10 @@ export const useEditorStore = create<EditorState>()(
           s.config.pattern.weaves = definition.defaults.weaves;
 
           if (activeMaterial) {
-            activeMaterial.width = Math.max(activeMaterial.minWidth, definition.defaultUnitWidth);
-            activeMaterial.height = Math.max(activeMaterial.minHeight, definition.defaultUnitHeight);
+            // Keep the user's current module dimensions when switching patterns.
+            // Architextures treats pattern changes as a layout change, not a size reset.
+            activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
+            activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);
           }
         }
         bumpRender(s);
