@@ -36,7 +36,7 @@ export const USE_SVG_CHEVRON_PARITY = true;
 
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
-  running_bond: 'svg-module',
+  running_bond: 'procedural',
   stack_bond: 'svg-module',
   stretcher_bond: 'procedural',
   flemish_bond: 'svg-module',
@@ -75,16 +75,16 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     columnFieldLabel: 'Columns',
   },
   running_bond: {
-    countMode: 'module-counts',
-    rowsMeaning: 'Rows repeat the authored running-bond module vertically.',
-    columnsMeaning: 'Columns repeat the authored running-bond module horizontally.',
-    angleMeaning: 'Angle is not used by the Architextures-derived running-bond module.',
-    dimensionsMeaning: 'Width and height describe the reference brick used to scale the authored module.',
-    semanticHint: 'Rows and columns repeat one running-bond module; edge bleed is built into the module geometry.',
+    countMode: 'visible-counts',
+    rowsMeaning: 'Rows count visible brick courses inside the bordered repeat.',
+    columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
+    angleMeaning: 'Angle is not used by the common pattern.',
+    dimensionsMeaning: 'Width and height describe the visible brick size used by the running-bond repeat.',
+    semanticHint: 'Rows and columns count the visible running-bond bricks shown inside the dashed frame.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
-    rowFieldLabel: 'Module Rows',
-    columnFieldLabel: 'Module Cols',
+    rowFieldLabel: 'Rows',
+    columnFieldLabel: 'Columns',
   },
   stack_bond: {
     countMode: 'module-counts',

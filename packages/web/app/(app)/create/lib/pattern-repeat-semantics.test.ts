@@ -10,7 +10,7 @@ import {
   USE_SVG_CHEVRON_PARITY,
 } from './pattern-repeat-semantics';
 
-function createPatternConfig(type: 'flemish_bond' | 'chevron'): TextureConfig {
+function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond'): TextureConfig {
   const pattern = getPatternByType(type);
   if (!pattern) {
     throw new Error(`Missing pattern definition for ${type}`);
@@ -38,6 +38,27 @@ function createPatternConfig(type: 'flemish_bond' | 'chevron'): TextureConfig {
 }
 
 describe('pattern repeat semantics', () => {
+  it('uses the visible running-bond bounds as the canonical common-pattern frame', () => {
+    const config = createPatternConfig('running_bond');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 6;
+    config.pattern.columns = 2;
+
+    const layout = getPatternLayout(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
+    const frame = resolvePatternRepeatFrame(config, layout);
+    const hint = getPatternDimensionsHintSize(config, layout);
+
+    expect(canonical).toBeNull();
+    expect(frame.repeatWidth).toBe(2 * (400 + config.joints.verticalSize));
+    expect(frame.repeatHeight).toBe(6 * (100 + config.joints.horizontalSize));
+    expect(hint).toEqual({
+      width: 2 * (400 + config.joints.verticalSize),
+      height: 6 * (100 + config.joints.horizontalSize),
+    });
+  });
+
   it('uses the authored Flemish module repeat as the canonical frame', () => {
     const config = createPatternConfig('flemish_bond');
     config.materials[0]!.width = SVG_PATTERN_MODULES.flemish_bond.referenceTileWidth;

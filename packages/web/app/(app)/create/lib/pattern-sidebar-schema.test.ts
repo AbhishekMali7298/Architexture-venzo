@@ -15,6 +15,16 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields.map((field) => field.id)).toContain('stretchers');
   });
 
+  it('keeps common pattern rows and columns as visible counts', () => {
+    const schema = getPatternSidebarSchema('running_bond');
+
+    expect(schema.layoutSource).toBe('procedural');
+    expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
+    expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
+    expect(schema.rowsMeaning).toContain('visible brick courses');
+    expect(schema.columnsMeaning).toContain('visible brick slots');
+  });
+
   it('uses module wording for svg-module patterns', () => {
     const schema = getPatternSidebarSchema('cubic');
     expect(schema.layoutSource).toBe('svg-module');

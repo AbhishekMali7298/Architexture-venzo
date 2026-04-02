@@ -46,7 +46,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'running_bond',
     category: 'brick_bond',
-    rowColMode: 'module',
+    rowColMode: 'grid',
     displayName: 'Common',
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
