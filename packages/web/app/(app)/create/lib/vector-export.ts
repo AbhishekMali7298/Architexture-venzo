@@ -2,7 +2,7 @@
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { buildTilePathData, computePatternRenderFrame, getTileRenderBox, polygonPathData } from '../engine/render-geometry';
-import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
+import { getMaterialRenderableColor, getMaterialRenderableImageUrl, mixHexColors } from './material-assets';
 
 function escapeXml(value: string) {
   return value
@@ -52,6 +52,22 @@ async function getEmbeddedMaterialAsset(config: TextureConfig) {
   }
 }
 
+function getEffectiveJointFill(config: TextureConfig) {
+  const baseJointFill = config.joints.tint ?? '#d4cfc6';
+  if (!config.joints.recess && !config.joints.concave) {
+    return baseJointFill;
+  }
+
+  return mixHexColors(
+    baseJointFill,
+    '#000000',
+    Math.min(
+      0.24,
+      (config.joints.recess ? 0.08 : 0) + (config.joints.concave ? 0.06 : 0) + config.joints.shadowOpacity / 600,
+    ),
+  );
+}
+
 export async function buildPreviewSvg(config: TextureConfig) {
   const width = config.output.widthPx;
   const height = config.output.heightPx;
@@ -60,7 +76,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
-  const jointFill = escapeXml(config.joints.tint ?? '#d4cfc6');
+  const jointFill = escapeXml(getEffectiveJointFill(config));
   const frameTransform = frame.verticalOrientation
     ? `translate(${svgNumber(frame.offsetX + frame.repeatWidth * frame.scale)} ${svgNumber(frame.offsetY)}) rotate(90)`
     : `translate(${svgNumber(frame.offsetX)} ${svgNumber(frame.offsetY)})`;
@@ -146,7 +162,7 @@ export async function buildVectorPdf(config: TextureConfig) {
     return null;
   }
   const fill = getMaterialRenderableColor(material?.source ?? { type: 'solid', color: '#b8b0a8' }, definition?.swatchColor ?? '#b8b0a8');
-  const joint = config.joints.tint ?? '#d4cfc6';
+  const joint = getEffectiveJointFill(config);
   const commands: string[] = [
     'q',
     `${svgNumber(frame.offsetX)} ${svgNumber(height - frame.offsetY - frame.repeatHeight * frame.scale)} ${svgNumber(frame.repeatWidth * frame.scale)} ${svgNumber(frame.repeatHeight * frame.scale)} re W n`,

@@ -1,8 +1,9 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
-import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor, mixHexColors } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, fitClipPathToTile, getTileRenderBox } from './render-geometry';
+import { drawJointRelief } from './joint-relief';
 
 export interface RenderedJoint {
   x1: number;
@@ -52,7 +53,18 @@ export function renderToCanvas(
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   const jointColor = getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
-  ctx.fillStyle = jointColor;
+  const effectiveJointColor =
+    config.joints.recess || config.joints.concave
+      ? mixHexColors(
+          jointColor,
+          '#000000',
+          Math.min(
+            0.24,
+            (config.joints.recess ? 0.08 : 0) + (config.joints.concave ? 0.06 : 0) + config.joints.shadowOpacity / 600,
+          ),
+        )
+      : jointColor;
+  ctx.fillStyle = effectiveJointColor;
   ctx.fillRect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
 
   ctx.save();
@@ -140,6 +152,18 @@ export function renderToCanvas(
       ctx.stroke();
     }
 
+    drawJointRelief(ctx, {
+      tracePath: () => traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius),
+      x: tileX,
+      y: tileY,
+      width: tileWidth,
+      height: tileHeight,
+      scale,
+      shadowOpacity: config.joints.shadowOpacity,
+      recess: config.joints.recess,
+      concave: config.joints.concave,
+    });
+
     if (variation > 10) {
       ctx.globalAlpha = 0.03 + (variation / 100) * 0.05;
       for (let i = 0; i < 20; i++) {
@@ -157,7 +181,7 @@ export function renderToCanvas(
 
   if (layout.strokes.length > 0) {
     ctx.save();
-    ctx.strokeStyle = jointColor;
+    ctx.strokeStyle = effectiveJointColor;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (const stroke of layout.strokes) {
