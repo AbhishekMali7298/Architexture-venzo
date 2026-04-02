@@ -128,6 +128,18 @@ function roundMeasurement(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
+function cloneMaterialSource(source: MaterialDefinition['source']) {
+  return JSON.parse(JSON.stringify(source)) as MaterialDefinition['source'];
+}
+
+function applyMaterialLibrarySelection(mat: TextureConfig['materials'][number], definition: MaterialDefinition) {
+  // Switching library material should only swap the underlying image source.
+  // User-edited sizing, tint, edges, joints, and other overrides stay intact.
+  mat.definitionId = definition.id;
+  mat.source = cloneMaterialSource(definition.source);
+  mat.toneVariation = 0;
+}
+
 // ======= Store =======
 
 export const useEditorStore = create<EditorState>()(
@@ -237,9 +249,7 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Material → ${definition.name}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (!mat) return;
-        mat.definitionId = definition.id;
-        mat.source = definition.source;
-        mat.toneVariation = 0;
+        applyMaterialLibrarySelection(mat, definition);
         bumpRender(s);
       }),
 
@@ -248,9 +258,7 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Material → ${definition.name}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (!mat) return;
-        mat.definitionId = definition.id;
-        mat.source = definition.source;
-        mat.toneVariation = 0;
+        applyMaterialLibrarySelection(mat, definition);
         bumpRender(s);
       }),
 
