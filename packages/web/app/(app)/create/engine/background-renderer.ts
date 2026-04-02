@@ -2,6 +2,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getJointRenderableColor, getMaterialRenderableColor, mixHexColors } from '../lib/material-assets';
 import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
+import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
 function seededRng(seed: number) {
@@ -156,6 +157,7 @@ interface PreparedBackgroundScene {
   layoutDrawOffsetY: number;
   previewX: number;
   previewY: number;
+  verticalOrientation: boolean;
   jointH: number;
   jointV: number;
   edgeStyle: string;
@@ -260,6 +262,7 @@ function prepareBackgroundScene(
     layoutDrawOffsetY: -repeatOffsetY * scale,
     previewX,
     previewY,
+    verticalOrientation: isVerticalPatternOrientation(config.pattern.orientation),
     jointH,
     jointV,
     jointColor: getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments),
@@ -284,8 +287,13 @@ function drawPreparedLayout(
   ctx.beginPath();
   ctx.rect(offsetX, offsetY, scene.tileSetWidth, scene.tileSetHeight);
   ctx.clip();
-  const drawOffsetX = offsetX + scene.layoutDrawOffsetX;
-  const drawOffsetY = offsetY + scene.layoutDrawOffsetY;
+  ctx.translate(offsetX, offsetY);
+  if (scene.verticalOrientation) {
+    ctx.translate(scene.tileSetWidth, 0);
+    ctx.rotate(Math.PI / 2);
+  }
+  const drawOffsetX = scene.layoutDrawOffsetX;
+  const drawOffsetY = scene.layoutDrawOffsetY;
 
   for (const tile of scene.layout.tiles) {
     drawTile(

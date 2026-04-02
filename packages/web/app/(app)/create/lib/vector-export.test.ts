@@ -28,4 +28,21 @@ describe('vector export', () => {
     expect(svg).toContain('clipPath id="pattern-repeat-clip"');
     expect(svg).toContain('clip-path="url(#pattern-repeat-clip)"');
   });
+
+  it('rotates preview SVG content when orientation is vertical', async () => {
+    const svg = await buildPreviewSvg({
+      ...DEFAULT_TEXTURE_CONFIG,
+      pattern: {
+        ...DEFAULT_TEXTURE_CONFIG.pattern,
+        type: 'running_bond',
+        category: 'brick_bond',
+        orientation: 'vertical',
+        rows: 1,
+        columns: 1,
+        angle: 0,
+      },
+    });
+
+    expect(svg).toContain('rotate(90)');
+  });
 });

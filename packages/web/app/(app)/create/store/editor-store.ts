@@ -7,6 +7,7 @@ import type {
   EditorTab,
   PatternType,
   PatternCategory,
+  PatternOrientation,
   EdgeStyle,
   MaterialDefinition,
   ImageAdjustments,
@@ -15,7 +16,7 @@ import { getMaterialById, getPatternByType } from '@textura/shared';
 import {
   isVerticalPatternOrientation,
   supportsPatternOrientationToggle,
-  togglePatternOrientationAngle,
+  togglePatternOrientation,
 } from '../lib/pattern-orientation';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 import { applyPatternTypeSelection, sanitizePatternConfig } from './pattern-config-utils';
@@ -61,6 +62,7 @@ export interface EditorState {
   setPatternRows: (rows: number) => void;
   setPatternColumns: (columns: number) => void;
   setPatternAngle: (angle: number) => void;
+  setPatternOrientation: (orientation: PatternOrientation) => void;
   togglePatternOrientation: () => void;
   setPatternStretchers: (stretchers: number) => void;
   setPatternWeaves: (weaves: number) => void;
@@ -172,15 +174,26 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
+    setPatternOrientation: (orientation) =>
+      set((s) => {
+        if (!supportsPatternOrientationToggle(s.config.pattern.type) || s.config.pattern.orientation === orientation) {
+          return;
+        }
+
+        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(orientation) ? 'Vertical' : 'Horizontal'}`);
+        s.config.pattern.orientation = orientation;
+        bumpRender(s);
+      }),
+
     togglePatternOrientation: () =>
       set((s) => {
         if (!supportsPatternOrientationToggle(s.config.pattern.type)) {
           return;
         }
 
-        const nextAngle = togglePatternOrientationAngle(s.config.pattern.angle);
-        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(nextAngle) ? 'Vertical' : 'Horizontal'}`);
-        s.config.pattern.angle = nextAngle;
+        const nextOrientation = togglePatternOrientation(s.config.pattern.orientation);
+        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(nextOrientation) ? 'Vertical' : 'Horizontal'}`);
+        s.config.pattern.orientation = nextOrientation;
         bumpRender(s);
       }),
 

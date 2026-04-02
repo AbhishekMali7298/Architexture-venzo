@@ -61,6 +61,9 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
   const jointFill = escapeXml(config.joints.tint ?? '#d4cfc6');
+  const frameTransform = frame.verticalOrientation
+    ? `translate(${svgNumber(frame.offsetX + frame.repeatWidth * frame.scale)} ${svgNumber(frame.offsetY)}) rotate(90)`
+    : `translate(${svgNumber(frame.offsetX)} ${svgNumber(frame.offsetY)})`;
   const defs: string[] = [];
 
   if (embeddedMaterial) {
@@ -116,7 +119,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
     defs.length > 0 ? `<defs>${defs.join('')}</defs>` : '',
     `<rect x="${svgNumber(frame.offsetX)}" y="${svgNumber(frame.offsetY)}" width="${svgNumber(frame.repeatWidth * frame.scale)}" height="${svgNumber(frame.repeatHeight * frame.scale)}" fill="${jointFill}" />`,
-    `<g clip-path="url(#pattern-repeat-clip)">${tileMarkup.join('')}${strokeMarkup}</g>`,
+    `<g clip-path="url(#pattern-repeat-clip)"><g transform="${frameTransform}">${tileMarkup.join('')}${strokeMarkup}</g></g>`,
     '</svg>',
   ].join('');
 }
@@ -132,6 +135,9 @@ export async function buildVectorPdf(config: TextureConfig) {
   const width = config.output.widthPx;
   const height = config.output.heightPx;
   const frame = computePatternRenderFrame(config, width, height);
+  if (frame.verticalOrientation) {
+    return null;
+  }
   const canUseSimpleVectorPdf = frame.layout.tiles.every((tile) => {
     const { cornerRadius } = getTileRenderBox(tile, config, frame.scale);
     return !tile.clipPath?.length && cornerRadius === 0 && tile.rotation === 0;

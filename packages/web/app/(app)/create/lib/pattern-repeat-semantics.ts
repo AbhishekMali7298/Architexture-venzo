@@ -1,5 +1,6 @@
 import { getPatternByType, type PatternType, type TextureConfig } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from '../engine/generated/svg-pattern-modules';
+import { orientDimensions, orientNormalizedOutline } from './pattern-orientation';
 
 export type PatternLayoutSource = 'procedural' | 'svg-module';
 export type PatternCountMode = 'visible-counts' | 'module-counts';
@@ -410,13 +411,16 @@ export function resolvePatternRepeatFrame(
   },
 ): PatternRepeatFrame {
   const canonical = getCanonicalPatternRepeatBox(config);
+  const rawWidth = canonical?.repeatWidth ?? layout.repeatWidth ?? layout.totalWidth;
+  const rawHeight = canonical?.repeatHeight ?? layout.repeatHeight ?? layout.totalHeight;
+  const oriented = orientDimensions(rawWidth, rawHeight, config.pattern.orientation);
 
   return {
-    repeatWidth: canonical?.repeatWidth ?? layout.repeatWidth ?? layout.totalWidth,
-    repeatHeight: canonical?.repeatHeight ?? layout.repeatHeight ?? layout.totalHeight,
+    repeatWidth: oriented.width,
+    repeatHeight: oriented.height,
     repeatOffsetX: layout.repeatOffsetX ?? 0,
     repeatOffsetY: layout.repeatOffsetY ?? 0,
-    previewOutline: layout.previewOutline,
+    previewOutline: orientNormalizedOutline(layout.previewOutline, config.pattern.orientation),
   };
 }
 
@@ -430,8 +434,11 @@ export function getPatternDimensionsHintSize(
   },
 ) {
   const canonical = getCanonicalPatternRepeatBox(config);
+  const rawWidth = canonical?.repeatWidth ?? layout.repeatWidth ?? layout.totalWidth;
+  const rawHeight = canonical?.repeatHeight ?? layout.repeatHeight ?? layout.totalHeight;
+  const oriented = orientDimensions(rawWidth, rawHeight, config.pattern.orientation);
   return {
-    width: Math.round(canonical?.repeatWidth ?? layout.repeatWidth ?? layout.totalWidth),
-    height: Math.round(canonical?.repeatHeight ?? layout.repeatHeight ?? layout.totalHeight),
+    width: Math.round(oriented.width),
+    height: Math.round(oriented.height),
   };
 }

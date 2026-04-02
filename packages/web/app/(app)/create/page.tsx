@@ -194,6 +194,7 @@ export default function CreatePage() {
       >
         <PatternSettingsSection
           patternType={config.pattern.type}
+          orientation={config.pattern.orientation}
           rows={config.pattern.rows}
           columns={config.pattern.columns}
           angle={config.pattern.angle}

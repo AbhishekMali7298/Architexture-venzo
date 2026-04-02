@@ -1,6 +1,7 @@
 import type { TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
 import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
+import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 
 export interface PatternRenderFrame {
   layout: ReturnType<typeof getPatternLayout>;
@@ -8,6 +9,7 @@ export interface PatternRenderFrame {
   repeatHeight: number;
   repeatOffsetX: number;
   repeatOffsetY: number;
+  verticalOrientation: boolean;
   scale: number;
   offsetX: number;
   offsetY: number;
@@ -32,6 +34,7 @@ export function computePatternRenderFrame(
   const layout = getPatternLayout(config);
   const repeatFrame = resolvePatternRepeatFrame(config, layout);
   const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
+  const verticalOrientation = isVerticalPatternOrientation(config.pattern.orientation);
   const scaleX = canvasWidth / Math.max(repeatWidth, 1);
   const scaleY = canvasHeight / Math.max(repeatHeight, 1);
   const scale = Math.min(scaleX, scaleY) * paddingFactor;
@@ -44,11 +47,12 @@ export function computePatternRenderFrame(
     repeatHeight,
     repeatOffsetX,
     repeatOffsetY,
+    verticalOrientation,
     scale,
     offsetX,
     offsetY,
-    drawOffsetX: offsetX - repeatOffsetX * scale,
-    drawOffsetY: offsetY - repeatOffsetY * scale,
+    drawOffsetX: -repeatOffsetX * scale,
+    drawOffsetY: -repeatOffsetY * scale,
   };
 }
 

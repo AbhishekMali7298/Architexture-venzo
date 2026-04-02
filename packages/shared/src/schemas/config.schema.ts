@@ -81,10 +81,12 @@ export const patternCategorySchema = z.enum([
 ]);
 
 export const patternTypeSchema = z.string().min(1);
+export const patternOrientationSchema = z.enum(['horizontal', 'vertical']).default('horizontal');
 
 export const patternConfigSchema = z.object({
   type: patternTypeSchema,
   category: patternCategorySchema,
+  orientation: patternOrientationSchema,
   rows: z.number().int().min(1).max(100),
   columns: z.number().int().min(1).max(100),
   angle: z.number().min(0).max(360),

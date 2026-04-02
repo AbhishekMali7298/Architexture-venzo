@@ -47,6 +47,7 @@ function createPatternConfig(type: (typeof PATTERNS)[number]): TextureConfig {
     pattern: {
       type: pattern.type,
       category: pattern.category,
+      orientation: 'horizontal',
       rows: pattern.defaults.rows,
       columns: pattern.defaults.columns,
       angle: pattern.defaults.angle,
@@ -109,23 +110,19 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBe(6 * (100 + 12));
   });
 
-  it('flips stack bond into a vertical layout when orientation is toggled', () => {
+  it('keeps stack bond geometry horizontal before orientation transforms are applied', () => {
     const config = createPatternConfig('stack_bond');
     config.materials[0]!.width = 400;
     config.materials[0]!.height = 100;
     config.pattern.rows = 6;
     config.pattern.columns = 4;
-    config.pattern.angle = 90;
 
     const layout = getPatternLayout(config);
-    const stepX = 100 + config.joints.verticalSize;
-    const stepY = 400 + config.joints.horizontalSize;
 
-    expect(layout.repeatWidth).toBe(6 * (100 + config.joints.verticalSize));
-    expect(layout.repeatHeight).toBe(4 * (400 + config.joints.horizontalSize));
-    expect(layout.tiles[0]).toMatchObject({ width: 100, height: 400, x: 0, y: 0 });
-    expect(layout.tiles[1]).toMatchObject({ width: 100, height: 400, x: 0, y: stepY });
-    expect(layout.tiles[4]).toMatchObject({ width: 100, height: 400, x: stepX, y: 0 });
+    expect(layout.repeatWidth).toBe(4 * (400 + config.joints.verticalSize));
+    expect(layout.repeatHeight).toBe(6 * (100 + config.joints.horizontalSize));
+    expect(layout.tiles[0]).toMatchObject({ width: 400, height: 100, x: 0, y: 0 });
+    expect(layout.tiles[1]).toMatchObject({ width: 400, height: 100, x: 400 + config.joints.verticalSize, y: 0 });
   });
 
   it('starts running bond on the offset row so the first visible course clips at the frame edge', () => {

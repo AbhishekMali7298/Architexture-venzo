@@ -164,14 +164,16 @@
   padding: 8px 10px;
 }
 
-.selectionButton:hover {
-  border-color: rgba(0, 0, 0, 1);
+.selectionButtonShell {
+  position: relative;
 }
 
-.patternSelectionRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 46px;
-  gap: 8px;
+.selectionButtonWithInsetAction {
+  padding-right: 48px;
+}
+
+.selectionButton:hover {
+  border-color: rgba(0, 0, 0, 1);
 }
 
 .selectionText {
@@ -251,9 +253,32 @@
   color: #000;
 }
 
+.patternOrientationButtonInset {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.72);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.patternOrientationButtonInset:hover {
+  border-color: rgba(0, 0, 0, 1);
+  color: #000;
+}
+
 .patternOrientationIcon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .jointLinkButton {

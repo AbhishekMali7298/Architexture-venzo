@@ -11,6 +11,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   pattern: {
     type: 'stack_bond',
     category: 'brick_bond',
+    orientation: 'horizontal',
     rows: 6,
     columns: 4,
     angle: 0,

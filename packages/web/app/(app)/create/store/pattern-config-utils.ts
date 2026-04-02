@@ -19,6 +19,7 @@ function applyPatternDefinition(
 
   next.pattern.type = definition.type;
   next.pattern.category = definition.category;
+  next.pattern.orientation = next.pattern.orientation ?? 'horizontal';
   next.pattern.rows = clamp(next.pattern.rows, definition.parameterRanges.rows.min, definition.parameterRanges.rows.max);
   next.pattern.columns = clamp(
     next.pattern.columns,

@@ -1,6 +1,6 @@
 'use client';
 
-import { getPatternByType, type PatternType } from '@textura/shared';
+import { getPatternByType, type PatternOrientation, type PatternType } from '@textura/shared';
 import { getPatternPreviewUrl } from '../lib/pattern-assets';
 import { isVerticalPatternOrientation, supportsPatternOrientationToggle } from '../lib/pattern-orientation';
 import type { PatternFieldSchema } from '../lib/pattern-sidebar-schema';
@@ -10,6 +10,7 @@ import styles from './create-editor.module.css';
 
 export function PatternSettingsSection({
   patternType,
+  orientation,
   rows,
   columns,
   angle,
@@ -27,6 +28,7 @@ export function PatternSettingsSection({
   onWeavesChange,
 }: {
   patternType: PatternType;
+  orientation: PatternOrientation;
   rows: number;
   columns: number;
   angle: number;
@@ -46,7 +48,7 @@ export function PatternSettingsSection({
   const pattern = getPatternByType(patternType);
   if (!pattern) return null;
   const showOrientationToggle = supportsPatternOrientationToggle(patternType);
-  const isVerticalOrientation = isVerticalPatternOrientation(angle);
+  const isVerticalOrientation = isVerticalPatternOrientation(orientation);
   const fieldValueMap = {
     rows,
     columns,
@@ -73,8 +75,12 @@ export function PatternSettingsSection({
 
   return (
     <SectionCard title="Pattern">
-      <div className={showOrientationToggle ? styles.patternSelectionRow : undefined}>
-        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenPicker}>
+      <div className={styles.selectionButtonShell}>
+        <button
+          className={`${styles.selectionButton} ${styles.selectionButtonCompact} ${showOrientationToggle ? styles.selectionButtonWithInsetAction : ''}`}
+          type="button"
+          onClick={onOpenPicker}
+        >
           <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
             <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{pattern.displayName}</span>
             <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{pattern.description}</span>
@@ -90,11 +96,15 @@ export function PatternSettingsSection({
 
         {showOrientationToggle ? (
           <button
-            className={`${styles.patternOrientationButton} ${isVerticalOrientation ? styles.patternOrientationButtonActive : ''}`}
+            className={`${styles.patternOrientationButtonInset} ${isVerticalOrientation ? styles.patternOrientationButtonActive : ''}`}
             type="button"
-            onClick={onToggleOrientation}
-            aria-label={isVerticalOrientation ? 'Switch to horizontal stack' : 'Switch to vertical stack'}
-            title={isVerticalOrientation ? 'Switch to horizontal stack' : 'Switch to vertical stack'}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onToggleOrientation();
+            }}
+            aria-label={isVerticalOrientation ? 'Switch to horizontal pattern orientation' : 'Switch to vertical pattern orientation'}
+            title={isVerticalOrientation ? 'Switch to horizontal pattern orientation' : 'Switch to vertical pattern orientation'}
           >
             <svg
               className={styles.patternOrientationIcon}

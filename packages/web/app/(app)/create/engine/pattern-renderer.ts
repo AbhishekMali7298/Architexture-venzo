@@ -47,7 +47,7 @@ export function renderToCanvas(
   const frame = computePatternRenderFrame(config, canvasWidth, canvasHeight);
   const layout = { ...frame.layout, joints: [] };
   const rng = seededRandom(config.seed);
-  const { repeatWidth, repeatHeight, scale, offsetX, offsetY, drawOffsetX, drawOffsetY } = frame;
+  const { repeatWidth, repeatHeight, scale, offsetX, offsetY, drawOffsetX, drawOffsetY, verticalOrientation } = frame;
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -59,6 +59,11 @@ export function renderToCanvas(
   ctx.beginPath();
   ctx.rect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
   ctx.clip();
+  ctx.translate(offsetX, offsetY);
+  if (verticalOrientation) {
+    ctx.translate(repeatWidth * scale, 0);
+    ctx.rotate(Math.PI / 2);
+  }
 
   const traceTilePath = (
     tileX: number,

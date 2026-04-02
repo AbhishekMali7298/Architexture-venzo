@@ -1,6 +1,5 @@
 import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
-import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { getCanonicalPatternRepeatBox, getPatternLayoutSource } from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
@@ -270,21 +269,18 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
 
 function layoutStackBond(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
-  const isVertical = isVerticalPatternOrientation(angle);
-  const tileWidth = isVertical ? height : width;
-  const tileHeight = isVertical ? width : height;
-  const stepX = tileWidth + verticalJoint;
-  const stepY = tileHeight + horizontalJoint;
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       tiles.push({
-        x: isVertical ? row * stepX : column * stepX,
-        y: isVertical ? column * stepY : row * stepY,
-        width: tileWidth,
-        height: tileHeight,
+        x: column * stepX,
+        y: row * stepY,
+        width,
+        height,
         rotation: 0,
         materialIndex: 0,
       });

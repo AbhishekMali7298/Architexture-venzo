@@ -21,6 +21,7 @@ function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond'):
     pattern: {
       type: pattern.type,
       category: pattern.category,
+      orientation: 'horizontal',
       rows: pattern.defaults.rows,
       columns: pattern.defaults.columns,
       angle: pattern.defaults.angle,
@@ -56,6 +57,26 @@ describe('pattern repeat semantics', () => {
     expect(hint).toEqual({
       width: 2 * (400 + config.joints.verticalSize),
       height: 6 * (100 + config.joints.horizontalSize),
+    });
+  });
+
+  it('swaps the repeat frame dimensions when pattern orientation is vertical', () => {
+    const config = createPatternConfig('running_bond');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 6;
+    config.pattern.columns = 2;
+    config.pattern.orientation = 'vertical';
+
+    const layout = getPatternLayout(config);
+    const frame = resolvePatternRepeatFrame(config, layout);
+    const hint = getPatternDimensionsHintSize(config, layout);
+
+    expect(frame.repeatWidth).toBe(6 * (100 + config.joints.horizontalSize));
+    expect(frame.repeatHeight).toBe(2 * (400 + config.joints.verticalSize));
+    expect(hint).toEqual({
+      width: 6 * (100 + config.joints.horizontalSize),
+      height: 2 * (400 + config.joints.verticalSize),
     });
   });
 

@@ -35,10 +35,12 @@ export type PatternCategory =
   | 'roofing';
 
 export type PatternType = string;
+export type PatternOrientation = 'horizontal' | 'vertical';
 
 export interface PatternConfig {
   type: PatternType;
   category: PatternCategory;
+  orientation: PatternOrientation;
   rows: number;
   columns: number;
   angle: number;
