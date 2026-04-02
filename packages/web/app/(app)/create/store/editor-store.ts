@@ -239,11 +239,7 @@ export const useEditorStore = create<EditorState>()(
         if (!mat) return;
         mat.definitionId = definition.id;
         mat.source = definition.source;
-        mat.width = definition.defaults.width;
-        mat.height = definition.defaults.height;
-        if (definition.metadata?.toneVariation !== undefined) {
-          mat.toneVariation = definition.metadata.toneVariation;
-        }
+        mat.toneVariation = 0;
         bumpRender(s);
       }),
 
@@ -254,11 +250,7 @@ export const useEditorStore = create<EditorState>()(
         if (!mat) return;
         mat.definitionId = definition.id;
         mat.source = definition.source;
-        mat.width = definition.defaults.width;
-        mat.height = definition.defaults.height;
-        if (definition.metadata?.toneVariation !== undefined) {
-          mat.toneVariation = definition.metadata.toneVariation;
-        }
+        mat.toneVariation = 0;
         bumpRender(s);
       }),
 
