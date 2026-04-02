@@ -5,7 +5,7 @@ export function PatternThumb({
   path,
   src,
   alt,
-  size = 76,
+  size = 52,
   compact = false,
 }: {
   path: string;

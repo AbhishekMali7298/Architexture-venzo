@@ -738,7 +738,7 @@
 }
 
 .modalCard {
-  width: min(620px, calc(100vw - 20px));
+  width: min(700px, calc(100vw - 20px));
   max-height: min(80vh, 860px);
   display: flex;
   flex-direction: column;
@@ -776,12 +776,12 @@
 
 .modalTools {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .modalBody {
   overflow: auto;
-  padding: 10px 12px 12px;
+  padding: 12px 14px 14px;
 }
 
 .modalActionStack {
@@ -794,11 +794,11 @@
 .modalSection {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .modalSection + .modalSection {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .modalSectionTitle {
@@ -811,18 +811,18 @@
 
 .optionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 8px;
 }
 
 .exportFormatGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 
 .exportFormatButton {
-  padding: 9px 8px;
+  padding: 10px 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: #fff;
@@ -842,13 +842,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 6px;
+  gap: 8px;
+  padding: 10px 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: #fff;
   cursor: pointer;
   text-align: center;
+}
+
+.optionButton > div {
+  width: 100%;
 }
 
 .optionButton:hover {
@@ -862,30 +866,32 @@
 }
 
 .optionName {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .optionMeta {
-  font-size: 9px;
-  line-height: 1.2;
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.25;
   color: rgba(0, 0, 0, 0.6);
 }
 
 .thumbFrame {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
   border-radius: 5px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: linear-gradient(180deg, #fff, #f8fafc);
 }
 
 .thumbFrameCompact {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
 }
 
 @media (max-width: 900px) {

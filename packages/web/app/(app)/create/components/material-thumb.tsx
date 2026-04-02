@@ -12,7 +12,7 @@ export function MaterialThumb({
   color,
   src,
   alt,
-  size = 76,
+  size = 52,
   compact = false,
 }: {
   color: string;
