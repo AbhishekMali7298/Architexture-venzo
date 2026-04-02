@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
-import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, fitClipPathToTile, getTileRenderBox } from './render-geometry';
 
@@ -51,7 +51,7 @@ export function renderToCanvas(
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-  const jointColor = config.joints.tint ?? '#d4cfc6';
+  const jointColor = getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
   ctx.fillStyle = jointColor;
   ctx.fillRect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
 
@@ -112,13 +112,17 @@ export function renderToCanvas(
     });
 
     if (options?.materialImage) {
-      const variationStrength = Math.abs((rng() - 0.5) * variation * 0.015);
+      const variationDelta = (rng() - 0.5) * variation * 1.2;
+      const variationStrength = Math.min(0.16, 0.02 + Math.abs(variationDelta) / 140);
       if (variationStrength > 0.001) {
         ctx.save();
         traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
         ctx.clip();
+        ctx.fillStyle = variationDelta >= 0 ? '#ffffff' : '#000000';
+        ctx.globalAlpha = variationStrength;
+        ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
         ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
-        ctx.globalAlpha = Math.min(0.16, variationStrength);
+        ctx.globalAlpha = Math.min(0.12, variationStrength * 0.7);
         ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
         ctx.restore();
       }

@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
-import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor, mixHexColors } from '../lib/material-assets';
 import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 
@@ -21,99 +21,6 @@ function hexToRgb(hex: string): [number, number, number] {
 function rgbAdjust([r, g, b]: [number, number, number], delta: number): string {
   const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value + delta)));
   return `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
-}
-
-function rgbToHex([r, g, b]: [number, number, number]) {
-  return `#${[r, g, b]
-    .map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0'))
-    .join('')}`;
-}
-
-function hexToHsl(hex: string): [number, number, number] {
-  const [r, g, b] = hexToRgb(hex).map((value) => value / 255);
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const lightness = (max + min) / 2;
-  const delta = max - min;
-
-  if (delta === 0) {
-    return [0, 0, lightness];
-  }
-
-  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-  let hue = 0;
-
-  switch (max) {
-    case r:
-      hue = (g - b) / delta + (g < b ? 6 : 0);
-      break;
-    case g:
-      hue = (b - r) / delta + 2;
-      break;
-    default:
-      hue = (r - g) / delta + 4;
-      break;
-  }
-
-  return [hue * 60, saturation, lightness];
-}
-
-function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-  const hue = ((h % 360) + 360) % 360;
-  const chroma = (1 - Math.abs(2 * l - 1)) * s;
-  const segment = hue / 60;
-  const x = chroma * (1 - Math.abs((segment % 2) - 1));
-  let rgb: [number, number, number] = [0, 0, 0];
-
-  if (segment >= 0 && segment < 1) rgb = [chroma, x, 0];
-  else if (segment < 2) rgb = [x, chroma, 0];
-  else if (segment < 3) rgb = [0, chroma, x];
-  else if (segment < 4) rgb = [0, x, chroma];
-  else if (segment < 5) rgb = [x, 0, chroma];
-  else rgb = [chroma, 0, x];
-
-  const match = l - chroma / 2;
-  return rgb.map((value) => (value + match) * 255) as [number, number, number];
-}
-
-function applyAdjustmentsToHex(
-  hex: string,
-  adjustments: TextureConfig['joints']['adjustments'],
-) {
-  let [r, g, b] = hexToRgb(hex);
-
-  if (adjustments.invertColors) {
-    r = 255 - r;
-    g = 255 - g;
-    b = 255 - b;
-  }
-
-  const brightnessDelta = (adjustments.brightness / 100) * 255;
-  r += brightnessDelta;
-  g += brightnessDelta;
-  b += brightnessDelta;
-
-  const contrastFactor = (259 * (adjustments.contrast + 255)) / (255 * (259 - adjustments.contrast));
-  r = contrastFactor * (r - 128) + 128;
-  g = contrastFactor * (g - 128) + 128;
-  b = contrastFactor * (b - 128) + 128;
-
-  let [h, s, l] = hexToHsl(rgbToHex([r, g, b]));
-  h += adjustments.hue;
-  s = Math.max(0, Math.min(1, s * (1 + adjustments.saturation / 100)));
-
-  return rgbToHex(hslToRgb(h, s, l));
-}
-
-function blendHex(baseHex: string, tintHex: string, strength: number) {
-  const base = hexToRgb(baseHex);
-  const tint = hexToRgb(tintHex);
-  const mix = Math.max(0, Math.min(1, strength));
-  return rgbToHex([
-    base[0] + (tint[0] - base[0]) * mix,
-    base[1] + (tint[1] - base[1]) * mix,
-    base[2] + (tint[2] - base[2]) * mix,
-  ]);
 }
 
 function drawTile(
@@ -146,7 +53,6 @@ function drawTile(
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
-  const imageDelta = materialImage ? 0 : delta;
   const radius =
     edgeStyle === 'handmade'
       ? 3 * scale
@@ -172,7 +78,7 @@ function drawTile(
     ctx.closePath();
   };
 
-  const tileFill = rgbAdjust(baseRgb, imageDelta);
+  const tileFill = rgbAdjust(baseRgb, delta);
   fillMaterialSurface(ctx, {
     x: insetX,
     y: insetY,
@@ -208,11 +114,16 @@ function drawTile(
     ctx.save();
     traceTilePath();
     ctx.clip();
-    ctx.globalAlpha = 0.015 + (toneVariation / 100) * 0.03;
-    for (let i = 0; i < 10; i++) {
+    const variationStrength = Math.min(0.16, 0.02 + Math.abs(delta) / 140);
+    ctx.globalAlpha = variationStrength;
+    ctx.fillStyle = delta >= 0 ? '#ffffff' : '#000000';
+    ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
+
+    ctx.globalAlpha = 0.02 + (toneVariation / 100) * 0.05;
+    for (let i = 0; i < 14; i++) {
       const nx = insetX + rng() * drawWidth;
       const ny = insetY + rng() * drawHeight;
-      const size = 0.8 * scale + rng() * 1.2 * scale;
+      const size = 0.8 * scale + rng() * 1.6 * scale;
       ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
       ctx.fillRect(nx, ny, size, size);
     }
@@ -307,7 +218,7 @@ function prepareBackgroundScene(
   const material = config.materials[0]!;
   const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
   const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
-  const baseColor = material.tint ? blendHex(sourceColor, material.tint, 0.88) : sourceColor;
+  const baseColor = material.tint ? mixHexColors(sourceColor, material.tint, 0.88) : sourceColor;
   const baseRgb = hexToRgb(baseColor);
   const edgeStyle = material.edges.style;
   const toneVariation = material.toneVariation;
@@ -351,7 +262,7 @@ function prepareBackgroundScene(
     previewY,
     jointH,
     jointV,
-    jointColor: applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments),
+    jointColor: getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments),
     edgeStyle,
     baseRgb,
     toneVariation,
@@ -422,7 +333,7 @@ export function renderBackground(
   canvasHeight: number,
   options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
 ): { x: number; y: number; width: number; height: number; outline?: ReadonlyArray<{ x: number; y: number }> } | null {
-  const jointColor = applyAdjustmentsToHex(config.joints.tint ?? '#d4cfc6', config.joints.adjustments);
+  const jointColor = getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
   if (!scene) return null;
 
