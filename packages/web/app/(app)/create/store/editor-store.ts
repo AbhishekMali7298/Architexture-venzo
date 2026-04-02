@@ -79,6 +79,7 @@ export interface EditorState {
 
   // Joints
   setJointTint: (tint: string | null) => void;
+  setJointMaterialDefinition: (material: MaterialDefinition | null) => void;
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
@@ -318,6 +319,15 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Joint tint → ${tint ?? 'none'}`);
         s.config.joints.tint = tint;
+        bumpRender(s);
+      }),
+
+    setJointMaterialDefinition: (definition) =>
+      set((s) => {
+        pushHistory(s, `Joint material → ${definition?.name ?? 'Solid Fill'}`);
+        s.config.joints.materialSource = definition
+          ? cloneMaterialSource(definition.source)
+          : { type: 'solid', color: '#e8e6e0' };
         bumpRender(s);
       }),
 

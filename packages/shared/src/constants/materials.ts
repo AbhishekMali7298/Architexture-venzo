@@ -285,3 +285,20 @@ export function getMaterialsByCategory(categoryId: string): MaterialDefinition[]
 export function getMaterialById(id: string): MaterialDefinition | undefined {
   return MATERIAL_LIBRARY.find((material) => material.id === id);
 }
+
+export function getMaterialBySource(source: MaterialSource): MaterialDefinition | undefined {
+  if (source.type === 'library') {
+    return getMaterialById(source.assetId);
+  }
+
+  if (source.type !== 'image' && source.type !== 'generated') {
+    return undefined;
+  }
+
+  const assetPath = source.asset?.path;
+  if (!assetPath) return undefined;
+
+  return MATERIAL_LIBRARY.find((material) => {
+    return material.albedo?.path === assetPath || material.thumbnail?.path === assetPath;
+  });
+}

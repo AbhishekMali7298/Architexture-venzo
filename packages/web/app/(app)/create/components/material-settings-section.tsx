@@ -22,6 +22,10 @@ export function MaterialSettingsSection({
   toneVariation,
   edgeStyle,
   jointTint,
+  jointMaterialName,
+  jointMaterialCategory,
+  jointMaterialColor,
+  jointMaterialThumbnailUrl,
   jointHorizontal,
   jointVertical,
   linkedJoints,
@@ -36,6 +40,7 @@ export function MaterialSettingsSection({
   onToneVariationChange,
   onEdgeStyleChange,
   onJointTintChange,
+  onOpenJointMaterialPicker,
   onJointHorizontalChange,
   onJointVerticalChange,
   onLinkedJointsChange,
@@ -56,6 +61,10 @@ export function MaterialSettingsSection({
   toneVariation: number;
   edgeStyle: EdgeStyle;
   jointTint: string | null;
+  jointMaterialName: string;
+  jointMaterialCategory?: string;
+  jointMaterialColor: string;
+  jointMaterialThumbnailUrl?: string | null;
   jointHorizontal: number;
   jointVertical: number;
   linkedJoints: boolean;
@@ -70,6 +79,7 @@ export function MaterialSettingsSection({
   onToneVariationChange: (value: number) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
   onJointTintChange: (value: string | null) => void;
+  onOpenJointMaterialPicker: () => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
   onLinkedJointsChange: (value: boolean) => void;
@@ -116,6 +126,16 @@ export function MaterialSettingsSection({
       <div className={styles.sectionDivider} />
 
       <div className={styles.subsectionTitle}>Joints</div>
+      <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenJointMaterialPicker}>
+        <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+          <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{jointMaterialName}</span>
+          {jointMaterialCategory ? (
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{jointMaterialCategory}</span>
+          ) : null}
+        </span>
+        <MaterialThumb color={jointMaterialColor} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact />
+      </button>
+
       <ColorField
         label="Tint"
         value={jointTint ?? '#FFFFFF'}

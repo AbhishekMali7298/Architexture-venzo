@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
+import { getMaterialById, getMaterialBySource, getMaterialCategory, type TextureConfig } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
+import { JointMaterialPickerModal } from './components/joint-material-picker-modal';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
@@ -50,6 +51,7 @@ export default function CreatePage() {
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const setJointTint = useEditorStore((state) => state.setJointTint);
+  const setJointMaterialDefinition = useEditorStore((state) => state.setJointMaterialDefinition);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
@@ -66,6 +68,7 @@ export default function CreatePage() {
 
   const [showPatternModal, setShowPatternModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [showJointMaterialModal, setShowJointMaterialModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [footerStatus, setFooterStatus] = useState('Ready');
@@ -105,9 +108,20 @@ export default function CreatePage() {
   const materialCategory = selectedMaterial
     ? getMaterialCategory(selectedMaterial.categoryId)?.displayName ?? selectedMaterial.categoryId
     : 'Custom material';
+  const selectedJointMaterial = useMemo(() => {
+    return getMaterialBySource(config.joints.materialSource) ?? null;
+  }, [config.joints.materialSource]);
+  const jointMaterialCategory = selectedJointMaterial
+    ? getMaterialCategory(selectedJointMaterial.categoryId)?.displayName ?? selectedJointMaterial.categoryId
+    : undefined;
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
+  const jointMaterialThumbnailUrl = getMaterialThumbnailUrl(selectedJointMaterial);
+  const jointMaterialColor = getMaterialRenderableColor(
+    config.joints.materialSource,
+    selectedJointMaterial?.swatchColor ?? '#e8e6e0',
+  );
   const unitLabel = config.units === 'inches' ? 'in' : 'mm';
   const patternSidebarSchema = getPatternSidebarSchema(config.pattern.type);
   const dimensionsHint = useMemo(() => {
@@ -227,6 +241,10 @@ export default function CreatePage() {
           toneVariation={material.toneVariation}
           edgeStyle={material.edges.style}
           jointTint={config.joints.tint}
+          jointMaterialName={selectedJointMaterial?.name ?? 'Solid Fill'}
+          jointMaterialCategory={jointMaterialCategory}
+          jointMaterialColor={jointMaterialColor}
+          jointMaterialThumbnailUrl={jointMaterialThumbnailUrl}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
           linkedJoints={config.joints.linkedDimensions}
@@ -240,6 +258,7 @@ export default function CreatePage() {
           onToneVariationChange={setToneVariation}
           onEdgeStyleChange={setEdgeStyle}
           onJointTintChange={setJointTint}
+          onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onLinkedJointsChange={setLinkedDimensions}
@@ -263,6 +282,18 @@ export default function CreatePage() {
           onClose={() => setShowMaterialModal(false)}
           onSelect={(nextMaterial) => {
             setMaterialById(nextMaterial.id);
+          }}
+        />
+      ) : null}
+
+      {showJointMaterialModal ? (
+        <JointMaterialPickerModal
+          currentMaterialId={selectedJointMaterial?.id ?? null}
+          isSolidFill={config.joints.materialSource.type === 'solid'}
+          onClose={() => setShowJointMaterialModal(false)}
+          onSelectSolid={() => setJointMaterialDefinition(null)}
+          onSelectMaterial={(nextMaterial) => {
+            setJointMaterialDefinition(nextMaterial);
           }}
         />
       ) : null}

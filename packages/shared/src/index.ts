@@ -125,6 +125,7 @@ export {
   SPECIAL_SOURCES,
   getMaterialCategory,
   getMaterialById,
+  getMaterialBySource,
   getMaterialsByCategory,
 } from './constants/materials';
 
