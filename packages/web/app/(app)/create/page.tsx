@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getMaterialById, getMaterialBySource, getMaterialCategory, type TextureConfig } from '@textura/shared';
+import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
@@ -13,6 +13,7 @@ import { PatternSettingsSection } from './components/pattern-settings-section';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
+import { buildJointMaterialAsset, getJointMaterialName, getJointMaterialPreviewUrl } from './lib/joint-material-library';
 import { getPatternLayout } from './engine/pattern-layouts';
 import { getPatternDimensionsHintSize } from './lib/pattern-repeat-semantics';
 import { getPatternSidebarSchema } from './lib/pattern-sidebar-schema';
@@ -51,7 +52,7 @@ export default function CreatePage() {
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const setJointTint = useEditorStore((state) => state.setJointTint);
-  const setJointMaterialDefinition = useEditorStore((state) => state.setJointMaterialDefinition);
+  const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
@@ -108,20 +109,15 @@ export default function CreatePage() {
   const materialCategory = selectedMaterial
     ? getMaterialCategory(selectedMaterial.categoryId)?.displayName ?? selectedMaterial.categoryId
     : 'Custom material';
-  const selectedJointMaterial = useMemo(() => {
-    return getMaterialBySource(config.joints.materialSource) ?? null;
-  }, [config.joints.materialSource]);
-  const jointMaterialCategory = selectedJointMaterial
-    ? getMaterialCategory(selectedJointMaterial.categoryId)?.displayName ?? selectedJointMaterial.categoryId
-    : undefined;
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
-  const jointMaterialThumbnailUrl = getMaterialThumbnailUrl(selectedJointMaterial);
   const jointMaterialColor = getMaterialRenderableColor(
     config.joints.materialSource,
-    selectedJointMaterial?.swatchColor ?? '#e8e6e0',
+    '#e8e6e0',
   );
+  const jointMaterialName = useMemo(() => getJointMaterialName(config.joints.materialSource), [config.joints.materialSource]);
+  const jointMaterialThumbnailUrl = useMemo(() => getJointMaterialPreviewUrl(config.joints.materialSource), [config.joints.materialSource]);
   const unitLabel = config.units === 'inches' ? 'in' : 'mm';
   const patternSidebarSchema = getPatternSidebarSchema(config.pattern.type);
   const dimensionsHint = useMemo(() => {
@@ -241,8 +237,7 @@ export default function CreatePage() {
           toneVariation={material.toneVariation}
           edgeStyle={material.edges.style}
           jointTint={config.joints.tint}
-          jointMaterialName={selectedJointMaterial?.name ?? 'Solid Fill'}
-          jointMaterialCategory={jointMaterialCategory}
+          jointMaterialName={jointMaterialName}
           jointMaterialColor={jointMaterialColor}
           jointMaterialThumbnailUrl={jointMaterialThumbnailUrl}
           jointHorizontal={config.joints.horizontalSize}
@@ -288,12 +283,16 @@ export default function CreatePage() {
 
       {showJointMaterialModal ? (
         <JointMaterialPickerModal
-          currentMaterialId={selectedJointMaterial?.id ?? null}
+          currentAssetPath={
+            config.joints.materialSource.type === 'image' || config.joints.materialSource.type === 'generated'
+              ? config.joints.materialSource.asset?.path ?? null
+              : null
+          }
           isSolidFill={config.joints.materialSource.type === 'solid'}
           onClose={() => setShowJointMaterialModal(false)}
-          onSelectSolid={() => setJointMaterialDefinition(null)}
+          onSelectSolid={() => setJointMaterialAsset(null)}
           onSelectMaterial={(nextMaterial) => {
-            setJointMaterialDefinition(nextMaterial);
+            setJointMaterialAsset(buildJointMaterialAsset(nextMaterial));
           }}
         />
       ) : null}

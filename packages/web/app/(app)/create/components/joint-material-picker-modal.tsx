@@ -1,37 +1,63 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { MATERIAL_CATEGORIES, MATERIAL_LIBRARY, type MaterialDefinition } from '@textura/shared';
-import { getMaterialThumbnailUrl } from '../lib/material-assets';
+import { useEffect, useMemo, useState } from 'react';
+import type { JointMaterialLibraryItem } from '../lib/joint-material-library';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
 
 export function JointMaterialPickerModal({
-  currentMaterialId,
+  currentAssetPath,
   isSolidFill,
   onClose,
   onSelectSolid,
   onSelectMaterial,
 }: {
-  currentMaterialId: string | null;
+  currentAssetPath: string | null;
   isSolidFill: boolean;
   onClose: () => void;
   onSelectSolid: () => void;
-  onSelectMaterial: (material: MaterialDefinition) => void;
+  onSelectMaterial: (material: JointMaterialLibraryItem) => void;
 }) {
   const [search, setSearch] = useState('');
+  const [materials, setMaterials] = useState<JointMaterialLibraryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const response = await fetch('/api/joint-materials');
+        const data = (await response.json()) as JointMaterialLibraryItem[];
+        if (!cancelled) {
+          setMaterials(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (!cancelled) {
+          setMaterials([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredLibrary = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return MATERIAL_LIBRARY;
-    return MATERIAL_LIBRARY.filter((material) => {
-      return (
-        material.name.toLowerCase().includes(query) ||
-        material.categoryId.toLowerCase().includes(query)
-      );
+    if (!query) return materials;
+    return materials.filter((material) => {
+      return material.name.toLowerCase().includes(query);
     });
-  }, [search]);
+  }, [materials, search]);
 
   const showSolidFill = !search.trim() || 'solid fill'.includes(search.trim().toLowerCase());
 
@@ -42,7 +68,7 @@ export function JointMaterialPickerModal({
           <div className={styles.modalTitleRow}>
             <div>
               <h2 className={styles.modalTitle}>Choose Joint Material</h2>
-              <p className={styles.modalDescription}>Select a solid fill or reuse a material from the shared library.</p>
+              <p className={styles.modalDescription}>Select a solid fill or use images uploaded in the joints asset folder.</p>
             </div>
             <button className={styles.iconButton} type="button" onClick={onClose} aria-label="Close joint material picker">
               ✕
@@ -79,36 +105,34 @@ export function JointMaterialPickerModal({
             </section>
           ) : null}
 
-          {MATERIAL_CATEGORIES.map((category) => {
-            const materials = filteredLibrary.filter((material) => material.categoryId === category.id);
-            if (!materials.length) return null;
-            return (
-              <section key={category.id} className={styles.modalSection}>
-                <h3 className={styles.modalSectionTitle}>{category.displayName}</h3>
-                <div className={styles.optionGrid}>
-                  {materials.map((material) => (
-                    <button
-                      key={material.id}
-                      className={`${styles.optionButton} ${currentMaterialId === material.id && !isSolidFill ? styles.optionButtonActive : ''}`}
-                      type="button"
-                      onClick={() => {
-                        onSelectMaterial(material);
-                        onClose();
-                      }}
-                    >
-                      <MaterialThumb color={material.swatchColor} src={getMaterialThumbnailUrl(material)} alt={material.name} />
-                      <div>
-                        <div className={styles.optionName}>{material.name}</div>
-                        <div className={styles.optionMeta}>
-                          {material.defaults.width} × {material.defaults.height} mm
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
+          <section className={styles.modalSection}>
+            <h3 className={styles.modalSectionTitle}>Joint Assets</h3>
+            {loading ? (
+              <div className={styles.hint}>Loading joint materials…</div>
+            ) : filteredLibrary.length === 0 ? (
+              <div className={styles.hint}>No joint materials found in `assets/joints` yet.</div>
+            ) : (
+              <div className={styles.optionGrid}>
+                {filteredLibrary.map((material) => (
+                  <button
+                    key={material.id}
+                    className={`${styles.optionButton} ${currentAssetPath === material.renderPath && !isSolidFill ? styles.optionButtonActive : ''}`}
+                    type="button"
+                    onClick={() => {
+                      onSelectMaterial(material);
+                      onClose();
+                    }}
+                  >
+                    <MaterialThumb color="#d8d3ca" src={`/api/assets/${material.thumbnailPath}`} alt={material.name} />
+                    <div>
+                      <div className={styles.optionName}>{material.name}</div>
+                      <div className={styles.optionMeta}>{material.renderPath.split('/').slice(-2).join('/')}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </Modal>

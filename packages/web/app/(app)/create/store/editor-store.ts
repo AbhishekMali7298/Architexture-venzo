@@ -9,8 +9,9 @@ import type {
   PatternCategory,
   PatternOrientation,
   EdgeStyle,
-  MaterialDefinition,
   ImageAdjustments,
+  MaterialAssetRef,
+  MaterialDefinition,
 } from '@textura/shared';
 import { getMaterialById, getPatternByType } from '@textura/shared';
 import {
@@ -79,7 +80,7 @@ export interface EditorState {
 
   // Joints
   setJointTint: (tint: string | null) => void;
-  setJointMaterialDefinition: (material: MaterialDefinition | null) => void;
+  setJointMaterialAsset: (asset: MaterialAssetRef | null) => void;
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
@@ -322,11 +323,11 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-    setJointMaterialDefinition: (definition) =>
+    setJointMaterialAsset: (asset) =>
       set((s) => {
-        pushHistory(s, `Joint material → ${definition?.name ?? 'Solid Fill'}`);
-        s.config.joints.materialSource = definition
-          ? cloneMaterialSource(definition.source)
+        pushHistory(s, `Joint material → ${asset?.path ?? 'Solid Fill'}`);
+        s.config.joints.materialSource = asset
+          ? { type: 'image', asset, fallbackColor: '#e8e6e0' }
           : { type: 'solid', color: '#e8e6e0' };
         bumpRender(s);
       }),
