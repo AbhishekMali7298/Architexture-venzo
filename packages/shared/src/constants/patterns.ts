@@ -58,7 +58,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'stack_bond',
     category: 'brick_bond',
-    rowColMode: 'module',
+    rowColMode: 'grid',
     displayName: 'Stack',
     description: 'Bricks stacked directly on top of each other',
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',

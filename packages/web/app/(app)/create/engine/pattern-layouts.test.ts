@@ -94,6 +94,21 @@ describe('pattern layouts', () => {
     expect(getPatternLayout(wider).totalWidth).toBeGreaterThan(getPatternLayout(base).totalWidth);
   });
 
+  it('uses horizontal and vertical joint sizes directly for stack bond', () => {
+    const config = createPatternConfig('stack_bond');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.joints.horizontalSize = 12;
+    config.joints.verticalSize = 18;
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.repeatWidth).toBe(4 * (400 + 18));
+    expect(layout.repeatHeight).toBe(6 * (100 + 12));
+  });
+
   it('starts running bond on the offset row so the first visible course clips at the frame edge', () => {
     const config = createPatternConfig('running_bond');
     config.materials[0]!.width = 400;

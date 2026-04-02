@@ -60,7 +60,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
 
       profile: null,
       finish: null,
-      toneVariation: 42,
+      toneVariation: 0,
       randomiseFillAngle: false,
 
       placement: {
