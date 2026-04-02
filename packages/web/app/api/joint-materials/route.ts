@@ -32,6 +32,14 @@ function titleize(value: string) {
     .join(' ');
 }
 
+function normalizeJointBaseName(fileName: string) {
+  return path
+    .parse(fileName)
+    .name
+    .replace(/[-_](thumb|thumbnail|preview|main|albedo|original|texture)$/i, '')
+    .toLowerCase();
+}
+
 function pickPreferredFile(files: string[], preferredBaseNames: string[]) {
   for (const preferredBaseName of preferredBaseNames) {
     const match = files.find((file) => path.parse(file).name.toLowerCase() === preferredBaseName);
@@ -44,6 +52,34 @@ export async function GET() {
   try {
     const entries = await fs.readdir(JOINTS_ROOT, { withFileTypes: true });
     const materials = [];
+    const rootFiles = entries.filter((entry) => entry.isFile() && isImageFile(entry.name)).map((entry) => entry.name);
+
+    const groupedRootFiles = new Map<string, string[]>();
+    for (const file of rootFiles) {
+      const baseName = normalizeJointBaseName(file);
+      const existing = groupedRootFiles.get(baseName) ?? [];
+      existing.push(file);
+      groupedRootFiles.set(baseName, existing);
+    }
+
+    for (const [baseName, files] of groupedRootFiles.entries()) {
+      const thumbnailFile =
+        pickPreferredFile(files, [`${baseName}-thumb`, `${baseName}-thumbnail`, `${baseName}-preview`]) ??
+        pickPreferredFile(files, [`${baseName}-main`, `${baseName}-albedo`, `${baseName}-original`, `${baseName}-texture`]) ??
+        files[0]!;
+
+      const renderFile =
+        pickPreferredFile(files, [`${baseName}-main`, `${baseName}-albedo`, `${baseName}-original`, `${baseName}-texture`]) ??
+        thumbnailFile;
+
+      materials.push({
+        id: baseName,
+        name: titleize(baseName),
+        thumbnailPath: `joints/${thumbnailFile}`,
+        renderPath: `joints/${renderFile}`,
+        mimeType: getContentType(renderFile),
+      });
+    }
 
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
