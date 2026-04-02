@@ -163,6 +163,12 @@
   border-color: rgba(0, 0, 0, 1);
 }
 
+.patternSelectionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  gap: 10px;
+}
+
 .selectionText {
   min-width: 0;
   text-align: left;
@@ -192,6 +198,36 @@
   grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
   gap: 10px;
   align-items: end;
+}
+
+.patternOrientationButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 54px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.72);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.patternOrientationButton:hover {
+  border-color: rgba(0, 0, 0, 1);
+  color: #000;
+}
+
+.patternOrientationButtonActive {
+  border-color: rgba(0, 0, 0, 1);
+  background: rgba(37, 48, 69, 0.06);
+  color: #000;
+}
+
+.patternOrientationIcon {
+  width: 22px;
+  height: 22px;
 }
 
 .jointLinkButton {

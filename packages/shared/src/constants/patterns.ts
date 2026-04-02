@@ -64,7 +64,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,0h40M0,16h40M0,32h40M0,0v32M10,0v32M20,0v32M30,0v32M40,0v32',
     previewAssetPath: 'patterns/stack_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 90, step: 90 } },
     defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {

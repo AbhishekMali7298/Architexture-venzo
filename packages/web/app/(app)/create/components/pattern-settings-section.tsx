@@ -2,6 +2,7 @@
 
 import { getPatternByType, type PatternType } from '@textura/shared';
 import { getPatternPreviewUrl } from '../lib/pattern-assets';
+import { isVerticalPatternOrientation, supportsPatternOrientationToggle } from '../lib/pattern-orientation';
 import type { PatternFieldSchema } from '../lib/pattern-sidebar-schema';
 import { NumberField, SectionCard } from './field-controls';
 import { PatternThumb } from './pattern-thumb';
@@ -21,6 +22,7 @@ export function PatternSettingsSection({
   onRowsChange,
   onColumnsChange,
   onAngleChange,
+  onToggleOrientation,
   onStretchersChange,
   onWeavesChange,
 }: {
@@ -37,11 +39,14 @@ export function PatternSettingsSection({
   onRowsChange: (value: number) => void;
   onColumnsChange: (value: number) => void;
   onAngleChange: (value: number) => void;
+  onToggleOrientation: () => void;
   onStretchersChange: (value: number) => void;
   onWeavesChange: (value: number) => void;
 }) {
   const pattern = getPatternByType(patternType);
   if (!pattern) return null;
+  const showOrientationToggle = supportsPatternOrientationToggle(patternType);
+  const isVerticalOrientation = isVerticalPatternOrientation(angle);
   const fieldValueMap = {
     rows,
     columns,
@@ -68,18 +73,55 @@ export function PatternSettingsSection({
 
   return (
     <SectionCard title="Pattern">
-      <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
-        <span className={styles.selectionText}>
-          <span className={styles.selectionLabel}>{pattern.displayName}</span>
-          <span className={styles.selectionMeta}>{pattern.description}</span>
-        </span>
-        <PatternThumb
-          path={pattern.previewPath}
-          src={getPatternPreviewUrl(pattern)}
-          alt={pattern.displayName}
-          size={64}
-        />
-      </button>
+      <div className={showOrientationToggle ? styles.patternSelectionRow : undefined}>
+        <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
+          <span className={styles.selectionText}>
+            <span className={styles.selectionLabel}>{pattern.displayName}</span>
+            <span className={styles.selectionMeta}>{pattern.description}</span>
+          </span>
+          <PatternThumb
+            path={pattern.previewPath}
+            src={getPatternPreviewUrl(pattern)}
+            alt={pattern.displayName}
+            size={64}
+          />
+        </button>
+
+        {showOrientationToggle ? (
+          <button
+            className={`${styles.patternOrientationButton} ${isVerticalOrientation ? styles.patternOrientationButtonActive : ''}`}
+            type="button"
+            onClick={onToggleOrientation}
+            aria-label={isVerticalOrientation ? 'Switch to horizontal stack' : 'Switch to vertical stack'}
+            title={isVerticalOrientation ? 'Switch to horizontal stack' : 'Switch to vertical stack'}
+          >
+            <svg
+              className={styles.patternOrientationIcon}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {isVerticalOrientation ? (
+                <>
+                  <rect x="4" y="4" width="4" height="16" rx="1.5" />
+                  <rect x="10" y="4" width="4" height="16" rx="1.5" />
+                  <rect x="16" y="4" width="4" height="16" rx="1.5" />
+                </>
+              ) : (
+                <>
+                  <rect x="4" y="4" width="16" height="4" rx="1.5" />
+                  <rect x="4" y="10" width="16" height="4" rx="1.5" />
+                  <rect x="4" y="16" width="16" height="4" rx="1.5" />
+                </>
+              )}
+            </svg>
+          </button>
+        ) : null}
+      </div>
 
       {numericFields.length > 0 ? (
         <div className={styles.gridTwo}>

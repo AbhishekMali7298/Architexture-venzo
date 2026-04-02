@@ -32,6 +32,11 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
   switch (type) {
     case 'none':
       return [];
+    case 'stack_bond':
+      return [
+        { id: 'rows', label: rowLabel },
+        { id: 'columns', label: columnLabel },
+      ] satisfies PatternFieldSchema[];
     case 'stretcher_bond':
       return [
         { id: 'rows', label: rowLabel },

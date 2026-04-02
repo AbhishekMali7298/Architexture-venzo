@@ -12,6 +12,11 @@ import type {
   ImageAdjustments,
 } from '@textura/shared';
 import { getMaterialById, getPatternByType } from '@textura/shared';
+import {
+  isVerticalPatternOrientation,
+  supportsPatternOrientationToggle,
+  togglePatternOrientationAngle,
+} from '../lib/pattern-orientation';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 import { applyPatternTypeSelection, sanitizePatternConfig } from './pattern-config-utils';
 
@@ -56,6 +61,7 @@ export interface EditorState {
   setPatternRows: (rows: number) => void;
   setPatternColumns: (columns: number) => void;
   setPatternAngle: (angle: number) => void;
+  togglePatternOrientation: () => void;
   setPatternStretchers: (stretchers: number) => void;
   setPatternWeaves: (weaves: number) => void;
 
@@ -163,6 +169,18 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Angle → ${angle}°`);
         s.config.pattern.angle = ((angle % 360) + 360) % 360;
+        bumpRender(s);
+      }),
+
+    togglePatternOrientation: () =>
+      set((s) => {
+        if (!supportsPatternOrientationToggle(s.config.pattern.type)) {
+          return;
+        }
+
+        const nextAngle = togglePatternOrientationAngle(s.config.pattern.angle);
+        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(nextAngle) ? 'Vertical' : 'Horizontal'}`);
+        s.config.pattern.angle = nextAngle;
         bumpRender(s);
       }),
 

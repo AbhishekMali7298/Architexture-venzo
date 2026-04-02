@@ -31,6 +31,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
+    expect(schema.fields.map((field) => field.id)).not.toContain('angle');
     expect(schema.rowsMeaning).toContain('visible stacked brick courses');
     expect(schema.columnsMeaning).toContain('visible stacked bricks');
   });

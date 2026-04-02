@@ -40,6 +40,7 @@ export default function CreatePage() {
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setPatternAngle = useEditorStore((state) => state.setPatternAngle);
+  const togglePatternOrientation = useEditorStore((state) => state.togglePatternOrientation);
   const setPatternStretchers = useEditorStore((state) => state.setPatternStretchers);
   const setPatternWeaves = useEditorStore((state) => state.setPatternWeaves);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
@@ -205,6 +206,7 @@ export default function CreatePage() {
           onRowsChange={setPatternRows}
           onColumnsChange={setPatternColumns}
           onAngleChange={setPatternAngle}
+          onToggleOrientation={togglePatternOrientation}
           onStretchersChange={setPatternStretchers}
           onWeavesChange={setPatternWeaves}
         />

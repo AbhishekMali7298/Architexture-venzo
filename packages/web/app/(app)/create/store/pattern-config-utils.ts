@@ -12,6 +12,7 @@ function applyPatternDefinition(
   config: TextureConfig,
   definition: PatternDefinition,
   activeMaterialIndex = 0,
+  options?: { preserveCurrentPatternSettings?: boolean },
 ) {
   const next = cloneConfig(config);
   const activeMaterial = next.materials[activeMaterialIndex] ?? next.materials[0];
@@ -25,17 +26,17 @@ function applyPatternDefinition(
     definition.parameterRanges.columns.max,
   );
   next.pattern.angle = clamp(
-    definition.defaults.angle,
+    options?.preserveCurrentPatternSettings ? next.pattern.angle : definition.defaults.angle,
     definition.parameterRanges.angle.min,
     definition.parameterRanges.angle.max,
   );
   next.pattern.stretchers = clamp(
-    definition.defaults.stretchers,
+    options?.preserveCurrentPatternSettings ? next.pattern.stretchers : definition.defaults.stretchers,
     definition.parameterRanges.stretchers?.min ?? definition.defaults.stretchers,
     definition.parameterRanges.stretchers?.max ?? definition.defaults.stretchers,
   );
   next.pattern.weaves = clamp(
-    definition.defaults.weaves,
+    options?.preserveCurrentPatternSettings ? next.pattern.weaves : definition.defaults.weaves,
     definition.parameterRanges.weaves?.min ?? definition.defaults.weaves,
     definition.parameterRanges.weaves?.max ?? definition.defaults.weaves,
   );
@@ -54,7 +55,7 @@ export function sanitizePatternConfig(config: TextureConfig): TextureConfig {
     return cloneConfig(config);
   }
 
-  return applyPatternDefinition(config, definition);
+  return applyPatternDefinition(config, definition, 0, { preserveCurrentPatternSettings: true });
 }
 
 export function applyPatternTypeSelection(

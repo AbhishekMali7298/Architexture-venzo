@@ -41,4 +41,19 @@ describe('pattern config utils', () => {
     expect(next.pattern.rows).toBe(1);
     expect(next.pattern.columns).toBe(1);
   });
+
+  it('preserves a saved stack orientation when sanitizing project config', () => {
+    const next = sanitizePatternConfig({
+      ...DEFAULT_TEXTURE_CONFIG,
+      pattern: {
+        ...DEFAULT_TEXTURE_CONFIG.pattern,
+        type: 'stack_bond',
+        category: 'brick_bond',
+        angle: 90,
+      },
+    });
+
+    expect(next.pattern.type).toBe('stack_bond');
+    expect(next.pattern.angle).toBe(90);
+  });
 });
