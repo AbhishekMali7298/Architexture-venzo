@@ -240,7 +240,9 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
   const halfOffset = stepX / 2;
 
   for (let row = 0; row < rows; row++) {
-    const isOffsetRow = row % 2 === 1;
+    // Start the bordered repeat on the offset course so the first visible row
+    // matches the authored "Common" reference layout.
+    const isOffsetRow = row % 2 === 0;
     const startColumn = isOffsetRow ? -1 : 0;
     const endColumn = isOffsetRow ? columns : columns - 1;
     const offset = isOffsetRow ? halfOffset : 0;

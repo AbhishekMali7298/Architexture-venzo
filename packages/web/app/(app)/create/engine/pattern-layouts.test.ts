@@ -94,6 +94,25 @@ describe('pattern layouts', () => {
     expect(getPatternLayout(wider).totalWidth).toBeGreaterThan(getPatternLayout(base).totalWidth);
   });
 
+  it('starts running bond on the offset row so the first visible course clips at the frame edge', () => {
+    const config = createPatternConfig('running_bond');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 2;
+    config.pattern.columns = 4;
+
+    const layout = getPatternLayout(config);
+    const firstRow = layout.tiles.filter((tile) => tile.y === 0);
+    const secondRow = layout.tiles.filter((tile) => tile.y === 100 + config.joints.horizontalSize);
+
+    expect(firstRow).toHaveLength(6);
+    expect(secondRow).toHaveLength(4);
+    expect(firstRow[0]?.x).toBeCloseTo(-(400 + config.joints.verticalSize) / 2);
+    expect(firstRow.at(-1)?.x).toBeCloseTo(4 * (400 + config.joints.verticalSize) + (400 + config.joints.verticalSize) / 2);
+    expect(secondRow[0]?.x).toBe(0);
+    expect(layout.totalWidth).toBe(4 * (400 + config.joints.verticalSize));
+  });
+
   it('uses the expected half-pair repeat width for flemish bond', () => {
     const config = createPatternConfig('flemish_bond');
     config.materials[0]!.width = 150;
