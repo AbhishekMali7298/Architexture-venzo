@@ -5,13 +5,24 @@ import { createPortal } from 'react-dom';
 
 export function Modal({ children, onClose }: { children: ReactNode; onClose: () => void }) {
   const [mounted, setMounted] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    const updateViewportWidth = () => setViewportWidth(window.innerWidth);
+    updateViewportWidth();
+    window.addEventListener('resize', updateViewportWidth);
+    return () => {
+      setMounted(false);
+      window.removeEventListener('resize', updateViewportWidth);
+    };
   }, []);
 
   if (!mounted) return null;
+
+  const isCompactViewport = viewportWidth !== null && viewportWidth < 900;
+  const modalMarginLeft = isCompactViewport ? 12 : 375;
+  const modalMarginTop = isCompactViewport ? 12 : 56;
 
   return createPortal(
     <div
@@ -31,9 +42,9 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
         onClick={e => e.stopPropagation()}
         style={{
           position: 'relative',
-          marginTop: 56,
-          marginLeft: '424px',
-          maxWidth: 'calc(100vw - 32px)',
+          marginTop: modalMarginTop,
+          marginLeft: `${modalMarginLeft}px`,
+          maxWidth: `calc(100vw - ${modalMarginLeft + 16}px)`,
         }}
       >
         <div
@@ -41,7 +52,7 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
           style={{
             position: 'absolute',
             left: -10,
-            top: 72,
+            top: isCompactViewport ? 56 : 72,
             width: 20,
             height: 20,
             background: 'rgba(255,255,255,0.98)',
