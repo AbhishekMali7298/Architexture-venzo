@@ -142,7 +142,7 @@ export function MaterialSettingsSection({
         }
       />
 
-      <div className={styles.gridTwo}>
+      <div className={styles.jointDimensionRow}>
         <NumberField
           label="Horizontal"
           value={jointHorizontal}
@@ -151,6 +151,25 @@ export function MaterialSettingsSection({
           unit={measurementUnit}
           onChange={onJointHorizontalChange}
         />
+        <button
+          className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
+          type="button"
+          aria-label={linkedJoints ? 'Unlock joint dimensions' : 'Lock joint dimensions'}
+          aria-pressed={linkedJoints}
+          onClick={() => onLinkedJointsChange(!linkedJoints)}
+        >
+          {linkedJoints ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="11" width="14" height="10" rx="2" />
+              <path d="M8 11V8a4 4 0 1 1 8 0v3" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="11" width="14" height="10" rx="2" />
+              <path d="M16 11V8a4 4 0 1 0-8 0" />
+            </svg>
+          )}
+        </button>
         <NumberField
           label="Vertical"
           value={jointVertical}
@@ -161,7 +180,6 @@ export function MaterialSettingsSection({
         />
       </div>
 
-      <CheckboxField label="Link joint dimensions" checked={linkedJoints} onChange={onLinkedJointsChange} />
       <CheckboxField label="Recess joints" checked={jointRecess} onChange={onJointRecessChange} />
       <CheckboxField label="Concave joints" checked={jointConcave} onChange={onJointConcaveChange} />
 
