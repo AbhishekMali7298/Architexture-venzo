@@ -174,10 +174,10 @@ export default function CreatePage() {
         onOpenSettings={() => setShowSettingsModal(true)}
         footer={
           <>
-            <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
-              Save
-            </button>
-            <div className={styles.secondaryRow}>
+            <div className={styles.footerActions}>
+              <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
+                Save
+              </button>
               <button className={styles.secondaryButton} type="button" onClick={handleReset}>
                 Reset
               </button>

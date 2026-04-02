@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  color: #111827;
+  color: #000;
 }
 
 .panel {
@@ -13,11 +13,11 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #FFF;
+  
+  
 }
 
 .panelHeader {
@@ -26,7 +26,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 18px 14px;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .brand {
@@ -40,8 +40,8 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 14px;
-  background: #253045;
+  border-radius: 5px;
+  background: #000;
   color: #fff;
   font-size: 13px;
   font-weight: 700;
@@ -61,7 +61,7 @@
 
 .brandSubtitle {
   font-size: 12px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .headerActions {
@@ -75,34 +75,34 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
-  color: #334155;
+  color: #000;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
 .iconButton:hover {
-  background: #f8fafc;
-  border-color: rgba(15, 23, 42, 0.18);
+  background: #FFF;
+  border-color: rgba(0, 0, 0, 1);
 }
 
 .tabBar {
   display: flex;
   gap: 6px;
   padding: 10px 14px 8px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   overflow-x: auto;
-  background: rgba(248, 250, 252, 0.72);
+  background: #FFF;
 }
 
 .tabButton {
   padding: 8px 10px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 5px;
   background: transparent;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -111,8 +111,8 @@
 }
 
 .tabButtonActive {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: #000;
+  color: #FFF;
 }
 
 .panelBody {
@@ -129,8 +129,8 @@
   gap: 12px;
   padding: 16px 18px;
   border: 0;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: transparent;
 }
 
@@ -153,14 +153,14 @@
   gap: 12px;
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
   cursor: pointer;
 }
 
 .selectionButton:hover {
-  border-color: rgba(15, 23, 42, 0.18);
+  border-color: rgba(0, 0, 0, 1);
 }
 
 .selectionText {
@@ -178,7 +178,7 @@
   display: block;
   margin-top: 2px;
   font-size: 13px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .gridTwo {
@@ -201,22 +201,22 @@
   width: 40px;
   height: 48px;
   margin-bottom: 1px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 16px;
-  background: rgba(250, 250, 249, 0.9);
-  color: #64748b;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #FFF;
+  color: rgba(0, 0, 0, 0.6);
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
 .jointLinkButton:hover {
-  border-color: rgba(15, 23, 42, 0.2);
+  border-color: rgba(0, 0, 0, 1);
   background: #fff;
 }
 
 .jointLinkButtonActive {
-  border-color: rgba(37, 48, 69, 0.22);
-  background: #eef2f7;
+  border-color: rgba(0, 0, 0, 1);
+  background: #FFF;
   color: #253045;
 }
 
@@ -230,7 +230,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
   text-transform: uppercase;
 }
 
@@ -239,10 +239,10 @@
   width: 100%;
   min-width: 0;
   padding: 12px 16px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 16px;
-  background: rgba(250, 250, 249, 0.9);
-  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #FFF;
+  color: #000;
   font-size: 16px;
 }
 
@@ -265,12 +265,12 @@
   right: 12px;
   transform: translateY(-50%);
   font-size: 11px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .hint {
   font-size: 11px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .sectionDivider {
@@ -288,7 +288,7 @@
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: #0f172a;
+  color: #000;
 }
 
 .colorFieldRow {
@@ -317,18 +317,18 @@
   height: 28px;
   transform: translateY(-50%);
   border: 2px solid rgba(255, 255, 255, 0.94);
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+  border-radius: 5px;
+  
   cursor: pointer;
 }
 
 .popoverCard {
   width: min(390px, calc(100vw - 40px));
   overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #FFF;
+  
 }
 
 .popoverHeader {
@@ -337,7 +337,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 18px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .popoverTitle {
@@ -349,7 +349,7 @@
 .popoverCloseButton {
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: rgba(0, 0, 0, 0.6);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -370,7 +370,7 @@
   position: relative;
   height: 260px;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 5px;
   cursor: crosshair;
 }
 
@@ -393,8 +393,8 @@
   width: 16px;
   height: 16px;
   border: 2px solid #fff;
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+  border-radius: 5px;
+  
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -402,7 +402,7 @@
 .colorHue {
   position: relative;
   height: 260px;
-  border-radius: 12px;
+  border-radius: 5px;
   background: linear-gradient(
     180deg,
     #ff0000 0%,
@@ -422,8 +422,8 @@
   width: calc(100% + 6px);
   height: 12px;
   border: 2px solid #fff;
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.25);
+  border-radius: 5px;
+  
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -443,16 +443,16 @@
   width: 46px;
   height: 46px;
   border: 2px solid rgba(255, 255, 255, 0.94);
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+  border-radius: 5px;
+  
 }
 
 .primaryOutlineButton {
   padding: 12px 22px;
-  border: 1px solid rgba(15, 23, 42, 0.75);
-  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
-  color: #171717;
+  color: #000;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -481,7 +481,7 @@
 .inlineAction {
   border: 0;
   background: transparent;
-  color: #334155;
+  color: #000;
   font-size: 13px;
   cursor: pointer;
 }
@@ -491,16 +491,16 @@
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: #0f172a;
+  color: #000;
 }
 
 .settingsModalCard {
   width: min(520px, calc(100vw - 32px));
   overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #FFF;
+  
 }
 
 .settingsModalHeader {
@@ -509,7 +509,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .settingsModalTitle {
@@ -524,15 +524,15 @@
   width: 36px;
   height: 36px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 5px;
   background: transparent;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
   cursor: pointer;
 }
 
 .settingsCloseButton:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #000;
 }
 
 .settingsModalBody {
@@ -558,7 +558,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
-  color: #334155;
+  color: #000;
 }
 
 .settingsSection {
@@ -566,7 +566,7 @@
   flex-direction: column;
   gap: 12px;
   padding-top: 20px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .settingsSectionTitle {
@@ -579,16 +579,22 @@
   flex-direction: column;
   gap: 8px;
   padding: 18px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: #FFF;
+}
+
+.footerActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 8px;
 }
 
 .primaryButton {
   width: 100%;
   padding: 16px 14px;
-  border: 1px solid rgba(15, 23, 42, 0.82);
-  border-radius: 18px;
-  background: #171717;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #000;
   color: #f8fafc;
   font-size: 15px;
   font-weight: 700;
@@ -601,20 +607,15 @@
   opacity: 0.56;
 }
 
-.secondaryRow {
-  display: flex;
-  gap: 8px;
-}
-
 .secondaryButton {
-  flex: 1;
-  padding: 10px 12px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 12px;
+  width: 100%;
+  padding: 16px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 600;
+  color: #000;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -628,14 +629,14 @@
   min-height: 18px;
   margin: 0;
   font-size: 11px;
-  color: #475569;
+  color: rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 
 .footerCopy {
   margin: 0;
   font-size: 11px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 
@@ -654,10 +655,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: #fff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
+  
 }
 
 .modalHeader {
@@ -665,7 +666,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 18px 20px 14px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .modalTitleRow {
@@ -682,7 +683,7 @@
 
 .modalDescription {
   font-size: 13px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .modalTools {
@@ -716,7 +717,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
   text-transform: uppercase;
 }
 
@@ -734,19 +735,19 @@
 
 .exportFormatButton {
   padding: 14px 12px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
-  color: #334155;
+  color: #000;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .exportFormatButtonActive {
-  border-color: #0f172a;
-  box-shadow: inset 0 0 0 1px #0f172a;
-  color: #0f172a;
+  border-color: #000;
+  
+  color: #000;
 }
 
 .optionButton {
@@ -755,21 +756,21 @@
   align-items: center;
   gap: 10px;
   padding: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   background: #fff;
   cursor: pointer;
   text-align: center;
 }
 
 .optionButton:hover {
-  border-color: rgba(15, 23, 42, 0.18);
-  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 1);
+  background: #FFF;
 }
 
 .optionButtonActive {
-  border-color: #0f172a;
-  box-shadow: inset 0 0 0 1px #0f172a;
+  border-color: #000;
+  
 }
 
 .optionName {
@@ -779,7 +780,7 @@
 
 .optionMeta {
   font-size: 11px;
-  color: #64748b;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .thumbFrame {
@@ -787,8 +788,8 @@
   place-items: center;
   width: 76px;
   height: 76px;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: linear-gradient(180deg, #fff, #f8fafc);
 }
 
