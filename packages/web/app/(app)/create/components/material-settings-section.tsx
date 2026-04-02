@@ -82,12 +82,12 @@ export function MaterialSettingsSection({
 
   return (
     <SectionCard title="Material">
-      <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
-        <span className={styles.selectionText}>
-          <span className={styles.selectionLabel}>{materialName}</span>
-          <span className={styles.selectionMeta}>{materialCategory}</span>
+      <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenPicker}>
+        <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+          <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{materialName}</span>
+          <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{materialCategory}</span>
         </span>
-        <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={64} />
+        <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact />
       </button>
 
       <div className={styles.gridTwo}>

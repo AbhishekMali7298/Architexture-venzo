@@ -8,9 +8,21 @@ function lighten(hex: string, amount: number): string {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
 }
 
-export function MaterialThumb({ color, src, alt, size = 76 }: { color: string; src?: string | null; alt?: string; size?: number }) {
+export function MaterialThumb({
+  color,
+  src,
+  alt,
+  size = 76,
+  compact = false,
+}: {
+  color: string;
+  src?: string | null;
+  alt?: string;
+  size?: number;
+  compact?: boolean;
+}) {
   return (
-    <div className={styles.thumbFrame}>
+    <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
       {src ? (
         <img
           src={src}

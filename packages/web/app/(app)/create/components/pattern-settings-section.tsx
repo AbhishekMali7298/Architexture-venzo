@@ -74,16 +74,17 @@ export function PatternSettingsSection({
   return (
     <SectionCard title="Pattern">
       <div className={showOrientationToggle ? styles.patternSelectionRow : undefined}>
-        <button className={styles.selectionButton} type="button" onClick={onOpenPicker}>
-          <span className={styles.selectionText}>
-            <span className={styles.selectionLabel}>{pattern.displayName}</span>
-            <span className={styles.selectionMeta}>{pattern.description}</span>
+        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenPicker}>
+          <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{pattern.displayName}</span>
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{pattern.description}</span>
           </span>
           <PatternThumb
             path={pattern.previewPath}
             src={getPatternPreviewUrl(pattern)}
             alt={pattern.displayName}
-            size={64}
+            size={36}
+            compact
           />
         </button>
 

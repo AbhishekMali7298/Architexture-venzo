@@ -232,7 +232,7 @@ function prepareBackgroundScene(
   const previewWidth = repeatWidth;
   const previewHeight = repeatHeight;
 
-  const panelWidth = 410;
+  const panelWidth = 380;
   const outerPadding = 40;
   const availableX = panelWidth + outerPadding;
   const availableY = outerPadding;

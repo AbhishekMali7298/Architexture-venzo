@@ -6,18 +6,20 @@ export function PatternThumb({
   src,
   alt,
   size = 76,
+  compact = false,
 }: {
   path: string;
   src?: string | null;
   alt?: string;
   size?: number;
+  compact?: boolean;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const imageSrc = src ?? undefined;
   const showImage = Boolean(imageSrc) && !imageFailed;
 
   return (
-    <div className={styles.thumbFrame}>
+    <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
       {showImage ? (
         <img
           src={imageSrc}
