@@ -1,28 +1,17 @@
 'use client';
 
-import type { EditorTab } from '@textura/shared';
 import type { ReactNode } from 'react';
 import styles from './create-editor.module.css';
 
 export function CreateEditorShell({
-  activeTab,
-  onTabChange,
   onOpenSettings,
   children,
   footer,
 }: {
-  activeTab: EditorTab;
-  onTabChange: (tab: EditorTab) => void;
   onOpenSettings: () => void;
   children: ReactNode;
   footer?: ReactNode;
 }) {
-  const tabs: { id: EditorTab; label: string }[] = [
-    { id: 'texture', label: 'Texture' },
-    { id: 'bump', label: 'Bump' },
-    { id: 'hatch', label: 'Hatch' },
-  ];
-
   return (
     <div className={styles.panel}>
       <header className={styles.panelHeader}>
@@ -42,19 +31,6 @@ export function CreateEditorShell({
           </button>
         </div>
       </header>
-
-      <nav className={styles.tabBar} aria-label="Texture editor tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabButtonActive : ''}`}
-            type="button"
-            onClick={() => onTabChange(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
 
       <div className={styles.panelBody}>{children}</div>
       {footer ? <footer className={styles.footer}>{footer}</footer> : null}

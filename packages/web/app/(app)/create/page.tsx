@@ -36,8 +36,6 @@ function decodeConfig(encoded: string): TextureConfig {
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
-  const activeTab = useEditorStore((state) => state.activeTab);
-  const setActiveTab = useEditorStore((state) => state.setActiveTab);
   const setPatternType = useEditorStore((state) => state.setPatternType);
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
@@ -182,8 +180,6 @@ export default function CreatePage() {
       <BackgroundCanvas />
 
       <CreateEditorShell
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onOpenSettings={() => setShowSettingsModal(true)}
         footer={
           <>
