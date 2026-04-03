@@ -216,29 +216,32 @@ function buildAssetProfileRectPath(
   height: number,
   profile: EdgeProfileData,
   seed: number,
+  perimeterScale: number,
 ) {
   const points: { x: number; y: number }[] = [];
+  const intensity = clamp(perimeterScale / 100, 0, 1);
   const aspectRatio = profile.intrinsicHeight / Math.max(profile.intrinsicWidth, 1);
-  const topDepth = clamp(width * aspectRatio * 0.92, 2, height * 0.42);
-  const sideDepth = clamp(height * aspectRatio * 0.92, 2, width * 0.42);
+  const repeatCount = 0.65 + intensity * 3.2;
+  const topDepth = clamp(height * aspectRatio * (0.9 + intensity * 0.7), 1.5, height * (0.1 + intensity * 0.08));
+  const sideDepth = clamp(height * aspectRatio * (0.7 + intensity * 0.55), 1.5, width * (0.025 + intensity * 0.02));
   const phase = (seed % 997) / 997;
   const topSamples = Math.max(profile.samples.length - 1, 18);
   const sideSamples = Math.max(Math.round(topSamples * (height / Math.max(width, 1))), 10);
 
   sampleEdge(points, topSamples, (t) => ({
     x: x + t * width,
-    y: y + topDepth * sampleWrappedProfile(profile.samples, phase + t),
+    y: y + topDepth * sampleWrappedProfile(profile.samples, phase + t * repeatCount),
   }));
   sampleEdge(points, sideSamples, (t) => ({
-    x: x + width - sideDepth * sampleWrappedProfile(profile.samples, phase + 0.23 + t),
+    x: x + width - sideDepth * sampleWrappedProfile(profile.samples, phase + 0.23 + t * repeatCount),
     y: y + t * height,
   }), true);
   sampleEdge(points, topSamples, (t) => ({
     x: x + width - t * width,
-    y: y + height - topDepth * sampleWrappedProfile(profile.samples, phase + 0.51 + t),
+    y: y + height - topDepth * sampleWrappedProfile(profile.samples, phase + 0.51 + t * repeatCount),
   }), true);
   sampleEdge(points, sideSamples, (t) => ({
-    x: x + sideDepth * sampleWrappedProfile(profile.samples, phase + 0.77 + t),
+    x: x + sideDepth * sampleWrappedProfile(profile.samples, phase + 0.77 + t * repeatCount),
     y: y + height - t * height,
   }), true);
 
@@ -263,7 +266,7 @@ function buildEdgeStyleClipPath(
   if (style === 'parged' && edgeProfiles?.length) {
     const profileIndex = hashTile(tile) % edgeProfiles.length;
     const selectedProfile = edgeProfiles[profileIndex]!;
-    return buildAssetProfileRectPath(x, y, width, height, selectedProfile, hashTile(tile));
+    return buildAssetProfileRectPath(x, y, width, height, selectedProfile, hashTile(tile), perimeterScale);
   }
 
   if (style === 'parged') {

@@ -85,4 +85,27 @@ describe('tile edge geometry', () => {
     expect(Math.min(...ys)).toBeGreaterThanOrEqual(box.tileY);
     expect(Math.max(...ys)).toBeLessThanOrEqual(box.tileY + box.tileHeight);
   });
+
+  it('changes parged asset wrapping when perimeter scale changes', () => {
+    const lowScaleConfig = createConfig();
+    lowScaleConfig.materials[0]!.edges.style = 'parged';
+    lowScaleConfig.materials[0]!.edges.perimeterScale = 5;
+
+    const highScaleConfig = createConfig();
+    highScaleConfig.materials[0]!.edges.style = 'parged';
+    highScaleConfig.materials[0]!.edges.perimeterScale = 90;
+
+    const lowScaleBox = getTileRenderBox(createTile(), lowScaleConfig, 1, {
+      edgeProfiles: [createEdgeProfile()],
+    });
+    const highScaleBox = getTileRenderBox(createTile(), highScaleConfig, 1, {
+      edgeProfiles: [createEdgeProfile()],
+    });
+
+    expect(lowScaleBox.clipPath).toBeDefined();
+    expect(highScaleBox.clipPath).toBeDefined();
+    expect(lowScaleBox.clipPath?.map((point) => `${point.x.toFixed(3)},${point.y.toFixed(3)}`)).not.toEqual(
+      highScaleBox.clipPath?.map((point) => `${point.x.toFixed(3)},${point.y.toFixed(3)}`),
+    );
+  });
 });
