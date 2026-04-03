@@ -182,22 +182,14 @@ export default function CreatePage() {
       <CreateEditorShell
         onOpenSettings={() => setShowSettingsModal(true)}
         footer={
-          <>
-            <div className={styles.footerActions}>
-              <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
-                Save
-              </button>
-              <button className={styles.secondaryButton} type="button" onClick={handleReset}>
-                Reset
-              </button>
-            </div>
-            <div className={styles.footerMeta}>
-              <p className={styles.statusText}>{footerStatus}</p>
-              <p className={styles.footerCopy}>
-                {lastSavedAt ? `Saved ${formatSavedAt(lastSavedAt)}.` : 'No local save yet.'}
-              </p>
-            </div>
-          </>
+          <div className={styles.footerActions}>
+            <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
+              Save
+            </button>
+            <button className={styles.secondaryButton} type="button" onClick={handleReset}>
+              Reset
+            </button>
+          </div>
         }
       >
         <PatternSettingsSection
