@@ -323,6 +323,42 @@ function drawPreparedLayout(
   ctx.restore();
 }
 
+function createRepeatTileSurface(
+  scene: PreparedBackgroundScene,
+  options?: {
+    materialImage?: CanvasImageSource | null;
+    jointMaterialImage?: CanvasImageSource | null;
+    edgeProfiles?: EdgeProfileData[] | null;
+  },
+) {
+  if (typeof document === 'undefined') return null;
+
+  const surface = document.createElement('canvas');
+  surface.width = Math.max(1, Math.ceil(scene.tileSetWidth));
+  surface.height = Math.max(1, Math.ceil(scene.tileSetHeight));
+
+  const surfaceCtx = surface.getContext('2d');
+  if (!surfaceCtx) return null;
+
+  fillMaterialSurface(surfaceCtx, {
+    x: 0,
+    y: 0,
+    width: surface.width,
+    height: surface.height,
+    radius: 0,
+    fallbackFill: scene.jointColor,
+    image: options?.jointMaterialImage,
+    tintColor: scene.config.joints.tint,
+  });
+
+  drawPreparedLayout(surfaceCtx, scene, 0, 0, {
+    materialImage: options?.materialImage,
+    edgeProfiles: options?.edgeProfiles,
+  });
+
+  return surface;
+}
+
 export function renderBackground(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
@@ -370,7 +406,24 @@ export function renderBackground(
     tintColor: config.joints.tint,
   });
 
-  if (options?.tileBackground === false) {
+  const repeatTileSurface = createRepeatTileSurface(scene, options);
+
+  if (repeatTileSurface) {
+    if (options?.tileBackground === false) {
+      ctx.drawImage(repeatTileSurface, scene.previewX, scene.previewY, scene.tileSetWidth, scene.tileSetHeight);
+    } else {
+      const stepX = Math.max(scene.tileSetWidth, 1);
+      const stepY = Math.max(scene.tileSetHeight, 1);
+      const startX = scene.previewX - Math.ceil(scene.previewX / stepX) * stepX;
+      const startY = scene.previewY - Math.ceil(scene.previewY / stepY) * stepY;
+
+      for (let y = startY; y < canvasHeight + stepY; y += stepY) {
+        for (let x = startX; x < canvasWidth + stepX; x += stepX) {
+          ctx.drawImage(repeatTileSurface, x, y, scene.tileSetWidth, scene.tileSetHeight);
+        }
+      }
+    }
+  } else if (options?.tileBackground === false) {
     drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);
   } else {
     const startX = scene.previewX - Math.ceil(scene.previewX / Math.max(scene.tileSetWidth, 1)) * scene.tileSetWidth;

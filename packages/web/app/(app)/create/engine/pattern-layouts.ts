@@ -1,6 +1,6 @@
 import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
-import { getCanonicalPatternRepeatBox, getPatternLayoutSource } from '../lib/pattern-repeat-semantics';
+import { getCanonicalPatternRepeatBox, getChevronRepeatPitch, getPatternLayoutSource, getPatternRepeatCounts, getSvgModuleScale } from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
   x: number;
@@ -142,22 +142,20 @@ function normalizeLayoutBounds(
 }
 
 function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
-  const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-  const refWidth = Math.max(module.referenceTileWidth, 1);
-  const refHeight = Math.max(module.referenceTileHeight, 1);
-  const scale = Math.max(0.01, Math.min(width / refWidth, height / refHeight));
-  const moduleWidth = module.viewBoxWidth * scale;
-  const moduleHeight = module.viewBoxHeight * scale;
-  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scale;
-  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scale;
+  const repeatCounts = getPatternRepeatCounts(config);
+  const { horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const { scaleX, scaleY } = getSvgModuleScale(config, module);
+  const moduleWidth = module.viewBoxWidth * scaleX;
+  const moduleHeight = module.viewBoxHeight * scaleY;
+  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scaleX;
+  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scaleY;
   const stepX = repeatWidth;
   const stepY = repeatHeight;
   const tiles: PatternTile[] = [];
   const strokes: PatternStroke[] = [];
 
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
+  for (let row = 0; row < repeatCounts.rows; row++) {
+    for (let column = 0; column < repeatCounts.columns; column++) {
       const offsetX = column * stepX;
       const offsetY = row * stepY;
 
@@ -176,15 +174,15 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
 
       for (const tile of module.tiles) {
         tiles.push({
-          x: offsetX + tile.x * scale,
-          y: offsetY + tile.y * scale,
-          width: tile.width * scale,
-          height: tile.height * scale,
+          x: offsetX + tile.x * scaleX,
+          y: offsetY + tile.y * scaleY,
+          width: tile.width * scaleX,
+          height: tile.height * scaleY,
           rotation: 0,
           materialIndex: 0,
           clipPath: tile.clipPath.map((point) => ({
-            x: point.x * scale,
-            y: point.y * scale,
+            x: point.x * scaleX,
+            y: point.y * scaleY,
           })),
         });
       }
@@ -192,11 +190,11 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
       for (const stroke of module.strokes) {
         strokes.push({
           points: stroke.points.map((point) => ({
-            x: offsetX + point.x * scale,
-            y: offsetY + point.y * scale,
+            x: offsetX + point.x * scaleX,
+            y: offsetY + point.y * scaleY,
           })),
           closed: stroke.closed,
-          width: scale,
+          width: (scaleX + scaleY) / 2,
         });
       }
     }
@@ -205,8 +203,8 @@ function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): P
   const canonicalRepeat = getCanonicalPatternRepeatBox(config);
 
   return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
-    width: canonicalRepeat?.repeatWidth ?? columns * repeatWidth,
-    height: canonicalRepeat?.repeatHeight ?? rows * repeatHeight,
+    width: canonicalRepeat?.repeatWidth ?? repeatCounts.columns * repeatWidth,
+    height: canonicalRepeat?.repeatHeight ?? repeatCounts.rows * repeatHeight,
   });
 }
 
@@ -425,15 +423,15 @@ function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutHerringbone(config: TextureConfig): PatternLayoutData {
-  const { rows, columns } = config.pattern;
+  const repeatCounts = getPatternRepeatCounts(config);
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const diagonalModule = Math.max(width, height) + Math.max(height, width * 0.25);
   const step = diagonalModule / 2;
   const tiles: PatternTile[] = [];
   const useOrthogonal = Math.abs((((angle % 180) + 180) % 180) - 90) < 0.001;
 
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
+  for (let row = 0; row < repeatCounts.rows; row++) {
+    for (let column = 0; column < repeatCounts.columns; column++) {
       const baseX = column * (diagonalModule + verticalJoint);
       const baseY = row * (diagonalModule + horizontalJoint);
 
@@ -484,15 +482,49 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
-  const clampedAngle = Math.max(5, Math.min(85, angle || 45));
+  const clampedAngle = Math.max(0, Math.min(45, angle || 30));
+  const safeAngle = Math.max(clampedAngle, 0.25);
   const angleRadians = (clampedAngle * Math.PI) / 180;
-  const pieceHeight = Math.max(height * 2, 1);
-  const mitreRise = Math.max(1, Math.min(pieceHeight, pieceWidth * Math.tan(angleRadians)));
-  const shoulderY = Math.max((pieceHeight - mitreRise) / 2, 0);
+  const safeAngleRadians = (safeAngle * Math.PI) / 180;
+  const rise = Math.max(0, pieceWidth * Math.tan(angleRadians));
+  const pieceHeight = Math.max(height + rise, 1);
+  const shoulderInset = Math.max(0, pieceWidth - height / Math.tan(safeAngleRadians));
+  const mirroredShoulderInset = Math.min(pieceWidth, height / Math.tan(safeAngleRadians));
   const canonicalRepeat = getCanonicalPatternRepeatBox(config);
-  const stepX = (canonicalRepeat?.repeatWidth ?? Math.max(columns, 1) * (width + verticalJoint)) / Math.max(columns, 1);
-  const stepY = (canonicalRepeat?.repeatHeight ?? Math.max(rows, 1) * (height + horizontalJoint)) / Math.max(rows, 1);
+  const pitch = getChevronRepeatPitch(config);
+  const stepX = (canonicalRepeat?.repeatWidth ?? Math.max(columns, 1) * pitch.width) / Math.max(columns, 1);
+  const stepY = (canonicalRepeat?.repeatHeight ?? Math.max(rows, 1) * pitch.height) / Math.max(rows, 1);
   const tiles: PatternTile[] = [];
+  const leftClipPath =
+    rise <= height
+      ? [
+          { x: 0, y: rise },
+          { x: pieceWidth, y: 0 },
+          { x: pieceWidth, y: height },
+          { x: 0, y: pieceHeight },
+        ]
+      : [
+          { x: shoulderInset, y: height },
+          { x: pieceWidth, y: 0 },
+          { x: pieceWidth, y: height },
+          { x: 0, y: pieceHeight },
+          { x: 0, y: rise },
+        ];
+  const rightClipPath =
+    rise <= height
+      ? [
+          { x: 0, y: 0 },
+          { x: pieceWidth, y: rise },
+          { x: pieceWidth, y: pieceHeight },
+          { x: 0, y: height },
+        ]
+      : [
+          { x: 0, y: 0 },
+          { x: mirroredShoulderInset, y: height },
+          { x: pieceWidth, y: rise },
+          { x: pieceWidth, y: pieceHeight },
+          { x: 0, y: height },
+        ];
 
   // Draw one bleed ring around the module so clipped edges tile seamlessly.
   for (let row = -1; row <= rows; row++) {
@@ -507,12 +539,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
         height: pieceHeight,
         rotation: 0,
         materialIndex: 0,
-        clipPath: [
-          { x: 0, y: height },
-          { x: pieceWidth, y: shoulderY },
-          { x: pieceWidth, y: shoulderY + height },
-          { x: 0, y: pieceHeight },
-        ],
+        clipPath: leftClipPath,
       });
       tiles.push({
         x: baseX + pieceWidth,
@@ -521,18 +548,11 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
         height: pieceHeight,
         rotation: 0,
         materialIndex: 0,
-        clipPath: [
-          { x: 0, y: shoulderY },
-          { x: pieceWidth, y: height },
-          { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: shoulderY + height },
-        ],
+        clipPath: rightClipPath,
       });
     }
   }
 
-  // Chevron pieces intentionally overlap adjacent rows; keep the repeat period
-  // tied to the user-facing module size so the border matches the editor controls.
   return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
     width: canonicalRepeat?.repeatWidth ?? columns * stepX,
     height: canonicalRepeat?.repeatHeight ?? rows * stepY,

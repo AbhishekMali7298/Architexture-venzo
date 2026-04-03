@@ -5,12 +5,13 @@ import { getPatternLayout } from '../engine/pattern-layouts';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
 import {
   getCanonicalPatternRepeatBox,
+  getChevronRepeatPitch,
   getPatternDimensionsHintSize,
+  getPatternRepeatCounts,
   resolvePatternRepeatFrame,
-  USE_SVG_CHEVRON_PARITY,
 } from './pattern-repeat-semantics';
 
-function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond'): TextureConfig {
+function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' | 'herringbone' | 'cubic'): TextureConfig {
   const pattern = getPatternByType(type);
   if (!pattern) {
     throw new Error(`Missing pattern definition for ${type}`);
@@ -93,8 +94,8 @@ describe('pattern repeat semantics', () => {
     const hint = getPatternDimensionsHintSize(config, layout);
 
     expect(canonical).toEqual({
-      repeatWidth: 3 * SVG_PATTERN_MODULES.flemish_bond.viewBoxWidth,
-      repeatHeight: 2 * SVG_PATTERN_MODULES.flemish_bond.viewBoxHeight,
+      repeatWidth: 2 * SVG_PATTERN_MODULES.flemish_bond.viewBoxWidth,
+      repeatHeight: SVG_PATTERN_MODULES.flemish_bond.viewBoxHeight,
     });
     expect(frame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(frame.repeatHeight).toBe(canonical?.repeatHeight);
@@ -104,18 +105,52 @@ describe('pattern repeat semantics', () => {
     });
   });
 
+  it('maps visible herringbone counts onto authored module repeat counts', () => {
+    const config = createPatternConfig('herringbone');
+    config.materials[0]!.width = SVG_PATTERN_MODULES.herringbone.referenceTileWidth;
+    config.materials[0]!.height = SVG_PATTERN_MODULES.herringbone.referenceTileHeight;
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+
+    const repeatCounts = getPatternRepeatCounts(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
+
+    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(canonical).toEqual({
+      repeatWidth: 2 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
+      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
+    });
+  });
+
+  it('maps visible cubic counts onto authored module repeat counts', () => {
+    const config = createPatternConfig('cubic');
+    config.materials[0]!.width = SVG_PATTERN_MODULES.cubic.referenceTileWidth;
+    config.materials[0]!.height = SVG_PATTERN_MODULES.cubic.referenceTileHeight;
+    config.pattern.rows = 6;
+    config.pattern.columns = 6;
+
+    const repeatCounts = getPatternRepeatCounts(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
+
+    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
+    expect(canonical).toEqual({
+      repeatWidth: 2 * (SVG_PATTERN_MODULES.cubic.repeatWidth ?? SVG_PATTERN_MODULES.cubic.viewBoxWidth),
+      repeatHeight: 3 * (SVG_PATTERN_MODULES.cubic.repeatHeight ?? SVG_PATTERN_MODULES.cubic.viewBoxHeight),
+    });
+  });
+
   it('keeps the chevron repeat frame stable while angle changes the piece geometry', () => {
     const shallow = createPatternConfig('chevron');
     shallow.pattern.rows = 2;
     shallow.pattern.columns = 3;
-    shallow.pattern.angle = 25;
+    shallow.pattern.angle = 1;
     shallow.materials[0]!.width = 400;
     shallow.materials[0]!.height = 100;
 
     const steep = createPatternConfig('chevron');
     steep.pattern.rows = 2;
     steep.pattern.columns = 3;
-    steep.pattern.angle = 65;
+    steep.pattern.angle = 30;
     steep.materials[0]!.width = 400;
     steep.materials[0]!.height = 100;
 
@@ -124,40 +159,24 @@ describe('pattern repeat semantics', () => {
     const shallowFrame = resolvePatternRepeatFrame(shallow, shallowLayout);
     const steepFrame = resolvePatternRepeatFrame(steep, steepLayout);
     const canonical = getCanonicalPatternRepeatBox(shallow);
+    const shallowPitch = getChevronRepeatPitch(shallow);
 
-    expect(canonical).toEqual(
-      USE_SVG_CHEVRON_PARITY
-        ? {
-            repeatWidth:
-              3
-              * (SVG_PATTERN_MODULES.chevron.repeatWidth ?? SVG_PATTERN_MODULES.chevron.viewBoxWidth)
-              * Math.min(400 / SVG_PATTERN_MODULES.chevron.referenceTileWidth, 100 / SVG_PATTERN_MODULES.chevron.referenceTileHeight),
-            repeatHeight:
-              2
-              * (SVG_PATTERN_MODULES.chevron.repeatHeight ?? SVG_PATTERN_MODULES.chevron.viewBoxHeight)
-              * Math.min(400 / SVG_PATTERN_MODULES.chevron.referenceTileWidth, 100 / SVG_PATTERN_MODULES.chevron.referenceTileHeight),
-          }
-        : {
-            repeatWidth: 3 * (400 + shallow.joints.verticalSize),
-            repeatHeight: 2 * (100 + shallow.joints.horizontalSize),
-          },
-    );
+    expect(canonical).toEqual({
+      repeatWidth: shallow.pattern.columns * shallowPitch.width,
+      repeatHeight: shallow.pattern.rows * shallowPitch.height,
+    });
     expect(shallowFrame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(shallowFrame.repeatHeight).toBe(canonical?.repeatHeight);
     expect(steepFrame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(steepFrame.repeatHeight).toBe(canonical?.repeatHeight);
 
-    if (USE_SVG_CHEVRON_PARITY) {
-      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
-      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
-      expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
-    } else {
-      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
-      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
-      expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
-      expect(shallowLayout.totalHeight).toBeGreaterThan(shallowFrame.repeatHeight);
-      expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
-    }
+    expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+    expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
+    expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
+    expect(shallowLayout.totalHeight).toBeGreaterThan(shallowFrame.repeatHeight);
+    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+    expect(shallowFrame.previewOutline).toBeUndefined();
+    expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
       width: Math.round(shallowFrame.repeatWidth),

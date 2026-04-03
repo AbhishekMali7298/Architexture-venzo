@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { USE_SVG_CHEVRON_PARITY } from './pattern-repeat-semantics';
 import { getPatternSidebarSchema } from './pattern-sidebar-schema';
 
 describe('pattern sidebar schema', () => {
@@ -36,10 +35,13 @@ describe('pattern sidebar schema', () => {
     expect(schema.columnsMeaning).toContain('visible stacked bricks');
   });
 
-  it('uses module wording for svg-module patterns', () => {
+  it('keeps plain row and column labels for svg-module patterns', () => {
     const schema = getPatternSidebarSchema('cubic');
     expect(schema.layoutSource).toBe('svg-module');
-    expect(schema.fields[0]?.label).toContain('Module');
+    expect(schema.fields[0]?.label).toBe('Rows');
+    expect(schema.fields[1]?.label).toBe('Columns');
+    expect(schema.rowsMeaning).toContain('2 visible rows');
+    expect(schema.columnsMeaning).toContain('3 visible columns');
   });
 
   it('surfaces weaves for basketweave', () => {
@@ -63,11 +65,11 @@ describe('pattern sidebar schema', () => {
   it('describes chevron rows and columns as repeat modules while keeping simple field labels', () => {
     const schema = getPatternSidebarSchema('chevron');
 
-    expect(schema.rowsMeaning).toContain('repeat one chevron band module');
-    expect(schema.columnsMeaning).toContain('mirrored chevron pair module');
+    expect(schema.rowsMeaning).toContain('visible chevron bands');
+    expect(schema.columnsMeaning).toContain('visible chevron pairs');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
-    expect(schema.layoutSource).toBe(USE_SVG_CHEVRON_PARITY ? 'svg-module' : 'procedural');
-    expect(schema.angleMeaning).toContain(USE_SVG_CHEVRON_PARITY ? 'cosmetic' : 'procedural');
+    expect(schema.layoutSource).toBe('procedural');
+    expect(schema.angleMeaning).toContain('rectangular repeat frame');
   });
 });
