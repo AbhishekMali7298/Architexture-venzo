@@ -3,6 +3,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { buildTilePathData, computePatternRenderFrame, getTileRenderBox, polygonPathData } from '../engine/render-geometry';
 import { getJointRenderableColor, getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
+import { isAssetBackedEdgeStyle } from './edge-style-assets';
 
 function escapeXml(value: string) {
   return value
@@ -133,6 +134,9 @@ export async function buildVectorPdf(config: TextureConfig) {
   const definition = material?.definitionId ? getMaterialById(material.definitionId) : null;
   const imageUrl = material ? getMaterialRenderableImageUrl(material, definition) : null;
   if (imageUrl) {
+    return null;
+  }
+  if (material && isAssetBackedEdgeStyle(material.edges.style)) {
     return null;
   }
 

@@ -6,6 +6,7 @@ import { useEditorStore } from '../store/editor-store';
 import { drawDottedBorder, renderBackground } from '../engine/background-renderer';
 import { getMaterialRenderableImageUrl, getMaterialSourceRenderableImageUrl } from '../lib/material-assets';
 import { useMaterialImage } from '../lib/material-image-cache';
+import { useEdgeProfiles } from '../lib/edge-profile-cache';
 
 export function BackgroundCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,6 +20,7 @@ export function BackgroundCanvas() {
   const materialImage = useMaterialImage(materialImageUrl);
   const jointMaterialImageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
   const jointMaterialImage = useMaterialImage(jointMaterialImageUrl);
+  const edgeProfiles = useEdgeProfiles(primaryMaterial.edges.style);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,6 +44,7 @@ export function BackgroundCanvas() {
         materialImage,
         jointMaterialImage,
         tileBackground,
+        edgeProfiles,
       });
 
       if (previewBounds && showBorder) {
@@ -59,7 +62,7 @@ export function BackgroundCanvas() {
     render();
     window.addEventListener('resize', render);
     return () => window.removeEventListener('resize', render);
-  }, [config, renderVersion, materialImage, jointMaterialImage, showBorder, tileBackground]);
+  }, [config, renderVersion, materialImage, jointMaterialImage, showBorder, tileBackground, edgeProfiles]);
 
   return (
     <canvas

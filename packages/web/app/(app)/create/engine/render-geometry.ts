@@ -2,6 +2,7 @@ import type { TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternTile } from './pattern-layouts';
 import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
+import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 export interface PatternRenderFrame {
   layout: ReturnType<typeof getPatternLayout>;
@@ -24,6 +25,10 @@ export interface TileRenderBox {
   tileHeight: number;
   cornerRadius: number;
   clipPath?: { x: number; y: number }[];
+}
+
+export interface TileRenderOptions {
+  edgeProfiles?: EdgeProfileData[] | null;
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -181,18 +186,89 @@ function buildIrregularRectPath(
   return points;
 }
 
+function hashTile(tile: PatternTile) {
+  let hash = 2166136261;
+  const values = [tile.x, tile.y, tile.width, tile.height, tile.rotation, tile.materialIndex];
+  for (const value of values) {
+    const normalized = Math.round(value * 100);
+    hash ^= normalized;
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function sampleWrappedProfile(samples: number[], t: number) {
+  if (samples.length === 0) return 0;
+  const wrapped = ((t % 1) + 1) % 1;
+  const scaled = wrapped * (samples.length - 1);
+  const lowerIndex = Math.floor(scaled);
+  const upperIndex = Math.min(samples.length - 1, Math.ceil(scaled));
+  const fraction = scaled - lowerIndex;
+  const lower = samples[lowerIndex] ?? 0;
+  const upper = samples[upperIndex] ?? lower;
+  return lower + (upper - lower) * fraction;
+}
+
+function buildAssetProfileRectPath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  profile: EdgeProfileData,
+  seed: number,
+) {
+  const points: { x: number; y: number }[] = [];
+  const aspectRatio = profile.intrinsicHeight / Math.max(profile.intrinsicWidth, 1);
+  const topDepth = clamp(width * aspectRatio * 0.92, 2, height * 0.42);
+  const sideDepth = clamp(height * aspectRatio * 0.92, 2, width * 0.42);
+  const phase = (seed % 997) / 997;
+  const topSamples = Math.max(profile.samples.length - 1, 18);
+  const sideSamples = Math.max(Math.round(topSamples * (height / Math.max(width, 1))), 10);
+
+  sampleEdge(points, topSamples, (t) => ({
+    x: x + t * width,
+    y: y + topDepth * sampleWrappedProfile(profile.samples, phase + t),
+  }));
+  sampleEdge(points, sideSamples, (t) => ({
+    x: x + width - sideDepth * sampleWrappedProfile(profile.samples, phase + 0.23 + t),
+    y: y + t * height,
+  }), true);
+  sampleEdge(points, topSamples, (t) => ({
+    x: x + width - t * width,
+    y: y + height - topDepth * sampleWrappedProfile(profile.samples, phase + 0.51 + t),
+  }), true);
+  sampleEdge(points, sideSamples, (t) => ({
+    x: x + sideDepth * sampleWrappedProfile(profile.samples, phase + 0.77 + t),
+    y: y + height - t * height,
+  }), true);
+
+  return points;
+}
+
 function buildEdgeStyleClipPath(
-  style: TextureConfig['materials'][number]['edges']['style'],
+  style: string,
   x: number,
   y: number,
   width: number,
   height: number,
   perimeterScale: number,
   profileWidth: number,
+  tile: PatternTile,
+  edgeProfiles?: EdgeProfileData[] | null,
 ) {
   const intensity = clamp(perimeterScale / 100, 0, 1);
   const profile = clamp(profileWidth / 100, 0, 1);
   const minDimension = Math.max(1, Math.min(width, height));
+
+  if (style === 'parged' && edgeProfiles?.length) {
+    const profileIndex = hashTile(tile) % edgeProfiles.length;
+    const selectedProfile = edgeProfiles[profileIndex]!;
+    return buildAssetProfileRectPath(x, y, width, height, selectedProfile, hashTile(tile));
+  }
+
+  if (style === 'parged') {
+    return undefined;
+  }
 
   switch (style) {
     case 'handmade':
@@ -361,6 +437,7 @@ export function getTileRenderBox(
   tile: PatternTile,
   config: TextureConfig,
   scale: number,
+  options?: TileRenderOptions,
 ): TileRenderBox {
   const applyInset = tile.applyJointInset !== false;
   const tileX = applyInset ? (config.joints.verticalSize * scale) / 2 : 0;
@@ -389,6 +466,8 @@ export function getTileRenderBox(
         tileHeight,
         material?.edges.perimeterScale ?? 0,
         material?.edges.profileWidth ?? 0,
+        tile,
+        options?.edgeProfiles,
       );
 
   return {
@@ -456,8 +535,9 @@ export function buildTilePathData(
   tile: PatternTile,
   config: TextureConfig,
   scale: number,
+  options?: TileRenderOptions,
 ) {
-  const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale);
+  const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale, options);
   if (clipPath?.length) {
     return polygonPathData(clipPath);
   }

@@ -3,6 +3,7 @@ import type { TextureConfig } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
 import type { PatternTile } from './pattern-layouts';
 import { getTileRenderBox } from './render-geometry';
+import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 function createConfig(): TextureConfig {
   return JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
@@ -16,6 +17,15 @@ function createTile(): PatternTile {
     height: 100,
     rotation: 0,
     materialIndex: 0,
+  };
+}
+
+function createEdgeProfile(): EdgeProfileData {
+  return {
+    sourceUrl: '/api/assets/edges/parged/test.png',
+    intrinsicWidth: 300,
+    intrinsicHeight: 27,
+    samples: [0.2, 0.75, 0.45, 1, 0.35, 0.6, 0.15],
   };
 }
 
@@ -53,6 +63,23 @@ describe('tile edge geometry', () => {
     const ys = (box.clipPath ?? []).map((point) => point.y);
 
     expect(box.clipPath?.length ?? 0).toBeGreaterThan(12);
+    expect(Math.min(...xs)).toBeGreaterThanOrEqual(box.tileX);
+    expect(Math.max(...xs)).toBeLessThanOrEqual(box.tileX + box.tileWidth);
+    expect(Math.min(...ys)).toBeGreaterThanOrEqual(box.tileY);
+    expect(Math.max(...ys)).toBeLessThanOrEqual(box.tileY + box.tileHeight);
+  });
+
+  it('uses uploaded profile assets for parged edges', () => {
+    const config = createConfig();
+    config.materials[0]!.edges.style = 'parged';
+
+    const box = getTileRenderBox(createTile(), config, 1, {
+      edgeProfiles: [createEdgeProfile()],
+    });
+    const xs = (box.clipPath ?? []).map((point) => point.x);
+    const ys = (box.clipPath ?? []).map((point) => point.y);
+
+    expect(box.clipPath?.length ?? 0).toBeGreaterThan(24);
     expect(Math.min(...xs)).toBeGreaterThanOrEqual(box.tileX);
     expect(Math.max(...xs)).toBeLessThanOrEqual(box.tileX + box.tileWidth);
     expect(Math.min(...ys)).toBeGreaterThanOrEqual(box.tileY);

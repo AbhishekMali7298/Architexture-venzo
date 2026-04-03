@@ -9,6 +9,7 @@ import {
 } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
+import { resolveEdgeProfiles } from './edge-profile-cache';
 
 function downloadUrl(url: string, filename: string) {
   const anchor = document.createElement('a');
@@ -74,7 +75,8 @@ async function renderExportCanvas(config: TextureConfig) {
 
   const materialImage = await resolvePreviewMaterialImage(config);
   const jointMaterialImage = await resolvePreviewJointMaterialImage(config);
-  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, jointMaterialImage });
+  const edgeProfiles = await resolveEdgeProfiles(config.materials[0]?.edges.style ?? 'none');
+  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, jointMaterialImage, edgeProfiles });
   return canvas;
 }
 
@@ -94,7 +96,8 @@ function createMapCanvas(config: TextureConfig) {
 export async function exportAlbedoPng(config: TextureConfig) {
   const { canvas, ctx } = createMapCanvas(config);
   const materialImage = await resolvePreviewMaterialImage(config);
-  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage });
+  const edgeProfiles = await resolveEdgeProfiles(config.materials[0]?.edges.style ?? 'none');
+  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, edgeProfiles });
   downloadUrl(canvas.toDataURL('image/png'), `textura-albedo-${createSlug(config.pattern.type)}.png`);
 }
 

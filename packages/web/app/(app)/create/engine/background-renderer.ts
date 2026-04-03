@@ -6,6 +6,7 @@ import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { drawJointRelief } from './joint-relief';
 import { getTileRenderBox } from './render-geometry';
+import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 function seededRng(seed: number) {
   let s = seed >>> 0;
@@ -44,6 +45,7 @@ function drawTile(
   recessJoints?: boolean,
   concaveJoints?: boolean,
   jointShadowOpacity?: number,
+  edgeProfiles?: EdgeProfileData[] | null,
 ) {
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
@@ -52,7 +54,7 @@ function drawTile(
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
   const { tileX: insetX, tileY: insetY, tileWidth: drawWidth, tileHeight: drawHeight, cornerRadius: radius, clipPath } =
-    getTileRenderBox(tile, config, scale);
+    getTileRenderBox(tile, config, scale, { edgeProfiles });
   const edgeStyle = (config.materials[tile.materialIndex] ?? config.materials[0])?.edges.style ?? 'none';
 
   const traceTilePath = () => {
@@ -264,7 +266,7 @@ function drawPreparedLayout(
   scene: PreparedBackgroundScene,
   offsetX: number,
   offsetY: number,
-  options?: { materialImage?: CanvasImageSource | null },
+  options?: { materialImage?: CanvasImageSource | null; edgeProfiles?: EdgeProfileData[] | null },
 ) {
   const rng = seededRng(0x9e3779b9);
 
@@ -299,6 +301,7 @@ function drawPreparedLayout(
       scene.recessJoints,
       scene.concaveJoints,
       scene.shadowOpacity,
+      options?.edgeProfiles,
     );
   }
 
@@ -329,6 +332,7 @@ export function renderBackground(
     materialImage?: CanvasImageSource | null;
     jointMaterialImage?: CanvasImageSource | null;
     tileBackground?: boolean;
+    edgeProfiles?: EdgeProfileData[] | null;
   },
 ): { x: number; y: number; width: number; height: number; outline?: ReadonlyArray<{ x: number; y: number }> } | null {
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);

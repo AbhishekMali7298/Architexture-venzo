@@ -4,6 +4,7 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, getTileRenderBox } from './render-geometry';
 import { drawJointRelief } from './joint-relief';
+import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 export interface RenderedJoint {
   x1: number;
@@ -43,7 +44,11 @@ export function renderToCanvas(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null; jointMaterialImage?: CanvasImageSource | null },
+  options?: {
+    materialImage?: CanvasImageSource | null;
+    jointMaterialImage?: CanvasImageSource | null;
+    edgeProfiles?: EdgeProfileData[] | null;
+  },
 ): void {
   const frame = computePatternRenderFrame(config, canvasWidth, canvasHeight);
   const layout = { ...frame.layout, joints: [] };
@@ -113,7 +118,9 @@ export function renderToCanvas(
       ctx.translate(-(tile.width * scale) / 2, -(tile.height * scale) / 2);
     }
 
-    const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale);
+    const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale, {
+      edgeProfiles: options?.edgeProfiles,
+    });
     fillMaterialSurface(ctx, {
       x: tileX,
       y: tileY,
