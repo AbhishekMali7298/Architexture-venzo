@@ -2,7 +2,11 @@
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/pattern-renderer';
-import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
+import {
+  getMaterialRenderableColor,
+  getMaterialRenderableImageUrl,
+  getMaterialSourceRenderableImageUrl,
+} from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
 
@@ -42,6 +46,17 @@ async function resolvePreviewMaterialImage(config: TextureConfig): Promise<HTMLI
   }
 }
 
+async function resolvePreviewJointMaterialImage(config: TextureConfig): Promise<HTMLImageElement | null> {
+  const imageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
+  if (!imageUrl) return null;
+
+  try {
+    return await loadMaterialImage(imageUrl);
+  } catch {
+    return null;
+  }
+}
+
 export async function exportPreviewPng(config: TextureConfig) {
   const canvas = await renderExportCanvas(config);
   downloadUrl(canvas.toDataURL('image/png'), `textura-preview-${createSlug(config.pattern.type)}.png`);
@@ -58,7 +73,8 @@ async function renderExportCanvas(config: TextureConfig) {
   }
 
   const materialImage = await resolvePreviewMaterialImage(config);
-  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage });
+  const jointMaterialImage = await resolvePreviewJointMaterialImage(config);
+  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, jointMaterialImage });
   return canvas;
 }
 

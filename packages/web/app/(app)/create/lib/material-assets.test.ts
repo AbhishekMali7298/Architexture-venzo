@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyImageAdjustmentsToColor, getJointRenderableColor } from './material-assets';
+import {
+  applyImageAdjustmentsToColor,
+  getJointRenderableColor,
+  getMaterialSourceRenderableImageUrl,
+} from './material-assets';
 
 describe('material asset color helpers', () => {
   it('darkens colors when brightness is reduced', () => {
@@ -27,5 +31,18 @@ describe('material asset color helpers', () => {
 
     expect(base).not.toBe('#FFFFFF');
     expect(adjusted).not.toBe(base);
+  });
+
+  it('resolves image-backed joint materials to a renderable asset URL', () => {
+    expect(
+      getMaterialSourceRenderableImageUrl({
+        type: 'image',
+        asset: {
+          path: 'joints/adobe-main.jpg',
+          mimeType: 'image/jpeg',
+        },
+        fallbackColor: '#b87352',
+      }),
+    ).toBe('/api/assets/joints/adobe-main.jpg');
   });
 });

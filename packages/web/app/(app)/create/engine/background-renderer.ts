@@ -245,11 +245,8 @@ function prepareBackgroundScene(
   const toneVariation = material.toneVariation;
   const jointH = config.joints.horizontalSize;
   const jointV = config.joints.verticalSize;
-  const jointReliefStrength = (config.joints.recess ? 0.08 : 0) + (config.joints.concave ? 0.06 : 0);
   const jointColorBase = getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
-  const jointColor = jointReliefStrength > 0
-    ? mixHexColors(jointColorBase, '#000000', Math.min(0.24, jointReliefStrength + config.joints.shadowOpacity / 600))
-    : jointColorBase;
+  const jointColor = jointColorBase;
 
   const layout = getPatternLayout(config);
   if (!layout.tiles.length) return null;
@@ -369,13 +366,25 @@ export function renderBackground(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null; tileBackground?: boolean },
+  options?: {
+    materialImage?: CanvasImageSource | null;
+    jointMaterialImage?: CanvasImageSource | null;
+    tileBackground?: boolean;
+  },
 ): { x: number; y: number; width: number; height: number; outline?: ReadonlyArray<{ x: number; y: number }> } | null {
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
   if (!scene) return null;
 
-  ctx.fillStyle = scene.jointColor;
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  fillMaterialSurface(ctx, {
+    x: 0,
+    y: 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    radius: 0,
+    fallbackFill: scene.jointColor,
+    image: options?.jointMaterialImage,
+    tintColor: config.joints.tint,
+  });
 
   if (options?.tileBackground === false) {
     drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);

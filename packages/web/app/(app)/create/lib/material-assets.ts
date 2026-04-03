@@ -79,6 +79,18 @@ export function getMaterialRenderableImageUrl(
   return getAssetUrl(getMaterialRenderableAsset(material, definition));
 }
 
+export function getMaterialSourceRenderableAsset(source: MaterialSource): MaterialAssetRef | null {
+  if (source.type === 'image' || source.type === 'generated') {
+    return source.asset ?? null;
+  }
+
+  return null;
+}
+
+export function getMaterialSourceRenderableImageUrl(source: MaterialSource): string | null {
+  return getAssetUrl(getMaterialSourceRenderableAsset(source));
+}
+
 export function getMaterialRenderableColor(source: MaterialSource, fallback = '#b8b0a8'): string {
   switch (source.type) {
     case 'solid':

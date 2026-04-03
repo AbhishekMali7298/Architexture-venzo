@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
-import { getJointRenderableColor, getMaterialRenderableColor, mixHexColors } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, fitClipPathToTile, getTileRenderBox } from './render-geometry';
 import { drawJointRelief } from './joint-relief';
@@ -43,7 +43,7 @@ export function renderToCanvas(
   config: TextureConfig,
   canvasWidth: number,
   canvasHeight: number,
-  options?: { materialImage?: CanvasImageSource | null },
+  options?: { materialImage?: CanvasImageSource | null; jointMaterialImage?: CanvasImageSource | null },
 ): void {
   const frame = computePatternRenderFrame(config, canvasWidth, canvasHeight);
   const layout = { ...frame.layout, joints: [] };
@@ -53,19 +53,17 @@ export function renderToCanvas(
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   const jointColor = getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
-  const effectiveJointColor =
-    config.joints.recess || config.joints.concave
-      ? mixHexColors(
-          jointColor,
-          '#000000',
-          Math.min(
-            0.24,
-            (config.joints.recess ? 0.08 : 0) + (config.joints.concave ? 0.06 : 0) + config.joints.shadowOpacity / 600,
-          ),
-        )
-      : jointColor;
-  ctx.fillStyle = effectiveJointColor;
-  ctx.fillRect(offsetX, offsetY, repeatWidth * scale, repeatHeight * scale);
+  const effectiveJointColor = jointColor;
+  fillMaterialSurface(ctx, {
+    x: offsetX,
+    y: offsetY,
+    width: repeatWidth * scale,
+    height: repeatHeight * scale,
+    radius: 0,
+    fallbackFill: effectiveJointColor,
+    image: options?.jointMaterialImage,
+    tintColor: config.joints.tint,
+  });
 
   ctx.save();
   ctx.beginPath();
@@ -195,7 +193,7 @@ export function renderToCanvas(
   }
 
   const shadowOpacity = config.joints.shadowOpacity / 100;
-  if (shadowOpacity > 0) {
+  if (shadowOpacity > 0 && (config.joints.recess || config.joints.concave)) {
     ctx.strokeStyle = `rgba(0,0,0,${shadowOpacity * 0.4})`;
     ctx.lineWidth = Math.max(1, config.joints.horizontalSize * scale * 0.5);
 
