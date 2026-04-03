@@ -5,6 +5,7 @@ import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { drawJointRelief } from './joint-relief';
+import { getTileRenderBox } from './render-geometry';
 
 function seededRng(seed: number) {
   let s = seed >>> 0;
@@ -28,17 +29,15 @@ function rgbAdjust([r, g, b]: [number, number, number], delta: number): string {
 function drawTile(
   ctx: CanvasRenderingContext2D,
   tile: PatternTile,
+  config: TextureConfig,
   x: number,
   y: number,
   width: number,
   height: number,
   rotation: number,
-  edgeStyle: string,
   baseRgb: [number, number, number],
   toneVariation: number,
   rng: () => number,
-  jointH: number,
-  jointV: number,
   scale: number,
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
@@ -46,30 +45,19 @@ function drawTile(
   concaveJoints?: boolean,
   jointShadowOpacity?: number,
 ) {
-  const applyInset = tile.applyJointInset !== false;
-  const insetX = applyInset ? (jointV * scale) / 2 : 0;
-  const insetY = applyInset ? (jointH * scale) / 2 : 0;
-  const drawWidth = Math.max(0, applyInset ? width * scale - jointV * scale : width * scale);
-  const drawHeight = Math.max(0, applyInset ? height * scale - jointH * scale : height * scale);
-
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
   ctx.rotate((rotation * Math.PI) / 180);
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
   const delta = (rng() - 0.5) * toneVariation * 1.5;
-  const radius =
-    edgeStyle === 'handmade'
-      ? 3 * scale
-      : edgeStyle === 'rough'
-        ? 5 * scale
-        : edgeStyle === 'fine'
-          ? 1.5 * scale
-          : 0;
+  const { tileX: insetX, tileY: insetY, tileWidth: drawWidth, tileHeight: drawHeight, cornerRadius: radius, clipPath } =
+    getTileRenderBox(tile, config, scale);
+  const edgeStyle = (config.materials[tile.materialIndex] ?? config.materials[0])?.edges.style ?? 'none';
 
   const traceTilePath = () => {
-    if (tile.clipPath?.length) {
-      tracePolygonPath(ctx, fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight));
+    if (clipPath?.length) {
+      tracePolygonPath(ctx, clipPath);
       return;
     }
 
@@ -93,7 +81,7 @@ function drawTile(
     fallbackFill: tileFill,
     image: materialImage,
     tintColor,
-    clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, insetX, insetY, drawWidth, drawHeight) : undefined,
+    clipPath,
     imageDrawBox: materialImage
       ? {
         x: insetX,
@@ -163,6 +151,7 @@ function drawTile(
 }
 
 interface PreparedBackgroundScene {
+  config: TextureConfig;
   layout: ReturnType<typeof getPatternLayout>;
   scale: number;
   tileSetWidth: number;
@@ -176,7 +165,6 @@ interface PreparedBackgroundScene {
   verticalOrientation: boolean;
   jointH: number;
   jointV: number;
-  edgeStyle: string;
   baseRgb: [number, number, number];
   toneVariation: number;
   jointColor: string;
@@ -204,32 +192,6 @@ function traceStrokePath(
   if (stroke.closed) ctx.closePath();
 }
 
-function fitClipPathToTile(
-  clipPath: ReadonlyArray<{ x: number; y: number }>,
-  scale: number,
-  tileX: number,
-  tileY: number,
-  tileWidth: number,
-  tileHeight: number,
-) {
-  const scaledPoints = clipPath.map((point) => ({
-    x: point.x * scale,
-    y: point.y * scale,
-  }));
-
-  const minX = Math.min(...scaledPoints.map((point) => point.x));
-  const maxX = Math.max(...scaledPoints.map((point) => point.x));
-  const minY = Math.min(...scaledPoints.map((point) => point.y));
-  const maxY = Math.max(...scaledPoints.map((point) => point.y));
-  const sourceWidth = Math.max(maxX - minX, 1);
-  const sourceHeight = Math.max(maxY - minY, 1);
-
-  return scaledPoints.map((point) => ({
-    x: tileX + ((point.x - minX) / sourceWidth) * tileWidth,
-    y: tileY + ((point.y - minY) / sourceHeight) * tileHeight,
-  }));
-}
-
 function prepareBackgroundScene(
   config: TextureConfig,
   canvasWidth: number,
@@ -241,7 +203,6 @@ function prepareBackgroundScene(
   const sourceColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b8b0a8');
   const baseColor = material.tint ? mixHexColors(sourceColor, material.tint, 0.88) : sourceColor;
   const baseRgb = hexToRgb(baseColor);
-  const edgeStyle = material.edges.style;
   const toneVariation = material.toneVariation;
   const jointH = config.joints.horizontalSize;
   const jointV = config.joints.verticalSize;
@@ -273,6 +234,7 @@ function prepareBackgroundScene(
   const previewY = availableY + (availableHeight - scaledPreviewHeight) / 2;
 
   return {
+    config,
     layout,
     scale,
     tileSetWidth,
@@ -287,7 +249,6 @@ function prepareBackgroundScene(
     jointH,
     jointV,
     jointColor,
-    edgeStyle,
     baseRgb,
     toneVariation,
     tintColor: material.tint,
@@ -323,17 +284,15 @@ function drawPreparedLayout(
     drawTile(
       ctx,
       tile,
+      scene.config,
       drawOffsetX + tile.x * scene.scale,
       drawOffsetY + tile.y * scene.scale,
       tile.width,
       tile.height,
       tile.rotation,
-      scene.edgeStyle,
       scene.baseRgb,
       scene.toneVariation,
       rng,
-      scene.jointH,
-      scene.jointV,
       scene.scale,
       scene.tintColor,
       options?.materialImage,

@@ -50,6 +50,8 @@ export default function CreatePage() {
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
+  const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
+  const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const setJointTint = useEditorStore((state) => state.setJointTint);
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
@@ -236,6 +238,8 @@ export default function CreatePage() {
           dimensionHint={patternSidebarSchema.dimensionsMeaning}
           toneVariation={material.toneVariation}
           edgeStyle={material.edges.style}
+          edgeScale={material.edges.perimeterScale}
+          edgeProfileWidth={material.edges.profileWidth}
           jointTint={config.joints.tint}
           jointMaterialName={jointMaterialName}
           jointMaterialColor={jointMaterialColor}
@@ -252,6 +256,8 @@ export default function CreatePage() {
           onHeightChange={setMaterialHeight}
           onToneVariationChange={setToneVariation}
           onEdgeStyleChange={setEdgeStyle}
+          onEdgeScaleChange={setEdgePerimeterScale}
+          onEdgeProfileWidthChange={setEdgeProfileWidth}
           onJointTintChange={setJointTint}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onJointHorizontalChange={setJointHorizontalSize}

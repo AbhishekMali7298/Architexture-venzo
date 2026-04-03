@@ -143,8 +143,8 @@ export async function buildVectorPdf(config: TextureConfig) {
     return null;
   }
   const canUseSimpleVectorPdf = frame.layout.tiles.every((tile) => {
-    const { cornerRadius } = getTileRenderBox(tile, config, frame.scale);
-    return !tile.clipPath?.length && cornerRadius === 0 && tile.rotation === 0;
+    const { cornerRadius, clipPath } = getTileRenderBox(tile, config, frame.scale);
+    return !clipPath?.length && cornerRadius === 0 && tile.rotation === 0;
   }) && frame.layout.strokes.length === 0;
   if (!canUseSimpleVectorPdf) {
     return null;

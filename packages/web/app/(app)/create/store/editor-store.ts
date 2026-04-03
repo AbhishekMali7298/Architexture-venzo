@@ -76,6 +76,8 @@ export interface EditorState {
   setMaterialWidth: (width: number) => void;
   setMaterialHeight: (height: number) => void;
   setEdgeStyle: (style: EdgeStyle) => void;
+  setEdgePerimeterScale: (scale: number) => void;
+  setEdgeProfileWidth: (width: number) => void;
   setToneVariation: (variation: number) => void;
 
   // Joints
@@ -300,6 +302,26 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.edges.style = style;
+        }
+        bumpRender(s);
+      }),
+
+    setEdgePerimeterScale: (scale) =>
+      set((s) => {
+        pushHistory(s, `Edge scale → ${scale}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (mat) {
+          mat.edges.perimeterScale = clamp(scale, 0, 100);
+        }
+        bumpRender(s);
+      }),
+
+    setEdgeProfileWidth: (width) =>
+      set((s) => {
+        pushHistory(s, `Edge width → ${width}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (mat) {
+          mat.edges.profileWidth = clamp(width, 0, 100);
         }
         bumpRender(s);
       }),

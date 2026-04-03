@@ -2,7 +2,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getPatternLayout, type PatternStroke, type PatternTile } from './pattern-layouts';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
-import { computePatternRenderFrame, fitClipPathToTile, getTileRenderBox } from './render-geometry';
+import { computePatternRenderFrame, getTileRenderBox } from './render-geometry';
 import { drawJointRelief } from './joint-relief';
 
 export interface RenderedJoint {
@@ -76,15 +76,15 @@ export function renderToCanvas(
   }
 
   const traceTilePath = (
+    clipPath: ReadonlyArray<{ x: number; y: number }> | undefined,
     tileX: number,
     tileY: number,
     tileWidth: number,
     tileHeight: number,
-    tile: PatternTile,
     cornerRadius: number,
   ) => {
-    if (tile.clipPath?.length) {
-      tracePolygonPath(ctx, fitClipPathToTile(tile.clipPath, scale, tileX, tileY, tileWidth, tileHeight));
+    if (clipPath?.length) {
+      tracePolygonPath(ctx, clipPath);
       return;
     }
 
@@ -113,8 +113,7 @@ export function renderToCanvas(
       ctx.translate(-(tile.width * scale) / 2, -(tile.height * scale) / 2);
     }
 
-    const applyInset = tile.applyJointInset !== false;
-    const { tileX, tileY, tileWidth, tileHeight, cornerRadius } = getTileRenderBox(tile, config, scale);
+    const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale);
     fillMaterialSurface(ctx, {
       x: tileX,
       y: tileY,
@@ -123,7 +122,7 @@ export function renderToCanvas(
       radius: cornerRadius,
       fallbackFill: tileColor,
       image: options?.materialImage,
-      clipPath: tile.clipPath ? fitClipPathToTile(tile.clipPath, scale, tileX, tileY, tileWidth, tileHeight) : undefined,
+      clipPath,
     });
 
     if (options?.materialImage) {
@@ -131,7 +130,7 @@ export function renderToCanvas(
       const variationStrength = Math.min(0.16, 0.02 + Math.abs(variationDelta) / 140);
       if (variationStrength > 0.001) {
         ctx.save();
-        traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
+        traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius);
         ctx.clip();
         ctx.fillStyle = variationDelta >= 0 ? '#ffffff' : '#000000';
         ctx.globalAlpha = variationStrength;
@@ -146,12 +145,12 @@ export function renderToCanvas(
     if (material.edges.style !== 'none' && !tile.skipEdgeStroke) {
       ctx.strokeStyle = 'rgba(0,0,0,0.12)';
       ctx.lineWidth = 1;
-      traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius);
+      traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius);
       ctx.stroke();
     }
 
     drawJointRelief(ctx, {
-      tracePath: () => traceTilePath(tileX, tileY, tileWidth, tileHeight, tile, cornerRadius),
+      tracePath: () => traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius),
       x: tileX,
       y: tileY,
       width: tileWidth,
