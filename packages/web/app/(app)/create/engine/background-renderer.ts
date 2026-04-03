@@ -334,6 +334,27 @@ export function renderBackground(
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
   if (!scene) return null;
 
+  if (config.pattern.type === 'none') {
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+      radius: 0,
+      fallbackFill: rgbAdjust(scene.baseRgb, 0),
+      image: options?.materialImage,
+      tintColor: scene.tintColor,
+    });
+
+    return {
+      x: scene.previewX,
+      y: scene.previewY,
+      width: Math.max(0, scene.previewWidth),
+      height: Math.max(0, scene.previewHeight),
+      outline: scene.outline,
+    };
+  }
+
   fillMaterialSurface(ctx, {
     x: 0,
     y: 0,
