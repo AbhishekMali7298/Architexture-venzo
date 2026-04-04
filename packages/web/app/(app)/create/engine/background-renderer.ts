@@ -216,11 +216,6 @@ function prepareBackgroundScene(
   const repeatFrame = resolvePatternRepeatFrame(config, layout);
   const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
   const previewWidth = repeatWidth;
-  // Use display hint if the layout provides one (e.g. chevron uses a larger
-  // reference area for zoom so the frame count is correct but tiles stay the
-  // same visual size when column count changes).
-  const displayWidth = layout.displayRepeatWidth ?? repeatWidth;
-  const displayHeight = layout.displayRepeatHeight ?? repeatHeight;
   const previewHeight = repeatHeight;
 
   const panelWidth = 380;
@@ -231,8 +226,7 @@ function prepareBackgroundScene(
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
 
   const scaleX = (availableWidth * 0.94) / Math.max(previewWidth, 1);
-  const scaleX = (availableWidth * 0.94) / Math.max(displayWidth, 1);
-  const scaleY = (availableHeight * 0.94) / Math.max(displayHeight, 1);
+  const scaleY = (availableHeight * 0.94) / Math.max(previewHeight, 1);
   const scale = Math.max(0.01, Math.min(scaleX, scaleY) * previewDensity);
   const tileSetHeight = repeatHeight * scale;
   const tileSetWidth = repeatWidth * scale;
@@ -417,31 +411,17 @@ export function renderBackground(
     tintColor: config.joints.tint,
   });
 
-  const repeatTileSurface = createRepeatTileSurface(scene, options);
+  const repeatTileSurface = options?.tileBackground === false ? createRepeatTileSurface(scene, options) : null;
 
-  if (repeatTileSurface) {
+  if (repeatTileSurface && options?.tileBackground === false) {
     const tileWidth = Math.max(1, repeatTileSurface.width);
     const tileHeight = Math.max(1, repeatTileSurface.height);
-
-    if (options?.tileBackground === false) {
-      ctx.drawImage(repeatTileSurface, previewX, previewY, tileWidth, tileHeight);
-    } else {
-      const stepX = tileWidth;
-      const stepY = tileHeight;
-      const startX = previewX - Math.ceil(previewX / stepX) * stepX;
-      const startY = previewY - Math.ceil(previewY / stepY) * stepY;
-
-      for (let y = startY; y < canvasHeight + stepY; y += stepY) {
-        for (let x = startX; x < canvasWidth + stepX; x += stepX) {
-          ctx.drawImage(repeatTileSurface, x, y, tileWidth, tileHeight);
-        }
-      }
-    }
+    ctx.drawImage(repeatTileSurface, previewX, previewY, tileWidth, tileHeight);
   } else if (options?.tileBackground === false) {
     drawPreparedLayout(ctx, scene, previewX, previewY, options);
   } else {
-    const stepX = Math.max(Math.round(scene.tileSetWidth), 1);
-    const stepY = Math.max(Math.round(scene.tileSetHeight), 1);
+    const stepX = Math.max(scene.tileSetWidth, 1);
+    const stepY = Math.max(scene.tileSetHeight, 1);
     const startX = previewX - Math.ceil(previewX / stepX) * stepX;
     const startY = previewY - Math.ceil(previewY / stepY) * stepY;
 

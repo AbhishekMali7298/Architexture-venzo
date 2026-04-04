@@ -487,54 +487,28 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
   const clampedAngle = Math.max(0, Math.min(45, angle || 30));
-  const safeAngle = Math.max(clampedAngle, 0.25);
   const angleRadians = (clampedAngle * Math.PI) / 180;
-  const safeAngleRadians = (safeAngle * Math.PI) / 180;
   const rise = Math.max(0, pieceWidth * Math.tan(angleRadians));
   const pieceHeight = Math.max(height + rise, 1);
-  const shoulderInset = Math.max(0, pieceWidth - height / Math.tan(safeAngleRadians));
-  const mirroredShoulderInset = Math.min(pieceWidth, height / Math.tan(safeAngleRadians));
   const pitch = getChevronRepeatPitch(config);
   const stepX = pitch.width;
   const stepY = pitch.height;
   const tiles: PatternTile[] = [];
-  const leftClipPath =
-    rise <= height
-      ? [
-          { x: 0, y: rise },
-          { x: pieceWidth, y: 0 },
-          { x: pieceWidth, y: height },
-          { x: 0, y: pieceHeight },
-        ]
-      : [
-          { x: shoulderInset, y: height },
-          { x: pieceWidth, y: 0 },
-          { x: pieceWidth, y: height },
-          { x: 0, y: pieceHeight },
-          { x: 0, y: rise },
-        ];
-  const rightClipPath =
-    rise <= height
-      ? [
-          { x: 0, y: 0 },
-          { x: pieceWidth, y: rise },
-          { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: height },
-        ]
-      : [
-          { x: 0, y: 0 },
-          { x: mirroredShoulderInset, y: height },
-          { x: pieceWidth, y: rise },
-          { x: pieceWidth, y: pieceHeight },
-          { x: 0, y: height },
-        ];
+  const leftClipPath = [
+    { x: 0, y: rise },
+    { x: pieceWidth, y: 0 },
+    { x: pieceWidth, y: height },
+    { x: 0, y: pieceHeight },
+  ];
+  const rightClipPath = [
+    { x: 0, y: 0 },
+    { x: pieceWidth, y: rise },
+    { x: pieceWidth, y: pieceHeight },
+    { x: 0, y: height },
+  ];
 
   // columns = V-pairs (each V made of a left + right piece).
-  // columns counts individual half-pieces (matching competitor semantics).
-  // columns=4 → 4 halves → 2 full V-pairs → frame = 2 × stepX.
-  // displayRepeatWidth preserves the original zoom density (columns × stepX) so tiles
-  // don't appear twice as large when the frame shrinks to the correct V-pair count.
-  const vPairs = Math.max(1, Math.floor(columns / 2));
+  const vPairs = Math.max(1, columns);
 
   // Draw one bleed ring around the visible repeat so the background tiles
   // seamlessly outside the bordered frame.

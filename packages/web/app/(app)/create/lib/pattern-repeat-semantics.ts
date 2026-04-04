@@ -45,10 +45,10 @@ export function getChevronRepeatPitch(config: TextureConfig) {
   const material = config.materials[0]!;
   const clampedAngle = Math.max(0, Math.min(45, config.pattern.angle ?? 0));
   const angleRadians = (clampedAngle * Math.PI) / 180;
-  const projectedJointHeight = config.joints.horizontalSize / Math.max(Math.cos(angleRadians), 0.01);
+  const projectedJointHeight = (config.joints.horizontalSize * 2) / Math.max(Math.cos(angleRadians), 0.01);
 
   return {
-    width: material.width + config.joints.verticalSize,
+    width: material.width + config.joints.verticalSize * 2,
     height: material.height + projectedJointHeight,
   };
 }
