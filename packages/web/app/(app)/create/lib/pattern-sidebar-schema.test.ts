@@ -3,11 +3,12 @@ import { PATTERN_CATALOG } from '@textura/shared';
 import { getPatternSidebarSchema } from './pattern-sidebar-schema';
 
 describe('pattern sidebar schema', () => {
-  it('uses svg-module layout source for every repeatable pattern', () => {
+  it('uses the expected layout source for every repeatable pattern', () => {
     const nonNonePatterns = PATTERN_CATALOG.filter((pattern) => pattern.type !== 'none');
 
     for (const pattern of nonNonePatterns) {
-      expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe('svg-module');
+      const expectedLayoutSource = pattern.type === 'chevron' || pattern.type === 'running_bond' ? 'procedural' : 'svg-module';
+      expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe(expectedLayoutSource);
     }
   });
 
@@ -27,7 +28,7 @@ describe('pattern sidebar schema', () => {
   it('keeps common pattern rows and columns as visible counts', () => {
     const schema = getPatternSidebarSchema('running_bond');
 
-    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.fields.map((field) => field.id)).toContain('stretchers');
@@ -82,7 +83,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.columnsMeaning).toContain('V-pair');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
-    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.map((field) => field.id)).toContain('angle');
   });
 });

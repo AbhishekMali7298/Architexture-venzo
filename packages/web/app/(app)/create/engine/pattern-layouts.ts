@@ -276,6 +276,11 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
     strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
+    repeatWidth: columns * stepX,
+    repeatHeight: rows * stepY,
+    repeatOffsetX: 0,
+    repeatOffsetY: 0,
+    previewOutline: undefined,
   };
 }
 

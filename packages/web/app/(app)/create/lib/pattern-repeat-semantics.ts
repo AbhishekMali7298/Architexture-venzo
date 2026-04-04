@@ -55,7 +55,7 @@ export function getChevronRepeatPitch(config: TextureConfig) {
 
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
-  running_bond: 'svg-module',
+  running_bond: 'procedural',
   stack_bond: 'svg-module',
   stretcher_bond: 'svg-module',
   flemish_bond: 'svg-module',
@@ -404,6 +404,13 @@ export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCoun
     return {
       rows: Math.max(1, config.pattern.rows),
       columns: Math.max(1, Math.ceil(config.pattern.columns / 2)),
+    };
+  }
+
+  if (config.pattern.type === 'running_bond') {
+    return {
+      rows: Math.max(1, config.pattern.rows),
+      columns: Math.max(1, config.pattern.columns),
     };
   }
 

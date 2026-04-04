@@ -234,16 +234,15 @@ describe('pattern layouts', () => {
     const baseLayout = getPatternLayout(base);
     const denserLayout = getPatternLayout(denser);
 
-    expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('svg-module');
+    expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('procedural');
     expect(baseLayout.repeatWidth).toBeCloseTo(denserLayout.repeatWidth ?? 0);
     expect(baseLayout.repeatHeight).toBeCloseTo(denserLayout.repeatHeight ?? 0);
     expect(baseLayout.totalWidth).toBeGreaterThanOrEqual(baseLayout.repeatWidth ?? 0);
     expect(baseLayout.totalHeight).toBeGreaterThanOrEqual(baseLayout.repeatHeight ?? 0);
   });
 
-  it('maps running-bond visible rows onto authored module repeat rows', () => {
+  it('maps running-bond visible rows and columns directly onto procedural repeat bounds', () => {
     const config = createPatternConfig('running_bond');
-    const module = SVG_PATTERN_MODULES.running_bond;
     config.pattern.rows = 6;
     config.pattern.columns = 2;
     config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
@@ -253,12 +252,12 @@ describe('pattern layouts', () => {
     const repeatCounts = getPatternRepeatCounts(config);
     const layout = getPatternLayout(config);
 
-    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
-    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (config.materials[0]!.width / 300) * 2);
-    expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * 3);
+    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(layout.repeatWidth).toBe((config.materials[0]!.width + config.joints.verticalSize) * 2);
+    expect(layout.repeatHeight).toBe((config.materials[0]!.height + config.joints.horizontalSize) * 6);
   });
 
-  it('matches running-bond authored module repeat at its current reference scale contract', () => {
+  it('matches running-bond procedural repeat at its current unit size contract', () => {
     const config = createPatternConfig('running_bond');
     const module = SVG_PATTERN_MODULES.running_bond;
     config.materials[0]!.width = module.referenceTileWidth;
@@ -268,13 +267,13 @@ describe('pattern layouts', () => {
 
     const layout = getPatternLayout(config);
 
-    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (module.referenceTileWidth / 300));
-    expect(layout.repeatHeight).toBe(module.repeatHeight ?? module.viewBoxHeight);
+    expect(layout.repeatWidth).toBe(module.referenceTileWidth + config.joints.verticalSize);
+    expect(layout.repeatHeight).toBe(module.referenceTileHeight + config.joints.horizontalSize);
     expect(layout.totalWidth).toBeGreaterThanOrEqual(layout.repeatWidth ?? 0);
     expect(layout.totalHeight).toBeGreaterThanOrEqual(layout.repeatHeight ?? 0);
   });
 
-  it('scales running-bond authored repeat counts with its special X scale', () => {
+  it('scales running-bond procedural repeat counts directly with visible rows and columns', () => {
     const config = createPatternConfig('running_bond');
     const module = SVG_PATTERN_MODULES.running_bond;
     config.materials[0]!.width = module.referenceTileWidth;
@@ -285,8 +284,8 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
     const repeatCounts = getPatternRepeatCounts(config);
 
-    expect(repeatCounts).toEqual({ rows: 1, columns: 3 });
-    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (module.referenceTileWidth / 300) * repeatCounts.columns);
-    expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * repeatCounts.rows);
+    expect(repeatCounts).toEqual({ rows: 2, columns: 3 });
+    expect(layout.repeatWidth).toBe((module.referenceTileWidth + config.joints.verticalSize) * repeatCounts.columns);
+    expect(layout.repeatHeight).toBe((module.referenceTileHeight + config.joints.horizontalSize) * repeatCounts.rows);
   });
 });
