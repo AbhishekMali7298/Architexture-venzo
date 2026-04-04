@@ -128,7 +128,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',
     previewAssetPath: 'patterns/chevron.svg',
     defaults: { rows: 6, columns: 4, angle: 30, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 70, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 45, step: 1 } },
     defaultUnitWidth: 400, defaultUnitHeight: 100,
   },
   {

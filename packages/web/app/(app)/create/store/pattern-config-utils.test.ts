@@ -72,4 +72,18 @@ describe('pattern config utils', () => {
     expect(next.pattern.rows).toBe(5);
     expect(next.pattern.columns).toBe(2);
   });
+
+  it('clamps chevron angle to the current live maximum', () => {
+    const next = sanitizePatternConfig({
+      ...DEFAULT_TEXTURE_CONFIG,
+      pattern: {
+        ...DEFAULT_TEXTURE_CONFIG.pattern,
+        type: 'chevron',
+        category: 'geometric',
+        angle: 60,
+      },
+    });
+
+    expect(next.pattern.angle).toBe(45);
+  });
 });

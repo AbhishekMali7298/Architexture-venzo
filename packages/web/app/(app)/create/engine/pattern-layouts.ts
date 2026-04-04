@@ -482,7 +482,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
-  const clampedAngle = Math.max(0, Math.min(70, angle || 30));
+  const clampedAngle = Math.max(0, Math.min(45, angle || 30));
   const safeAngle = Math.max(clampedAngle, 0.25);
   const angleRadians = (clampedAngle * Math.PI) / 180;
   const safeAngleRadians = (safeAngle * Math.PI) / 180;
