@@ -1,6 +1,5 @@
-import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
-import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
-import { getCanonicalPatternRepeatBox, getChevronRepeatPitch, getPatternRepeatCounts, getSvgModuleScale } from '../lib/pattern-repeat-semantics';
+import { type TextureConfig, type PatternType } from '@textura/shared';
+import { getChevronRepeatPitch } from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
   x: number;
@@ -145,72 +144,6 @@ function normalizeLayoutBounds(
   };
 }
 
-function layoutFromSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
-  const repeatCounts = getPatternRepeatCounts(config);
-  const { horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-  const { scaleX, scaleY } = getSvgModuleScale(config, module);
-  const moduleWidth = module.viewBoxWidth * scaleX;
-  const moduleHeight = module.viewBoxHeight * scaleY;
-  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scaleX;
-  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scaleY;
-  const stepX = repeatWidth;
-  const stepY = repeatHeight;
-  const tiles: PatternTile[] = [];
-  const strokes: PatternStroke[] = [];
-
-  for (let row = 0; row < repeatCounts.rows; row++) {
-    for (let column = 0; column < repeatCounts.columns; column++) {
-      const offsetX = column * stepX;
-      const offsetY = row * stepY;
-
-      if (module.tiles.length === 0 && module.strokes.length > 0) {
-        tiles.push({
-          x: offsetX,
-          y: offsetY,
-          width: moduleWidth,
-          height: moduleHeight,
-          rotation: 0,
-          materialIndex: 0,
-          applyJointInset: false,
-          skipEdgeStroke: true,
-        });
-      }
-
-      for (const tile of module.tiles) {
-        tiles.push({
-          x: offsetX + tile.x * scaleX,
-          y: offsetY + tile.y * scaleY,
-          width: tile.width * scaleX,
-          height: tile.height * scaleY,
-          rotation: 0,
-          materialIndex: 0,
-          clipPath: tile.clipPath.map((point) => ({
-            x: point.x * scaleX,
-            y: point.y * scaleY,
-          })),
-        });
-      }
-
-      for (const stroke of module.strokes) {
-        strokes.push({
-          points: stroke.points.map((point) => ({
-            x: offsetX + point.x * scaleX,
-            y: offsetY + point.y * scaleY,
-          })),
-          closed: stroke.closed,
-          width: (scaleX + scaleY) / 2,
-        });
-      }
-    }
-  }
-
-  const canonicalRepeat = getCanonicalPatternRepeatBox(config);
-
-  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
-    width: canonicalRepeat?.repeatWidth ?? repeatCounts.columns * repeatWidth,
-    height: canonicalRepeat?.repeatHeight ?? repeatCounts.rows * repeatHeight,
-  });
-}
 
 function layoutNone(config: TextureConfig): PatternLayoutData {
   const { width, height } = getMaterialMetrics(config);
@@ -947,32 +880,9 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
-  if (config.pattern.type === 'none') {
-    return layoutNone(config);
-  }
-
-  const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
-  const hasValidReferenceTile =
-    svgModule &&
-    Number.isFinite(svgModule.referenceTileWidth) &&
-    Number.isFinite(svgModule.referenceTileHeight) &&
-    svgModule.referenceTileWidth > 1 &&
-    svgModule.referenceTileHeight > 1;
-  const canUseSvgModule =
-    svgModule &&
-    hasValidReferenceTile &&
-    (svgModule.tiles.length > 0 || svgModule.strokes.length > 0) &&
-    svgModule.viewBoxWidth > 0 &&
-    svgModule.viewBoxHeight > 0;
-
-  if (canUseSvgModule) {
-    return layoutFromSvgModule(config, svgModule);
-  }
-
   const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
   if (proceduralLayout) {
     return proceduralLayout(config);
   }
-
   throw new Error(`No layout available for pattern: ${config.pattern.type}`);
 }

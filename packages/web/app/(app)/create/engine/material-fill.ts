@@ -37,6 +37,7 @@ function drawImageCover(
   width: number,
   height: number,
   imageDrawBox?: { x: number; y: number; width: number; height: number },
+  randomCropFraction?: { x: number; y: number },
 ) {
   const sourceWidth =
     image instanceof HTMLImageElement || image instanceof HTMLCanvasElement || image instanceof ImageBitmap
@@ -48,14 +49,27 @@ function drawImageCover(
       : height;
 
   const targetBox = imageDrawBox ?? { x, y, width, height };
-  const scale = Math.max(
+  // When random crop is requested, scale image 1.4× so there is always
+  // overshoot to shift within — the clip path hides anything outside the tile.
+  const coverScale = Math.max(
     targetBox.width / Math.max(sourceWidth, 1),
     targetBox.height / Math.max(sourceHeight, 1),
   );
-  const drawWidth = sourceWidth * scale;
-  const drawHeight = sourceHeight * scale;
-  const drawX = targetBox.x + (targetBox.width - drawWidth) / 2;
-  const drawY = targetBox.y + (targetBox.height - drawHeight) / 2;
+  const overshootScale = randomCropFraction ? coverScale * 1.4 : coverScale;
+  const drawWidth = sourceWidth * overshootScale;
+  const drawHeight = sourceHeight * overshootScale;
+
+  let drawX: number;
+  let drawY: number;
+  if (randomCropFraction) {
+    const maxShiftX = Math.max(0, drawWidth - targetBox.width);
+    const maxShiftY = Math.max(0, drawHeight - targetBox.height);
+    drawX = targetBox.x - randomCropFraction.x * maxShiftX;
+    drawY = targetBox.y - randomCropFraction.y * maxShiftY;
+  } else {
+    drawX = targetBox.x + (targetBox.width - drawWidth) / 2;
+    drawY = targetBox.y + (targetBox.height - drawHeight) / 2;
+  }
 
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
@@ -73,9 +87,12 @@ export function fillMaterialSurface(
     tintColor?: string | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
     imageDrawBox?: { x: number; y: number; width: number; height: number };
+    /** Per-tile random crop fractions (0–1). When provided each tile shows a
+     *  different portion of the source image rather than the centred crop. */
+    randomCropFraction?: { x: number; y: number };
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox } = options;
+  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox, randomCropFraction } = options;
 
   if (clipPath?.length) {
     tracePolygonPath(ctx, clipPath);
@@ -91,7 +108,7 @@ export function fillMaterialSurface(
   ctx.clip();
 
   if (image) {
-    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
+    drawImageCover(ctx, image, x, y, width, height, imageDrawBox, randomCropFraction);
     if (tintColor) {
       ctx.fillStyle = tintColor;
       ctx.globalCompositeOperation = 'multiply';

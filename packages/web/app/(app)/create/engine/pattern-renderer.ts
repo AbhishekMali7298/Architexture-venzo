@@ -26,12 +26,22 @@ export interface PatternLayout {
   repeatOffsetY?: number;
 }
 
-function seededRandom(seed: number) {
-  let s = seed;
+// Mulberry32 — fast, seedable, good distribution
+function mulberry32(seed: number): () => number {
+  let s = seed >>> 0;
   return () => {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    return (s >>> 0) / 4294967296;
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function tileSeed(masterSeed: number, tileX: number, tileY: number): number {
+  // Hash tile position to a stable per-tile seed.
+  const ix = Math.round(tileX * 100) | 0;
+  const iy = Math.round(tileY * 100) | 0;
+  return (masterSeed ^ (ix * 65537 + iy * 4099)) >>> 0;
 }
 
 export function computePatternLayout(config: TextureConfig): PatternLayout {
@@ -52,7 +62,6 @@ export function renderToCanvas(
 ): void {
   const frame = computePatternRenderFrame(config, canvasWidth, canvasHeight);
   const layout = { ...frame.layout, joints: [] };
-  const rng = seededRandom(config.seed);
   const { repeatWidth, repeatHeight, scale, offsetX, offsetY, drawOffsetX, drawOffsetY, verticalOrientation } = frame;
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -108,7 +117,10 @@ export function renderToCanvas(
     const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
     const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b0a090');
     const variation = material.toneVariation;
-    const tileColor = adjustBrightness(baseColor, (rng() - 0.5) * variation * 0.4);
+
+    // Per-tile stable RNG — same config always produces the same output
+    const tileRng = mulberry32(tileSeed(config.seed, tile.x, tile.y));
+    const tileColor = adjustBrightness(baseColor, (tileRng() - 0.5) * variation * 0.4);
 
     ctx.save();
     ctx.translate(drawOffsetX + tile.x * scale, drawOffsetY + tile.y * scale);
@@ -121,6 +133,13 @@ export function renderToCanvas(
     const { tileX, tileY, tileWidth, tileHeight, cornerRadius, clipPath } = getTileRenderBox(tile, config, scale, {
       edgeProfiles: options?.edgeProfiles,
     });
+
+    // Use per-tile random crop so each tile shows a different region of the
+    // source material image — prevents the stamped/tiled look.
+    const randomCropFraction = options?.materialImage
+      ? { x: tileRng(), y: tileRng() }
+      : undefined;
+
     fillMaterialSurface(ctx, {
       x: tileX,
       y: tileY,
@@ -130,10 +149,11 @@ export function renderToCanvas(
       fallbackFill: tileColor,
       image: options?.materialImage,
       clipPath,
+      randomCropFraction,
     });
 
     if (options?.materialImage) {
-      const variationDelta = (rng() - 0.5) * variation * 1.2;
+      const variationDelta = (tileRng() - 0.5) * variation * 1.2;
       const variationStrength = Math.min(0.16, 0.02 + Math.abs(variationDelta) / 140);
       if (variationStrength > 0.001) {
         ctx.save();
@@ -142,7 +162,7 @@ export function renderToCanvas(
         ctx.fillStyle = variationDelta >= 0 ? '#ffffff' : '#000000';
         ctx.globalAlpha = variationStrength;
         ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
-        ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
+        ctx.fillStyle = tileRng() > 0.5 ? '#ffffff' : '#000000';
         ctx.globalAlpha = Math.min(0.12, variationStrength * 0.7);
         ctx.fillRect(tileX, tileY, tileWidth, tileHeight);
         ctx.restore();
@@ -171,10 +191,10 @@ export function renderToCanvas(
     if (variation > 10) {
       ctx.globalAlpha = 0.03 + (variation / 100) * 0.05;
       for (let i = 0; i < 20; i++) {
-        const nx = tileX + rng() * tileWidth;
-        const ny = tileY + rng() * tileHeight;
-        const size = 1 + rng() * 3;
-        ctx.fillStyle = rng() > 0.5 ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        const nx = tileX + tileRng() * tileWidth;
+        const ny = tileY + tileRng() * tileHeight;
+        const size = 1 + tileRng() * 3;
+        ctx.fillStyle = tileRng() > 0.5 ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
         ctx.fillRect(nx, ny, size, size);
       }
       ctx.globalAlpha = 1;
@@ -253,4 +273,30 @@ function adjustBrightness(hex: string, amount: number): string {
   const g = Math.max(0, Math.min(255, ((num >> 8) & 0xff) + Math.round(amount * 255)));
   const b = Math.max(0, Math.min(255, (num & 0xff) + Math.round(amount * 255)));
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+// ─── Debounced render scheduler ───────────────────────────────────────────────
+// Ensures canvas renders never block the UI thread. Call this instead of
+// renderToCanvas() directly when wiring to reactive state changes.
+
+let _renderTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function scheduleRender(
+  canvas: HTMLCanvasElement,
+  config: TextureConfig,
+  options?: {
+    materialImage?: CanvasImageSource | null;
+    jointMaterialImage?: CanvasImageSource | null;
+    edgeProfiles?: import('../lib/edge-style-assets').EdgeProfileData[] | null;
+  },
+): void {
+  if (_renderTimer !== null) clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(() => {
+    _renderTimer = null;
+    requestAnimationFrame(() => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      renderToCanvas(ctx, config, canvas.width, canvas.height, options);
+    });
+  }, 16);
 }
