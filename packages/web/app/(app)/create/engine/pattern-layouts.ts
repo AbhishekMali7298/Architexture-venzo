@@ -427,59 +427,79 @@ function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutHerringbone(config: TextureConfig): PatternLayoutData {
-  const repeatCounts = getPatternRepeatCounts(config);
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const diagonalModule = Math.max(width, height) + Math.max(height, width * 0.25);
-  const step = diagonalModule / 2;
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+
+  // Use half-column module grouping so the visual count stays close to the
+  // authored herringbone rhythm while keeping row controls intuitive.
+  const repeatColumns = Math.max(1, Math.ceil(columns / 2));
+  const repeatRows = Math.max(1, rows);
+
+  const stepX = width + height + verticalJoint;
+  const stepY = height + horizontalJoint + width * 0.115;
+  const halfStepX = stepX / 2;
+  const halfStepY = stepY / 2;
   const tiles: PatternTile[] = [];
-  const useOrthogonal = Math.abs((((angle % 180) + 180) % 180) - 90) < 0.001;
 
-  for (let row = 0; row < repeatCounts.rows; row++) {
-    for (let column = 0; column < repeatCounts.columns; column++) {
-      const baseX = column * (diagonalModule + verticalJoint);
-      const baseY = row * (diagonalModule + horizontalJoint);
+  for (let row = 0; row < repeatRows; row++) {
+    for (let column = 0; column < repeatColumns; column++) {
+      const baseX = column * stepX;
+      const baseY = row * stepY;
 
-      if (useOrthogonal) {
-        tiles.push({
-          x: baseX,
-          y: baseY,
-          width,
-          height,
-          rotation: 0,
-          materialIndex: 0,
-        });
+      tiles.push({
+        x: baseX,
+        y: baseY + halfStepY,
+        width,
+        height,
+        rotation: -45,
+        materialIndex: 0,
+      });
 
-        tiles.push({
-          x: baseX + width - height,
-          y: baseY + height,
-          width,
-          height,
-          rotation: 90,
-          materialIndex: 0,
-        });
-      } else {
-        tiles.push({
-          x: baseX,
-          y: baseY + step,
-          width,
-          height,
-          rotation: -45,
-          materialIndex: 0,
-        });
-
-        tiles.push({
-          x: baseX + step,
-          y: baseY,
-          width,
-          height,
-          rotation: 45,
-          materialIndex: 0,
-        });
-      }
+      tiles.push({
+        x: baseX + halfStepX,
+        y: baseY,
+        width,
+        height,
+        rotation: 45,
+        materialIndex: 0,
+      });
     }
   }
 
   return withBounds(tiles, horizontalJoint, verticalJoint);
+}
+
+function layoutStaggered(config: TextureConfig): PatternLayoutData {
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const tiles: PatternTile[] = [];
+  const stepX = width + verticalJoint;
+  const stepY = height + horizontalJoint;
+  const halfStepX = stepX / 2;
+
+  for (let row = 0; row < rows; row++) {
+    const offsetX = row % 2 === 1 ? halfStepX : 0;
+    const startColumn = row % 2 === 1 ? -1 : 0;
+    const endColumn = row % 2 === 1 ? columns : columns - 1;
+
+    for (let column = startColumn; column <= endColumn; column++) {
+      tiles.push({
+        x: column * stepX + offsetX,
+        y: row * stepY,
+        width,
+        height,
+        rotation: 0,
+        materialIndex: 0,
+      });
+    }
+  }
+
+  return {
+    tiles,
+    strokes: [],
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
 }
 
 function layoutChevron(config: TextureConfig): PatternLayoutData {
@@ -922,6 +942,7 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
   flemish_bond: layoutFlemishBond,
   herringbone: layoutHerringbone,
   chevron: layoutChevron,
+  staggered: layoutStaggered,
   basketweave: layoutBasketweave,
   hexagonal: layoutHexagonal,
   ashlar: layoutAshlar,
@@ -929,16 +950,6 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
-  if (config.pattern.type === 'herringbone') {
-    const normalizedAngle = ((config.pattern.angle % 180) + 180) % 180;
-    // The authored Architextures module matches the diagonal herringbone.
-    // Keep a procedural escape hatch for the orthogonal 90-degree variant so
-    // the angle control still reflects a real geometry change.
-    if (Math.abs(normalizedAngle - 90) < 0.001) {
-      return layoutHerringbone(config);
-    }
-  }
-
   const layoutSource = getPatternLayoutSource(config.pattern.type);
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   const hasValidReferenceTile =

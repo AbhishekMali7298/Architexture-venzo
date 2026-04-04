@@ -48,7 +48,6 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
       return [
         { id: 'rows', label: rowLabel },
         { id: 'columns', label: columnLabel },
-        { id: 'angle', label: 'Angle', commitOnChange: true },
       ] satisfies PatternFieldSchema[];
     case 'basketweave':
       return [

@@ -110,11 +110,11 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowMultiple: 1,
     columnMultiple: 2,
     displayName: 'Herringbone',
-    description: 'V-shaped zigzag pattern at 45° or 90°',
+    description: 'V-shaped zigzag pattern at 45°',
     previewPath: 'M0,20h20v20H0M20,0h20v20z',
     previewAssetPath: 'patterns/herringbone.svg',
     defaults: { rows: 8, columns: 8, angle: 45, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 90, step: 45 } },
+    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 45, max: 45, step: 1 } },
     defaultUnitWidth: 200, defaultUnitHeight: 100,
   },
   {

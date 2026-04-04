@@ -86,4 +86,18 @@ describe('pattern config utils', () => {
 
     expect(next.pattern.angle).toBe(45);
   });
+
+  it('locks herringbone angle to 45 in create editor', () => {
+    const next = sanitizePatternConfig({
+      ...DEFAULT_TEXTURE_CONFIG,
+      pattern: {
+        ...DEFAULT_TEXTURE_CONFIG.pattern,
+        type: 'herringbone',
+        category: 'paving',
+        angle: 90,
+      },
+    });
+
+    expect(next.pattern.angle).toBe(45);
+  });
 });

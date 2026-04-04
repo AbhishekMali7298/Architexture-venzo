@@ -104,7 +104,7 @@ describe('pattern repeat semantics', () => {
     });
   });
 
-  it('maps visible herringbone counts onto authored module repeat counts', () => {
+  it('keeps herringbone rows and columns as visible counts', () => {
     const config = createPatternConfig('herringbone');
     config.materials[0]!.width = SVG_PATTERN_MODULES.herringbone.referenceTileWidth;
     config.materials[0]!.height = SVG_PATTERN_MODULES.herringbone.referenceTileHeight;
@@ -115,10 +115,7 @@ describe('pattern repeat semantics', () => {
     const canonical = getCanonicalPatternRepeatBox(config);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(canonical).toEqual({
-      repeatWidth: 2 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
-      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
-    });
+    expect(canonical).toBeNull();
   });
 
   it('maps visible cubic counts onto authored module repeat counts', () => {

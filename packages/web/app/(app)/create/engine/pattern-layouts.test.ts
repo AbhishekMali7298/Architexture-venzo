@@ -240,22 +240,22 @@ describe('pattern layouts', () => {
     expect(denserLayout.tiles.length).toBeGreaterThan(baseLayout.tiles.length);
   });
 
-  it('falls back to the orthogonal herringbone layout at 90 degrees', () => {
-    const diagonal = createPatternConfig('herringbone');
-    diagonal.pattern.rows = 1;
-    diagonal.pattern.columns = 1;
-    diagonal.pattern.angle = 45;
+  it('keeps herringbone stable when angle changes because angle is fixed in create', () => {
+    const base = createPatternConfig('herringbone');
+    base.pattern.rows = 6;
+    base.pattern.columns = 4;
+    base.pattern.angle = 45;
 
-    const orthogonal = createPatternConfig('herringbone');
-    orthogonal.pattern.rows = 1;
-    orthogonal.pattern.columns = 1;
-    orthogonal.pattern.angle = 90;
+    const changed = createPatternConfig('herringbone');
+    changed.pattern.rows = 6;
+    changed.pattern.columns = 4;
+    changed.pattern.angle = 90;
 
-    const diagonalLayout = getPatternLayout(diagonal);
-    const orthogonalLayout = getPatternLayout(orthogonal);
+    const baseLayout = getPatternLayout(base);
+    const changedLayout = getPatternLayout(changed);
 
-    expect(diagonalLayout.repeatWidth).not.toBe(orthogonalLayout.repeatWidth);
-    expect(diagonalLayout.repeatHeight).not.toBe(orthogonalLayout.repeatHeight);
+    expect(baseLayout.repeatWidth).toBeCloseTo(changedLayout.repeatWidth ?? 0);
+    expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
   it('uses visible chevron counts directly in the procedural repeat box', () => {

@@ -55,11 +55,12 @@ describe('pattern sidebar schema', () => {
 
     expect(staggered.fields.map((field) => field.id)).not.toContain('angle');
     expect(french.fields.map((field) => field.id)).not.toContain('angle');
+    expect(staggered.layoutSource).toBe('procedural');
   });
 
-  it('keeps herringbone angle visible because 90 degrees uses a fallback layout', () => {
+  it('hides herringbone angle to keep create parity with the authored module', () => {
     const schema = getPatternSidebarSchema('herringbone');
-    expect(schema.fields.map((field) => field.id)).toContain('angle');
+    expect(schema.fields.map((field) => field.id)).not.toContain('angle');
   });
 
   it('describes chevron rows and columns as visible counts while keeping angle active', () => {
