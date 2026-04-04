@@ -27,7 +27,6 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
-  'running_bond',
   'stack_bond',
   'stretcher_bond',
   'herringbone',
@@ -243,8 +242,9 @@ describe('pattern layouts', () => {
     expect(baseLayout.totalHeight).toBeGreaterThanOrEqual(baseLayout.repeatHeight ?? 0);
   });
 
-  it('maps running-bond visible rows to module repeat rows in svg mode', () => {
+  it('maps running-bond visible rows onto authored module repeat rows', () => {
     const config = createPatternConfig('running_bond');
+    const module = SVG_PATTERN_MODULES.running_bond;
     config.pattern.rows = 6;
     config.pattern.columns = 2;
     config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
@@ -253,10 +253,41 @@ describe('pattern layouts', () => {
 
     const repeatCounts = getPatternRepeatCounts(config);
     const layout = getPatternLayout(config);
-    const module = SVG_PATTERN_MODULES.running_bond;
 
     expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
-    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * 2);
+    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (config.materials[0]!.width / 300) * 2);
     expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * 3);
+  });
+
+  it('matches running-bond authored module repeat at its current reference scale contract', () => {
+    const config = createPatternConfig('running_bond');
+    const module = SVG_PATTERN_MODULES.running_bond;
+    config.materials[0]!.width = module.referenceTileWidth;
+    config.materials[0]!.height = module.referenceTileHeight;
+    config.pattern.rows = 1;
+    config.pattern.columns = 1;
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (module.referenceTileWidth / 300));
+    expect(layout.repeatHeight).toBe(module.repeatHeight ?? module.viewBoxHeight);
+    expect(layout.totalWidth).toBeGreaterThanOrEqual(layout.repeatWidth ?? 0);
+    expect(layout.totalHeight).toBeGreaterThanOrEqual(layout.repeatHeight ?? 0);
+  });
+
+  it('scales running-bond authored repeat counts with its special X scale', () => {
+    const config = createPatternConfig('running_bond');
+    const module = SVG_PATTERN_MODULES.running_bond;
+    config.materials[0]!.width = module.referenceTileWidth;
+    config.materials[0]!.height = module.referenceTileHeight;
+    config.pattern.rows = 2;
+    config.pattern.columns = 3;
+
+    const layout = getPatternLayout(config);
+    const repeatCounts = getPatternRepeatCounts(config);
+
+    expect(repeatCounts).toEqual({ rows: 1, columns: 3 });
+    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * (module.referenceTileWidth / 300) * repeatCounts.columns);
+    expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * repeatCounts.rows);
   });
 });

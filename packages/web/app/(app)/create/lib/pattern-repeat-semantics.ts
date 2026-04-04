@@ -95,11 +95,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   running_bond: {
     countMode: 'visible-counts',
-    rowsMeaning: 'Rows count visible brick courses, then map to authored SVG repeat rows.',
-    columnsMeaning: 'Columns count visible brick slots, then map to authored SVG repeat columns.',
+    rowsMeaning: 'Rows count visible brick courses inside the bordered repeat.',
+    columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
     angleMeaning: 'Angle is not used by the common pattern.',
-    dimensionsMeaning: 'Width and height define the reference brick size used to scale the authored running-bond module.',
-    semanticHint: 'Rows and columns stay visible brick counts while the authored running-bond SVG controls repeat alignment.',
+    dimensionsMeaning: 'Width and height define the brick unit used for repeat framing.',
+    semanticHint: 'Rows and columns directly control visible running-bond counts in the bordered repeat.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
     rowFieldLabel: 'Rows',
@@ -304,6 +304,14 @@ function isUsableSvgModule(module: SvgPatternModule | undefined) {
 
 export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModule): SvgModuleScale {
   const material = config.materials[0]!;
+
+  if (config.pattern.type === 'running_bond') {
+    return {
+      scaleX: Math.max(0.01, material.width / 300),
+      scaleY: Math.max(0.01, material.height / 100),
+    };
+  }
+
   const repeatWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
   const repeatHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
@@ -380,6 +388,7 @@ export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {
   const pattern = getPatternByType(config.pattern.type);
+
   if (pattern?.rowColMode !== 'module') {
     return {
       rows: Math.max(1, config.pattern.rows),

@@ -55,14 +55,14 @@ describe('pattern repeat semantics', () => {
 
     expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
     expect(canonical).toEqual({
-      repeatWidth: 2 * (SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth),
+      repeatWidth: 2 * ((SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth) * (config.materials[0]!.width / 300)),
       repeatHeight: 3 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
     });
     expect(frame.repeatWidth).toBe(canonical?.repeatWidth);
     expect(frame.repeatHeight).toBe(canonical?.repeatHeight);
     expect(hint).toEqual({
-      width: canonical?.repeatWidth,
-      height: canonical?.repeatHeight,
+      width: Math.round(canonical?.repeatWidth ?? 0),
+      height: Math.round(canonical?.repeatHeight ?? 0),
     });
   });
 
@@ -80,7 +80,7 @@ describe('pattern repeat semantics', () => {
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
     const horizontalCanonical = {
-      repeatWidth: 2 * (SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth),
+      repeatWidth: 2 * ((SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth) * (config.materials[0]!.width / 300)),
       repeatHeight: 3 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
     };
 

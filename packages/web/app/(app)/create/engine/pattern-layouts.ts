@@ -234,18 +234,14 @@ function layoutNone(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutRunningBond(config: TextureConfig): PatternLayoutData {
-  const { rows, columns, stretchers } = config.pattern;
+  const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
   const stepX = width + verticalJoint;
   const stepY = height + horizontalJoint;
-  // Common pattern uses stretchers as "N + 1" phase slots where 1 means
-  // classic half-bond (two-phase) and larger values produce finer offsets.
-  const cycle = Math.max(2, stretchers + 1);
-  const offsetStep = stepX / cycle;
 
   for (let row = 0; row < rows; row++) {
-    const offset = (row % cycle) * offsetStep;
+    const offset = row % 2 === 1 ? stepX / 2 : 0;
     const hasOffset = offset > 0.0001;
     const startColumn = hasOffset ? -1 : 0;
     const endColumn = hasOffset ? columns : columns - 1;

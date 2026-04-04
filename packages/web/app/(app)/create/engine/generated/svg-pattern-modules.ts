@@ -10722,6 +10722,7 @@ export const SVG_PATTERN_MODULES: Record<string, SvgPatternModule> = {
     "viewBoxHeight": 400,
     "referenceTileWidth": 225,
     "referenceTileHeight": 100,
+    "repeatHeight": 200,
     "tiles": [
       {
         "x": -1,

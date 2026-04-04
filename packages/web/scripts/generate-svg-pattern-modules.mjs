@@ -10,6 +10,9 @@ const PATTERN_DIR = path.join(ROOT, 'public/patterns');
 const OUTPUT_FILE = path.join(ROOT, 'app/(app)/create/engine/generated/svg-pattern-modules.ts');
 
 const MODULE_OVERRIDES = {
+  running_bond: {
+    repeatHeight: 200,
+  },
   fishscale: {
     referenceTileWidth: 1000,
     referenceTileHeight: 1000,
