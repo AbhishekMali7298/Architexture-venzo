@@ -271,11 +271,10 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(405);
-    expect(layout.displayRepeatWidth).toBeCloseTo(810);
-    expect(layout.repeatHeight).toBeCloseTo(642.43, 1);
-    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetX ?? 0).toBeLessThan(405);
+    expect(layout.repeatWidth).toBeCloseTo(820);
+    expect(layout.displayRepeatWidth).toBeCloseTo(820);
+    expect(layout.repeatHeight).toBeCloseTo(684.85, 1);
+    expect(layout.repeatOffsetX ?? 0).toBeCloseTo(0);
     expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
     expect(layout.repeatOffsetY ?? 0).toBeLessThan(layout.repeatHeight ?? Number.POSITIVE_INFINITY);
   });
@@ -300,9 +299,8 @@ describe('pattern layouts', () => {
 
     expect(shallowLayout.repeatWidth).toBeCloseTo(steepLayout.repeatWidth);
     expect(shallowLayout.repeatHeight).toBeLessThan(steepLayout.repeatHeight ?? 0);
-    expect(steepLayout.repeatOffsetX).toBeCloseTo(shallowLayout.repeatOffsetX ?? 0, 6);
-    expect(steepLayout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
-    expect(steepLayout.repeatOffsetX ?? 0).toBeLessThan(steep.materials[0]!.width + steep.joints.verticalSize);
+    expect(shallowLayout.repeatOffsetX).toBeCloseTo(steepLayout.repeatOffsetX ?? 0, 6);
+    expect(steepLayout.repeatOffsetX ?? 0).toBeCloseTo(0);
     expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 
@@ -320,13 +318,10 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    // columns=2 → vPairs=1 → frame=1×405; display hint stays at 2×405
-    expect(layout.repeatWidth).toBeCloseTo(1 * 405);
-    expect(layout.displayRepeatWidth).toBeCloseTo(2 * 405);
-    expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5 / Math.cos(Math.PI / 4)), 1);
-    // vPairs=1 → tile loop uses column -1..1 (3 cols) × row -1..rows+1 (rows+2 rows) × 2 pieces
-    const vPairs = Math.max(1, Math.floor(config.pattern.columns / 2));
-    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (vPairs + 2) * 2);
+    expect(layout.repeatWidth).toBeCloseTo(2 * 410);
+    expect(layout.displayRepeatWidth).toBeCloseTo(2 * 410);
+    expect(layout.repeatHeight).toBeCloseTo(6 * (100 + (5 * 2) / Math.cos(Math.PI / 4)), 1);
+    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (config.pattern.columns + 2) * 2);
   });
 
   it('keeps Chevron deterministic with the procedural layout', () => {
@@ -340,8 +335,8 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(config.materials[0]!.width + config.joints.verticalSize);
-    expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + config.joints.horizontalSize / Math.cos(Math.PI / 6)), 1);
+    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * (config.materials[0]!.width + config.joints.verticalSize * 2));
+    expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + (config.joints.horizontalSize * 2) / Math.cos(Math.PI / 6)), 1);
     expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
     expect(layout.repeatOffsetX ?? 0).toBeLessThan(config.materials[0]!.width + config.joints.verticalSize);
     expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);

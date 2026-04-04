@@ -167,11 +167,10 @@ describe('pattern repeat semantics', () => {
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(canonical).toBeNull();
 
-  // columns=2 → vPairs=1 → frame=405mm
-  expect(shallowFrame.repeatWidth).toBeCloseTo(405);
-    expect(shallowFrame.repeatHeight).toBeCloseTo(630.46, 1);
-  expect(steepFrame.repeatWidth).toBeCloseTo(405);
-    expect(steepFrame.repeatHeight).toBeCloseTo(642.43, 1);
+    expect(shallowFrame.repeatWidth).toBeCloseTo(820);
+    expect(shallowFrame.repeatHeight).toBeCloseTo(660.92, 1);
+    expect(steepFrame.repeatWidth).toBeCloseTo(820);
+    expect(steepFrame.repeatHeight).toBeCloseTo(684.85, 1);
 
     expect(shallowLayout.repeatOffsetX).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThanOrEqual(0);
@@ -182,13 +181,12 @@ describe('pattern repeat semantics', () => {
     expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      // hint size uses displayRepeatWidth when available (ie 810mm for cols=2)
-      width: 405,
-      height: 630,
+      width: 820,
+      height: 661,
     });
     expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
-      width: 405,
-      height: 642,
+      width: 820,
+      height: 685,
     });
   });
 });

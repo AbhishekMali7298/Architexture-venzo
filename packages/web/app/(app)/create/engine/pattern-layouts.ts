@@ -543,8 +543,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     height: rows * stepY,
   });
 
-  // Anchor the bordered repeat on a full chevron seam. This keeps the frame
-  // stable while angle changes.
+  // With chevron columns defined as full V-pairs, the bordered repeat should
+  // start on the canonical seam so the frame matches the live site alignment.
   const repeatPhaseX = 0;
 
   const normalizeOffset = (value: number, period: number) => {
@@ -553,7 +553,10 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   };
 
   const canonicalOffsetX = normalizeOffset((layout.repeatOffsetX ?? 0) + repeatPhaseX, stepX);
-  const canonicalOffsetY = normalizeOffset(layout.repeatOffsetY ?? 0, stepY);
+  // Chevron pieces extend beyond a single vertical pitch, so reducing the
+  // offset modulo stepY shifts the bordered frame into the bleed region at
+  // steep angles and visibly cuts the top/bottom of the pattern.
+  const canonicalOffsetY = layout.repeatOffsetY ?? 0;
 
   return {
     ...layout,
