@@ -59,7 +59,7 @@ const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   stack_bond: 'procedural',
   stretcher_bond: 'procedural',
   flemish_bond: 'svg-module',
-  herringbone: 'procedural',
+  herringbone: 'svg-module',
   chevron: 'procedural',
   staggered: 'procedural',
   ashlar: 'svg-module',
@@ -147,8 +147,8 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     rowsMeaning: 'Rows count visible herringbone bands vertically inside the bordered repeat.',
     columnsMeaning: 'Columns count herringbone half-modules horizontally. Two columns form one full herringbone pair.',
     angleMeaning: 'Angle is fixed for herringbone in the create editor.',
-    dimensionsMeaning: 'Width and height size the herringbone piece used by the procedural 45-degree layout.',
-    semanticHint: 'Herringbone uses a fixed 45-degree procedural layout in the create editor for consistent row and column adaptation.',
+    dimensionsMeaning: 'Width and height define the reference paver size used to scale the authored herringbone module.',
+    semanticHint: 'Herringbone uses the authored Architextures module while keeping row and column controls aligned to the visible band and half-module counts in the bordered frame.',
     materialWidthLabel: 'Paver Width',
     materialHeightLabel: 'Paver Height',
     rowFieldLabel: 'Rows',
@@ -418,13 +418,6 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
       repeatWidth: material.width,
       repeatHeight: material.height,
     };
-  }
-
-  if (config.pattern.type === 'herringbone') {
-    const normalizedAngle = ((config.pattern.angle % 180) + 180) % 180;
-    if (Math.abs(normalizedAngle - 90) < 0.001) {
-      return null;
-    }
   }
 
   const module = SVG_PATTERN_MODULES[config.pattern.type];

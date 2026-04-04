@@ -115,7 +115,10 @@ describe('pattern repeat semantics', () => {
     const canonical = getCanonicalPatternRepeatBox(config);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(canonical).toBeNull();
+    expect(canonical).toEqual({
+      repeatWidth: 2 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
+      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
+    });
   });
 
   it('maps visible cubic counts onto authored module repeat counts', () => {
