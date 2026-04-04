@@ -272,6 +272,7 @@ describe('pattern layouts', () => {
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
     expect(layout.repeatWidth).toBeCloseTo(405);
+    expect(layout.displayRepeatWidth).toBeCloseTo(810);
     expect(layout.repeatHeight).toBeCloseTo(642.43, 1);
     expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
     expect(layout.repeatOffsetX ?? 0).toBeLessThan(405);
@@ -318,10 +319,13 @@ describe('pattern layouts', () => {
     const repeatCounts = getPatternRepeatCounts(config);
     const layout = getPatternLayout(config);
 
-    const vPairs = Math.max(1, Math.floor(config.pattern.columns / 2));
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(layout.repeatWidth).toBeCloseTo(vPairs * 405);
+    // columns=2 → vPairs=1 → frame=1×405; display hint stays at 2×405
+    expect(layout.repeatWidth).toBeCloseTo(1 * 405);
+    expect(layout.displayRepeatWidth).toBeCloseTo(2 * 405);
     expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5 / Math.cos(Math.PI / 4)), 1);
+    // vPairs=1 → tile loop uses column -1..1 (3 cols) × row -1..rows+1 (rows+2 rows) × 2 pieces
+    const vPairs = Math.max(1, Math.floor(config.pattern.columns / 2));
     expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (vPairs + 2) * 2);
   });
 

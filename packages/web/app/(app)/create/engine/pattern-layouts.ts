@@ -30,6 +30,10 @@ export interface PatternLayoutData {
   repeatOffsetX?: number;
   repeatOffsetY?: number;
   previewOutline?: { x: number; y: number }[];
+  /** If set, use these dimensions for canvas zoom/scale instead of repeatWidth/Height.
+   * Lets the dotted repeat frame show the correct tile count while keeping visual density stable. */
+  displayRepeatWidth?: number;
+  displayRepeatHeight?: number;
 }
 
 function getMaterialMetrics(config: TextureConfig) {
@@ -525,8 +529,11 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
           { x: 0, y: height },
         ];
 
-  // columns = individual chevron pieces; two pieces make one V-pair.
-  // columns=4 → vPairs=2, matching the competitor's frame semantics.
+  // columns = V-pairs (each V made of a left + right piece).
+  // columns counts individual half-pieces (matching competitor semantics).
+  // columns=4 → 4 halves → 2 full V-pairs → frame = 2 × stepX.
+  // displayRepeatWidth preserves the original zoom density (columns × stepX) so tiles
+  // don't appear twice as large when the frame shrinks to the correct V-pair count.
   const vPairs = Math.max(1, Math.floor(columns / 2));
 
   // Draw one bleed ring around the visible repeat so the background tiles
@@ -578,6 +585,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     ...layout,
     repeatOffsetX: canonicalOffsetX,
     repeatOffsetY: canonicalOffsetY,
+    displayRepeatWidth: columns * stepX,
+    displayRepeatHeight: rows * stepY,
   };
 }
 

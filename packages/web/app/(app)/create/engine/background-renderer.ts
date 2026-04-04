@@ -216,6 +216,11 @@ function prepareBackgroundScene(
   const repeatFrame = resolvePatternRepeatFrame(config, layout);
   const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
   const previewWidth = repeatWidth;
+  // Use display hint if the layout provides one (e.g. chevron uses a larger
+  // reference area for zoom so the frame count is correct but tiles stay the
+  // same visual size when column count changes).
+  const displayWidth = layout.displayRepeatWidth ?? repeatWidth;
+  const displayHeight = layout.displayRepeatHeight ?? repeatHeight;
   const previewHeight = repeatHeight;
 
   const panelWidth = 380;
@@ -226,7 +231,8 @@ function prepareBackgroundScene(
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
 
   const scaleX = (availableWidth * 0.94) / Math.max(previewWidth, 1);
-  const scaleY = (availableHeight * 0.94) / Math.max(previewHeight, 1);
+  const scaleX = (availableWidth * 0.94) / Math.max(displayWidth, 1);
+  const scaleY = (availableHeight * 0.94) / Math.max(displayHeight, 1);
   const scale = Math.max(0.01, Math.min(scaleX, scaleY) * previewDensity);
   const tileSetHeight = repeatHeight * scale;
   const tileSetWidth = repeatWidth * scale;
