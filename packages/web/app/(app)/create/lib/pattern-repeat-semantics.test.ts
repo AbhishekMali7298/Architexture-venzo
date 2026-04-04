@@ -39,17 +39,17 @@ function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' |
 }
 
 describe('pattern repeat semantics', () => {
-  it('uses the visible running-bond bounds as the canonical common-pattern frame', () => {
+  it('maps running-bond visible counts onto authored module repeat counts', () => {
     const config = createPatternConfig('running_bond');
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
+    config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
+    config.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
     config.pattern.rows = 6;
     config.pattern.columns = 2;
     config.pattern.stretchers = 2;
 
     const layout = getPatternLayout(config);
-    const canonical = getCanonicalPatternRepeatBox(config);
     const repeatCounts = getPatternRepeatCounts(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
 
@@ -58,18 +58,18 @@ describe('pattern repeat semantics', () => {
       repeatWidth: 2 * (SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth),
       repeatHeight: 3 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
     });
-    expect(frame.repeatWidth).toBe(canonical.repeatWidth);
-    expect(frame.repeatHeight).toBe(canonical.repeatHeight);
+    expect(frame.repeatWidth).toBe(canonical?.repeatWidth);
+    expect(frame.repeatHeight).toBe(canonical?.repeatHeight);
     expect(hint).toEqual({
-      width: canonical.repeatWidth,
-      height: canonical.repeatHeight,
+      width: canonical?.repeatWidth,
+      height: canonical?.repeatHeight,
     });
   });
 
   it('swaps the repeat frame dimensions when pattern orientation is vertical', () => {
     const config = createPatternConfig('running_bond');
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
+    config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
+    config.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
     config.pattern.rows = 6;
     config.pattern.columns = 2;
     config.pattern.orientation = 'vertical';
@@ -77,17 +77,19 @@ describe('pattern repeat semantics', () => {
 
     const layout = getPatternLayout(config);
     const canonical = getCanonicalPatternRepeatBox(config);
-    const repeatCounts = getPatternRepeatCounts(config);
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
+    const horizontalCanonical = {
+      repeatWidth: 2 * (SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth),
+      repeatHeight: 3 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
+    };
 
-    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
-    expect(canonical).not.toBeNull();
-    expect(frame.repeatWidth).toBe(canonical!.repeatHeight);
-    expect(frame.repeatHeight).toBe(canonical!.repeatWidth);
+    expect(canonical).toEqual(horizontalCanonical);
+    expect(frame.repeatWidth).toBe(horizontalCanonical.repeatHeight);
+    expect(frame.repeatHeight).toBe(horizontalCanonical.repeatWidth);
     expect(hint).toEqual({
-      width: Math.round(canonical!.repeatHeight),
-      height: Math.round(canonical!.repeatWidth),
+      width: horizontalCanonical.repeatHeight,
+      height: horizontalCanonical.repeatWidth,
     });
   });
 

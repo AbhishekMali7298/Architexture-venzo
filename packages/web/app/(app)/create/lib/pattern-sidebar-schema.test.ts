@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import { PATTERN_CATALOG } from '@textura/shared';
 import { getPatternSidebarSchema } from './pattern-sidebar-schema';
 
 describe('pattern sidebar schema', () => {
+  it('uses svg-module layout source for every repeatable pattern', () => {
+    const nonNonePatterns = PATTERN_CATALOG.filter((pattern) => pattern.type !== 'none');
+
+    for (const pattern of nonNonePatterns) {
+      expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe('svg-module');
+    }
+  });
+
   it('hides irrelevant controls for the none pattern', () => {
     const schema = getPatternSidebarSchema('none');
     expect(schema.fields).toHaveLength(0);

@@ -95,11 +95,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   running_bond: {
     countMode: 'visible-counts',
-    rowsMeaning: 'Rows count visible brick courses inside the bordered repeat.',
-    columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
-    angleMeaning: 'Angle is not used by the authored common module.',
-    dimensionsMeaning: 'Width and height define the reference brick size used to scale the authored common module.',
-    semanticHint: 'Rows and columns count visible running-bond bricks while authored module geometry preserves competitor parity.',
+    rowsMeaning: 'Rows count visible brick courses, then map to authored SVG repeat rows.',
+    columnsMeaning: 'Columns count visible brick slots, then map to authored SVG repeat columns.',
+    angleMeaning: 'Angle is not used by the common pattern.',
+    dimensionsMeaning: 'Width and height define the reference brick size used to scale the authored running-bond module.',
+    semanticHint: 'Rows and columns stay visible brick counts while the authored running-bond SVG controls repeat alignment.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
     rowFieldLabel: 'Rows',
@@ -375,7 +375,7 @@ function buildFallbackSemantics(type: PatternType): PatternRepeatSemantics {
 }
 
 export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
-  return PATTERN_LAYOUT_SOURCE[type] ?? 'procedural';
+  return PATTERN_LAYOUT_SOURCE[type] ?? 'svg-module';
 }
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {

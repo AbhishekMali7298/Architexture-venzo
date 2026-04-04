@@ -27,6 +27,7 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
+  'running_bond',
   'stack_bond',
   'stretcher_bond',
   'herringbone',
@@ -217,42 +218,45 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('uses module-authored running-bond layout independent of stretchers value', () => {
+  it('keeps running-bond on authored svg-module repeat sizing', () => {
     const base = createPatternConfig('running_bond');
     base.pattern.rows = 6;
-    base.pattern.columns = 4;
-    base.materials[0]!.width = 400;
-    base.materials[0]!.height = 100;
+    base.pattern.columns = 2;
+    base.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
+    base.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
     base.pattern.stretchers = 2;
 
     const denser = createPatternConfig('running_bond');
     denser.pattern.rows = 6;
-    denser.pattern.columns = 4;
-    denser.materials[0]!.width = 400;
-    denser.materials[0]!.height = 100;
+    denser.pattern.columns = 2;
+    denser.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
+    denser.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
     denser.pattern.stretchers = 4;
 
     const baseLayout = getPatternLayout(base);
     const denserLayout = getPatternLayout(denser);
+
     expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('svg-module');
     expect(baseLayout.repeatWidth).toBeCloseTo(denserLayout.repeatWidth ?? 0);
     expect(baseLayout.repeatHeight).toBeCloseTo(denserLayout.repeatHeight ?? 0);
-    expect(baseLayout.totalWidth).toBeCloseTo(denserLayout.totalWidth);
-    expect(baseLayout.totalHeight).toBeCloseTo(denserLayout.totalHeight);
+    expect(baseLayout.totalWidth).toBeGreaterThanOrEqual(baseLayout.repeatWidth ?? 0);
+    expect(baseLayout.totalHeight).toBeGreaterThanOrEqual(baseLayout.repeatHeight ?? 0);
   });
 
-  it('keeps running-bond canonical tile count stable for authored module', () => {
+  it('maps running-bond visible rows to module repeat rows in svg mode', () => {
     const config = createPatternConfig('running_bond');
     config.pattern.rows = 6;
-    config.pattern.columns = 4;
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
+    config.pattern.columns = 2;
+    config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
+    config.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
     config.pattern.stretchers = 1;
 
+    const repeatCounts = getPatternRepeatCounts(config);
     const layout = getPatternLayout(config);
+    const module = SVG_PATTERN_MODULES.running_bond;
 
-    expect(layout.repeatWidth).toBeGreaterThan(0);
-    expect(layout.repeatHeight).toBeGreaterThan(0);
-    expect(layout.tiles.length).toBeGreaterThan(0);
+    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
+    expect(layout.repeatWidth).toBe((module.repeatWidth ?? module.viewBoxWidth) * 2);
+    expect(layout.repeatHeight).toBe((module.repeatHeight ?? module.viewBoxHeight) * 3);
   });
 });

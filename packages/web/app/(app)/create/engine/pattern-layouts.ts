@@ -1,6 +1,6 @@
 import { getPatternByType, type TextureConfig, type PatternType } from '@textura/shared';
 import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
-import { getCanonicalPatternRepeatBox, getChevronRepeatPitch, getPatternLayoutSource, getPatternRepeatCounts, getSvgModuleScale } from '../lib/pattern-repeat-semantics';
+import { getCanonicalPatternRepeatBox, getChevronRepeatPitch, getPatternRepeatCounts, getSvgModuleScale } from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
   x: number;
@@ -951,7 +951,10 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
-  const layoutSource = getPatternLayoutSource(config.pattern.type);
+  if (config.pattern.type === 'none') {
+    return layoutNone(config);
+  }
+
   const svgModule = SVG_PATTERN_MODULES[config.pattern.type];
   const hasValidReferenceTile =
     svgModule &&
@@ -959,7 +962,6 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     Number.isFinite(svgModule.referenceTileHeight) &&
     svgModule.referenceTileWidth > 1 &&
     svgModule.referenceTileHeight > 1;
-  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
   const canUseSvgModule =
     svgModule &&
     hasValidReferenceTile &&
@@ -967,20 +969,9 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     svgModule.viewBoxWidth > 0 &&
     svgModule.viewBoxHeight > 0;
 
-  // Chevron parity is currently an explicit A/B comparison controlled by the
-  // shared repeat-semantics layer. Leave the procedural path intact so we can
-  // compare the authored module against the existing fallback safely.
-  if (layoutSource === 'svg-module' && canUseSvgModule) {
-    return layoutFromSvgModule(config, svgModule);
-  }
-
-  if (proceduralLayout) {
-    return proceduralLayout(config);
-  }
-
   if (canUseSvgModule) {
     return layoutFromSvgModule(config, svgModule);
   }
 
-  return layoutRunningBond(config);
+  throw new Error(`SVG module missing or invalid for pattern: ${config.pattern.type}`);
 }
