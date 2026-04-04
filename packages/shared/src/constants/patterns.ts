@@ -57,7 +57,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
     previewAssetPath: 'patterns/running_bond.svg',
-    defaults: { rows: 6, columns: 4, angle: 0, stretchers: 3, weaves: 1 },
+    defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
       columns: { min: 1, max: 50 },

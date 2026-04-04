@@ -56,9 +56,9 @@ export function getChevronRepeatPitch(config: TextureConfig) {
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
   running_bond: 'procedural',
-  stack_bond: 'svg-module',
-  stretcher_bond: 'svg-module',
-  flemish_bond: 'svg-module',
+  stack_bond: 'procedural',
+  stretcher_bond: 'procedural',
+  flemish_bond: 'procedural',
   herringbone: 'svg-module',
   chevron: 'procedural',
   staggered: 'svg-module',

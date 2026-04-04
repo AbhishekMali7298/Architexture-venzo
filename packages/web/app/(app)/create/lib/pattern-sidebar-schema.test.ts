@@ -7,7 +7,8 @@ describe('pattern sidebar schema', () => {
     const nonNonePatterns = PATTERN_CATALOG.filter((pattern) => pattern.type !== 'none');
 
     for (const pattern of nonNonePatterns) {
-      const expectedLayoutSource = pattern.type === 'chevron' || pattern.type === 'running_bond' ? 'procedural' : 'svg-module';
+      const proceduralTypes = new Set(['chevron', 'running_bond', 'stack_bond', 'stretcher_bond', 'flemish_bond']);
+      const expectedLayoutSource = proceduralTypes.has(pattern.type) ? 'procedural' : 'svg-module';
       expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe(expectedLayoutSource);
     }
   });
@@ -21,7 +22,7 @@ describe('pattern sidebar schema', () => {
 
   it('shows stretchers for patterns that define stretcher ranges', () => {
     const schema = getPatternSidebarSchema('stretcher_bond');
-    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.map((field) => field.id)).toContain('stretchers');
   });
 
@@ -39,7 +40,7 @@ describe('pattern sidebar schema', () => {
   it('treats stack bond rows and columns as visible counts', () => {
     const schema = getPatternSidebarSchema('stack_bond');
 
-    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.fields.map((field) => field.id)).not.toContain('angle');

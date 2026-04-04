@@ -247,14 +247,15 @@ function layoutNone(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutRunningBond(config: TextureConfig): PatternLayoutData {
-  const { rows, columns } = config.pattern;
+  const { rows, columns, stretchers } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
   const stepX = width + verticalJoint;
   const stepY = height + horizontalJoint;
+  const cycle = Math.max(2, stretchers + 1);
 
   for (let row = 0; row < rows; row++) {
-    const offset = row % 2 === 1 ? stepX / 2 : 0;
+    const offset = (row % cycle) * (stepX / cycle);
     const hasOffset = offset > 0.0001;
     const startColumn = hasOffset ? -1 : 0;
     const endColumn = hasOffset ? columns : columns - 1;
@@ -335,6 +336,10 @@ function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
     strokes: [],
     totalWidth: columns * stepX,
     totalHeight: rows * stepY,
+    repeatWidth: columns * stepX,
+    repeatHeight: rows * stepY,
+    repeatOffsetX: 0,
+    repeatOffsetY: 0,
   };
 }
 
@@ -374,6 +379,10 @@ function layoutFlemishBond(config: TextureConfig): PatternLayoutData {
     strokes: [],
     totalWidth,
     totalHeight: rows * stepY,
+    repeatWidth: totalWidth,
+    repeatHeight: rows * stepY,
+    repeatOffsetX: 0,
+    repeatOffsetY: 0,
   };
 }
 

@@ -27,10 +27,7 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
-  'stack_bond',
-  'stretcher_bond',
   'herringbone',
-  'flemish_bond',
   'staggered',
   'ashlar',
   'cubic',
@@ -104,16 +101,24 @@ describe('pattern layouts', () => {
     expect(getPatternLayout(wider).totalWidth).toBeGreaterThan(getPatternLayout(base).totalWidth);
   });
 
-  it('uses the expected half-pair repeat width for flemish bond', () => {
+  it('uses procedural half-pair repeat width for flemish bond', () => {
     const config = createPatternConfig('flemish_bond');
-    config.materials[0]!.width = 150;
+    config.materials[0]!.width = 300;
     config.materials[0]!.height = 100;
-    config.pattern.rows = 1;
-    config.pattern.columns = 1;
+    config.pattern.rows = 2;
+    config.pattern.columns = 2;
 
     const layout = getPatternLayout(config);
-    expect(layout.repeatWidth).toBe(SVG_PATTERN_MODULES.flemish_bond.viewBoxWidth);
-    expect(layout.repeatHeight).toBe(SVG_PATTERN_MODULES.flemish_bond.viewBoxHeight);
+    const stepX = 300 + config.joints.verticalSize;
+    const headerWidth = 300 / 2;
+    const pairWidth = 300 + headerWidth + config.joints.verticalSize * 2;
+    const expectedRepeatWidth = 2 * (pairWidth / 2);
+    const expectedRepeatHeight = 2 * (100 + config.joints.horizontalSize);
+
+    expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
+    expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
+    expect(layout.tiles.some((t) => Math.abs(t.width - 300) < 1)).toBe(true);
+    expect(layout.tiles.some((t) => Math.abs(t.width - headerWidth) < 1)).toBe(true);
   });
 
   it('uses Architextures module repeat sizes for ashlar and hexagonal', () => {
@@ -239,6 +244,25 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(denserLayout.repeatHeight ?? 0);
     expect(baseLayout.totalWidth).toBeGreaterThanOrEqual(baseLayout.repeatWidth ?? 0);
     expect(baseLayout.totalHeight).toBeGreaterThanOrEqual(baseLayout.repeatHeight ?? 0);
+  });
+
+  it('changes running-bond row offsets when stretchers changes while keeping repeat size stable', () => {
+    const base = createPatternConfig('running_bond');
+    base.pattern.rows = 6;
+    base.pattern.columns = 4;
+    base.pattern.stretchers = 1;
+
+    const changed = createPatternConfig('running_bond');
+    changed.pattern.rows = 6;
+    changed.pattern.columns = 4;
+    changed.pattern.stretchers = 3;
+
+    const baseLayout = getPatternLayout(base);
+    const changedLayout = getPatternLayout(changed);
+
+    expect(baseLayout.repeatWidth).toBeCloseTo(changedLayout.repeatWidth ?? 0);
+    expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
+    expect(baseLayout.tiles[4]?.x).not.toBeCloseTo(changedLayout.tiles[4]?.x ?? 0);
   });
 
   it('maps running-bond visible rows and columns directly onto procedural repeat bounds', () => {

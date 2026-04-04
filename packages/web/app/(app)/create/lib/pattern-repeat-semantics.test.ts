@@ -90,7 +90,7 @@ describe('pattern repeat semantics', () => {
     });
   });
 
-  it('uses the authored Flemish module repeat as the canonical frame', () => {
+  it('uses procedural layout repeat as the frame for flemish bond', () => {
     const config = createPatternConfig('flemish_bond');
     config.materials[0]!.width = SVG_PATTERN_MODULES.flemish_bond.referenceTileWidth;
     config.materials[0]!.height = SVG_PATTERN_MODULES.flemish_bond.referenceTileHeight;
@@ -102,16 +102,11 @@ describe('pattern repeat semantics', () => {
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
 
-    expect(canonical).toEqual({
-      repeatWidth: 2 * SVG_PATTERN_MODULES.flemish_bond.viewBoxWidth,
-      repeatHeight: SVG_PATTERN_MODULES.flemish_bond.viewBoxHeight,
-    });
-    expect(frame.repeatWidth).toBe(canonical?.repeatWidth);
-    expect(frame.repeatHeight).toBe(canonical?.repeatHeight);
-    expect(hint).toEqual({
-      width: canonical?.repeatWidth,
-      height: canonical?.repeatHeight,
-    });
+    expect(canonical).toBeNull();
+    expect(frame.repeatWidth).toBeCloseTo(layout.repeatWidth ?? layout.totalWidth);
+    expect(frame.repeatHeight).toBeCloseTo(layout.repeatHeight ?? layout.totalHeight);
+    expect(hint.width).toBe(Math.round(frame.repeatWidth));
+    expect(hint.height).toBe(Math.round(frame.repeatHeight));
   });
 
   it('keeps herringbone rows and columns as visible counts', () => {
