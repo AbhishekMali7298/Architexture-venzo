@@ -41,7 +41,6 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
       return [
         { id: 'rows', label: rowLabel },
         { id: 'columns', label: columnLabel },
-        { id: 'stretchers', label: 'Stretchers' },
       ] satisfies PatternFieldSchema[];
     case 'stretcher_bond':
       return [

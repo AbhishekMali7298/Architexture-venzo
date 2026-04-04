@@ -217,7 +217,7 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('uses stretchers to control running-bond course offset progression', () => {
+  it('uses module-authored running-bond layout independent of stretchers value', () => {
     const base = createPatternConfig('running_bond');
     base.pattern.rows = 6;
     base.pattern.columns = 4;
@@ -234,27 +234,25 @@ describe('pattern layouts', () => {
 
     const baseLayout = getPatternLayout(base);
     const denserLayout = getPatternLayout(denser);
-    const stepX = 400 + base.joints.verticalSize;
-    const baseFirstRowTiles = baseLayout.tiles
-      .filter((tile) => tile.y === 0)
-      .map((tile) => tile.x)
-      .sort((a, b) => a - b);
-    const denserFirstRowTiles = denserLayout.tiles
-      .filter((tile) => tile.y === 0)
-      .map((tile) => tile.x)
-      .sort((a, b) => a - b);
-    const baseVisibleOffset = baseFirstRowTiles.find((x) => x >= 0);
-    const denserVisibleOffset = denserFirstRowTiles.find((x) => x >= 0);
-    const normalizeOffsetMagnitude = (offset: number | undefined) => {
-      if (offset == null) return Number.NaN;
-      const mod = ((offset % stepX) + stepX) % stepX;
-      return Math.min(mod, stepX - mod);
-    };
+    expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('svg-module');
+    expect(baseLayout.repeatWidth).toBeCloseTo(denserLayout.repeatWidth ?? 0);
+    expect(baseLayout.repeatHeight).toBeCloseTo(denserLayout.repeatHeight ?? 0);
+    expect(baseLayout.totalWidth).toBeCloseTo(denserLayout.totalWidth);
+    expect(baseLayout.totalHeight).toBeCloseTo(denserLayout.totalHeight);
+  });
 
-    expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('procedural');
-    expect(baseLayout.totalWidth).toBe(4 * stepX);
-    expect(denserLayout.totalWidth).toBe(4 * stepX);
-    expect(normalizeOffsetMagnitude(baseVisibleOffset)).toBeCloseTo(stepX / 2);
-    expect(normalizeOffsetMagnitude(denserVisibleOffset)).toBeCloseTo(stepX / 4);
+  it('keeps running-bond canonical tile count stable for authored module', () => {
+    const config = createPatternConfig('running_bond');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.stretchers = 1;
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.repeatWidth).toBeGreaterThan(0);
+    expect(layout.repeatHeight).toBeGreaterThan(0);
+    expect(layout.tiles.length).toBeGreaterThan(0);
   });
 });

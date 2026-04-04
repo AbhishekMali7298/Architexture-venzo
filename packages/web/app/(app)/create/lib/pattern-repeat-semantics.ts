@@ -55,7 +55,7 @@ export function getChevronRepeatPitch(config: TextureConfig) {
 
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
-  running_bond: 'procedural',
+  running_bond: 'svg-module',
   stack_bond: 'svg-module',
   stretcher_bond: 'svg-module',
   flemish_bond: 'svg-module',
@@ -97,9 +97,9 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     countMode: 'visible-counts',
     rowsMeaning: 'Rows count visible brick courses inside the bordered repeat.',
     columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
-    angleMeaning: 'Angle is not used by the common pattern.',
-    dimensionsMeaning: 'Width and height describe the visible brick size used by the running-bond repeat.',
-    semanticHint: 'Rows and columns count the visible running-bond bricks; stretchers controls the offset cycle between courses.',
+    angleMeaning: 'Angle is not used by the authored common module.',
+    dimensionsMeaning: 'Width and height define the reference brick size used to scale the authored common module.',
+    semanticHint: 'Rows and columns count visible running-bond bricks while authored module geometry preserves competitor parity.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
     rowFieldLabel: 'Rows',

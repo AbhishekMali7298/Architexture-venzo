@@ -18,10 +18,10 @@ describe('pattern sidebar schema', () => {
   it('keeps common pattern rows and columns as visible counts', () => {
     const schema = getPatternSidebarSchema('running_bond');
 
-    expect(schema.layoutSource).toBe('procedural');
+    expect(schema.layoutSource).toBe('svg-module');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
-    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
+    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
     expect(schema.rowsMeaning).toContain('visible brick courses');
     expect(schema.columnsMeaning).toContain('visible brick slots');
   });

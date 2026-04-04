@@ -239,11 +239,13 @@ function layoutRunningBond(config: TextureConfig): PatternLayoutData {
   const tiles: PatternTile[] = [];
   const stepX = width + verticalJoint;
   const stepY = height + horizontalJoint;
-  const cycle = Math.max(1, stretchers);
-  const offsetStep = cycle > 1 ? stepX / cycle : 0;
+  // Common pattern uses stretchers as "N + 1" phase slots where 1 means
+  // classic half-bond (two-phase) and larger values produce finer offsets.
+  const cycle = Math.max(2, stretchers + 1);
+  const offsetStep = stepX / cycle;
 
   for (let row = 0; row < rows; row++) {
-    const offset = ((row + cycle - 1) % cycle) * offsetStep;
+    const offset = (row % cycle) * offsetStep;
     const hasOffset = offset > 0.0001;
     const startColumn = hasOffset ? -1 : 0;
     const endColumn = hasOffset ? columns : columns - 1;
