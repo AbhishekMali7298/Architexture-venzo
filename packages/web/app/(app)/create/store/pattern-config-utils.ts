@@ -8,6 +8,19 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function snapToMultiple(value: number, multiple: number, min: number, max: number) {
+  const safeMultiple = Math.max(1, multiple);
+  const clamped = clamp(value, min, max);
+  const floorQuotient = Math.floor(clamped / safeMultiple);
+  const ceilQuotient = Math.ceil(clamped / safeMultiple);
+  const lower = clamp(floorQuotient * safeMultiple, min, max);
+  const upper = clamp(ceilQuotient * safeMultiple, min, max);
+
+  if (lower < min) return upper;
+  if (upper > max) return lower;
+  return Math.abs(clamped - lower) <= Math.abs(upper - clamped) ? lower : upper;
+}
+
 function applyPatternDefinition(
   config: TextureConfig,
   definition: PatternDefinition,
@@ -40,6 +53,18 @@ function applyPatternDefinition(
     options?.preserveCurrentPatternSettings ? next.pattern.weaves : definition.defaults.weaves,
     definition.parameterRanges.weaves?.min ?? definition.defaults.weaves,
     definition.parameterRanges.weaves?.max ?? definition.defaults.weaves,
+  );
+  next.pattern.rows = snapToMultiple(
+    next.pattern.rows,
+    definition.rowMultiple,
+    definition.parameterRanges.rows.min,
+    definition.parameterRanges.rows.max,
+  );
+  next.pattern.columns = snapToMultiple(
+    next.pattern.columns,
+    definition.columnMultiple,
+    definition.parameterRanges.columns.min,
+    definition.parameterRanges.columns.max,
   );
 
   if (activeMaterial) {

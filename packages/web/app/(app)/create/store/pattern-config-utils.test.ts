@@ -56,4 +56,20 @@ describe('pattern config utils', () => {
     expect(next.pattern.type).toBe('stack_bond');
     expect(next.pattern.orientation).toBe('vertical');
   });
+
+  it('snaps pattern counts to the original Architextures multiples', () => {
+    const next = sanitizePatternConfig({
+      ...DEFAULT_TEXTURE_CONFIG,
+      pattern: {
+        ...DEFAULT_TEXTURE_CONFIG.pattern,
+        type: 'chevron',
+        category: 'geometric',
+        rows: 5,
+        columns: 3,
+      },
+    });
+
+    expect(next.pattern.rows).toBe(5);
+    expect(next.pattern.columns).toBe(2);
+  });
 });

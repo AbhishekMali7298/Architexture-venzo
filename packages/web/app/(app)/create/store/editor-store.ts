@@ -35,6 +35,21 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function snapCountByDirection(nextValue: number, previousValue: number, multiple: number, min: number, max: number) {
+  const safeMultiple = Math.max(1, multiple);
+  const clamped = clamp(nextValue, min, max);
+  if (safeMultiple === 1) {
+    return clamped;
+  }
+
+  const snapped =
+    clamped >= previousValue
+      ? Math.ceil(clamped / safeMultiple) * safeMultiple
+      : Math.floor(clamped / safeMultiple) * safeMultiple;
+
+  return clamp(snapped, min, max);
+}
+
 // ======= Store Interface =======
 
 export interface EditorState {
@@ -172,14 +187,26 @@ export const useEditorStore = create<EditorState>()(
     setPatternRows: (rows) =>
       set((s) => {
         pushHistory(s, `Rows → ${rows}`);
-        s.config.pattern.rows = Math.max(1, Math.min(100, rows));
+        const definition = getPatternByType(s.config.pattern.type);
+        const range = definition?.parameterRanges.rows;
+        s.config.pattern.rows =
+          definition && range
+            ? snapCountByDirection(rows, s.config.pattern.rows, definition.rowMultiple, range.min, range.max)
+            : Math.max(1, Math.min(100, rows));
+        s.config = sanitizePatternConfig(s.config);
         bumpRender(s);
       }),
 
     setPatternColumns: (columns) =>
       set((s) => {
         pushHistory(s, `Columns → ${columns}`);
-        s.config.pattern.columns = Math.max(1, Math.min(100, columns));
+        const definition = getPatternByType(s.config.pattern.type);
+        const range = definition?.parameterRanges.columns;
+        s.config.pattern.columns =
+          definition && range
+            ? snapCountByDirection(columns, s.config.pattern.columns, definition.columnMultiple, range.min, range.max)
+            : Math.max(1, Math.min(100, columns));
+        s.config = sanitizePatternConfig(s.config);
         bumpRender(s);
       }),
 
@@ -187,6 +214,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Angle → ${angle}°`);
         s.config.pattern.angle = ((angle % 360) + 360) % 360;
+        s.config = sanitizePatternConfig(s.config);
         bumpRender(s);
       }),
 

@@ -138,6 +138,14 @@ export function PatternSettingsSection({
         <div className={styles.gridTwo}>
           {numericFields.map((field) => {
             const range = fieldRangeMap[field.id];
+            const step =
+              field.id === 'rows'
+                ? Math.max(1, pattern.rowMultiple)
+                : field.id === 'columns'
+                  ? Math.max(1, pattern.columnMultiple)
+                  : 'step' in range
+                    ? range.step
+                    : 1;
             return (
               <NumberField
                 key={field.id}
@@ -145,7 +153,7 @@ export function PatternSettingsSection({
                 value={fieldValueMap[field.id]}
                 min={range.min}
                 max={range.max}
-                step={'step' in range ? range.step : 1}
+                step={step}
                 commitOnChange={field.commitOnChange}
                 onChange={fieldChangeMap[field.id]}
               />

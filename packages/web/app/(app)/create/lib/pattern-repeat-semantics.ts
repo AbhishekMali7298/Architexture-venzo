@@ -157,11 +157,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   chevron: {
     countMode: 'visible-counts',
     rowsMeaning: 'Rows count visible chevron bands inside the bordered repeat.',
-    columnsMeaning: 'Columns count visible chevron pairs across the bordered repeat.',
+    columnsMeaning: 'Columns count visible chevron V-pairs across the bordered repeat; each pair is made from two angled blocks.',
     angleMeaning: 'Angle changes the chevron mitre geometry inside the rectangular repeat frame.',
     dimensionsMeaning: 'Width defines the chevron pair span; height defines the visible band height used by the bordered repeat box.',
     semanticHint:
-      'Rows and columns count the visible chevron pairs inside the bordered repeat. Horizontal spacing is projected along the angled cuts so the frame height tracks the live Chevron geometry.',
+      'Rows count horizontal chevron bands. Columns count full V-shapes, not single angled pieces, so 2 columns means 2 chevron pairs across the dotted frame. Horizontal spacing is projected along the angled cuts so the frame height tracks the live Chevron geometry.',
     materialWidthLabel: 'Pair Width',
     materialHeightLabel: 'Band Height',
     rowFieldLabel: 'Rows',
