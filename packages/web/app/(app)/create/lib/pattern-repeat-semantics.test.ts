@@ -179,31 +179,31 @@ describe('pattern repeat semantics', () => {
     const repeatCounts = getPatternRepeatCounts(shallow);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 1 });
-    expect(canonical).not.toBeNull();
-    expect(steepCanonical).not.toBeNull();
+  expect(canonical).toBeNull();
+  expect(steepCanonical).toBeNull();
 
-    expect(shallowFrame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
-    expect(shallowFrame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
-    expect(steepFrame.repeatWidth).toBeCloseTo(steepCanonical!.repeatWidth);
-    expect(steepFrame.repeatHeight).toBeCloseTo(steepCanonical!.repeatHeight);
-    expect(steepCanonical!.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
-    expect(steepCanonical!.repeatHeight).toBeGreaterThan(canonical!.repeatHeight);
+  expect(shallowFrame.repeatWidth).toBeCloseTo(shallowLayout.repeatWidth ?? shallowLayout.totalWidth);
+  expect(shallowFrame.repeatHeight).toBeCloseTo(shallowLayout.repeatHeight ?? shallowLayout.totalHeight);
+  expect(steepFrame.repeatWidth).toBeCloseTo(steepLayout.repeatWidth ?? steepLayout.totalWidth);
+  expect(steepFrame.repeatHeight).toBeCloseTo(steepLayout.repeatHeight ?? steepLayout.totalHeight);
+  expect(steepFrame.repeatWidth).toBeCloseTo(shallowFrame.repeatWidth);
+  expect(steepFrame.repeatHeight).toBeGreaterThan(shallowFrame.repeatHeight);
 
     expect(shallowLayout.repeatOffsetX).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.totalWidth).toBeGreaterThanOrEqual(shallowFrame.repeatWidth);
     expect(steepLayout.totalHeight).toBeGreaterThan(steepFrame.repeatHeight);
-    expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
+    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
     expect(shallowFrame.previewOutline).toBeUndefined();
     expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      width: Math.round(canonical!.repeatWidth),
-      height: Math.round(canonical!.repeatHeight),
+      width: Math.round(shallowFrame.repeatWidth),
+      height: Math.round(shallowFrame.repeatHeight),
     });
     expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
-      width: Math.round(steepCanonical!.repeatWidth),
-      height: Math.round(steepCanonical!.repeatHeight),
+      width: Math.round(steepFrame.repeatWidth),
+      height: Math.round(steepFrame.repeatHeight),
     });
   });
 });

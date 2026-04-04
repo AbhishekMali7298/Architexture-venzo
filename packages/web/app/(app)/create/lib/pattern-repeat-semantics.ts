@@ -60,7 +60,7 @@ const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   stretcher_bond: 'svg-module',
   flemish_bond: 'svg-module',
   herringbone: 'svg-module',
-  chevron: 'svg-module',
+  chevron: 'procedural',
   staggered: 'svg-module',
   ashlar: 'svg-module',
   cubic: 'svg-module',

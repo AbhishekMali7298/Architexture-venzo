@@ -211,7 +211,7 @@ describe('pattern layouts', () => {
     const baseLayout = getPatternLayout(base);
     const changedLayout = getPatternLayout(changed);
 
-    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('svg-module');
+    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
     expect(baseLayout.repeatWidth).toBeCloseTo(changedLayout.repeatWidth ?? 0);
     expect(changedLayout.repeatHeight).toBeGreaterThan(baseLayout.repeatHeight ?? 0);
   });
