@@ -481,28 +481,49 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
 function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const pieceWidth = Math.max(width, 1);
+  const pieceWidth = Math.max(width / 2, 1);
   const clampedAngle = Math.max(0, Math.min(45, angle || 30));
   const safeAngle = Math.max(clampedAngle, 0.25);
   const angleRadians = (clampedAngle * Math.PI) / 180;
+  const safeAngleRadians = (safeAngle * Math.PI) / 180;
   const rise = Math.max(0, pieceWidth * Math.tan(angleRadians));
   const pieceHeight = Math.max(height + rise, 1);
+  const shoulderInset = Math.max(0, pieceWidth - height / Math.tan(safeAngleRadians));
+  const mirroredShoulderInset = Math.min(pieceWidth, height / Math.tan(safeAngleRadians));
   const pitch = getChevronRepeatPitch(config);
   const stepX = pitch.width;
   const stepY = pitch.height;
   const tiles: PatternTile[] = [];
-  const leftClipPath = [
-    { x: 0, y: rise },
-    { x: pieceWidth, y: 0 },
-    { x: pieceWidth, y: height },
-    { x: 0, y: pieceHeight },
-  ];
-  const rightClipPath = [
-    { x: 0, y: 0 },
-    { x: pieceWidth, y: rise },
-    { x: pieceWidth, y: pieceHeight },
-    { x: 0, y: height },
-  ];
+  const leftClipPath =
+    rise <= height
+      ? [
+          { x: 0, y: rise },
+          { x: pieceWidth, y: 0 },
+          { x: pieceWidth, y: height },
+          { x: 0, y: pieceHeight },
+        ]
+      : [
+          { x: shoulderInset, y: height },
+          { x: pieceWidth, y: 0 },
+          { x: pieceWidth, y: height },
+          { x: 0, y: pieceHeight },
+          { x: 0, y: rise },
+        ];
+  const rightClipPath =
+    rise <= height
+      ? [
+          { x: 0, y: 0 },
+          { x: pieceWidth, y: rise },
+          { x: pieceWidth, y: pieceHeight },
+          { x: 0, y: height },
+        ]
+      : [
+          { x: 0, y: 0 },
+          { x: mirroredShoulderInset, y: height },
+          { x: pieceWidth, y: rise },
+          { x: pieceWidth, y: pieceHeight },
+          { x: 0, y: height },
+        ];
 
   // Draw one bleed ring around the visible repeat so the background tiles
   // seamlessly outside the bordered frame.
@@ -510,7 +531,6 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     for (let column = -1; column <= columns; column++) {
       const baseX = column * stepX;
       const baseY = row * stepY - height;
-      const clipPath = column % 2 === 0 ? leftClipPath : rightClipPath;
 
       tiles.push({
         x: baseX,
@@ -519,7 +539,16 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
         height: pieceHeight,
         rotation: 0,
         materialIndex: 0,
-        clipPath,
+        clipPath: leftClipPath,
+      });
+      tiles.push({
+        x: baseX + pieceWidth,
+        y: baseY,
+        width: pieceWidth,
+        height: pieceHeight,
+        rotation: 0,
+        materialIndex: 0,
+        clipPath: rightClipPath,
       });
     }
   }

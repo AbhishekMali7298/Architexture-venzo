@@ -316,7 +316,7 @@ describe('pattern layouts', () => {
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(layout.repeatWidth).toBeCloseTo(2 * 405);
     expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5 / Math.cos(Math.PI / 4)), 1);
-    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (config.pattern.columns + 2));
+    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (config.pattern.columns + 2) * 2);
   });
 
   it('keeps Chevron deterministic with the procedural layout', () => {

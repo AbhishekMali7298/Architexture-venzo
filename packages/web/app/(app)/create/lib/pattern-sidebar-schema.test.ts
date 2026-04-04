@@ -66,7 +66,7 @@ describe('pattern sidebar schema', () => {
     const schema = getPatternSidebarSchema('chevron');
 
     expect(schema.rowsMeaning).toContain('visible chevron bands');
-    expect(schema.columnsMeaning).toContain('visible chevron blocks');
+    expect(schema.columnsMeaning).toContain('visible chevron V-pairs');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.layoutSource).toBe('procedural');
