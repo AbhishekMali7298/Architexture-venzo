@@ -297,6 +297,7 @@ describe('pattern layouts', () => {
 
     expect(shallowLayout.repeatWidth).toBeCloseTo(steepLayout.repeatWidth);
     expect(shallowLayout.repeatHeight).toBeLessThan(steepLayout.repeatHeight ?? 0);
+    expect(steepLayout.repeatOffsetX).toBeGreaterThan(shallowLayout.repeatOffsetX ?? 0);
     expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 

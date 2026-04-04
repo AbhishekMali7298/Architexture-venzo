@@ -553,10 +553,19 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
+  const layout = normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
     width: columns * stepX,
     height: rows * stepY,
   });
+
+  // Chevron's authored repeat is phased horizontally inside its bleed ring, so
+  // the bordered frame should not start directly on the outer seam.
+  const repeatPhaseX = rise <= height ? rise / 2 : shoulderInset + (rise - height) / 2;
+
+  return {
+    ...layout,
+    repeatOffsetX: (layout.repeatOffsetX ?? 0) + repeatPhaseX,
+  };
 }
 
 function layoutBasketweave(config: TextureConfig): PatternLayoutData {
