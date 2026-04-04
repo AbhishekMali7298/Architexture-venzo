@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
-import { BackgroundCanvas } from './components/background-canvas';
+import { SvgPatternBackground } from './components/svg-pattern-background';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
 import { JointMaterialPickerModal } from './components/joint-material-picker-modal';
@@ -59,6 +59,7 @@ export default function CreatePage() {
   const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
   const setJointRecess = useEditorStore((state) => state.setJointRecess);
   const setJointConcave = useEditorStore((state) => state.setJointConcave);
+  const setJointShadowOpacity = useEditorStore((state) => state.setJointShadowOpacity);
   const setUnits = useEditorStore((state) => state.setUnits);
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
   const setTileBackground = useEditorStore((state) => state.setTileBackground);
@@ -177,7 +178,7 @@ export default function CreatePage() {
 
   return (
     <div className={styles.page}>
-      <BackgroundCanvas />
+      <SvgPatternBackground />
 
       <CreateEditorShell
         onOpenSettings={() => setShowSettingsModal(true)}
@@ -238,6 +239,7 @@ export default function CreatePage() {
           jointAdjustments={config.joints.adjustments}
           jointRecess={config.joints.recess}
           jointConcave={config.joints.concave}
+          jointShadowOpacity={config.joints.shadowOpacity}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
@@ -254,6 +256,7 @@ export default function CreatePage() {
           onJointAdjustmentChange={setJointAdjustment}
           onJointRecessChange={setJointRecess}
           onJointConcaveChange={setJointConcave}
+          onJointShadowOpacityChange={setJointShadowOpacity}
         />
       </CreateEditorShell>
 

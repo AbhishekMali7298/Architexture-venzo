@@ -218,7 +218,8 @@ function prepareBackgroundScene(
   const previewWidth = repeatWidth;
   const previewHeight = repeatHeight;
 
-  const panelWidth = 380;
+  // Keep in sync with .panel width in create-editor.module.css
+  const panelWidth = 336;
   const outerPadding = 40;
   const availableX = panelWidth + outerPadding;
   const availableY = outerPadding;
