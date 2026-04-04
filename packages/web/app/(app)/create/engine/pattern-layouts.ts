@@ -482,7 +482,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const pieceWidth = Math.max(width / 2, 1);
-  const clampedAngle = Math.max(0, Math.min(45, angle || 30));
+  const clampedAngle = Math.max(0, Math.min(70, angle || 30));
   const safeAngle = Math.max(clampedAngle, 0.25);
   const angleRadians = (clampedAngle * Math.PI) / 180;
   const safeAngleRadians = (safeAngle * Math.PI) / 180;
@@ -490,10 +490,9 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   const pieceHeight = Math.max(height + rise, 1);
   const shoulderInset = Math.max(0, pieceWidth - height / Math.tan(safeAngleRadians));
   const mirroredShoulderInset = Math.min(pieceWidth, height / Math.tan(safeAngleRadians));
-  const canonicalRepeat = getCanonicalPatternRepeatBox(config);
   const pitch = getChevronRepeatPitch(config);
-  const stepX = (canonicalRepeat?.repeatWidth ?? Math.max(columns, 1) * pitch.width) / Math.max(columns, 1);
-  const stepY = (canonicalRepeat?.repeatHeight ?? Math.max(rows, 1) * pitch.height) / Math.max(rows, 1);
+  const stepX = pitch.width;
+  const stepY = pitch.height;
   const tiles: PatternTile[] = [];
   const leftClipPath =
     rise <= height
@@ -526,7 +525,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
           { x: 0, y: height },
         ];
 
-  // Draw one bleed ring around the module so clipped edges tile seamlessly.
+  // Draw one bleed ring around the visible repeat so the background tiles
+  // seamlessly outside the bordered frame.
   for (let row = -1; row <= rows; row++) {
     for (let column = -1; column <= columns; column++) {
       const baseX = column * stepX;
@@ -554,8 +554,8 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   }
 
   return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
-    width: canonicalRepeat?.repeatWidth ?? columns * stepX,
-    height: canonicalRepeat?.repeatHeight ?? rows * stepY,
+    width: columns * stepX,
+    height: rows * stepY,
   });
 }
 

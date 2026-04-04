@@ -43,14 +43,15 @@ export interface SvgModuleScale {
 
 export function getChevronRepeatPitch(config: TextureConfig) {
   const material = config.materials[0]!;
+  const clampedAngle = Math.max(0, Math.min(70, config.pattern.angle ?? 0));
+  const angleRadians = (clampedAngle * Math.PI) / 180;
+  const projectedJointHeight = config.joints.horizontalSize / Math.max(Math.cos(angleRadians), 0.01);
 
   return {
     width: material.width + config.joints.verticalSize,
-    height: material.height + config.joints.horizontalSize,
+    height: material.height + projectedJointHeight,
   };
 }
-
-export const USE_SVG_CHEVRON_PARITY = false;
 
 const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   none: 'procedural',
@@ -160,7 +161,7 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     angleMeaning: 'Angle changes the chevron mitre geometry inside the rectangular repeat frame.',
     dimensionsMeaning: 'Width defines the chevron pair span; height defines the visible band height used by the bordered repeat box.',
     semanticHint:
-      'Rows and columns count the visible chevron pairs inside the bordered repeat. The dotted frame stays rectangular while angle changes the internal mitre shape.',
+      'Rows and columns count the visible chevron pairs inside the bordered repeat. Horizontal spacing is projected along the angled cuts so the frame height tracks the live Chevron geometry.',
     materialWidthLabel: 'Pair Width',
     materialHeightLabel: 'Band Height',
     rowFieldLabel: 'Rows',
@@ -306,15 +307,6 @@ export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModul
   const repeatWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
   const repeatHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
-  // Chevron is authored around a repeat module whose pitch maps more directly
-  // to the user-facing pair width / band height than to the raw source tile.
-  if (config.pattern.type === 'chevron') {
-    return {
-      scaleX: Math.max(0.01, (material.width + config.joints.verticalSize) / repeatWidth),
-      scaleY: Math.max(0.01, (material.height + config.joints.horizontalSize) / repeatHeight),
-    };
-  }
-
   const uniformScale = Math.max(
     0.01,
     Math.min(material.width / Math.max(module.referenceTileWidth, 1), material.height / Math.max(module.referenceTileHeight, 1)),
@@ -383,15 +375,18 @@ function buildFallbackSemantics(type: PatternType): PatternRepeatSemantics {
 }
 
 export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
-  if (type === 'chevron' && USE_SVG_CHEVRON_PARITY) {
-    return 'svg-module';
-  }
-
   return PATTERN_LAYOUT_SOURCE[type] ?? 'procedural';
 }
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {
   const pattern = getPatternByType(config.pattern.type);
+  if (pattern?.rowColMode !== 'module') {
+    return {
+      rows: Math.max(1, config.pattern.rows),
+      columns: Math.max(1, config.pattern.columns),
+    };
+  }
+
   const rowMultiple = Math.max(1, pattern?.rowMultiple ?? 1);
   const columnMultiple = Math.max(1, pattern?.columnMultiple ?? 1);
 
@@ -412,16 +407,6 @@ export function getPatternRepeatSemantics(type: PatternType): PatternRepeatSeman
     layoutSource: getPatternLayoutSource(type),
     ...override,
   };
-
-  if (type === 'chevron') {
-    return {
-      ...semantics,
-      angleMeaning: 'Angle changes the procedural mitre cut inside the rectangular repeat frame.',
-      semanticHint:
-        'Rows and columns size the visible chevron repeat while angle changes the chevron mitre geometry inside the rectangular bordered frame.',
-    };
-  }
-
   return semantics;
 }
 
@@ -440,14 +425,6 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
     if (Math.abs(normalizedAngle - 90) < 0.001) {
       return null;
     }
-  }
-
-  if (config.pattern.type === 'chevron' && !USE_SVG_CHEVRON_PARITY) {
-    const pitch = getChevronRepeatPitch(config);
-    return {
-      repeatWidth: Math.max(1, config.pattern.columns) * pitch.width,
-      repeatHeight: Math.max(1, config.pattern.rows) * pitch.height,
-    };
   }
 
   const module = SVG_PATTERN_MODULES[config.pattern.type];

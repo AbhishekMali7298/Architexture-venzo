@@ -62,7 +62,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields.map((field) => field.id)).toContain('angle');
   });
 
-  it('describes chevron rows and columns as repeat modules while keeping simple field labels', () => {
+  it('describes chevron rows and columns as visible counts while keeping angle active', () => {
     const schema = getPatternSidebarSchema('chevron');
 
     expect(schema.rowsMeaning).toContain('visible chevron bands');
@@ -70,6 +70,6 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.layoutSource).toBe('procedural');
-    expect(schema.angleMeaning).toContain('rectangular repeat frame');
+    expect(schema.angleMeaning).toContain('mitre geometry');
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getPatternByType, type TextureConfig } from '@textura/shared';
-import { getChevronRepeatPitch, getPatternRepeatCounts, USE_SVG_CHEVRON_PARITY } from '../lib/pattern-repeat-semantics';
+import { getPatternRepeatCounts } from '../lib/pattern-repeat-semantics';
 import { getPatternSidebarSchema } from '../lib/pattern-sidebar-schema';
 import { getPatternLayout } from './pattern-layouts';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
@@ -258,66 +258,81 @@ describe('pattern layouts', () => {
     expect(diagonalLayout.repeatHeight).not.toBe(orthogonalLayout.repeatHeight);
   });
 
-  it('changes chevron clip geometry when angle changes while preserving repeat bounds', () => {
+  it('uses visible chevron counts directly in the procedural repeat box', () => {
+    const config = createPatternConfig('chevron');
+    config.pattern.rows = 6;
+    config.pattern.columns = 2;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+    config.pattern.angle = 45;
+
+    const layout = getPatternLayout(config);
+
+    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
+    expect(layout.repeatWidth).toBeCloseTo(810);
+    expect(layout.repeatHeight).toBeCloseTo(642.43, 1);
+    expect(layout.repeatOffsetX).toBeGreaterThan(0);
+    expect(layout.repeatOffsetY).toBeGreaterThan(0);
+  });
+
+  it('changes chevron clip geometry and repeat height when angle changes', () => {
     const shallow = createPatternConfig('chevron');
-    shallow.pattern.rows = 1;
-    shallow.pattern.columns = 1;
-    shallow.pattern.angle = 1;
+    shallow.pattern.rows = 6;
+    shallow.pattern.columns = 2;
+    shallow.pattern.angle = 10;
     shallow.materials[0]!.width = 400;
     shallow.materials[0]!.height = 100;
 
     const steep = createPatternConfig('chevron');
-    steep.pattern.rows = 1;
-    steep.pattern.columns = 1;
-    steep.pattern.angle = 30;
+    steep.pattern.rows = 6;
+    steep.pattern.columns = 2;
+    steep.pattern.angle = 45;
     steep.materials[0]!.width = 400;
     steep.materials[0]!.height = 100;
 
     const shallowLayout = getPatternLayout(shallow);
     const steepLayout = getPatternLayout(steep);
-    const shallowPitch = getChevronRepeatPitch(shallow);
-    const steepPitch = getChevronRepeatPitch(steep);
 
-    expect(shallowLayout.repeatWidth).toBeCloseTo(shallowPitch.width);
-    expect(steepLayout.repeatWidth).toBeCloseTo(steepPitch.width);
-    expect(shallowLayout.repeatHeight).toBeCloseTo(steepLayout.repeatHeight);
-
-    if (USE_SVG_CHEVRON_PARITY) {
-      expect(shallowLayout.repeatWidth).toBeCloseTo(shallow.materials[0]!.width + shallow.joints.verticalSize);
-      expect(shallowLayout.repeatHeight).toBeCloseTo(shallow.materials[0]!.height + shallow.joints.horizontalSize);
-      expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
-    } else {
-      expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
-      expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
-      expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
-      expect(shallowLayout.previewOutline).toBeUndefined();
-      expect(steepLayout.previewOutline).toBeUndefined();
-    }
+    expect(shallowLayout.repeatWidth).toBeCloseTo(steepLayout.repeatWidth);
+    expect(shallowLayout.repeatHeight).toBeLessThan(steepLayout.repeatHeight ?? 0);
+    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 
-  it('keeps Chevron deterministic under the comparison flag', () => {
+  it('keeps chevron repeat counts equal to the visible row and column counts', () => {
     const config = createPatternConfig('chevron');
-    config.pattern.rows = 1;
+    config.pattern.rows = 6;
+    config.pattern.columns = 2;
+    config.pattern.angle = 45;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const repeatCounts = getPatternRepeatCounts(config);
+    const layout = getPatternLayout(config);
+
+    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(layout.repeatWidth).toBeCloseTo(2 * 405);
+    expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5 / Math.cos(Math.PI / 4)), 1);
+  });
+
+  it('keeps Chevron deterministic with the procedural layout', () => {
+    const config = createPatternConfig('chevron');
+    config.pattern.rows = 2;
     config.pattern.columns = 1;
     config.materials[0]!.width = 400;
     config.materials[0]!.height = 100;
+    config.pattern.angle = 30;
 
     const layout = getPatternLayout(config);
 
-    if (USE_SVG_CHEVRON_PARITY) {
-      expect(getPatternSidebarSchema('chevron').layoutSource).toBe('svg-module');
-      expect(layout.repeatWidth).toBeCloseTo(config.materials[0]!.width + config.joints.verticalSize);
-      expect(layout.repeatHeight).toBeCloseTo(config.materials[0]!.height + config.joints.horizontalSize);
-      expect(layout.repeatOffsetX).toBeGreaterThan(0);
-      expect(layout.repeatOffsetY).toBeGreaterThan(0);
-    } else {
-      const pitch = getChevronRepeatPitch(config);
-      expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-      expect(layout.repeatWidth).toBeCloseTo(pitch.width);
-      expect(layout.repeatHeight).toBeCloseTo(pitch.height);
-      expect(layout.repeatOffsetX).toBeGreaterThan(0);
-      expect(layout.repeatOffsetY).toBeGreaterThan(0);
-      expect(layout.previewOutline).toBeUndefined();
-    }
+    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
+    expect(layout.repeatWidth).toBeCloseTo(config.materials[0]!.width + config.joints.verticalSize);
+    expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + config.joints.horizontalSize / Math.cos(Math.PI / 6)), 1);
+    expect(layout.repeatOffsetX).toBeGreaterThan(0);
+    expect(layout.repeatOffsetY).toBeGreaterThan(0);
+    expect(layout.previewOutline).toBeUndefined();
   });
 });

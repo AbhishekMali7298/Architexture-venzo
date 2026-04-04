@@ -5,7 +5,6 @@ import { getPatternLayout } from '../engine/pattern-layouts';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
 import {
   getCanonicalPatternRepeatBox,
-  getChevronRepeatPitch,
   getPatternDimensionsHintSize,
   getPatternRepeatCounts,
   resolvePatternRepeatFrame,
@@ -139,48 +138,55 @@ describe('pattern repeat semantics', () => {
     });
   });
 
-  it('keeps the chevron repeat frame stable while angle changes the piece geometry', () => {
+  it('keeps chevron rows and columns as visible counts while angle changes the repeat height', () => {
     const shallow = createPatternConfig('chevron');
-    shallow.pattern.rows = 2;
-    shallow.pattern.columns = 3;
-    shallow.pattern.angle = 1;
+    shallow.pattern.rows = 6;
+    shallow.pattern.columns = 2;
+    shallow.pattern.angle = 10;
     shallow.materials[0]!.width = 400;
     shallow.materials[0]!.height = 100;
+    shallow.joints.horizontalSize = 5;
+    shallow.joints.verticalSize = 5;
 
     const steep = createPatternConfig('chevron');
-    steep.pattern.rows = 2;
-    steep.pattern.columns = 3;
-    steep.pattern.angle = 30;
+    steep.pattern.rows = 6;
+    steep.pattern.columns = 2;
+    steep.pattern.angle = 45;
     steep.materials[0]!.width = 400;
     steep.materials[0]!.height = 100;
+    steep.joints.horizontalSize = 5;
+    steep.joints.verticalSize = 5;
 
     const shallowLayout = getPatternLayout(shallow);
     const steepLayout = getPatternLayout(steep);
     const shallowFrame = resolvePatternRepeatFrame(shallow, shallowLayout);
     const steepFrame = resolvePatternRepeatFrame(steep, steepLayout);
     const canonical = getCanonicalPatternRepeatBox(shallow);
-    const shallowPitch = getChevronRepeatPitch(shallow);
+    const repeatCounts = getPatternRepeatCounts(shallow);
 
-    expect(canonical).toEqual({
-      repeatWidth: shallow.pattern.columns * shallowPitch.width,
-      repeatHeight: shallow.pattern.rows * shallowPitch.height,
-    });
-    expect(shallowFrame.repeatWidth).toBe(canonical?.repeatWidth);
-    expect(shallowFrame.repeatHeight).toBe(canonical?.repeatHeight);
-    expect(steepFrame.repeatWidth).toBe(canonical?.repeatWidth);
-    expect(steepFrame.repeatHeight).toBe(canonical?.repeatHeight);
+    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(canonical).toBeNull();
+
+    expect(shallowFrame.repeatWidth).toBeCloseTo(810);
+    expect(shallowFrame.repeatHeight).toBeCloseTo(630.46, 1);
+    expect(steepFrame.repeatWidth).toBeCloseTo(810);
+    expect(steepFrame.repeatHeight).toBeCloseTo(642.43, 1);
 
     expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
     expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
-    expect(shallowLayout.totalHeight).toBeGreaterThan(shallowFrame.repeatHeight);
+    expect(steepLayout.totalHeight).toBeGreaterThan(steepFrame.repeatHeight);
     expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
     expect(shallowFrame.previewOutline).toBeUndefined();
     expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      width: Math.round(shallowFrame.repeatWidth),
-      height: Math.round(shallowFrame.repeatHeight),
+      width: 810,
+      height: 630,
+    });
+    expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
+      width: 810,
+      height: 642,
     });
   });
 });
