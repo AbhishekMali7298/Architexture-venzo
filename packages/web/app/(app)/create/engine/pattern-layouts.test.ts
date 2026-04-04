@@ -271,10 +271,12 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(810);
+    expect(layout.repeatWidth).toBeCloseTo(405);
     expect(layout.repeatHeight).toBeCloseTo(642.43, 1);
-    expect(layout.repeatOffsetX).toBeGreaterThan(0);
-    expect(layout.repeatOffsetY).toBeGreaterThan(0);
+    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetX ?? 0).toBeLessThan(405);
+    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetY ?? 0).toBeLessThan(layout.repeatHeight ?? Number.POSITIVE_INFINITY);
   });
 
   it('changes chevron clip geometry and repeat height when angle changes', () => {
@@ -297,7 +299,9 @@ describe('pattern layouts', () => {
 
     expect(shallowLayout.repeatWidth).toBeCloseTo(steepLayout.repeatWidth);
     expect(shallowLayout.repeatHeight).toBeLessThan(steepLayout.repeatHeight ?? 0);
-    expect(steepLayout.repeatOffsetX).toBeGreaterThan(shallowLayout.repeatOffsetX ?? 0);
+    expect(steepLayout.repeatOffsetX).toBeCloseTo(shallowLayout.repeatOffsetX ?? 0, 6);
+    expect(steepLayout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
+    expect(steepLayout.repeatOffsetX ?? 0).toBeLessThan(steep.materials[0]!.width + steep.joints.verticalSize);
     expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
   });
 
@@ -314,10 +318,11 @@ describe('pattern layouts', () => {
     const repeatCounts = getPatternRepeatCounts(config);
     const layout = getPatternLayout(config);
 
+    const vPairs = Math.max(1, Math.floor(config.pattern.columns / 2));
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(layout.repeatWidth).toBeCloseTo(2 * 405);
+    expect(layout.repeatWidth).toBeCloseTo(vPairs * 405);
     expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5 / Math.cos(Math.PI / 4)), 1);
-    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (config.pattern.columns + 2) * 2);
+    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (vPairs + 2) * 2);
   });
 
   it('keeps Chevron deterministic with the procedural layout', () => {
@@ -333,8 +338,10 @@ describe('pattern layouts', () => {
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
     expect(layout.repeatWidth).toBeCloseTo(config.materials[0]!.width + config.joints.verticalSize);
     expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + config.joints.horizontalSize / Math.cos(Math.PI / 6)), 1);
-    expect(layout.repeatOffsetX).toBeGreaterThan(0);
-    expect(layout.repeatOffsetY).toBeGreaterThan(0);
+    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetX ?? 0).toBeLessThan(config.materials[0]!.width + config.joints.verticalSize);
+    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetY ?? 0).toBeLessThan(layout.repeatHeight ?? Number.POSITIVE_INFINITY);
     expect(layout.previewOutline).toBeUndefined();
   });
 });

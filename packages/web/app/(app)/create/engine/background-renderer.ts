@@ -374,6 +374,11 @@ export function renderBackground(
   const scene = prepareBackgroundScene(config, canvasWidth, canvasHeight);
   if (!scene) return null;
 
+  // Keep preview origin stable across redraws to avoid sub-pixel drift artifacts
+  // when switching between patterns with different repeat dimensions.
+  const previewX = Math.round(scene.previewX);
+  const previewY = Math.round(scene.previewY);
+
   if (config.pattern.type === 'none') {
     fillMaterialSurface(ctx, {
       x: 0,
@@ -387,8 +392,8 @@ export function renderBackground(
     });
 
     return {
-      x: scene.previewX,
-      y: scene.previewY,
+      x: previewX,
+      y: previewY,
       width: Math.max(0, scene.previewWidth),
       height: Math.max(0, scene.previewHeight),
       outline: scene.outline,
@@ -409,38 +414,43 @@ export function renderBackground(
   const repeatTileSurface = createRepeatTileSurface(scene, options);
 
   if (repeatTileSurface) {
+    const tileWidth = Math.max(1, repeatTileSurface.width);
+    const tileHeight = Math.max(1, repeatTileSurface.height);
+
     if (options?.tileBackground === false) {
-      ctx.drawImage(repeatTileSurface, scene.previewX, scene.previewY, scene.tileSetWidth, scene.tileSetHeight);
+      ctx.drawImage(repeatTileSurface, previewX, previewY, tileWidth, tileHeight);
     } else {
-      const stepX = Math.max(scene.tileSetWidth, 1);
-      const stepY = Math.max(scene.tileSetHeight, 1);
-      const startX = scene.previewX - Math.ceil(scene.previewX / stepX) * stepX;
-      const startY = scene.previewY - Math.ceil(scene.previewY / stepY) * stepY;
+      const stepX = tileWidth;
+      const stepY = tileHeight;
+      const startX = previewX - Math.ceil(previewX / stepX) * stepX;
+      const startY = previewY - Math.ceil(previewY / stepY) * stepY;
 
       for (let y = startY; y < canvasHeight + stepY; y += stepY) {
         for (let x = startX; x < canvasWidth + stepX; x += stepX) {
-          ctx.drawImage(repeatTileSurface, x, y, scene.tileSetWidth, scene.tileSetHeight);
+          ctx.drawImage(repeatTileSurface, x, y, tileWidth, tileHeight);
         }
       }
     }
   } else if (options?.tileBackground === false) {
-    drawPreparedLayout(ctx, scene, scene.previewX, scene.previewY, options);
+    drawPreparedLayout(ctx, scene, previewX, previewY, options);
   } else {
-    const startX = scene.previewX - Math.ceil(scene.previewX / Math.max(scene.tileSetWidth, 1)) * scene.tileSetWidth;
-    const startY = scene.previewY - Math.ceil(scene.previewY / Math.max(scene.tileSetHeight, 1)) * scene.tileSetHeight;
+    const stepX = Math.max(Math.round(scene.tileSetWidth), 1);
+    const stepY = Math.max(Math.round(scene.tileSetHeight), 1);
+    const startX = previewX - Math.ceil(previewX / stepX) * stepX;
+    const startY = previewY - Math.ceil(previewY / stepY) * stepY;
 
-    for (let y = startY; y < canvasHeight + scene.tileSetHeight; y += scene.tileSetHeight) {
-      for (let x = startX; x < canvasWidth + scene.tileSetWidth; x += scene.tileSetWidth) {
+    for (let y = startY; y < canvasHeight + stepY; y += stepY) {
+      for (let x = startX; x < canvasWidth + stepX; x += stepX) {
         drawPreparedLayout(ctx, scene, x, y, options);
       }
     }
   }
 
   return {
-    x: scene.previewX,
-    y: scene.previewY,
-    width: Math.max(0, scene.previewWidth),
-    height: Math.max(0, scene.previewHeight),
+    x: previewX,
+    y: previewY,
+    width: repeatTileSurface ? Math.max(1, repeatTileSurface.width) : Math.max(0, scene.previewWidth),
+    height: repeatTileSurface ? Math.max(1, repeatTileSurface.height) : Math.max(0, scene.previewHeight),
     outline: scene.outline,
   };
 }
@@ -453,22 +463,30 @@ export function drawDottedBorder(
   height: number,
   outline?: ReadonlyArray<{ x: number; y: number }>,
 ) {
+  const snap = (value: number) => Math.round(value) + 0.5;
+
   ctx.save();
-  ctx.setLineDash([2, 6]);
-  ctx.strokeStyle = 'rgba(0,0,0,0.75)';
   ctx.lineWidth = 3;
+  ctx.setLineDash([0, 7]);
+  ctx.strokeStyle = 'rgba(20,20,20,0.88)';
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
   ctx.beginPath();
 
   if (outline && outline.length > 1) {
-    ctx.moveTo(x + outline[0]!.x * width, y + outline[0]!.y * height);
+    ctx.moveTo(snap(x + outline[0]!.x * width), snap(y + outline[0]!.y * height));
     for (let index = 1; index < outline.length; index++) {
       const point = outline[index]!;
-      ctx.lineTo(x + point.x * width, y + point.y * height);
+      ctx.lineTo(snap(x + point.x * width), snap(y + point.y * height));
     }
     ctx.closePath();
   } else {
-    ctx.rect(x, y, width, height);
+    const inset = ctx.lineWidth * 0.5;
+    const rx = snap(x + inset);
+    const ry = snap(y + inset);
+    const rw = Math.max(0, Math.round(width - ctx.lineWidth));
+    const rh = Math.max(0, Math.round(height - ctx.lineWidth));
+    ctx.rect(rx, ry, rw, rh);
   }
 
   ctx.stroke();

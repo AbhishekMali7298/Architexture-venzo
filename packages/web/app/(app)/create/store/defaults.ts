@@ -114,7 +114,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   ],
 
   joints: {
-    materialSource: { type: 'solid', color: '#e8e6e0' },
+    materialSource: { type: 'solid', color: '#b8b4ac' },
     tint: '#FFFFFF',
     horizontalSize: 5,
     verticalSize: 5,

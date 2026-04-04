@@ -525,10 +525,14 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
           { x: 0, y: height },
         ];
 
+  // columns = individual chevron pieces; two pieces make one V-pair.
+  // columns=4 → vPairs=2, matching the competitor's frame semantics.
+  const vPairs = Math.max(1, Math.floor(columns / 2));
+
   // Draw one bleed ring around the visible repeat so the background tiles
   // seamlessly outside the bordered frame.
   for (let row = -1; row <= rows; row++) {
-    for (let column = -1; column <= columns; column++) {
+    for (let column = -1; column <= vPairs; column++) {
       const baseX = column * stepX;
       const baseY = row * stepY - height;
 
@@ -554,17 +558,26 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   }
 
   const layout = normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
-    width: columns * stepX,
+    width: vPairs * stepX,
     height: rows * stepY,
   });
 
-  // Chevron's authored repeat is phased horizontally inside its bleed ring, so
-  // the bordered frame should not start directly on the outer seam.
-  const repeatPhaseX = rise <= height ? rise / 2 : shoulderInset + (rise - height) / 2;
+  // Anchor the bordered repeat on a full chevron seam. This keeps the frame
+  // stable while angle changes.
+  const repeatPhaseX = 0;
+
+  const normalizeOffset = (value: number, period: number) => {
+    const safePeriod = Math.max(period, 1);
+    return ((value % safePeriod) + safePeriod) % safePeriod;
+  };
+
+  const canonicalOffsetX = normalizeOffset((layout.repeatOffsetX ?? 0) + repeatPhaseX, stepX);
+  const canonicalOffsetY = normalizeOffset(layout.repeatOffsetY ?? 0, stepY);
 
   return {
     ...layout,
-    repeatOffsetX: (layout.repeatOffsetX ?? 0) + repeatPhaseX,
+    repeatOffsetX: canonicalOffsetX,
+    repeatOffsetY: canonicalOffsetY,
   };
 }
 

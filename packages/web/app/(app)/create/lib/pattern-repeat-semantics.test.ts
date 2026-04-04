@@ -167,12 +167,12 @@ describe('pattern repeat semantics', () => {
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(canonical).toBeNull();
 
-    expect(shallowFrame.repeatWidth).toBeCloseTo(810);
+    expect(shallowFrame.repeatWidth).toBeCloseTo(405);
     expect(shallowFrame.repeatHeight).toBeCloseTo(630.46, 1);
-    expect(steepFrame.repeatWidth).toBeCloseTo(810);
+    expect(steepFrame.repeatWidth).toBeCloseTo(405);
     expect(steepFrame.repeatHeight).toBeCloseTo(642.43, 1);
 
-    expect(shallowLayout.repeatOffsetX).toBeGreaterThan(0);
+    expect(shallowLayout.repeatOffsetX).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThan(0);
     expect(shallowLayout.totalWidth).toBeGreaterThan(shallowFrame.repeatWidth);
     expect(steepLayout.totalHeight).toBeGreaterThan(steepFrame.repeatHeight);
@@ -181,11 +181,11 @@ describe('pattern repeat semantics', () => {
     expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      width: 810,
+      width: 405,
       height: 630,
     });
     expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
-      width: 810,
+      width: 405,
       height: 642,
     });
   });
