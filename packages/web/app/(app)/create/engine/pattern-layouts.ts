@@ -969,5 +969,10 @@ export function getPatternLayout(config: TextureConfig): PatternLayoutData {
     return layoutFromSvgModule(config, svgModule);
   }
 
-  throw new Error(`SVG module missing or invalid for pattern: ${config.pattern.type}`);
+  const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
+  if (proceduralLayout) {
+    return proceduralLayout(config);
+  }
+
+  throw new Error(`No layout available for pattern: ${config.pattern.type}`);
 }
