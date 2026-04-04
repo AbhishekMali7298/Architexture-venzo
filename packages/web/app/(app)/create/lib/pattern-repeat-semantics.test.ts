@@ -49,12 +49,14 @@ describe('pattern repeat semantics', () => {
 
     const layout = getPatternLayout(config);
     const canonical = getCanonicalPatternRepeatBox(config);
+    const repeatCounts = getPatternRepeatCounts(config);
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
 
+    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
     expect(canonical).toEqual({
       repeatWidth: 2 * (SVG_PATTERN_MODULES.running_bond.repeatWidth ?? SVG_PATTERN_MODULES.running_bond.viewBoxWidth),
-      repeatHeight: 6 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
+      repeatHeight: 3 * (SVG_PATTERN_MODULES.running_bond.repeatHeight ?? SVG_PATTERN_MODULES.running_bond.viewBoxHeight),
     });
     expect(frame.repeatWidth).toBe(canonical.repeatWidth);
     expect(frame.repeatHeight).toBe(canonical.repeatHeight);
@@ -75,9 +77,11 @@ describe('pattern repeat semantics', () => {
 
     const layout = getPatternLayout(config);
     const canonical = getCanonicalPatternRepeatBox(config);
+    const repeatCounts = getPatternRepeatCounts(config);
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
 
+    expect(repeatCounts).toEqual({ rows: 3, columns: 2 });
     expect(canonical).not.toBeNull();
     expect(frame.repeatWidth).toBe(canonical!.repeatHeight);
     expect(frame.repeatHeight).toBe(canonical!.repeatWidth);
