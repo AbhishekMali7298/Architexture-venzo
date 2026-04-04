@@ -9,10 +9,10 @@ describe('pattern sidebar schema', () => {
     expect(schema.materialHeightLabel).toBe('Field Height');
   });
 
-  it('hides stretcher-specific controls for authored stretcher module parity', () => {
+  it('shows stretchers for patterns that define stretcher ranges', () => {
     const schema = getPatternSidebarSchema('stretcher_bond');
     expect(schema.layoutSource).toBe('svg-module');
-    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
+    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
   });
 
   it('keeps common pattern rows and columns as visible counts', () => {
@@ -21,7 +21,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.layoutSource).toBe('svg-module');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
-    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
+    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
     expect(schema.rowsMeaning).toContain('visible brick courses');
     expect(schema.columnsMeaning).toContain('visible brick slots');
   });
@@ -46,10 +46,10 @@ describe('pattern sidebar schema', () => {
     expect(schema.columnsMeaning).toContain('3 visible columns');
   });
 
-  it('uses row/column controls only for authored basketweave module parity', () => {
+  it('shows weaves for basketweave pattern controls', () => {
     const schema = getPatternSidebarSchema('basketweave');
     expect(schema.layoutSource).toBe('svg-module');
-    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
+    expect(schema.fields.map((field) => field.id)).toContain('weaves');
   });
 
   it('hides angle for module-backed patterns that do not use it', () => {
@@ -74,7 +74,6 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.layoutSource).toBe('svg-module');
-    expect(schema.fields.map((field) => field.id)).not.toContain('angle');
-    expect(schema.angleMeaning).toContain('fixed');
+    expect(schema.fields.map((field) => field.id)).toContain('angle');
   });
 });

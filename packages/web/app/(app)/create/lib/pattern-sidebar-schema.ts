@@ -29,49 +29,22 @@ export interface PatternSidebarSchema {
 }
 
 function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: string) {
-  switch (type) {
-    case 'none':
-      return [];
-    case 'stack_bond':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    case 'running_bond':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    case 'stretcher_bond':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    case 'herringbone':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    case 'basketweave':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    case 'chevron':
-      return [
-        { id: 'rows', label: rowLabel },
-        { id: 'columns', label: columnLabel },
-      ] satisfies PatternFieldSchema[];
-    default: {
-      const pattern = getPatternByType(type);
-      const canAdjustAngle = Boolean(pattern && pattern.parameterRanges.angle.max > pattern.parameterRanges.angle.min);
-      return [
-        { id: 'rows', label: rowLabel } satisfies PatternFieldSchema,
-        { id: 'columns', label: columnLabel } satisfies PatternFieldSchema,
-        ...(canAdjustAngle ? [{ id: 'angle', label: 'Angle', commitOnChange: true } satisfies PatternFieldSchema] : []),
-      ];
-    }
+  if (type === 'none') {
+    return [];
   }
+
+  const pattern = getPatternByType(type);
+  const canAdjustAngle = Boolean(pattern && pattern.parameterRanges.angle.max > pattern.parameterRanges.angle.min);
+  const supportsStretchers = Boolean(pattern?.parameterRanges.stretchers);
+  const supportsWeaves = Boolean(pattern?.parameterRanges.weaves);
+
+  return [
+    { id: 'rows', label: rowLabel } satisfies PatternFieldSchema,
+    { id: 'columns', label: columnLabel } satisfies PatternFieldSchema,
+    ...(canAdjustAngle ? [{ id: 'angle', label: 'Angle', commitOnChange: true } satisfies PatternFieldSchema] : []),
+    ...(supportsStretchers ? [{ id: 'stretchers', label: 'Stretchers' } satisfies PatternFieldSchema] : []),
+    ...(supportsWeaves ? [{ id: 'weaves', label: 'Weaves' } satisfies PatternFieldSchema] : []),
+  ] satisfies PatternFieldSchema[];
 }
 
 export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema {
