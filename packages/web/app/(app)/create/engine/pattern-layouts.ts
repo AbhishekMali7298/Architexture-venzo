@@ -1,5 +1,11 @@
 import { type TextureConfig, type PatternType } from '@textura/shared';
-import { getChevronRepeatPitch } from '../lib/pattern-repeat-semantics';
+import { SVG_PATTERN_MODULES, type SvgPatternModule } from './generated/svg-pattern-modules';
+import {
+  getChevronRepeatPitch,
+  getPatternLayoutSource,
+  getPatternRepeatCounts,
+  getSvgModuleScale,
+} from '../lib/pattern-repeat-semantics';
 
 export interface PatternTile {
   x: number;
@@ -134,14 +140,88 @@ function normalizeLayoutBounds(
   return {
     tiles: normalizedTiles,
     strokes: normalizedStrokes,
-    totalWidth: Math.max(0, maxX + offsetX),
-    totalHeight: Math.max(0, maxY + offsetY),
+    totalWidth: Math.max(0, maxX + offsetX, repeatBounds?.width ?? 0),
+    totalHeight: Math.max(0, maxY + offsetY, repeatBounds?.height ?? 0),
     repeatWidth: repeatBounds?.width ?? Math.max(0, maxX + offsetX),
     repeatHeight: repeatBounds?.height ?? Math.max(0, maxY + offsetY),
     repeatOffsetX: offsetX,
     repeatOffsetY: offsetY,
     previewOutline: undefined,
   };
+}
+
+function isUsableSvgModule(module: SvgPatternModule | undefined): module is SvgPatternModule {
+  return Boolean(
+    module &&
+      Number.isFinite(module.referenceTileWidth) &&
+      Number.isFinite(module.referenceTileHeight) &&
+      module.referenceTileWidth > 1 &&
+      module.referenceTileHeight > 1 &&
+      module.viewBoxWidth > 0 &&
+      module.viewBoxHeight > 0 &&
+      (module.tiles.length > 0 || module.strokes.length > 0),
+  );
+}
+
+function layoutSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
+  const { horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const { rows, columns } = getPatternRepeatCounts(config);
+  const { scaleX, scaleY } = getSvgModuleScale(config, module);
+  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scaleX;
+  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scaleY;
+  const tiles: PatternTile[] = [];
+  const strokes: PatternStroke[] = [];
+  const strokeOnlyModule = module.tiles.length === 0 && module.strokes.length > 0;
+
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const offsetX = column * repeatWidth;
+      const offsetY = row * repeatHeight;
+
+      if (strokeOnlyModule) {
+        tiles.push({
+          x: offsetX,
+          y: offsetY,
+          width: repeatWidth,
+          height: repeatHeight,
+          rotation: 0,
+          materialIndex: 0,
+          applyJointInset: false,
+          skipEdgeStroke: true,
+        });
+      }
+
+      for (const tile of module.tiles) {
+        tiles.push({
+          x: offsetX + tile.x * scaleX,
+          y: offsetY + tile.y * scaleY,
+          width: tile.width * scaleX,
+          height: tile.height * scaleY,
+          rotation: 0,
+          materialIndex: 0,
+          clipPath: tile.clipPath.map((point) => ({
+            x: point.x * scaleX,
+            y: point.y * scaleY,
+          })),
+        });
+      }
+
+      for (const stroke of module.strokes) {
+        strokes.push({
+          closed: stroke.closed,
+          points: stroke.points.map((point) => ({
+            x: offsetX + point.x * scaleX,
+            y: offsetY + point.y * scaleY,
+          })),
+        });
+      }
+    }
+  }
+
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
+    width: columns * repeatWidth,
+    height: rows * repeatHeight,
+  });
 }
 
 
@@ -880,6 +960,11 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const module = SVG_PATTERN_MODULES[config.pattern.type];
+  if (getPatternLayoutSource(config.pattern.type) === 'svg-module' && isUsableSvgModule(module)) {
+    return layoutSvgModule(config, module);
+  }
+
   const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];
   if (proceduralLayout) {
     return proceduralLayout(config);

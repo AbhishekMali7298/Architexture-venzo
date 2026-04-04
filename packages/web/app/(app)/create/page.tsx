@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
-import { SvgPatternBackground } from './components/svg-pattern-background';
+import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
 import { JointMaterialPickerModal } from './components/joint-material-picker-modal';
@@ -178,7 +178,7 @@ export default function CreatePage() {
 
   return (
     <div className={styles.page}>
-      <SvgPatternBackground />
+      <BackgroundCanvas />
 
       <CreateEditorShell
         onOpenSettings={() => setShowSettingsModal(true)}

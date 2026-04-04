@@ -45,10 +45,10 @@ export function getChevronRepeatPitch(config: TextureConfig) {
   const material = config.materials[0]!;
   const clampedAngle = Math.max(0, Math.min(45, config.pattern.angle ?? 0));
   const angleRadians = (clampedAngle * Math.PI) / 180;
-  const projectedJointHeight = (config.joints.horizontalSize * 2) / Math.max(Math.cos(angleRadians), 0.01);
+  const projectedJointHeight = config.joints.horizontalSize / Math.max(Math.cos(angleRadians), 0.01);
 
   return {
-    width: material.width + config.joints.verticalSize * 2,
+    width: material.width + config.joints.verticalSize,
     height: material.height + projectedJointHeight,
   };
 }
@@ -158,10 +158,10 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     countMode: 'visible-counts',
     rowsMeaning: 'Rows count visible chevron bands inside the bordered repeat.',
     columnsMeaning: 'Columns count visible chevron half-arms across the bordered repeat. Two columns form one full V-pair.',
-    angleMeaning: 'Angle is fixed by the authored chevron module in the create editor.',
-    dimensionsMeaning: 'Width and height define the reference chevron unit used to scale the authored module.',
+    angleMeaning: 'Angle changes the chevron pitch and the repeat height.',
+    dimensionsMeaning: 'Width and height define the visible chevron arm spacing and band height.',
     semanticHint:
-      'Rows count chevron bands and columns count half-arms, while authored module geometry keeps the bordered repeat consistent with Architextures output.',
+      'Rows count visible chevron bands and columns count visible half-arms. Angle changes the vertical repeat pitch, so the dotted border should grow taller as the chevrons get steeper.',
     materialWidthLabel: 'Width',
     materialHeightLabel: 'Height',
     rowFieldLabel: 'Rows',
@@ -312,6 +312,17 @@ export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModul
     };
   }
 
+  if (config.pattern.type === 'chevron') {
+    const pitch = getChevronRepeatPitch(config);
+    const moduleWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
+    const moduleHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
+
+    return {
+      scaleX: Math.max(0.01, pitch.width / (moduleWidth / 2)),
+      scaleY: Math.max(0.01, pitch.height / moduleHeight),
+    };
+  }
+
   const repeatWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
   const repeatHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
@@ -388,6 +399,13 @@ export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {
   const pattern = getPatternByType(config.pattern.type);
+
+  if (config.pattern.type === 'chevron') {
+    return {
+      rows: Math.max(1, config.pattern.rows),
+      columns: Math.max(1, Math.ceil(config.pattern.columns / 2)),
+    };
+  }
 
   if (pattern?.rowColMode !== 'module') {
     return {

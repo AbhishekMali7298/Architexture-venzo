@@ -40,37 +40,53 @@ function drawImageCover(
   randomCropFraction?: { x: number; y: number },
 ) {
   const sourceWidth =
-    image instanceof HTMLImageElement || image instanceof HTMLCanvasElement || image instanceof ImageBitmap
-      ? image.width
-      : width;
+    image instanceof HTMLImageElement ? image.naturalWidth :
+    image instanceof HTMLCanvasElement ? image.width :
+    image instanceof ImageBitmap ? image.width :
+    image instanceof HTMLVideoElement ? image.videoWidth :
+    width;
   const sourceHeight =
-    image instanceof HTMLImageElement || image instanceof HTMLCanvasElement || image instanceof ImageBitmap
-      ? image.height
-      : height;
+    image instanceof HTMLImageElement ? image.naturalHeight :
+    image instanceof HTMLCanvasElement ? image.height :
+    image instanceof ImageBitmap ? image.height :
+    image instanceof HTMLVideoElement ? image.videoHeight :
+    height;
 
   const targetBox = imageDrawBox ?? { x, y, width, height };
-  // When random crop is requested, scale image 1.4× so there is always
-  // overshoot to shift within — the clip path hides anything outside the tile.
-  const coverScale = Math.max(
+  if (randomCropFraction) {
+    const coverScale = Math.max(
+      targetBox.width / Math.max(sourceWidth, 1),
+      targetBox.height / Math.max(sourceHeight, 1),
+    );
+    const srcCropW = targetBox.width / Math.max(coverScale, 0.0001);
+    const srcCropH = targetBox.height / Math.max(coverScale, 0.0001);
+    const maxSrcOffsetX = Math.max(0, sourceWidth - srcCropW);
+    const maxSrcOffsetY = Math.max(0, sourceHeight - srcCropH);
+    const srcX = randomCropFraction.x * maxSrcOffsetX;
+    const srcY = randomCropFraction.y * maxSrcOffsetY;
+
+    ctx.drawImage(
+      image,
+      srcX,
+      srcY,
+      srcCropW,
+      srcCropH,
+      targetBox.x,
+      targetBox.y,
+      targetBox.width,
+      targetBox.height,
+    );
+    return;
+  }
+
+  const scale = Math.max(
     targetBox.width / Math.max(sourceWidth, 1),
     targetBox.height / Math.max(sourceHeight, 1),
   );
-  const overshootScale = randomCropFraction ? coverScale * 1.4 : coverScale;
-  const drawWidth = sourceWidth * overshootScale;
-  const drawHeight = sourceHeight * overshootScale;
-
-  let drawX: number;
-  let drawY: number;
-  if (randomCropFraction) {
-    const maxShiftX = Math.max(0, drawWidth - targetBox.width);
-    const maxShiftY = Math.max(0, drawHeight - targetBox.height);
-    drawX = targetBox.x - randomCropFraction.x * maxShiftX;
-    drawY = targetBox.y - randomCropFraction.y * maxShiftY;
-  } else {
-    drawX = targetBox.x + (targetBox.width - drawWidth) / 2;
-    drawY = targetBox.y + (targetBox.height - drawHeight) / 2;
-  }
-
+  const drawWidth = sourceWidth * scale;
+  const drawHeight = sourceHeight * scale;
+  const drawX = targetBox.x + (targetBox.width - drawWidth) / 2;
+  const drawY = targetBox.y + (targetBox.height - drawHeight) / 2;
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
 

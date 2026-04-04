@@ -31,7 +31,6 @@ const MODULE_PARITY_PATTERNS = [
   'stretcher_bond',
   'herringbone',
   'flemish_bond',
-  'chevron',
   'staggered',
   'ashlar',
   'cubic',
@@ -198,7 +197,7 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('keeps chevron stable when angle changes because authored module geometry is fixed', () => {
+  it('changes chevron repeat height with angle while keeping repeat width stable', () => {
     const base = createPatternConfig('chevron');
     base.pattern.rows = 6;
     base.pattern.columns = 2;
@@ -214,7 +213,7 @@ describe('pattern layouts', () => {
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('svg-module');
     expect(baseLayout.repeatWidth).toBeCloseTo(changedLayout.repeatWidth ?? 0);
-    expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
+    expect(changedLayout.repeatHeight).toBeGreaterThan(baseLayout.repeatHeight ?? 0);
   });
 
   it('keeps running-bond on authored svg-module repeat sizing', () => {

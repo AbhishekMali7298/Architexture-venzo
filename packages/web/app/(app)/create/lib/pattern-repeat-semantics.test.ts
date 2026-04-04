@@ -151,7 +151,7 @@ describe('pattern repeat semantics', () => {
     });
   });
 
-  it('keeps chevron rows and columns as visible counts while authored module keeps repeat size stable', () => {
+  it('keeps chevron columns mapped to visible half-arms while angle changes vertical repeat pitch', () => {
     const shallow = createPatternConfig('chevron');
     shallow.pattern.rows = 6;
     shallow.pattern.columns = 2;
@@ -178,14 +178,16 @@ describe('pattern repeat semantics', () => {
     const steepCanonical = getCanonicalPatternRepeatBox(steep);
     const repeatCounts = getPatternRepeatCounts(shallow);
 
-    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(repeatCounts).toEqual({ rows: 6, columns: 1 });
     expect(canonical).not.toBeNull();
-    expect(steepCanonical).toEqual(canonical);
+    expect(steepCanonical).not.toBeNull();
 
     expect(shallowFrame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
     expect(shallowFrame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
-    expect(steepFrame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
-    expect(steepFrame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
+    expect(steepFrame.repeatWidth).toBeCloseTo(steepCanonical!.repeatWidth);
+    expect(steepFrame.repeatHeight).toBeCloseTo(steepCanonical!.repeatHeight);
+    expect(steepCanonical!.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
+    expect(steepCanonical!.repeatHeight).toBeGreaterThan(canonical!.repeatHeight);
 
     expect(shallowLayout.repeatOffsetX).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThanOrEqual(0);
@@ -200,8 +202,8 @@ describe('pattern repeat semantics', () => {
       height: Math.round(canonical!.repeatHeight),
     });
     expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
-      width: Math.round(canonical!.repeatWidth),
-      height: Math.round(canonical!.repeatHeight),
+      width: Math.round(steepCanonical!.repeatWidth),
+      height: Math.round(steepCanonical!.repeatHeight),
     });
   });
 });

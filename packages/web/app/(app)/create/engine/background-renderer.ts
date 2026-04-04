@@ -16,6 +16,12 @@ function seededRng(seed: number) {
   };
 }
 
+function tileSeed(masterSeed: number, tileX: number, tileY: number): number {
+  const ix = Math.round(tileX * 100) | 0;
+  const iy = Math.round(tileY * 100) | 0;
+  return (masterSeed ^ (ix * 65537 + iy * 4099)) >>> 0;
+}
+
 function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace('#', '');
   const value = parseInt(clean.length === 3 ? clean.split('').map((char) => char + char).join('') : clean, 16);
@@ -38,7 +44,6 @@ function drawTile(
   rotation: number,
   baseRgb: [number, number, number],
   toneVariation: number,
-  rng: () => number,
   scale: number,
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
@@ -47,12 +52,13 @@ function drawTile(
   jointShadowOpacity?: number,
   edgeProfiles?: EdgeProfileData[] | null,
 ) {
+  const tileRng = seededRng(tileSeed(config.seed, tile.x, tile.y));
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
   ctx.rotate((rotation * Math.PI) / 180);
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
-  const delta = (rng() - 0.5) * toneVariation * 1.5;
+  const delta = (tileRng() - 0.5) * toneVariation * 1.5;
   const { tileX: insetX, tileY: insetY, tileWidth: drawWidth, tileHeight: drawHeight, cornerRadius: radius, clipPath } =
     getTileRenderBox(tile, config, scale, { edgeProfiles });
   const edgeStyle = (config.materials[tile.materialIndex] ?? config.materials[0])?.edges.style ?? 'none';
@@ -84,14 +90,7 @@ function drawTile(
     image: materialImage,
     tintColor,
     clipPath,
-    imageDrawBox: materialImage
-      ? {
-        x: insetX,
-        y: insetY,
-        width: Math.max(drawWidth, 1),
-        height: Math.max(drawHeight, 1),
-      }
-      : undefined,
+    randomCropFraction: materialImage ? { x: tileRng(), y: tileRng() } : undefined,
   });
 
   if (edgeStyle !== 'none' && !tile.skipEdgeStroke) {
@@ -109,18 +108,14 @@ function drawTile(
     ctx.save();
     traceTilePath();
     ctx.clip();
-    const variationStrength = Math.min(0.16, 0.02 + Math.abs(delta) / 140);
-    ctx.globalAlpha = variationStrength;
-    ctx.fillStyle = delta >= 0 ? '#ffffff' : '#000000';
-    ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
-
-    ctx.globalAlpha = 0.02 + (toneVariation / 100) * 0.05;
-    for (let i = 0; i < 14; i++) {
-      const nx = insetX + rng() * drawWidth;
-      const ny = insetY + rng() * drawHeight;
-      const size = 0.8 * scale + rng() * 1.6 * scale;
-      ctx.fillStyle = rng() > 0.5 ? '#ffffff' : '#000000';
-      ctx.fillRect(nx, ny, size, size);
+    const variationDelta = (tileRng() - 0.5) * 2;
+    const strength = (toneVariation / 100) * 0.35 * Math.abs(variationDelta);
+    if (strength > 0.005) {
+      ctx.globalCompositeOperation = variationDelta > 0 ? 'screen' : 'multiply';
+      ctx.fillStyle = variationDelta > 0
+        ? `rgba(255,255,255,${strength.toFixed(3)})`
+        : `rgba(0,0,0,${strength.toFixed(3)})`;
+      ctx.fillRect(insetX, insetY, drawWidth, drawHeight);
     }
     ctx.restore();
   }
@@ -129,9 +124,9 @@ function drawTile(
     ctx.save();
     ctx.globalAlpha = 0.025 + (toneVariation / 100) * 0.04;
     for (let i = 0; i < 12; i++) {
-      const nx = insetX + rng() * drawWidth;
-      const ny = insetY + rng() * drawHeight;
-      ctx.fillStyle = rng() > 0.5 ? '#fff' : '#000';
+      const nx = insetX + tileRng() * drawWidth;
+      const ny = insetY + tileRng() * drawHeight;
+      ctx.fillStyle = tileRng() > 0.5 ? '#fff' : '#000';
       ctx.fillRect(nx, ny, 1.5 * scale, 1.5 * scale);
     }
     ctx.restore();
@@ -212,7 +207,7 @@ function prepareBackgroundScene(
   const jointColor = jointColorBase;
 
   const layout = getPatternLayout(config);
-  if (!layout.tiles.length) return null;
+  if (!layout.tiles.length && !layout.strokes.length) return null;
   const repeatFrame = resolvePatternRepeatFrame(config, layout);
   const { repeatWidth, repeatHeight, repeatOffsetX, repeatOffsetY } = repeatFrame;
   const previewWidth = repeatWidth;
@@ -269,8 +264,6 @@ function drawPreparedLayout(
   offsetY: number,
   options?: { materialImage?: CanvasImageSource | null; edgeProfiles?: EdgeProfileData[] | null },
 ) {
-  const rng = seededRng(0x9e3779b9);
-
   ctx.save();
   ctx.beginPath();
   ctx.rect(offsetX, offsetY, scene.tileSetWidth, scene.tileSetHeight);
@@ -295,7 +288,6 @@ function drawPreparedLayout(
       tile.rotation,
       scene.baseRgb,
       scene.toneVariation,
-      rng,
       scene.scale,
       scene.tintColor,
       options?.materialImage,
