@@ -17,17 +17,37 @@ export function MaterialPickerModal({
   onSelect: (material: MaterialDefinition) => void;
 }) {
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<'all' | string>('all');
+
+  const categoryLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of MATERIAL_CATEGORIES) {
+      map.set(item.id, item.displayName);
+    }
+    return map;
+  }, []);
 
   const filteredLibrary = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return MATERIAL_LIBRARY;
+    const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
+    const terms = normalized ? normalized.split(' ') : [];
+
     return MATERIAL_LIBRARY.filter((material) => {
-      return (
-        material.name.toLowerCase().includes(query) ||
-        material.categoryId.toLowerCase().includes(query)
-      );
+      if (category !== 'all' && material.categoryId !== category) {
+        return false;
+      }
+
+      if (terms.length === 0) {
+        return true;
+      }
+
+      const categoryLabel = categoryLabelById.get(material.categoryId) ?? material.categoryId;
+      const haystack = [material.name, material.categoryId, categoryLabel, material.id]
+        .join(' ')
+        .toLowerCase();
+
+      return terms.every((term) => haystack.includes(term));
     });
-  }, [search]);
+  }, [category, categoryLabelById, search]);
 
   return (
     <Modal onClose={onClose}>
@@ -42,12 +62,26 @@ export function MaterialPickerModal({
               ✕
             </button>
           </div>
-          <input
-            className={styles.input}
-            placeholder="Search materials"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+          <div className={styles.modalTools}>
+            <input
+              className={styles.input}
+              placeholder="Search materials"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <select
+              className={styles.select}
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+            >
+              <option value="all">All categories</option>
+              {MATERIAL_CATEGORIES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.displayName}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className={styles.modalBody}>

@@ -9,9 +9,10 @@ describe('pattern sidebar schema', () => {
     expect(schema.materialHeightLabel).toBe('Field Height');
   });
 
-  it('shows stretchers for stretcher bond', () => {
+  it('hides stretcher-specific controls for authored stretcher module parity', () => {
     const schema = getPatternSidebarSchema('stretcher_bond');
-    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
+    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
   });
 
   it('keeps common pattern rows and columns as visible counts', () => {
@@ -20,6 +21,7 @@ describe('pattern sidebar schema', () => {
     expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
+    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
     expect(schema.rowsMeaning).toContain('visible brick courses');
     expect(schema.columnsMeaning).toContain('visible brick slots');
   });
@@ -27,7 +29,7 @@ describe('pattern sidebar schema', () => {
   it('treats stack bond rows and columns as visible counts', () => {
     const schema = getPatternSidebarSchema('stack_bond');
 
-    expect(schema.layoutSource).toBe('procedural');
+    expect(schema.layoutSource).toBe('svg-module');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
     expect(schema.fields.map((field) => field.id)).not.toContain('angle');
@@ -44,9 +46,10 @@ describe('pattern sidebar schema', () => {
     expect(schema.columnsMeaning).toContain('3 visible columns');
   });
 
-  it('surfaces weaves for basketweave', () => {
+  it('uses row/column controls only for authored basketweave module parity', () => {
     const schema = getPatternSidebarSchema('basketweave');
-    expect(schema.fields.map((field) => field.id)).toContain('weaves');
+    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.fields.map((field) => field.id)).toEqual(['rows', 'columns']);
   });
 
   it('hides angle for module-backed patterns that do not use it', () => {
@@ -55,7 +58,7 @@ describe('pattern sidebar schema', () => {
 
     expect(staggered.fields.map((field) => field.id)).not.toContain('angle');
     expect(french.fields.map((field) => field.id)).not.toContain('angle');
-    expect(staggered.layoutSource).toBe('procedural');
+    expect(staggered.layoutSource).toBe('svg-module');
   });
 
   it('hides herringbone angle to keep create parity with the authored module', () => {
@@ -63,14 +66,15 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields.map((field) => field.id)).not.toContain('angle');
   });
 
-  it('describes chevron rows and columns as visible counts while keeping angle active', () => {
+  it('describes chevron rows and columns as visible counts with authored module parity', () => {
     const schema = getPatternSidebarSchema('chevron');
 
     expect(schema.rowsMeaning).toContain('visible chevron bands');
     expect(schema.columnsMeaning).toContain('V-pair');
     expect(schema.fields.find((field) => field.id === 'rows')?.label).toBe('Rows');
     expect(schema.fields.find((field) => field.id === 'columns')?.label).toBe('Columns');
-    expect(schema.layoutSource).toBe('procedural');
-    expect(schema.angleMeaning).toContain('mitre geometry');
+    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.fields.map((field) => field.id)).not.toContain('angle');
+    expect(schema.angleMeaning).toContain('fixed');
   });
 });

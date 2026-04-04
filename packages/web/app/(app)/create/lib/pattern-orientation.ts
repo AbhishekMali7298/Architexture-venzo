@@ -1,7 +1,7 @@
 import type { PatternOrientation, PatternType } from '@textura/shared';
 
 export function supportsPatternOrientationToggle(type: PatternType) {
-  return type !== 'none';
+  return type !== 'none' && type !== 'running_bond';
 }
 
 export function isVerticalPatternOrientation(orientation: PatternOrientation | null | undefined) {

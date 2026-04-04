@@ -234,20 +234,19 @@ function layoutNone(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutRunningBond(config: TextureConfig): PatternLayoutData {
-  const { rows, columns } = config.pattern;
+  const { rows, columns, stretchers } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
   const stepX = width + verticalJoint;
   const stepY = height + horizontalJoint;
-  const halfOffset = stepX / 2;
+  const cycle = Math.max(1, stretchers);
+  const offsetStep = cycle > 1 ? stepX / cycle : 0;
 
   for (let row = 0; row < rows; row++) {
-    // Start the bordered repeat on the offset course so the first visible row
-    // matches the authored "Common" reference layout.
-    const isOffsetRow = row % 2 === 0;
-    const startColumn = isOffsetRow ? -1 : 0;
-    const endColumn = isOffsetRow ? columns : columns - 1;
-    const offset = isOffsetRow ? halfOffset : 0;
+    const offset = ((row + cycle - 1) % cycle) * offsetStep;
+    const hasOffset = offset > 0.0001;
+    const startColumn = hasOffset ? -1 : 0;
+    const endColumn = hasOffset ? columns : columns - 1;
 
     for (let column = startColumn; column <= endColumn; column++) {
       tiles.push({

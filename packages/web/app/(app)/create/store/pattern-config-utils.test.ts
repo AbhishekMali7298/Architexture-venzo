@@ -3,7 +3,7 @@ import { applyPatternTypeSelection, sanitizePatternConfig } from './pattern-conf
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 describe('pattern config utils', () => {
-  it('preserves current material dimensions when switching patterns', () => {
+  it('applies pattern default material dimensions when switching patterns', () => {
     const next = applyPatternTypeSelection(
       {
         ...DEFAULT_TEXTURE_CONFIG,
@@ -20,8 +20,8 @@ describe('pattern config utils', () => {
       0,
     );
 
-    expect(next.materials[0]?.width).toBe(400);
-    expect(next.materials[0]?.height).toBe(100);
+    expect(next.materials[0]?.width).toBe(215);
+    expect(next.materials[0]?.height).toBe(65);
     expect(next.pattern.type).toBe('flemish_bond');
   });
 

@@ -45,6 +45,7 @@ describe('pattern repeat semantics', () => {
     config.materials[0]!.height = 100;
     config.pattern.rows = 6;
     config.pattern.columns = 2;
+    config.pattern.stretchers = 2;
 
     const layout = getPatternLayout(config);
     const canonical = getCanonicalPatternRepeatBox(config);
@@ -67,6 +68,7 @@ describe('pattern repeat semantics', () => {
     config.pattern.rows = 6;
     config.pattern.columns = 2;
     config.pattern.orientation = 'vertical';
+    config.pattern.stretchers = 2;
 
     const layout = getPatternLayout(config);
     const frame = resolvePatternRepeatFrame(config, layout);
@@ -138,7 +140,7 @@ describe('pattern repeat semantics', () => {
     });
   });
 
-  it('keeps chevron rows and columns as visible counts while angle changes the repeat height', () => {
+  it('keeps chevron rows and columns as visible counts while authored module keeps repeat size stable', () => {
     const shallow = createPatternConfig('chevron');
     shallow.pattern.rows = 6;
     shallow.pattern.columns = 2;
@@ -162,31 +164,33 @@ describe('pattern repeat semantics', () => {
     const shallowFrame = resolvePatternRepeatFrame(shallow, shallowLayout);
     const steepFrame = resolvePatternRepeatFrame(steep, steepLayout);
     const canonical = getCanonicalPatternRepeatBox(shallow);
+    const steepCanonical = getCanonicalPatternRepeatBox(steep);
     const repeatCounts = getPatternRepeatCounts(shallow);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(canonical).toBeNull();
+    expect(canonical).not.toBeNull();
+    expect(steepCanonical).toEqual(canonical);
 
-    expect(shallowFrame.repeatWidth).toBeCloseTo(410);
-    expect(shallowFrame.repeatHeight).toBeCloseTo(660.92, 1);
-    expect(steepFrame.repeatWidth).toBeCloseTo(410);
-    expect(steepFrame.repeatHeight).toBeCloseTo(684.85, 1);
+    expect(shallowFrame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
+    expect(shallowFrame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
+    expect(steepFrame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
+    expect(steepFrame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
 
     expect(shallowLayout.repeatOffsetX).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.repeatOffsetY).toBeGreaterThanOrEqual(0);
     expect(shallowLayout.totalWidth).toBeGreaterThanOrEqual(shallowFrame.repeatWidth);
     expect(steepLayout.totalHeight).toBeGreaterThan(steepFrame.repeatHeight);
-    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
+    expect(shallowLayout.tiles[0]?.clipPath).toEqual(steepLayout.tiles[0]?.clipPath);
     expect(shallowFrame.previewOutline).toBeUndefined();
     expect(steepFrame.previewOutline).toBeUndefined();
 
     expect(getPatternDimensionsHintSize(shallow, shallowLayout)).toEqual({
-      width: 410,
-      height: 661,
+      width: Math.round(canonical!.repeatWidth),
+      height: Math.round(canonical!.repeatHeight),
     });
     expect(getPatternDimensionsHintSize(steep, steepLayout)).toEqual({
-      width: 410,
-      height: 685,
+      width: Math.round(canonical!.repeatWidth),
+      height: Math.round(canonical!.repeatHeight),
     });
   });
 });

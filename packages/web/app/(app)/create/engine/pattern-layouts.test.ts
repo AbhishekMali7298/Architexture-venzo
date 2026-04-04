@@ -27,12 +27,20 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
+  'stack_bond',
+  'stretcher_bond',
+  'herringbone',
   'flemish_bond',
+  'chevron',
+  'staggered',
   'ashlar',
   'cubic',
+  'hexagonal',
+  'basketweave',
   'hopscotch',
   'diamond',
   'intersecting_circle',
+  'fishscale',
   'french',
 ] as const;
 
@@ -95,55 +103,6 @@ describe('pattern layouts', () => {
     wider.pattern.columns += pattern.columnMultiple;
 
     expect(getPatternLayout(wider).totalWidth).toBeGreaterThan(getPatternLayout(base).totalWidth);
-  });
-
-  it('uses horizontal and vertical joint sizes directly for stack bond', () => {
-    const config = createPatternConfig('stack_bond');
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.pattern.rows = 6;
-    config.pattern.columns = 4;
-    config.joints.horizontalSize = 12;
-    config.joints.verticalSize = 18;
-
-    const layout = getPatternLayout(config);
-
-    expect(layout.repeatWidth).toBe(4 * (400 + 18));
-    expect(layout.repeatHeight).toBe(6 * (100 + 12));
-  });
-
-  it('keeps stack bond geometry horizontal before orientation transforms are applied', () => {
-    const config = createPatternConfig('stack_bond');
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.pattern.rows = 6;
-    config.pattern.columns = 4;
-
-    const layout = getPatternLayout(config);
-
-    expect(layout.repeatWidth).toBe(4 * (400 + config.joints.verticalSize));
-    expect(layout.repeatHeight).toBe(6 * (100 + config.joints.horizontalSize));
-    expect(layout.tiles[0]).toMatchObject({ width: 400, height: 100, x: 0, y: 0 });
-    expect(layout.tiles[1]).toMatchObject({ width: 400, height: 100, x: 400 + config.joints.verticalSize, y: 0 });
-  });
-
-  it('starts running bond on the offset row so the first visible course clips at the frame edge', () => {
-    const config = createPatternConfig('running_bond');
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.pattern.rows = 2;
-    config.pattern.columns = 4;
-
-    const layout = getPatternLayout(config);
-    const firstRow = layout.tiles.filter((tile) => tile.y === 0);
-    const secondRow = layout.tiles.filter((tile) => tile.y === 100 + config.joints.horizontalSize);
-
-    expect(firstRow).toHaveLength(6);
-    expect(secondRow).toHaveLength(4);
-    expect(firstRow[0]?.x).toBeCloseTo(-(400 + config.joints.verticalSize) / 2);
-    expect(firstRow.at(-1)?.x).toBeCloseTo(4 * (400 + config.joints.verticalSize) + (400 + config.joints.verticalSize) / 2);
-    expect(secondRow[0]?.x).toBe(0);
-    expect(layout.totalWidth).toBe(4 * (400 + config.joints.verticalSize));
   });
 
   it('uses the expected half-pair repeat width for flemish bond', () => {
@@ -221,25 +180,6 @@ describe('pattern layouts', () => {
     expect(layout.strokes.length).toBeGreaterThan(0);
   });
 
-  it('grows basketweave modules when the weave count increases', () => {
-    const base = createPatternConfig('basketweave');
-    base.pattern.rows = 1;
-    base.pattern.columns = 1;
-    base.pattern.weaves = 1;
-
-    const denser = createPatternConfig('basketweave');
-    denser.pattern.rows = 1;
-    denser.pattern.columns = 1;
-    denser.pattern.weaves = 3;
-
-    const baseLayout = getPatternLayout(base);
-    const denserLayout = getPatternLayout(denser);
-
-    expect(denserLayout.totalWidth).toBeGreaterThan(baseLayout.totalWidth);
-    expect(denserLayout.totalHeight).toBeGreaterThan(baseLayout.totalHeight);
-    expect(denserLayout.tiles.length).toBeGreaterThan(baseLayout.tiles.length);
-  });
-
   it('keeps herringbone stable when angle changes because angle is fixed in create', () => {
     const base = createPatternConfig('herringbone');
     base.pattern.rows = 6;
@@ -258,90 +198,63 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('uses visible chevron counts directly in the procedural repeat box', () => {
-    const config = createPatternConfig('chevron');
-    config.pattern.rows = 6;
-    config.pattern.columns = 2;
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.joints.horizontalSize = 5;
-    config.joints.verticalSize = 5;
-    config.pattern.angle = 45;
+  it('keeps chevron stable when angle changes because authored module geometry is fixed', () => {
+    const base = createPatternConfig('chevron');
+    base.pattern.rows = 6;
+    base.pattern.columns = 2;
+    base.pattern.angle = 10;
 
-    const layout = getPatternLayout(config);
+    const changed = createPatternConfig('chevron');
+    changed.pattern.rows = 6;
+    changed.pattern.columns = 2;
+    changed.pattern.angle = 45;
 
-    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(410);
-    expect(layout.displayRepeatWidth).toBeCloseTo(410);
-    expect(layout.repeatHeight).toBeCloseTo(684.85, 1);
-    expect(layout.repeatOffsetX ?? 0).toBeCloseTo(0);
-    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetY ?? 0).toBeLessThan(layout.repeatHeight ?? Number.POSITIVE_INFINITY);
+    const baseLayout = getPatternLayout(base);
+    const changedLayout = getPatternLayout(changed);
+
+    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('svg-module');
+    expect(baseLayout.repeatWidth).toBeCloseTo(changedLayout.repeatWidth ?? 0);
+    expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('changes chevron clip geometry and repeat height when angle changes', () => {
-    const shallow = createPatternConfig('chevron');
-    shallow.pattern.rows = 6;
-    shallow.pattern.columns = 2;
-    shallow.pattern.angle = 10;
-    shallow.materials[0]!.width = 400;
-    shallow.materials[0]!.height = 100;
+  it('uses stretchers to control running-bond course offset progression', () => {
+    const base = createPatternConfig('running_bond');
+    base.pattern.rows = 6;
+    base.pattern.columns = 4;
+    base.materials[0]!.width = 400;
+    base.materials[0]!.height = 100;
+    base.pattern.stretchers = 2;
 
-    const steep = createPatternConfig('chevron');
-    steep.pattern.rows = 6;
-    steep.pattern.columns = 2;
-    steep.pattern.angle = 45;
-    steep.materials[0]!.width = 400;
-    steep.materials[0]!.height = 100;
+    const denser = createPatternConfig('running_bond');
+    denser.pattern.rows = 6;
+    denser.pattern.columns = 4;
+    denser.materials[0]!.width = 400;
+    denser.materials[0]!.height = 100;
+    denser.pattern.stretchers = 4;
 
-    const shallowLayout = getPatternLayout(shallow);
-    const steepLayout = getPatternLayout(steep);
+    const baseLayout = getPatternLayout(base);
+    const denserLayout = getPatternLayout(denser);
+    const stepX = 400 + base.joints.verticalSize;
+    const baseFirstRowTiles = baseLayout.tiles
+      .filter((tile) => tile.y === 0)
+      .map((tile) => tile.x)
+      .sort((a, b) => a - b);
+    const denserFirstRowTiles = denserLayout.tiles
+      .filter((tile) => tile.y === 0)
+      .map((tile) => tile.x)
+      .sort((a, b) => a - b);
+    const baseVisibleOffset = baseFirstRowTiles.find((x) => x >= 0);
+    const denserVisibleOffset = denserFirstRowTiles.find((x) => x >= 0);
+    const normalizeOffsetMagnitude = (offset: number | undefined) => {
+      if (offset == null) return Number.NaN;
+      const mod = ((offset % stepX) + stepX) % stepX;
+      return Math.min(mod, stepX - mod);
+    };
 
-    expect(shallowLayout.repeatWidth).toBeCloseTo(steepLayout.repeatWidth);
-    expect(shallowLayout.repeatHeight).toBeLessThan(steepLayout.repeatHeight ?? 0);
-    expect(shallowLayout.repeatOffsetX).toBeCloseTo(steepLayout.repeatOffsetX ?? 0, 6);
-    expect(steepLayout.repeatOffsetX ?? 0).toBeCloseTo(0);
-    expect(shallowLayout.tiles[0]?.clipPath).not.toEqual(steepLayout.tiles[0]?.clipPath);
-  });
-
-  it('keeps chevron repeat counts equal to the visible row and column counts', () => {
-    const config = createPatternConfig('chevron');
-    config.pattern.rows = 6;
-    config.pattern.columns = 2;
-    config.pattern.angle = 45;
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.joints.horizontalSize = 5;
-    config.joints.verticalSize = 5;
-
-    const repeatCounts = getPatternRepeatCounts(config);
-    const layout = getPatternLayout(config);
-
-    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(layout.repeatWidth).toBeCloseTo(410);
-    expect(layout.displayRepeatWidth).toBeCloseTo(410);
-    expect(layout.repeatHeight).toBeCloseTo(6 * (100 + (5 * 2) / Math.cos(Math.PI / 4)), 1);
-    const vPairs = Math.max(1, Math.ceil(config.pattern.columns / 2));
-    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (vPairs + 2) * 2);
-  });
-
-  it('keeps Chevron deterministic with the procedural layout', () => {
-    const config = createPatternConfig('chevron');
-    config.pattern.rows = 2;
-    config.pattern.columns = 1;
-    config.materials[0]!.width = 400;
-    config.materials[0]!.height = 100;
-    config.pattern.angle = 30;
-
-    const layout = getPatternLayout(config);
-
-    expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * ((config.materials[0]!.width + config.joints.verticalSize * 2) / 2));
-    expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + (config.joints.horizontalSize * 2) / Math.cos(Math.PI / 6)), 1);
-    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetX ?? 0).toBeLessThan(config.materials[0]!.width + config.joints.verticalSize);
-    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetY ?? 0).toBeLessThan(layout.repeatHeight ?? Number.POSITIVE_INFINITY);
-    expect(layout.previewOutline).toBeUndefined();
+    expect(getPatternSidebarSchema('running_bond').layoutSource).toBe('procedural');
+    expect(baseLayout.totalWidth).toBe(4 * stepX);
+    expect(denserLayout.totalWidth).toBe(4 * stepX);
+    expect(normalizeOffsetMagnitude(baseVisibleOffset)).toBeCloseTo(stepX / 2);
+    expect(normalizeOffsetMagnitude(denserVisibleOffset)).toBeCloseTo(stepX / 4);
   });
 });

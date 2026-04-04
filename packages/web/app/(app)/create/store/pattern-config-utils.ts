@@ -68,8 +68,14 @@ function applyPatternDefinition(
   );
 
   if (activeMaterial) {
-    activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
-    activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);
+    const shouldResetDimensions = !options?.preserveCurrentPatternSettings;
+    if (shouldResetDimensions) {
+      activeMaterial.width = Math.max(activeMaterial.minWidth, definition.defaultUnitWidth);
+      activeMaterial.height = Math.max(activeMaterial.minHeight, definition.defaultUnitHeight);
+    } else {
+      activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
+      activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);
+    }
   }
 
   return next;

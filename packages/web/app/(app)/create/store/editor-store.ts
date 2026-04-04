@@ -378,7 +378,7 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Joint material → ${asset?.path ?? 'Solid Fill'}`);
         s.config.joints.materialSource = asset
           ? { type: 'image', asset, fallbackColor: '#e8e6e0' }
-          : { type: 'solid', color: '#e8e6e0' };
+          : { type: 'solid', color: '#FFFFFF' };
         bumpRender(s);
       }),
 

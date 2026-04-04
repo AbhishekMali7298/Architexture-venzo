@@ -52,14 +52,26 @@ export function JointMaterialPickerModal({
   }, []);
 
   const filteredLibrary = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return materials;
+    const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
+    const terms = normalized ? normalized.split(' ') : [];
+    if (terms.length === 0) return materials;
+
     return materials.filter((material) => {
-      return material.name.toLowerCase().includes(query);
+      const haystack = [material.name, material.id, material.thumbnailPath, material.renderPath]
+        .join(' ')
+        .toLowerCase();
+      return terms.every((term) => haystack.includes(term));
     });
   }, [materials, search]);
 
-  const showSolidFill = !search.trim() || 'solid fill'.includes(search.trim().toLowerCase());
+  const showSolidFill = useMemo(() => {
+    const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!normalized) return true;
+
+    const terms = normalized.split(' ');
+    const solidTokens = 'solid fill mortar joint basic'.split(' ');
+    return terms.every((term) => solidTokens.some((token) => token.includes(term)));
+  }, [search]);
 
   return (
     <Modal onClose={onClose}>
@@ -95,7 +107,7 @@ export function JointMaterialPickerModal({
                     onClose();
                   }}
                 >
-                  <MaterialThumb color="#e8e6e0" alt="Solid Fill" />
+                  <MaterialThumb color="#FFFFFF" alt="Solid Fill" />
                   <div>
                     <div className={styles.optionName}>Solid Fill</div>
                     <div className={styles.optionMeta}>Flat mortar/joint color</div>

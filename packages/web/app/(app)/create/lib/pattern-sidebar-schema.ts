@@ -37,12 +37,16 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
         { id: 'rows', label: rowLabel },
         { id: 'columns', label: columnLabel },
       ] satisfies PatternFieldSchema[];
-    case 'stretcher_bond':
+    case 'running_bond':
       return [
         { id: 'rows', label: rowLabel },
         { id: 'columns', label: columnLabel },
         { id: 'stretchers', label: 'Stretchers' },
-        { id: 'angle', label: 'Angle', commitOnChange: true },
+      ] satisfies PatternFieldSchema[];
+    case 'stretcher_bond':
+      return [
+        { id: 'rows', label: rowLabel },
+        { id: 'columns', label: columnLabel },
       ] satisfies PatternFieldSchema[];
     case 'herringbone':
       return [
@@ -53,7 +57,11 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
       return [
         { id: 'rows', label: rowLabel },
         { id: 'columns', label: columnLabel },
-        { id: 'weaves', label: 'Weaves' },
+      ] satisfies PatternFieldSchema[];
+    case 'chevron':
+      return [
+        { id: 'rows', label: rowLabel },
+        { id: 'columns', label: columnLabel },
       ] satisfies PatternFieldSchema[];
     default: {
       const pattern = getPatternByType(type);
