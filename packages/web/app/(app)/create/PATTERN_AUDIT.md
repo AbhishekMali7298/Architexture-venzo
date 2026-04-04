@@ -17,7 +17,7 @@ Source of truth in code:
 | `stretcher_bond` | procedural | visible brick courses | visible brick slots before bleed clipping | yes | `stretchers` |
 | `flemish_bond` | svg-module | authored Flemish repeat modules | authored Flemish repeat modules | no | none |
 | `herringbone` | hybrid | repeated herringbone modules | repeated herringbone modules | yes: `45°` module, `90°` orthogonal fallback | none |
-| `chevron` | procedural | visible chevron bands | visible chevron V-pairs | yes: live mitre angle and projected vertical spacing | none |
+| `chevron` | procedural | visible chevron bands | visible chevron half-arms | yes: live mitre angle and projected vertical spacing | none |
 | `staggered` | svg-module | repeated staggered modules | repeated staggered modules | no | none |
 | `ashlar` | svg-module | repeated ashlar modules | repeated ashlar modules | no | none |
 | `cubic` | svg-module | repeated cube modules | repeated cube modules | no | none |

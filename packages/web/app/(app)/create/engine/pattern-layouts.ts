@@ -507,8 +507,9 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     { x: 0, y: height },
   ];
 
-  // columns = V-pairs (each V made of a left + right piece).
-  const vPairs = Math.max(1, columns);
+  // columns = individual chevron half-arms (two halves make one full V-pair).
+  const halfColumns = Math.max(1, columns);
+  const vPairs = Math.max(1, Math.ceil(halfColumns / 2));
 
   // Draw one bleed ring around the visible repeat so the background tiles
   // seamlessly outside the bordered frame.
@@ -539,7 +540,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
   }
 
   const layout = normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
-    width: vPairs * stepX,
+    width: halfColumns * (stepX / 2),
     height: rows * stepY,
   });
 
@@ -562,7 +563,7 @@ function layoutChevron(config: TextureConfig): PatternLayoutData {
     ...layout,
     repeatOffsetX: canonicalOffsetX,
     repeatOffsetY: canonicalOffsetY,
-    displayRepeatWidth: columns * stepX,
+    displayRepeatWidth: halfColumns * (stepX / 2),
     displayRepeatHeight: rows * stepY,
   };
 }

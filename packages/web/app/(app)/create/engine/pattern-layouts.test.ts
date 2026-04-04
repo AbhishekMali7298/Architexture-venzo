@@ -271,8 +271,8 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(820);
-    expect(layout.displayRepeatWidth).toBeCloseTo(820);
+    expect(layout.repeatWidth).toBeCloseTo(410);
+    expect(layout.displayRepeatWidth).toBeCloseTo(410);
     expect(layout.repeatHeight).toBeCloseTo(684.85, 1);
     expect(layout.repeatOffsetX ?? 0).toBeCloseTo(0);
     expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
@@ -318,10 +318,11 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(layout.repeatWidth).toBeCloseTo(2 * 410);
-    expect(layout.displayRepeatWidth).toBeCloseTo(2 * 410);
+    expect(layout.repeatWidth).toBeCloseTo(410);
+    expect(layout.displayRepeatWidth).toBeCloseTo(410);
     expect(layout.repeatHeight).toBeCloseTo(6 * (100 + (5 * 2) / Math.cos(Math.PI / 4)), 1);
-    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (config.pattern.columns + 2) * 2);
+    const vPairs = Math.max(1, Math.ceil(config.pattern.columns / 2));
+    expect(layout.tiles).toHaveLength((config.pattern.rows + 2) * (vPairs + 2) * 2);
   });
 
   it('keeps Chevron deterministic with the procedural layout', () => {
@@ -335,7 +336,7 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
 
     expect(getPatternSidebarSchema('chevron').layoutSource).toBe('procedural');
-    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * (config.materials[0]!.width + config.joints.verticalSize * 2));
+    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * ((config.materials[0]!.width + config.joints.verticalSize * 2) / 2));
     expect(layout.repeatHeight).toBeCloseTo(2 * (config.materials[0]!.height + (config.joints.horizontalSize * 2) / Math.cos(Math.PI / 6)), 1);
     expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
     expect(layout.repeatOffsetX ?? 0).toBeLessThan(config.materials[0]!.width + config.joints.verticalSize);
