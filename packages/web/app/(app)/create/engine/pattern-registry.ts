@@ -349,8 +349,9 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
     const columns = Math.max(1, Math.ceil(config.pattern.columns / 2));
     const jointH = config.joints.horizontalSize;
     const jointV = config.joints.verticalSize;
-    const stepX = material.width + material.height + jointV;
-    const stepY = material.height + jointH + material.width * 0.115;
+    const projectedSpan = (material.width + material.height) / Math.SQRT2;
+    const stepX = projectedSpan + jointV / Math.SQRT2;
+    const stepY = projectedSpan + jointH / Math.SQRT2;
     const halfStepX = stepX / 2;
     const halfStepY = stepY / 2;
     const tiles: PatternTile[] = [];
@@ -361,26 +362,42 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
         const baseY = row * stepY;
 
         tiles.push({
-          x: baseX,
-          y: baseY + halfStepY,
+          x: baseX - material.width / 2,
+          y: baseY + halfStepY - material.height / 2,
           width: material.width,
           height: material.height,
           rotation: -45,
           materialIndex: 0,
+          applyJointInset: false,
         });
 
         tiles.push({
-          x: baseX + halfStepX,
-          y: baseY,
+          x: baseX + halfStepX - material.width / 2,
+          y: baseY - material.height / 2,
           width: material.width,
           height: material.height,
           rotation: 45,
           materialIndex: 0,
+          applyJointInset: false,
         });
       }
     }
 
-    return helpers.withBounds(tiles, jointH, jointV);
+    const layout = helpers.normalizeLayoutBounds(tiles, jointH, jointV, {
+      width: columns * stepX,
+      height: rows * stepY,
+    });
+
+    const normalizeOffset = (value: number, period: number) => {
+      const safePeriod = Math.max(period, 1);
+      return ((value % safePeriod) + safePeriod) % safePeriod;
+    };
+
+    return {
+      ...layout,
+      repeatOffsetX: normalizeOffset(layout.repeatOffsetX ?? 0, stepX),
+      repeatOffsetY: normalizeOffset(layout.repeatOffsetY ?? 0, stepY),
+    };
   },
 };
 

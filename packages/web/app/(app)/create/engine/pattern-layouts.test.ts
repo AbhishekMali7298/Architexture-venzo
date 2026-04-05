@@ -199,6 +199,60 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
+  it('uses projected 45-degree herringbone geometry with stable frame and symmetric placement', () => {
+    const config = createPatternConfig('herringbone');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const projectedSpan = (400 + 100) / Math.SQRT2;
+    const stepX = projectedSpan + 5 / Math.SQRT2;
+    const stepY = projectedSpan + 5 / Math.SQRT2;
+    const expectedRepeatWidth = Math.ceil(config.pattern.columns / 2) * stepX;
+    const expectedRepeatHeight = config.pattern.rows * stepY;
+
+    expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
+    expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
+    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetX ?? 0).toBeLessThan(stepX);
+    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
+    expect(layout.repeatOffsetY ?? 0).toBeLessThan(stepY);
+
+    const neg45Tiles = layout.tiles.filter((tile) => tile.rotation === -45);
+    const pos45Tiles = layout.tiles.filter((tile) => tile.rotation === 45);
+    expect(neg45Tiles.length).toBe(pos45Tiles.length);
+
+    const repeatCenterX = ((layout.repeatWidth ?? layout.totalWidth) / 2) + (layout.repeatOffsetX ?? 0);
+    const repeatCenterY = ((layout.repeatHeight ?? layout.totalHeight) / 2) + (layout.repeatOffsetY ?? 0);
+    const tileCentersX = layout.tiles.map((tile) => tile.x + tile.width / 2);
+    const tileCentersY = layout.tiles.map((tile) => tile.y + tile.height / 2);
+    const leftSpan = repeatCenterX - Math.min(...tileCentersX);
+    const rightSpan = Math.max(...tileCentersX) - repeatCenterX;
+    const topSpan = repeatCenterY - Math.min(...tileCentersY);
+    const bottomSpan = Math.max(...tileCentersY) - repeatCenterY;
+    expect(Math.abs(leftSpan - rightSpan)).toBeLessThan(stepX);
+    expect(Math.abs(topSpan - bottomSpan)).toBeLessThan(stepY);
+
+    const minOpposingCenterDistance = neg45Tiles.reduce((minDistance, tile) => {
+      const centerX = tile.x + tile.width / 2;
+      const centerY = tile.y + tile.height / 2;
+      const nearest = pos45Tiles.reduce((nearestDistance, other) => {
+        const otherX = other.x + other.width / 2;
+        const otherY = other.y + other.height / 2;
+        const distance = Math.hypot(centerX - otherX, centerY - otherY);
+        return Math.min(nearestDistance, distance);
+      }, Number.POSITIVE_INFINITY);
+      return Math.min(minDistance, nearest);
+    }, Number.POSITIVE_INFINITY);
+
+    expect(minOpposingCenterDistance).toBeGreaterThan(projectedSpan * 0.45);
+    expect(layout.tiles.every((tile) => tile.applyJointInset === false)).toBe(true);
+  });
+
   it('changes chevron repeat height with angle while keeping repeat width stable', () => {
     const base = createPatternConfig('chevron');
     base.pattern.rows = 6;
