@@ -75,6 +75,51 @@ function withBounds(tiles: PatternTile[], horizontalJoint: number, verticalJoint
   };
 }
 
+function getTileAxisAlignedBounds(tile: PatternTile) {
+  if (tile.rotation === 0) {
+    return {
+      minX: tile.x,
+      minY: tile.y,
+      maxX: tile.x + tile.width,
+      maxY: tile.y + tile.height,
+    };
+  }
+
+  const centerX = tile.x + tile.width / 2;
+  const centerY = tile.y + tile.height / 2;
+  const radians = (tile.rotation * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const corners = [
+    { x: tile.x, y: tile.y },
+    { x: tile.x + tile.width, y: tile.y },
+    { x: tile.x + tile.width, y: tile.y + tile.height },
+    { x: tile.x, y: tile.y + tile.height },
+  ].map((point) => {
+    const dx = point.x - centerX;
+    const dy = point.y - centerY;
+    return {
+      x: centerX + dx * cos - dy * sin,
+      y: centerY + dx * sin + dy * cos,
+    };
+  });
+
+  return corners.reduce(
+    (acc, point) => ({
+      minX: Math.min(acc.minX, point.x),
+      minY: Math.min(acc.minY, point.y),
+      maxX: Math.max(acc.maxX, point.x),
+      maxY: Math.max(acc.maxY, point.y),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
+  );
+}
+
 function normalizeLayoutBounds(
   tiles: PatternTile[],
   strokes: PatternStroke[],
@@ -102,10 +147,11 @@ function normalizeLayoutBounds(
   let maxY = Number.NEGATIVE_INFINITY;
 
   for (const tile of tiles) {
-    minX = Math.min(minX, tile.x);
-    minY = Math.min(minY, tile.y);
-    maxX = Math.max(maxX, tile.x + tile.width + verticalJoint);
-    maxY = Math.max(maxY, tile.y + tile.height + horizontalJoint);
+    const bounds = getTileAxisAlignedBounds(tile);
+    minX = Math.min(minX, bounds.minX);
+    minY = Math.min(minY, bounds.minY);
+    maxX = Math.max(maxX, bounds.maxX + (tile.rotation === 0 ? verticalJoint : 0));
+    maxY = Math.max(maxY, bounds.maxY + (tile.rotation === 0 ? horizontalJoint : 0));
   }
 
   for (const stroke of strokes) {

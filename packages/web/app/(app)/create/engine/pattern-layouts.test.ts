@@ -68,6 +68,28 @@ function createPatternConfig(type: (typeof PATTERNS)[number]): TextureConfig {
   };
 }
 
+function getRotatedCorners(tile: { x: number; y: number; width: number; height: number; rotation: number }) {
+  const centerX = tile.x + tile.width / 2;
+  const centerY = tile.y + tile.height / 2;
+  const radians = (tile.rotation * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+
+  return [
+    { x: tile.x, y: tile.y },
+    { x: tile.x + tile.width, y: tile.y },
+    { x: tile.x + tile.width, y: tile.y + tile.height },
+    { x: tile.x, y: tile.y + tile.height },
+  ].map((point) => {
+    const dx = point.x - centerX;
+    const dy = point.y - centerY;
+    return {
+      x: centerX + dx * cos - dy * sin,
+      y: centerY + dx * sin + dy * cos,
+    };
+  });
+}
+
 describe('pattern layouts', () => {
   it.each(PATTERNS)('produces stable bounds for %s', (type) => {
     const layout = getPatternLayout(createPatternConfig(type));
@@ -401,6 +423,55 @@ describe('pattern layouts', () => {
       firstOddAnchor.y + ((400 + 10) * invSqrt2) / 2 - 5,
       3,
     );
+  });
+
+  it('matches the competitor snapshot for thin herringbone pavers', () => {
+    const config = createPatternConfig('herringbone');
+    config.pattern.rows = 4;
+    config.pattern.columns = 2;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 10;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const originalTiles = layout.tiles.map((tile) => ({
+      ...tile,
+      originalX: tile.x - (layout.repeatOffsetX ?? 0),
+      originalY: tile.y - (layout.repeatOffsetY ?? 0),
+    }));
+    const visibleTiles = originalTiles
+      .filter(
+        (tile) =>
+          tile.originalX > -config.materials[0]!.width &&
+          tile.originalX < (layout.repeatWidth ?? 0) &&
+          tile.originalY > -config.materials[0]!.width &&
+          tile.originalY < (layout.repeatHeight ?? 0),
+      )
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
+
+    const firstEven = visibleTiles.find((tile) => tile.rotation === -45);
+    const firstOdd = visibleTiles.find((tile) => tile.rotation === 45);
+    const nextRowEven = visibleTiles.find(
+      (tile) =>
+        tile.rotation === -45 &&
+        Math.abs((tile.originalX ?? 0) - (firstEven?.originalX ?? 0)) < 0.001 &&
+        (tile.originalY ?? 0) > (firstEven?.originalY ?? 0),
+    );
+    const evenAnchor = firstEven ? getRotatedCorners(firstEven)[3] : undefined;
+    const oddAnchor = firstOdd ? getRotatedCorners(firstOdd)[0] : undefined;
+    const oddOffset =
+      evenAnchor && oddAnchor
+        ? Math.hypot(oddAnchor.x - evenAnchor.x, oddAnchor.y - evenAnchor.y)
+        : undefined;
+
+    expect(layout.repeatWidth).toBeCloseTo(572.76, 2);
+    expect(layout.repeatHeight).toBeCloseTo(84.85, 2);
+    expect(firstEven).toBeDefined();
+    expect(firstOdd).toBeDefined();
+    expect(nextRowEven).toBeDefined();
+    expect((nextRowEven?.originalY ?? 0) - (firstEven?.originalY ?? 0)).toBeCloseTo(21.213, 3);
+    expect(oddOffset ?? 0).toBeCloseTo(415.004, 2);
   });
 
   it('changes chevron repeat height with angle while keeping repeat width stable', () => {
