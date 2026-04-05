@@ -3,6 +3,7 @@ import { getPatternLayout, type PatternStroke, type PatternTile } from './patter
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, getTileRenderBox } from './render-geometry';
+import { renderJointRelief } from './joint-relief';
 import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 export interface RenderedJoint {
@@ -193,6 +194,18 @@ export function renderToCanvas(
 
     ctx.restore();
   }
+
+  renderJointRelief({
+    ctx,
+    config,
+    tiles: layout.tiles,
+    repeatWidth,
+    repeatHeight,
+    scale,
+    drawOffsetX,
+    drawOffsetY,
+    edgeProfiles: options?.edgeProfiles,
+  });
 
   if (layout.strokes.length > 0) {
     ctx.save();

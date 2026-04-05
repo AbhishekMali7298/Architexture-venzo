@@ -5,6 +5,7 @@ import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { getTileRenderBox } from './render-geometry';
+import { renderJointRelief } from './joint-relief';
 import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 function seededRng(seed: number) {
@@ -274,6 +275,18 @@ function drawPreparedLayout(
       options?.edgeProfiles,
     );
   }
+
+  renderJointRelief({
+    ctx,
+    config: scene.config,
+    tiles: scene.layout.tiles,
+    repeatWidth: scene.previewWidth / scene.scale,
+    repeatHeight: scene.previewHeight / scene.scale,
+    scale: scene.scale,
+    drawOffsetX,
+    drawOffsetY,
+    edgeProfiles: options?.edgeProfiles,
+  });
 
   if (scene.layout.strokes.length > 0) {
     ctx.save();
