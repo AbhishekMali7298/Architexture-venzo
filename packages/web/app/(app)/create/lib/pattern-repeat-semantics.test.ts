@@ -144,10 +144,8 @@ describe('pattern repeat semantics', () => {
     const frame = resolvePatternRepeatFrame(config, layout);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(canonical).toEqual({
-      repeatWidth: 4 * (200 + 10) / Math.sqrt(2),
-      repeatHeight: 6 * 2 * (100 + 10) / Math.sqrt(2),
-    });
+    expect(canonical?.repeatWidth).toBeCloseTo(4 * (200 + 10) / Math.sqrt(2), 10);
+    expect(canonical?.repeatHeight).toBeCloseTo(6 * 2 * (100 + 10) / Math.sqrt(2), 10);
     expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth, 1);
     expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight, 1);
   });

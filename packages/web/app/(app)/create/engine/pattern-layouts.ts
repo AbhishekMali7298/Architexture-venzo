@@ -534,51 +534,120 @@ function layoutStaggered(config: TextureConfig): PatternLayoutData {
 function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-
-  // Architextures herringbone has columnMultiple: 2
-  // We treat 'columns' as total tiles horizontally, so we have columns / 2 units.
-  const stepX = (width + verticalJoint) / Math.sqrt(2);
-  const stepY = (height + horizontalJoint) / Math.sqrt(2);
+  const diagonalJoint = (horizontalJoint + verticalJoint) / 2;
+  const sqrt2 = Math.SQRT2;
+  const invSqrt2 = 1 / sqrt2;
+  const rowPitch = (height + horizontalJoint) * sqrt2;
+  const pairPitch = (width + verticalJoint) * sqrt2;
+  const oddAnchorShift = (width + height + diagonalJoint) * invSqrt2;
+  const repeatWidth = columns * (width + verticalJoint) * invSqrt2;
+  const repeatHeight = rows * rowPitch;
   const tiles: PatternTile[] = [];
 
-  // Herringbone is a staggered 45-degree grid.
-  // One repeat box (columns x rows) covers columns * stepX by rows * (2 * stepY).
-  // We draw with bleed.
-  for (let r = -2; r <= rows * 2 + 2; r++) {
-    for (let c = -2; c <= columns + 2; c++) {
-      const isAltRow = Math.abs(r) % 2 !== 0;
-      const isAltCol = Math.abs(c) % 2 !== 0;
-      
-      const rotation = (isAltRow === isAltCol) ? 45 : 135;
-      
-      // The crucial part is the offset to make bricks touch.
-      // In herringbone, the end of a brick meets the side of another.
-      const baseX = c * stepX;
-      const baseY = r * stepY;
+  const rotatedBounds = (tile: PatternTile) => {
+    const cx = tile.x + tile.width / 2;
+    const cy = tile.y + tile.height / 2;
+    const radians = (tile.rotation * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const corners = [
+      { x: tile.x, y: tile.y },
+      { x: tile.x + tile.width, y: tile.y },
+      { x: tile.x + tile.width, y: tile.y + tile.height },
+      { x: tile.x, y: tile.y + tile.height },
+    ].map((point) => {
+      const dx = point.x - cx;
+      const dy = point.y - cy;
+      return {
+        x: cx + dx * cos - dy * sin,
+        y: cy + dx * sin + dy * cos,
+      };
+    });
 
-      // To interlock perfectly, the bricks must shift based on their orientation
-      // This offset aligns the "tip" of the 45 deg brick with the "side" of the 135 deg one.
-      const offsetX = isAltRow ? -stepX / 2 : 0;
-      const offsetY = isAltCol ? -stepY / 2 : 0;
+    return corners.reduce(
+      (acc, point) => ({
+        minX: Math.min(acc.minX, point.x),
+        minY: Math.min(acc.minY, point.y),
+        maxX: Math.max(acc.maxX, point.x),
+        maxY: Math.max(acc.maxY, point.y),
+      }),
+      {
+        minX: Number.POSITIVE_INFINITY,
+        minY: Number.POSITIVE_INFINITY,
+        maxX: Number.NEGATIVE_INFINITY,
+        maxY: Number.NEGATIVE_INFINITY,
+      },
+    );
+  };
 
-      tiles.push({
-        x: baseX + offsetX,
-        y: baseY + offsetY,
+  const intersectsRepeat = (tile: PatternTile) => {
+    const bounds = rotatedBounds(tile);
+    return bounds.maxX > 0 && bounds.minX < repeatWidth && bounds.maxY > 0 && bounds.minY < repeatHeight;
+  };
+
+  const tileForAnchor = (anchorX: number, anchorY: number, rotation: number): PatternTile => {
+    if (rotation === -45) {
+      return {
+        x: anchorX + ((width + height) * invSqrt2) / 2 - width / 2,
+        y: anchorY + ((height - width) * invSqrt2) / 2 - height / 2,
         width,
         height,
         rotation,
         materialIndex: 0,
-      });
+      };
+    }
+
+    return {
+      x: anchorX + ((width - height) * invSqrt2) / 2 - width / 2,
+      y: anchorY + ((width + height) * invSqrt2) / 2 - height / 2,
+      width,
+      height,
+      rotation,
+      materialIndex: 0,
+    };
+  };
+
+  const baseTiles: PatternTile[] = [];
+  for (let row = 0; row < rows; row++) {
+    const baseAnchorY = height * invSqrt2 + row * rowPitch;
+    for (let column = 0; column < columns; column++) {
+      const pairIndex = Math.floor(column / 2);
+      const evenAnchorX = -height * invSqrt2 + pairIndex * pairPitch;
+      if (column % 2 === 0) {
+        baseTiles.push(tileForAnchor(evenAnchorX, baseAnchorY, -45));
+        continue;
+      }
+
+      baseTiles.push(
+        tileForAnchor(
+          evenAnchorX + oddAnchorShift,
+          baseAnchorY - oddAnchorShift,
+          45,
+        ),
+      );
     }
   }
 
-  // Bounding box matches our new canonical repeat rule:
-  const explicitBounds = {
-    width: columns * stepX,
-    height: rows * (stepY * 2), 
-  };
+  const cellShifts = [-1, 0, 1];
+  for (const tile of baseTiles) {
+    for (const shiftY of cellShifts) {
+      for (const shiftX of cellShifts) {
+        const shifted = {
+          ...tile,
+          x: tile.x + shiftX * repeatWidth,
+          y: tile.y + shiftY * repeatHeight,
+        };
+        if (intersectsRepeat(shifted)) {
+          tiles.push(shifted);
+        }
+      }
+    }
+  }
 
-  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, explicitBounds);
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, {
+    width: repeatWidth,
+    height: repeatHeight,
+  });
 }
 
 function layoutChevron(config: TextureConfig): PatternLayoutData {

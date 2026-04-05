@@ -177,26 +177,102 @@ describe('pattern layouts', () => {
     const config = createPatternConfig('herringbone');
     config.pattern.rows = 6;
     config.pattern.columns = 4;
-    config.materials[0]!.width = 200;
+    config.materials[0]!.width = 400;
     config.materials[0]!.height = 100;
-    config.joints.horizontalSize = 10;
-    config.joints.verticalSize = 10;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
 
     const layout = getPatternLayout(config);
-    // Note: Procedural repeat bounds include offsets and full tile footprints
-    // For 2 columns and 6 rows (with 200x100 bricks + 10mm joints):
-    const expectedWidth = 4 * (200 + 10) / Math.sqrt(2); // 4 columns * (W+J)/sqrt(2)
-    const expectedHeight = 6 * (2 * (100 + 10) / Math.sqrt(2)); // 6 rows * 2 * (H+J)/sqrt(2)
+    const expectedWidth = config.pattern.columns * (config.materials[0]!.width + config.joints.verticalSize) / Math.sqrt(2);
+    const expectedHeight = config.pattern.rows * (config.materials[0]!.height + config.joints.horizontalSize) * Math.sqrt(2);
+
+    const originalTiles = layout.tiles.map((tile) => ({
+      ...tile,
+      originalX: tile.x - (layout.repeatOffsetX ?? 0),
+      originalY: tile.y - (layout.repeatOffsetY ?? 0),
+    }));
+    const visibleTiles = originalTiles.filter(
+      (tile) =>
+        tile.originalX > -config.materials[0]!.width &&
+        tile.originalX < (layout.repeatWidth ?? 0) &&
+        tile.originalY > -config.materials[0]!.width &&
+        tile.originalY < (layout.repeatHeight ?? 0),
+    );
+    const evenTiles = visibleTiles
+      .filter((tile) => tile.rotation === -45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
+    const topEvenRowY = evenTiles[0]?.originalY ?? 0;
+    const topEvenTiles = evenTiles.filter((tile) => Math.abs(tile.originalY - topEvenRowY) < 0.001);
+    const firstEven = topEvenTiles[0];
+    const secondEven = topEvenTiles[1];
+    const nextRowEven = evenTiles.find(
+      (tile) => Math.abs(tile.originalX - (firstEven?.originalX ?? 0)) < 0.001 && tile.originalY > (firstEven?.originalY ?? 0),
+    );
+    const oddTiles = visibleTiles
+      .filter((tile) => tile.rotation === 45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
+    const firstOdd = oddTiles[0];
 
     expect(layout.repeatWidth).toBeCloseTo(expectedWidth, 1);
     expect(layout.repeatHeight).toBeCloseTo(expectedHeight, 1);
-    expect(layout.tiles.length).toBe(153); // (rows*2 + 5) * (columns + 5) with bleed 2.
-    expect(layout.tiles[0].rotation).toBe(45);
-    expect(layout.tiles[1].rotation).toBe(135); // Altering column in bleed zone
+    expect(firstEven).toBeDefined();
+    expect(secondEven).toBeDefined();
+    expect(nextRowEven).toBeDefined();
+    expect(firstOdd).toBeDefined();
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(-93.934028, 3);
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(-85.355339, 3);
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(192.446965, 2);
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(-159.604299, 2);
+    expect((secondEven?.originalX ?? 0) - (firstEven?.originalX ?? 0)).toBeCloseTo(572.761986, 1);
+    expect((nextRowEven?.originalY ?? 0) - (firstEven?.originalY ?? 0)).toBeCloseTo(148.491, 2);
 
     expect(Number.isFinite(layout.repeatOffsetY ?? 0)).toBe(true);
     expect(layout.totalWidth).toBeGreaterThanOrEqual(layout.repeatWidth ?? 0);
     expect(layout.totalHeight).toBeGreaterThanOrEqual(layout.repeatHeight ?? 0);
+  });
+
+  it('matches competitor herringbone repeat math when the brick width changes', () => {
+    const config = createPatternConfig('herringbone');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.materials[0]!.width = 300;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const originalTiles = layout.tiles.map((tile) => ({
+      ...tile,
+      originalX: tile.x - (layout.repeatOffsetX ?? 0),
+      originalY: tile.y - (layout.repeatOffsetY ?? 0),
+    }));
+    const visibleTiles = originalTiles.filter(
+      (tile) =>
+        tile.originalX > -config.materials[0]!.width &&
+        tile.originalX < (layout.repeatWidth ?? 0) &&
+        tile.originalY > -config.materials[0]!.width &&
+        tile.originalY < (layout.repeatHeight ?? 0),
+    );
+    const evenTiles = visibleTiles
+      .filter((tile) => tile.rotation === -45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
+    const firstEven = evenTiles[0];
+    const secondEven = evenTiles[1];
+    const oddTiles = visibleTiles
+      .filter((tile) => tile.rotation === 45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
+    const firstOdd = oddTiles[0];
+
+    expect(layout.repeatWidth).toBeCloseTo(4 * (300 + 5) / Math.sqrt(2), 3);
+    expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5) * Math.sqrt(2), 3);
+    expect(firstEven).toBeDefined();
+    expect(secondEven).toBeDefined();
+    expect(firstOdd).toBeDefined();
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(-79.289322, 3);
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(-50, 3);
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(136.380315, 2);
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(-124.248961, 2);
+    expect((secondEven?.originalX ?? 0) - (firstEven?.originalX ?? 0)).toBeCloseTo(431.339273, 2);
   });
 
   it('changes chevron repeat height with angle while keeping repeat width stable', () => {

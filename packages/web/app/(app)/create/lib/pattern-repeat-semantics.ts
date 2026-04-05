@@ -150,8 +150,8 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   herringbone: {
     countMode: 'visible-counts',
-    rowsMeaning: 'Rows count the number of bricks stacked vertically in the repeat pattern.',
-    columnsMeaning: 'Columns count pairs of bricks horizontally. The pattern naturally snaps in units of 2.',
+    rowsMeaning: 'Rows count the number of visible bricks vertically in the repeat pattern.',
+    columnsMeaning: 'Columns count visible bricks horizontally. The pattern naturally snaps in units of 2.',
     angleMeaning: 'Angle for herringbone is fixed at 45 degrees in the editor.',
     dimensionsMeaning: 'Width and Height scale the individual pavers independently without skewing the 45-degree angle.',
     semanticHint:
@@ -479,9 +479,11 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
   if (config.pattern.type === 'herringbone') {
     const repeatColumns = Math.max(1, config.pattern.columns);
     const repeatRows = Math.max(1, config.pattern.rows);
+    const pairPitch = (material.width + config.joints.verticalSize) * Math.SQRT2;
+    const rowPitch = (material.height + config.joints.horizontalSize) * Math.SQRT2;
     return {
-      repeatWidth: repeatColumns * (material.width + config.joints.verticalSize) / Math.sqrt(2),
-      repeatHeight: repeatRows * (material.height + config.joints.horizontalSize) * 2 / Math.sqrt(2),
+      repeatWidth: (repeatColumns / 2) * pairPitch,
+      repeatHeight: repeatRows * rowPitch,
     };
   }
 
