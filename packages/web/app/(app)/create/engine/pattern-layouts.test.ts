@@ -55,6 +55,9 @@ function createPatternConfig(type: (typeof PATTERNS)[number]): TextureConfig {
       stretchers: pattern.defaults.stretchers,
       weaves: pattern.defaults.weaves,
     },
+    joints: {
+      ...DEFAULT_TEXTURE_CONFIG.joints,
+    },
     materials: [
       {
         ...DEFAULT_TEXTURE_CONFIG.materials[0]!,
@@ -142,13 +145,14 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBeCloseTo(repeatCounts.rows * (module.repeatHeight || module.viewBoxHeight) * scaleY);
   });
 
-  it('uses the explicit fishscale repeat height from the authored module', () => {
+  it('uses the explicit fishscale repeat height from the parity logic', () => {
     const config = createPatternConfig('fishscale');
+    config.materials[0]!.width = 400; 
+    config.joints.verticalSize = 0; // Use 0 joint to keep math simple 
     const layout = getPatternLayout(config);
-    const module = SVG_PATTERN_MODULES.fishscale;
     const repeatCounts = getPatternRepeatCounts(config);
-    const scaleY = config.materials[0]!.height / module.referenceTileHeight;
-    expect(layout.repeatHeight).toBeCloseTo(repeatCounts.rows * module.repeatHeight! * scaleY);
+    const expectedHeight = repeatCounts.rows * (400 * 0.5);
+    expect(layout.repeatHeight).toBeCloseTo(expectedHeight, 1);
   });
 
   it('keeps herringbone stable when angle changes because angle is fixed in create', () => {
@@ -181,14 +185,14 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
     // Note: Procedural repeat bounds include offsets and full tile footprints
     // For 2 columns and 6 rows (with 200x100 bricks + 10mm joints):
-    const expectedWidth = 549.4; 
-    const expectedHeight = 1354.5;
+    const expectedWidth = 4 * (200 + 10) / Math.sqrt(2); // 4 columns * (W+J)/sqrt(2)
+    const expectedHeight = 6 * (2 * (100 + 10) / Math.sqrt(2)); // 6 rows * 2 * (H+J)/sqrt(2)
 
     expect(layout.repeatWidth).toBeCloseTo(expectedWidth, 1);
     expect(layout.repeatHeight).toBeCloseTo(expectedHeight, 1);
-    expect(layout.tiles.length).toBe(24); // 6 rows * 4 columns
+    expect(layout.tiles.length).toBe(153); // (rows*2 + 5) * (columns + 5) with bleed 2.
     expect(layout.tiles[0].rotation).toBe(45);
-    expect(layout.tiles[1].rotation).toBe(135);
+    expect(layout.tiles[1].rotation).toBe(135); // Altering column in bleed zone
 
     expect(Number.isFinite(layout.repeatOffsetY ?? 0)).toBe(true);
     expect(layout.totalWidth).toBeGreaterThanOrEqual(layout.repeatWidth ?? 0);

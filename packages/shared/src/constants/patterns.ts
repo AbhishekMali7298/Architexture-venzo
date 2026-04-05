@@ -8,6 +8,8 @@ export interface PatternDefinition {
   rowMultiple: number;
   columnMultiple: number;
   displayName: string;
+  widthLabel?: string;
+  heightLabel?: string;
   description: string;
   previewPath: string;
   previewAssetPath?: string;
@@ -197,6 +199,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowMultiple: 2,
     columnMultiple: 1,
     displayName: 'Hexagonal',
+    widthLabel: 'Size',
     description: 'Honeycomb hexagonal tile pattern',
     previewPath: 'M20,2 L36,12 L36,28 L20,38 L4,28 L4,12z',
     previewAssetPath: 'patterns/hexagonal.svg',
@@ -266,18 +269,19 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'fishscale',
-    dimType: 'single',
+    dimType: 'multi',
     category: 'roofing',
     rowColMode: 'module',
     rowMultiple: 2,
     columnMultiple: 1,
     displayName: 'Fishscale',
+    widthLabel: 'Diameter',
     description: 'Scaled shingle pattern with rounded edges',
     previewPath: '',
     previewAssetPath: 'patterns/fishscale.svg',
     defaults: { rows: 8, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 2, max: 40 }, columns: { min: 2, max: 40 }, angle: { min: 0, max: 0, step: 1 } },
-    defaultUnitWidth: 180, defaultUnitHeight: 180,
+    defaultUnitWidth: 400, defaultUnitHeight: 400,
   },
   {
     type: 'french',

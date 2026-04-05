@@ -58,14 +58,8 @@ export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema
   const pattern = getPatternByType(type);
   const isSingleDim = pattern?.dimType === 'single';
 
-  let materialWidthLabel = semantics.materialWidthLabel;
-  if (isSingleDim) {
-    if (type === 'intersecting_circle' || type === 'fishscale' || type === 'circular') {
-      materialWidthLabel = 'Diameter';
-    } else {
-      materialWidthLabel = 'Size';
-    }
-  }
+  const materialWidthLabel = semantics.materialWidthLabel;
+  const materialHeightLabel = semantics.materialHeightLabel;
 
   return {
     patternType: type,
@@ -76,7 +70,7 @@ export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema
     dimensionsMeaning: semantics.dimensionsMeaning,
     semanticHint: semantics.semanticHint,
     materialWidthLabel,
-    materialHeightLabel: semantics.materialHeightLabel,
+    materialHeightLabel,
     singleDimensionInput: isSingleDim,
     showMinDimensions: type === 'ashlar',
     fields: buildBaseFields(type, semantics.rowFieldLabel, semantics.columnFieldLabel),

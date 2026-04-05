@@ -16,6 +16,8 @@ export interface PatternRepeatSemantics {
   semanticHint: string;
   materialWidthLabel: string;
   materialHeightLabel: string;
+  materialWidthFieldLabel?: string;
+  materialHeightFieldLabel?: string;
   rowFieldLabel: string;
   columnFieldLabel: string;
 }
@@ -388,8 +390,10 @@ function buildFallbackSemantics(type: PatternType): PatternRepeatSemantics {
       countMode === 'module-counts'
         ? `Rows and columns size the repeat using the authored module geometry. One repeat covers ${rowMultiple} visible row${rowMultiple === 1 ? '' : 's'} by ${columnMultiple} visible column${columnMultiple === 1 ? '' : 's'}.`
         : 'Rows and columns directly control the visible repeat count for this pattern.',
-    materialWidthLabel: DEFAULT_LABELS.width,
-    materialHeightLabel: DEFAULT_LABELS.height,
+    materialWidthLabel: pattern?.widthLabel ?? DEFAULT_LABELS.width,
+    materialHeightLabel: pattern?.heightLabel ?? DEFAULT_LABELS.height,
+    materialWidthFieldLabel: pattern?.widthLabel,
+    materialHeightFieldLabel: pattern?.heightLabel,
     rowFieldLabel,
     columnFieldLabel,
   };
@@ -464,8 +468,8 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
   }
 
   if (config.pattern.type === 'ashlar') {
-    const repeatWidth = Math.max(1, config.pattern.columns) * (material.width + config.joints.verticalSize) * ASHLAR_VISIBLE_REPEAT_SCALE;
-    const repeatHeight = Math.max(1, config.pattern.rows) * (material.height + config.joints.horizontalSize) * ASHLAR_VISIBLE_REPEAT_SCALE;
+    const repeatWidth = Math.max(1, config.pattern.columns) * (material.width + config.joints.verticalSize);
+    const repeatHeight = Math.max(1, config.pattern.rows) * (material.height + config.joints.horizontalSize);
     return {
       repeatWidth,
       repeatHeight,
@@ -473,12 +477,19 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
   }
 
   if (config.pattern.type === 'herringbone') {
-    const step = (material.width + material.height + config.joints.horizontalSize + config.joints.verticalSize) / Math.sqrt(2);
-    const repeatColumns = Math.max(1, Math.floor(config.pattern.columns / 2));
+    const repeatColumns = Math.max(1, config.pattern.columns);
     const repeatRows = Math.max(1, config.pattern.rows);
     return {
-      repeatWidth: (repeatColumns + 0.5) * step,
-      repeatHeight: (repeatRows + 0.5) * step,
+      repeatWidth: repeatColumns * (material.width + config.joints.verticalSize) / Math.sqrt(2),
+      repeatHeight: repeatRows * (material.height + config.joints.horizontalSize) * 2 / Math.sqrt(2),
+    };
+  }
+
+  if (config.pattern.type === 'fishscale') {
+    const diameter = material.width + config.joints.verticalSize;
+    return {
+      repeatWidth: Math.max(1, config.pattern.columns) * diameter,
+      repeatHeight: Math.max(1, config.pattern.rows) * (diameter * 0.5),
     };
   }
 

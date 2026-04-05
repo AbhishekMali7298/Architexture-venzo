@@ -488,46 +488,48 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
 
   // Architextures herringbone has columnMultiple: 2
   // We treat 'columns' as total tiles horizontally, so we have columns / 2 units.
-  const repeatColumns = Math.max(1, Math.floor(columns / 2));
-  const repeatRows = rows;
-
-  const unitSize = (width + height + horizontalJoint + verticalJoint) / Math.sqrt(2);
-  const stepX = unitSize;
-  const stepY = unitSize;
-
+  const stepX = (width + verticalJoint) / Math.sqrt(2);
+  const stepY = (height + horizontalJoint) / Math.sqrt(2);
   const tiles: PatternTile[] = [];
 
-  for (let r = 0; r < repeatRows; r++) {
-    for (let c = 0; c < repeatColumns; c++) {
+  // Herringbone is a staggered 45-degree grid.
+  // One repeat box (columns x rows) covers columns * stepX by rows * (2 * stepY).
+  // We draw with bleed.
+  for (let r = -2; r <= rows * 2 + 2; r++) {
+    for (let c = -2; c <= columns + 2; c++) {
+      const isAltRow = Math.abs(r) % 2 !== 0;
+      const isAltCol = Math.abs(c) % 2 !== 0;
+      
+      const rotation = (isAltRow === isAltCol) ? 45 : 135;
+      
+      // The crucial part is the offset to make bricks touch.
+      // In herringbone, the end of a brick meets the side of another.
       const baseX = c * stepX;
       const baseY = r * stepY;
 
-      // Tile 1: 45 degrees
-      tiles.push({
-        x: baseX,
-        y: baseY,
-        width,
-        height,
-        rotation: 45,
-        materialIndex: 0,
-      });
+      // To interlock perfectly, the bricks must shift based on their orientation
+      // This offset aligns the "tip" of the 45 deg brick with the "side" of the 135 deg one.
+      const offsetX = isAltRow ? -stepX / 2 : 0;
+      const offsetY = isAltCol ? -stepY / 2 : 0;
 
-      // Tile 2: 135 degrees (opposite slant)
-      // Shifted by half a unit to interlock
       tiles.push({
-        x: baseX + stepX / 2,
-        y: baseY + stepY / 2,
+        x: baseX + offsetX,
+        y: baseY + offsetY,
         width,
         height,
-        rotation: 135,
+        rotation,
         materialIndex: 0,
       });
     }
   }
 
-  // Use normalizeLayoutBounds to ensure everything is in the positive quadrant
-  // and to compute totalWidth/totalHeight correctly.
-  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint);
+  // Bounding box matches our new canonical repeat rule:
+  const explicitBounds = {
+    width: columns * stepX,
+    height: rows * (stepY * 2), 
+  };
+
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint, explicitBounds);
 }
 
 function layoutChevron(config: TextureConfig): PatternLayoutData {
@@ -890,14 +892,14 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const stepX = width + verticalJoint;
-  const stepY = Math.max(height * 0.55 + horizontalJoint, 1);
+  const stepY = stepX * 0.5; // Architextures uses exactly 0.5 diameter overlap height
   const scallopWidth = width;
-  const scallopHeight = height;
+  const scallopHeight = width; // Fishscales are circular based
   const shoulderSamples = 8;
   const arcSamples = 18;
+  const radius = scallopWidth / 2;
   const centerX = scallopWidth / 2;
   const midY = scallopHeight / 2;
-  const radius = Math.max(scallopWidth / 2, 1);
   const scallopPoints: { x: number; y: number }[] = [];
 
   // Build a scallop outline path. We use strokes over a continuous material fill
@@ -959,7 +961,13 @@ function layoutFishscale(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint);
+  // Explicit bounds for the repeat frame (dotted line)
+  const explicitBounds = {
+    width: columns * stepX,
+    height: rows * stepY,
+  };
+
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, explicitBounds);
 }
 
 const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => PatternLayoutData>> = {
