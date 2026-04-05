@@ -417,11 +417,18 @@ export function renderBackground(
   } else {
     const stepX = Math.max(scene.tileSetWidth, 1);
     const stepY = Math.max(scene.tileSetHeight, 1);
-    const startX = previewX - Math.ceil(previewX / stepX) * stepX;
-    const startY = previewY - Math.ceil(previewY / stepY) * stepY;
 
-    for (let y = startY; y < canvasHeight + stepY; y += stepY) {
-      for (let x = startX; x < canvasWidth + stepX; x += stepX) {
+    // Anchor one tile exactly at the preview frame origin so dashed-border phase
+    // and background seam phase stay locked, then draw outward in all directions.
+    const tilesLeft = Math.ceil(previewX / stepX) + 1;
+    const tilesRight = Math.ceil((canvasWidth - previewX) / stepX) + 1;
+    const tilesAbove = Math.ceil(previewY / stepY) + 1;
+    const tilesBelow = Math.ceil((canvasHeight - previewY) / stepY) + 1;
+
+    for (let yIndex = -tilesAbove; yIndex <= tilesBelow; yIndex++) {
+      const y = previewY + yIndex * stepY;
+      for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
+        const x = previewX + xIndex * stepX;
         drawPreparedLayout(ctx, scene, x, y, options);
       }
     }
@@ -444,7 +451,11 @@ export function drawDottedBorder(
   height: number,
   outline?: ReadonlyArray<{ x: number; y: number }>,
 ) {
-  const snap = (value: number) => Math.round(value) + 0.5;
+  const transform = ctx.getTransform();
+  const scaleX = Math.hypot(transform.a, transform.b) || 1;
+  const scaleY = Math.hypot(transform.c, transform.d) || 1;
+  const snapX = (value: number) => (Math.round(value * scaleX) + 0.5) / scaleX;
+  const snapY = (value: number) => (Math.round(value * scaleY) + 0.5) / scaleY;
 
   ctx.save();
   ctx.lineWidth = 3;
@@ -455,16 +466,16 @@ export function drawDottedBorder(
   ctx.beginPath();
 
   if (outline && outline.length > 1) {
-    ctx.moveTo(snap(x + outline[0]!.x * width), snap(y + outline[0]!.y * height));
+    ctx.moveTo(snapX(x + outline[0]!.x * width), snapY(y + outline[0]!.y * height));
     for (let index = 1; index < outline.length; index++) {
       const point = outline[index]!;
-      ctx.lineTo(snap(x + point.x * width), snap(y + point.y * height));
+      ctx.lineTo(snapX(x + point.x * width), snapY(y + point.y * height));
     }
     ctx.closePath();
   } else {
     const inset = ctx.lineWidth * 0.5;
-    const rx = snap(x + inset);
-    const ry = snap(y + inset);
+    const rx = snapX(x + inset);
+    const ry = snapY(y + inset);
     const rw = Math.max(0, Math.round(width - ctx.lineWidth));
     const rh = Math.max(0, Math.round(height - ctx.lineWidth));
     ctx.rect(rx, ry, rw, rh);
