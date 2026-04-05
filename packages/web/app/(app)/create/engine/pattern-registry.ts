@@ -345,8 +345,9 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
   getTileType: (_row, col) => (col % 2 === 0 ? 'left' : 'right'),
   customGenerate: (config, helpers) => {
     const material = config.materials[0]!;
-    const rows = Math.max(1, config.pattern.rows);
-    const columns = Math.max(1, Math.ceil(config.pattern.columns / 2));
+    const visibleRows = Math.max(1, config.pattern.rows);
+    const visibleColumns = Math.max(1, config.pattern.columns);
+    const placementColumns = Math.max(1, Math.ceil(visibleColumns / 2));
     const jointH = config.joints.horizontalSize;
     const jointV = config.joints.verticalSize;
     const projectedSpan = (material.width + material.height) / Math.SQRT2;
@@ -354,12 +355,12 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
     const stepY = projectedSpan + jointH / Math.SQRT2;
     const halfStepX = stepX / 2;
     const halfStepY = stepY / 2;
-    const repeatWidth = columns * stepX;
-    const repeatHeight = rows * stepY;
+    const repeatWidth = visibleColumns * stepX;
+    const repeatHeight = visibleRows * stepY;
     const tiles: PatternTile[] = [];
 
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < columns; col++) {
+    for (let row = 0; row < visibleRows; row++) {
+      for (let col = 0; col < placementColumns; col++) {
         const baseX = col * stepX;
         const baseY = row * stepY;
 

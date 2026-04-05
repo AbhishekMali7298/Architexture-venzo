@@ -141,7 +141,7 @@ describe('pattern repeat semantics', () => {
     const layout = getPatternLayout(config);
     const frame = resolvePatternRepeatFrame(config, layout);
 
-    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(repeatCounts).toEqual({ rows: 6, columns: 4 });
     expect(canonical).toBeNull();
     expect(frame.repeatWidth).toBeGreaterThan(0);
     expect(frame.repeatHeight).toBeGreaterThan(0);

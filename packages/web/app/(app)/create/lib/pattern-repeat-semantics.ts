@@ -147,7 +147,7 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   herringbone: {
     countMode: 'visible-counts',
     rowsMeaning: 'Rows count visible herringbone bands vertically inside the bordered repeat.',
-    columnsMeaning: 'Columns count herringbone half-modules horizontally. Two columns form one full herringbone pair.',
+    columnsMeaning: 'Columns count visible herringbone columns horizontally inside the bordered repeat.',
     angleMeaning: 'Angle is fixed for herringbone in the create editor.',
     dimensionsMeaning: 'Width and height define the paver size used by the procedural herringbone generator.',
     semanticHint: 'Herringbone is generated procedurally from rotation and half-module offsets while rows and columns keep visible counts intuitive.',
@@ -401,6 +401,13 @@ export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {
   const pattern = getPatternByType(config.pattern.type);
+
+  if (config.pattern.type === 'herringbone') {
+    return {
+      rows: Math.max(1, config.pattern.rows),
+      columns: Math.max(1, config.pattern.columns),
+    };
+  }
 
   if (config.pattern.type === 'chevron') {
     return {

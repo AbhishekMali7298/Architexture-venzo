@@ -212,11 +212,12 @@ describe('pattern layouts', () => {
     const projectedSpan = (400 + 100) / Math.SQRT2;
     const stepX = projectedSpan + 5 / Math.SQRT2;
     const stepY = projectedSpan + 5 / Math.SQRT2;
-    const expectedRepeatWidth = Math.ceil(config.pattern.columns / 2) * stepX;
+    const expectedRepeatWidth = config.pattern.columns * stepX;
     const expectedRepeatHeight = config.pattern.rows * stepY;
 
     expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
     expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
+    expect((layout.repeatWidth ?? 1) / Math.max(layout.repeatHeight ?? 1, 1)).toBeGreaterThan(0.6);
     expect(Number.isFinite(layout.repeatOffsetX ?? 0)).toBe(true);
     expect(Number.isFinite(layout.repeatOffsetY ?? 0)).toBe(true);
 
