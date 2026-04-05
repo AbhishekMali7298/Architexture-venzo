@@ -182,10 +182,10 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   ashlar: {
     countMode: 'module-counts',
     rowsMeaning: 'Rows count visible ashlar courses. Six visible rows make one authored module repeat.',
-    columnsMeaning: 'Columns count visible ashlar slots. Four visible columns make one authored module repeat.',
+    columnsMeaning: 'Columns count visible ashlar slots. Two visible columns make one authored module repeat.',
     angleMeaning: 'Angle is not used by the Architextures-derived ashlar module.',
     dimensionsMeaning: 'Width and height define the reference stone size that the authored ashlar module scales from.',
-    semanticHint: 'Rows and columns count visible ashlar stones while the authored module is repeated in grouped blocks for parity with the live site.',
+    semanticHint: 'Rows and columns count visible ashlar stones while the authored module is repeated in grouped blocks for live-site-like density.',
     materialWidthLabel: 'Stone Width',
     materialHeightLabel: 'Stone Height',
     rowFieldLabel: 'Rows',
@@ -417,7 +417,7 @@ export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCoun
   if (config.pattern.type === 'ashlar') {
     return {
       rows: Math.max(1, Math.ceil(config.pattern.rows / 6)),
-      columns: Math.max(1, Math.ceil(config.pattern.columns / 4)),
+      columns: Math.max(1, Math.ceil(config.pattern.columns / 2)),
     };
   }
 

@@ -175,9 +175,9 @@ describe('pattern repeat semantics', () => {
     const layout = getPatternLayout(config);
     const hint = getPatternDimensionsHintSize(config, layout);
 
-    expect(repeatCounts).toEqual({ rows: 1, columns: 1 });
-    expect(canonical).toEqual({ repeatWidth: 600, repeatHeight: 373.3333333333333 });
-    expect(hint).toEqual({ width: 600, height: 373 });
+    expect(repeatCounts).toEqual({ rows: 1, columns: 2 });
+    expect(canonical).toEqual({ repeatWidth: 1200, repeatHeight: 373.3333333333333 });
+    expect(hint).toEqual({ width: 1200, height: 373 });
   });
 
   it('keeps chevron columns mapped to visible half-arms while angle changes vertical repeat pitch', () => {

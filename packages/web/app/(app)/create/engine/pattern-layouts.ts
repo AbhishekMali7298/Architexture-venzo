@@ -218,22 +218,10 @@ function layoutSvgModule(config: TextureConfig, module: SvgPatternModule): Patte
     }
   }
 
-  const layout = normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
     width: columns * repeatWidth,
     height: rows * repeatHeight,
   });
-
-  if (config.pattern.type === 'ashlar') {
-    return {
-      ...layout,
-      // Keep ashlar border phase stable so the dotted repeat frame stays aligned
-      // to the same visual seam across row/column edits.
-      repeatOffsetX: 0,
-      repeatOffsetY: 0,
-    };
-  }
-
-  return layout;
 }
 
 
