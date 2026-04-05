@@ -151,6 +151,7 @@ export function renderToCanvas(
       radius: cornerRadius,
       fallbackFill: tileColor,
       image: options?.materialImage,
+      tintColor: material.tint ?? undefined,
       clipPath,
       randomCropFraction,
     });
@@ -219,29 +220,6 @@ export function renderToCanvas(
       ctx.stroke();
     }
     ctx.restore();
-  }
-
-  const shadowOpacity = config.joints.shadowOpacity / 100;
-  if (shadowOpacity > 0 && (config.joints.recess || config.joints.concave)) {
-    ctx.strokeStyle = `rgba(0,0,0,${shadowOpacity * 0.4})`;
-    ctx.lineWidth = Math.max(1, config.joints.horizontalSize * scale * 0.5);
-
-    for (const tile of layout.tiles) {
-      const tileX = drawOffsetX + tile.x * scale + (config.joints.verticalSize * scale) / 2;
-      const tileY = drawOffsetY + tile.y * scale + (config.joints.horizontalSize * scale) / 2;
-      const tileWidth = tile.width * scale - config.joints.verticalSize * scale;
-      const tileHeight = tile.height * scale - config.joints.horizontalSize * scale;
-
-      ctx.beginPath();
-      ctx.moveTo(tileX, tileY + tileHeight + 1);
-      ctx.lineTo(tileX + tileWidth, tileY + tileHeight + 1);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(tileX + tileWidth + 1, tileY);
-      ctx.lineTo(tileX + tileWidth + 1, tileY + tileHeight);
-      ctx.stroke();
-    }
   }
 
   ctx.restore();

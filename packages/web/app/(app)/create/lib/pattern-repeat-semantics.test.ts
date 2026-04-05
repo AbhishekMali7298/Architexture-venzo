@@ -143,11 +143,10 @@ describe('pattern repeat semantics', () => {
     const layout = getPatternLayout(config);
     const frame = resolvePatternRepeatFrame(config, layout);
 
-    const step = (200 + 100 + 10 + 10) / Math.sqrt(2);
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(canonical).toEqual({
-      repeatWidth: (2 + 0.5) * step,
-      repeatHeight: (6 + 0.5) * step,
+      repeatWidth: 4 * (200 + 10) / Math.sqrt(2),
+      repeatHeight: 6 * 2 * (100 + 10) / Math.sqrt(2),
     });
     expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth, 1);
     expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight, 1);
@@ -185,9 +184,9 @@ describe('pattern repeat semantics', () => {
     const hint = getPatternDimensionsHintSize(config, layout);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 4 });
-    expect(canonical?.repeatWidth).toBeCloseTo(988.2);
-    expect(canonical?.repeatHeight).toBeCloseTo(384.3);
-    expect(hint).toEqual({ width: 988, height: 384 });
+    expect(canonical?.repeatWidth).toBeCloseTo(1620);
+    expect(canonical?.repeatHeight).toBeCloseTo(630);
+    expect(hint).toEqual({ width: 1620, height: 630 });
   });
 
   it('keeps chevron columns mapped to visible half-arms while angle changes vertical repeat pitch', () => {

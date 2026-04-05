@@ -269,7 +269,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'fishscale',
-    dimType: 'multi',
+    dimType: 'single',
     category: 'roofing',
     rowColMode: 'module',
     rowMultiple: 2,
