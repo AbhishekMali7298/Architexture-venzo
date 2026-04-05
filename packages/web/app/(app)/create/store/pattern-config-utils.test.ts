@@ -20,8 +20,8 @@ describe('pattern config utils', () => {
       0,
     );
 
-    expect(next.materials[0]?.width).toBe(215);
-    expect(next.materials[0]?.height).toBe(65);
+    expect(next.materials[0]?.width).toBe(400);
+    expect(next.materials[0]?.height).toBe(100);
     expect(next.pattern.type).toBe('flemish_bond');
   });
 

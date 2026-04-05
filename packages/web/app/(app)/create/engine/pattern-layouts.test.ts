@@ -28,7 +28,6 @@ const PATTERNS = [
 
 const MODULE_PARITY_PATTERNS = [
   'herringbone',
-  'staggered',
   'ashlar',
   'cubic',
   'hexagonal',
@@ -83,7 +82,7 @@ describe('pattern layouts', () => {
     }
   });
 
-  it.each(PATTERNS.filter((type) => type !== 'none'))('grows vertically when rows increase for %s', (type) => {
+  it.each(PATTERNS.filter((type) => type !== 'none' && type !== 'ashlar'))('grows vertically when rows increase for %s', (type) => {
     const base = createPatternConfig(type);
     const taller = createPatternConfig(type);
     const pattern = getPatternByType(type)!;
@@ -92,7 +91,7 @@ describe('pattern layouts', () => {
     expect(getPatternLayout(taller).totalHeight).toBeGreaterThan(getPatternLayout(base).totalHeight);
   });
 
-  it.each(PATTERNS.filter((type) => type !== 'none'))('grows horizontally when columns increase for %s', (type) => {
+  it.each(PATTERNS.filter((type) => type !== 'none' && type !== 'ashlar'))('grows horizontally when columns increase for %s', (type) => {
     const base = createPatternConfig(type);
     const wider = createPatternConfig(type);
     const pattern = getPatternByType(type)!;

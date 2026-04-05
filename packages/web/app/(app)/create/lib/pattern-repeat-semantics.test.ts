@@ -10,7 +10,7 @@ import {
   resolvePatternRepeatFrame,
 } from './pattern-repeat-semantics';
 
-function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' | 'herringbone' | 'cubic'): TextureConfig {
+function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' | 'herringbone' | 'cubic' | 'staggered' | 'ashlar'): TextureConfig {
   const pattern = getPatternByType(type);
   if (!pattern) {
     throw new Error(`Missing pattern definition for ${type}`);
@@ -39,6 +39,26 @@ function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' |
 }
 
 describe('pattern repeat semantics', () => {
+  it('maps staggered visible counts to procedural repeat bounds', () => {
+    const config = createPatternConfig('staggered');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+
+    const layout = getPatternLayout(config);
+    const repeatCounts = getPatternRepeatCounts(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
+    const frame = resolvePatternRepeatFrame(config, layout);
+    const hint = getPatternDimensionsHintSize(config, layout);
+
+    expect(repeatCounts).toEqual({ rows: 6, columns: 4 });
+    expect(canonical).toBeNull();
+    expect(frame.repeatWidth).toBe((config.materials[0]!.width + config.joints.verticalSize) * 4);
+    expect(frame.repeatHeight).toBe((config.materials[0]!.height + config.joints.horizontalSize) * 6);
+    expect(hint).toEqual({ width: 1620, height: 630 });
+  });
+
   it('maps running-bond visible counts onto procedural repeat bounds', () => {
     const config = createPatternConfig('running_bond');
     config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
@@ -141,6 +161,23 @@ describe('pattern repeat semantics', () => {
       repeatWidth: 2 * (SVG_PATTERN_MODULES.cubic.repeatWidth ?? SVG_PATTERN_MODULES.cubic.viewBoxWidth),
       repeatHeight: 3 * (SVG_PATTERN_MODULES.cubic.repeatHeight ?? SVG_PATTERN_MODULES.cubic.viewBoxHeight),
     });
+  });
+
+  it('maps ashlar visible counts into grouped authored module repeats', () => {
+    const config = createPatternConfig('ashlar');
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+
+    const repeatCounts = getPatternRepeatCounts(config);
+    const canonical = getCanonicalPatternRepeatBox(config);
+    const layout = getPatternLayout(config);
+    const hint = getPatternDimensionsHintSize(config, layout);
+
+    expect(repeatCounts).toEqual({ rows: 1, columns: 1 });
+    expect(canonical).toEqual({ repeatWidth: 600, repeatHeight: 373.3333333333333 });
+    expect(hint).toEqual({ width: 600, height: 373 });
   });
 
   it('keeps chevron columns mapped to visible half-arms while angle changes vertical repeat pitch', () => {

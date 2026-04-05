@@ -1,5 +1,8 @@
 import { getPatternByType, type PatternCategory, type PatternDefinition, type PatternType, type TextureConfig } from '@textura/shared';
 
+const DEFAULT_PATTERN_UNIT_WIDTH = 400;
+const DEFAULT_PATTERN_UNIT_HEIGHT = 100;
+
 function cloneConfig(config: TextureConfig): TextureConfig {
   return JSON.parse(JSON.stringify(config)) as TextureConfig;
 }
@@ -70,8 +73,8 @@ function applyPatternDefinition(
   if (activeMaterial) {
     const shouldResetDimensions = !options?.preserveCurrentPatternSettings;
     if (shouldResetDimensions) {
-      activeMaterial.width = Math.max(activeMaterial.minWidth, definition.defaultUnitWidth);
-      activeMaterial.height = Math.max(activeMaterial.minHeight, definition.defaultUnitHeight);
+      activeMaterial.width = Math.max(activeMaterial.minWidth, DEFAULT_PATTERN_UNIT_WIDTH);
+      activeMaterial.height = Math.max(activeMaterial.minHeight, DEFAULT_PATTERN_UNIT_HEIGHT);
     } else {
       activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
       activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);

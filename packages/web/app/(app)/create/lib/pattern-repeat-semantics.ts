@@ -61,7 +61,7 @@ const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   flemish_bond: 'procedural',
   herringbone: 'svg-module',
   chevron: 'procedural',
-  staggered: 'svg-module',
+  staggered: 'procedural',
   ashlar: 'svg-module',
   cubic: 'svg-module',
   hexagonal: 'svg-module',
@@ -172,8 +172,8 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     rowsMeaning: 'Rows count visible staggered courses inside the bordered repeat.',
     columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
     angleMeaning: 'Angle is not used by the staggered layout.',
-    dimensionsMeaning: 'Width and height define the reference brick size used to scale the authored staggered module.',
-    semanticHint: 'Rows and columns directly control visible staggered counts while module geometry keeps authored seams and offsets.',
+    dimensionsMeaning: 'Width and height define the visible staggered brick size used for repeat spacing.',
+    semanticHint: 'Rows and columns directly control visible staggered counts and half-offset seams.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
     rowFieldLabel: 'Rows',
@@ -181,11 +181,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   ashlar: {
     countMode: 'module-counts',
-    rowsMeaning: 'Rows size the authored ashlar repeat vertically. Each repeat adds 1 visible row.',
-    columnsMeaning: 'Columns size the authored ashlar repeat horizontally. Each repeat adds 1 visible column.',
+    rowsMeaning: 'Rows count visible ashlar courses. Six visible rows make one authored module repeat.',
+    columnsMeaning: 'Columns count visible ashlar slots. Four visible columns make one authored module repeat.',
     angleMeaning: 'Angle is not used by the Architextures-derived ashlar module.',
     dimensionsMeaning: 'Width and height define the reference stone size that the authored ashlar module scales from.',
-    semanticHint: 'Rows and columns repeat a varied ashlar module whose stone proportions come from the authored geometry.',
+    semanticHint: 'Rows and columns count visible ashlar stones while the authored module is repeated in grouped blocks for parity with the live site.',
     materialWidthLabel: 'Stone Width',
     materialHeightLabel: 'Stone Height',
     rowFieldLabel: 'Rows',
@@ -411,6 +411,13 @@ export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCoun
     return {
       rows: Math.max(1, config.pattern.rows),
       columns: Math.max(1, config.pattern.columns),
+    };
+  }
+
+  if (config.pattern.type === 'ashlar') {
+    return {
+      rows: Math.max(1, Math.ceil(config.pattern.rows / 6)),
+      columns: Math.max(1, Math.ceil(config.pattern.columns / 4)),
     };
   }
 
