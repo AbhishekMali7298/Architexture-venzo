@@ -27,11 +27,9 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
-  'herringbone',
   'ashlar',
   'cubic',
   'hexagonal',
-  'basketweave',
   'hopscotch',
   'diamond',
   'intersecting_circle',

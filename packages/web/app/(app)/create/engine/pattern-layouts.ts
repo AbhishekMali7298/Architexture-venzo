@@ -6,6 +6,7 @@ import {
   getPatternRepeatCounts,
   getSvgModuleScale,
 } from '../lib/pattern-repeat-semantics';
+import { generateRegistryPatternLayout } from './pattern-registry';
 
 export interface PatternTile {
   x: number;
@@ -972,6 +973,11 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const registryLayout = generateRegistryPatternLayout(config);
+  if (registryLayout) {
+    return registryLayout;
+  }
+
   const module = SVG_PATTERN_MODULES[config.pattern.type];
   if (getPatternLayoutSource(config.pattern.type) === 'svg-module' && isUsableSvgModule(module)) {
     return layoutSvgModule(config, module);

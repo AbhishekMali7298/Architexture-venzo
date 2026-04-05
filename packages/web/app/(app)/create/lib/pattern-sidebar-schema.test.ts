@@ -7,7 +7,7 @@ describe('pattern sidebar schema', () => {
     const nonNonePatterns = PATTERN_CATALOG.filter((pattern) => pattern.type !== 'none');
 
     for (const pattern of nonNonePatterns) {
-      const proceduralTypes = new Set(['chevron', 'running_bond', 'stack_bond', 'stretcher_bond', 'flemish_bond', 'staggered']);
+      const proceduralTypes = new Set(['chevron', 'running_bond', 'stack_bond', 'stretcher_bond', 'flemish_bond', 'staggered', 'herringbone', 'basketweave']);
       const expectedLayoutSource = proceduralTypes.has(pattern.type) ? 'procedural' : 'svg-module';
       expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe(expectedLayoutSource);
     }
@@ -69,7 +69,7 @@ describe('pattern sidebar schema', () => {
 
   it('shows weaves for basketweave pattern controls', () => {
     const schema = getPatternSidebarSchema('basketweave');
-    expect(schema.layoutSource).toBe('svg-module');
+    expect(schema.layoutSource).toBe('procedural');
     expect(schema.fields.map((field) => field.id)).toContain('weaves');
     expect(schema.singleDimensionInput).toBe(true);
   });

@@ -138,12 +138,13 @@ describe('pattern repeat semantics', () => {
 
     const repeatCounts = getPatternRepeatCounts(config);
     const canonical = getCanonicalPatternRepeatBox(config);
+    const layout = getPatternLayout(config);
+    const frame = resolvePatternRepeatFrame(config, layout);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
-    expect(canonical).toEqual({
-      repeatWidth: 2 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
-      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
-    });
+    expect(canonical).toBeNull();
+    expect(frame.repeatWidth).toBeGreaterThan(0);
+    expect(frame.repeatHeight).toBeGreaterThan(0);
   });
 
   it('maps visible cubic counts onto authored module repeat counts', () => {
