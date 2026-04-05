@@ -20,10 +20,18 @@ describe('pattern sidebar schema', () => {
     expect(schema.materialHeightLabel).toBe('Field Height');
   });
 
-  it('shows stretchers for patterns that define stretcher ranges', () => {
-    const schema = getPatternSidebarSchema('stretcher_bond');
-    expect(schema.layoutSource).toBe('procedural');
-    expect(schema.fields.map((field) => field.id)).toContain('stretchers');
+  it('shows stretchers only for the Common pattern', () => {
+    const common = getPatternSidebarSchema('running_bond');
+    const stretcher = getPatternSidebarSchema('stretcher_bond');
+
+    expect(common.layoutSource).toBe('procedural');
+    expect(common.fields.map((field) => field.id)).toContain('stretchers');
+    expect(stretcher.fields.map((field) => field.id)).not.toContain('stretchers');
+  });
+
+  it('hides angle for stretcher pattern to match competitor sidebar behavior', () => {
+    const stretcher = getPatternSidebarSchema('stretcher_bond');
+    expect(stretcher.fields.map((field) => field.id)).not.toContain('angle');
   });
 
   it('keeps common pattern rows and columns as visible counts', () => {

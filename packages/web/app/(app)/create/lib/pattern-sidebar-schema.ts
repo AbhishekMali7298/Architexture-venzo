@@ -34,8 +34,10 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
   }
 
   const pattern = getPatternByType(type);
-  const canAdjustAngle = Boolean(pattern && pattern.parameterRanges.angle.max > pattern.parameterRanges.angle.min);
-  const supportsStretchers = Boolean(pattern?.parameterRanges.stretchers);
+  const canAdjustAngle =
+    type !== 'stretcher_bond' &&
+    Boolean(pattern && pattern.parameterRanges.angle.max > pattern.parameterRanges.angle.min);
+  const supportsStretchers = type === 'running_bond';
   const supportsWeaves = Boolean(pattern?.parameterRanges.weaves);
 
   return [
