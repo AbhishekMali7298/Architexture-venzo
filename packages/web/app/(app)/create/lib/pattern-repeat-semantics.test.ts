@@ -176,6 +176,8 @@ describe('pattern repeat semantics', () => {
     config.materials[0]!.height = 100;
     config.pattern.rows = 6;
     config.pattern.columns = 4;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
 
     const repeatCounts = getPatternRepeatCounts(config);
     const canonical = getCanonicalPatternRepeatBox(config);

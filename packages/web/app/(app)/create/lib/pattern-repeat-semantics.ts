@@ -333,14 +333,9 @@ export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModul
   const repeatWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
   const repeatHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
-  const uniformScale = Math.max(
-    0.01,
-    Math.min(material.width / Math.max(module.referenceTileWidth, 1), material.height / Math.max(module.referenceTileHeight, 1)),
-  );
-
   return {
-    scaleX: uniformScale,
-    scaleY: uniformScale,
+    scaleX: Math.max(0.01, material.width / Math.max(module.referenceTileWidth, 1)),
+    scaleY: Math.max(0.01, material.height / Math.max(module.referenceTileHeight, 1)),
   };
 }
 
