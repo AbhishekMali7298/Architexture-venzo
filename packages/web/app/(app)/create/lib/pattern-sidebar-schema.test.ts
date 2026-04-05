@@ -64,12 +64,28 @@ describe('pattern sidebar schema', () => {
     expect(schema.fields[1]?.label).toBe('Columns');
     expect(schema.rowsMeaning).toContain('2 visible rows');
     expect(schema.columnsMeaning).toContain('3 visible columns');
+    expect(schema.singleDimensionInput).toBe(true);
   });
 
   it('shows weaves for basketweave pattern controls', () => {
     const schema = getPatternSidebarSchema('basketweave');
     expect(schema.layoutSource).toBe('svg-module');
     expect(schema.fields.map((field) => field.id)).toContain('weaves');
+    expect(schema.singleDimensionInput).toBe(true);
+  });
+
+  it('shows ashlar min-dimension controls', () => {
+    const schema = getPatternSidebarSchema('ashlar');
+    expect(schema.showMinDimensions).toBe(true);
+  });
+
+  it('uses diameter label for circular-derived modules', () => {
+    const circular = getPatternSidebarSchema('intersecting_circle');
+    const fishscale = getPatternSidebarSchema('fishscale');
+
+    expect(circular.materialWidthLabel).toBe('Diameter');
+    expect(fishscale.materialWidthLabel).toBe('Diameter');
+    expect(circular.singleDimensionInput).toBe(true);
   });
 
   it('hides angle for module-backed patterns that do not use it', () => {

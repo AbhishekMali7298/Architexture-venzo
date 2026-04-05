@@ -38,8 +38,12 @@ export function MaterialSettingsSection({
   materialTint,
   width,
   height,
+  minWidth,
+  minHeight,
   widthLabel = 'Width',
   heightLabel = 'Height',
+  showHeightInput = true,
+  showMinDimensions = false,
   dimensionHint,
   toneVariation,
   edgeStyle,
@@ -62,6 +66,8 @@ export function MaterialSettingsSection({
   onMaterialTintChange,
   onWidthChange,
   onHeightChange,
+  onMinWidthChange,
+  onMinHeightChange,
   onToneVariationChange,
   onEdgeStyleChange,
   onEdgeScaleChange,
@@ -83,8 +89,12 @@ export function MaterialSettingsSection({
   materialTint: string | null;
   width: number;
   height: number;
+  minWidth?: number;
+  minHeight?: number;
   widthLabel?: string;
   heightLabel?: string;
+  showHeightInput?: boolean;
+  showMinDimensions?: boolean;
   dimensionHint?: string;
   toneVariation: number;
   edgeStyle: EdgeStyle;
@@ -107,6 +117,8 @@ export function MaterialSettingsSection({
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
+  onMinWidthChange?: (value: number) => void;
+  onMinHeightChange?: (value: number) => void;
   onToneVariationChange: (value: number) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
   onEdgeScaleChange: (value: number) => void;
@@ -139,8 +151,30 @@ export function MaterialSettingsSection({
 
       <div className={styles.gridTwo}>
         <NumberField label={widthLabel} value={width} min={1} max={5000} unit={measurementUnit} onChange={onWidthChange} />
-        <NumberField label={heightLabel} value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
+        {showHeightInput ? (
+          <NumberField label={heightLabel} value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
+        ) : null}
       </div>
+      {showMinDimensions ? (
+        <div className={styles.gridTwo}>
+          <NumberField
+            label="Min Width"
+            value={minWidth ?? width}
+            min={1}
+            max={5000}
+            unit={measurementUnit}
+            onChange={(value) => onMinWidthChange?.(value)}
+          />
+          <NumberField
+            label="Min Height"
+            value={minHeight ?? height}
+            min={1}
+            max={5000}
+            unit={measurementUnit}
+            onChange={(value) => onMinHeightChange?.(value)}
+          />
+        </div>
+      ) : null}
       {dimensionHint ? <div className={styles.hint}>{dimensionHint}</div> : null}
 
       <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />

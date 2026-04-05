@@ -47,6 +47,8 @@ export default function CreatePage() {
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
+  const setMaterialMinWidth = useEditorStore((state) => state.setMaterialMinWidth);
+  const setMaterialMinHeight = useEditorStore((state) => state.setMaterialMinHeight);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
   const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
@@ -222,8 +224,12 @@ export default function CreatePage() {
           materialTint={material.tint}
           width={material.width}
           height={material.height}
+          minWidth={material.minWidth}
+          minHeight={material.minHeight}
           widthLabel={patternSidebarSchema.materialWidthLabel}
           heightLabel={patternSidebarSchema.materialHeightLabel}
+          showHeightInput={!patternSidebarSchema.singleDimensionInput}
+          showMinDimensions={patternSidebarSchema.showMinDimensions}
           dimensionHint={patternSidebarSchema.dimensionsMeaning}
           toneVariation={material.toneVariation}
           edgeStyle={material.edges.style}
@@ -244,6 +250,8 @@ export default function CreatePage() {
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
+          onMinWidthChange={setMaterialMinWidth}
+          onMinHeightChange={setMaterialMinHeight}
           onToneVariationChange={setToneVariation}
           onEdgeStyleChange={setEdgeStyle}
           onEdgeScaleChange={setEdgePerimeterScale}

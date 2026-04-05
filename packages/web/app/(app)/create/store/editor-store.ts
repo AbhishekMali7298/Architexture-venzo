@@ -90,6 +90,8 @@ export interface EditorState {
   setMaterialTint: (tint: string | null) => void;
   setMaterialWidth: (width: number) => void;
   setMaterialHeight: (height: number) => void;
+  setMaterialMinWidth: (width: number) => void;
+  setMaterialMinHeight: (height: number) => void;
   setEdgeStyle: (style: EdgeStyle) => void;
   setEdgePerimeterScale: (scale: number) => void;
   setEdgeProfileWidth: (width: number) => void;
@@ -321,6 +323,28 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.height = Math.max(1, height);
+        }
+        bumpRender(s);
+      }),
+
+    setMaterialMinWidth: (width) =>
+      set((s) => {
+        pushHistory(s, `Min width → ${width}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (mat) {
+          mat.minWidth = Math.max(1, width);
+          mat.width = Math.max(mat.width, mat.minWidth);
+        }
+        bumpRender(s);
+      }),
+
+    setMaterialMinHeight: (height) =>
+      set((s) => {
+        pushHistory(s, `Min height → ${height}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (mat) {
+          mat.minHeight = Math.max(1, height);
+          mat.height = Math.max(mat.height, mat.minHeight);
         }
         bumpRender(s);
       }),

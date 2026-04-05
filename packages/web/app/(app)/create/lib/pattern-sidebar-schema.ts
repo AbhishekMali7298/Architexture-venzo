@@ -25,8 +25,17 @@ export interface PatternSidebarSchema {
   materialWidthLabel: string;
   materialHeightLabel: string;
   materialHint?: string;
+  singleDimensionInput?: boolean;
+  showMinDimensions?: boolean;
   fields: PatternFieldSchema[];
 }
+
+const SINGLE_DIMENSION_PATTERNS = new Set<PatternType>([
+  'cubic',
+  'hexagonal',
+  'basketweave',
+  'intersecting_circle',
+]);
 
 function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: string) {
   if (type === 'none') {
@@ -62,6 +71,8 @@ export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema
     semanticHint: semantics.semanticHint,
     materialWidthLabel: semantics.materialWidthLabel,
     materialHeightLabel: semantics.materialHeightLabel,
+    singleDimensionInput: SINGLE_DIMENSION_PATTERNS.has(type),
+    showMinDimensions: type === 'ashlar',
     fields: buildBaseFields(type, semantics.rowFieldLabel, semantics.columnFieldLabel),
   };
 }

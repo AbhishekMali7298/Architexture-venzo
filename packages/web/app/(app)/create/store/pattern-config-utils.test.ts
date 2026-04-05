@@ -94,11 +94,11 @@ describe('pattern config utils', () => {
         ...DEFAULT_TEXTURE_CONFIG.pattern,
         type: 'chevron',
         category: 'geometric',
-        angle: 60,
+        angle: 80,
       },
     });
 
-    expect(next.pattern.angle).toBe(45);
+    expect(next.pattern.angle).toBe(70);
   });
 
   it('locks herringbone angle to 45 in create editor', () => {

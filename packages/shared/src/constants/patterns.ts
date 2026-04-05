@@ -133,7 +133,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',
     previewAssetPath: 'patterns/chevron.svg',
     defaults: { rows: 6, columns: 4, angle: 45, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 45, step: 1 } },
+    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 70, step: 1 } },
     defaultUnitWidth: 400, defaultUnitHeight: 100,
   },
   {
@@ -202,8 +202,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Pairs of bricks alternating horizontal/vertical',
     previewPath: 'M0,0h20v8H0M0,8h8v20M8,28h20v8M28,8h8v20',
     previewAssetPath: 'patterns/basketweave.svg',
-    defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 2 },
-    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 0, step: 1 }, weaves: { min: 1, max: 5 } },
+    defaults: { rows: 6, columns: 6, angle: 0, stretchers: 1, weaves: 3 },
+    parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 0, step: 1 }, weaves: { min: 2, max: 10 } },
     defaultUnitWidth: 200, defaultUnitHeight: 100,
   },
   {
