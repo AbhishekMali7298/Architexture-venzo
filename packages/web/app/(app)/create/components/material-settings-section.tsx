@@ -125,6 +125,7 @@ export function MaterialSettingsSection({
   const [showEdgeSettings, setShowEdgeSettings] = useState(false);
   const measurementUnit = units === 'inches' ? 'in' : 'mm';
   const edgeOption = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle) ?? EDGE_STYLE_OPTIONS[0]!;
+  const toneVariationUi = Number((toneVariation / 200).toFixed(2));
 
   return (
     <SectionCard title="Material">
@@ -161,7 +162,15 @@ export function MaterialSettingsSection({
         </button>
       </div>
 
-      <RangeField label="Tone Variation" value={toneVariation} min={0} max={100} onChange={onToneVariationChange} />
+      <RangeField
+        label="Tone Variation"
+        value={toneVariationUi}
+        min={0}
+        max={0.5}
+        step={0.01}
+        valueText={toneVariationUi.toFixed(2)}
+        onChange={(value) => onToneVariationChange(Math.round(value * 200))}
+      />
 
       <div className={styles.sectionDivider} />
 

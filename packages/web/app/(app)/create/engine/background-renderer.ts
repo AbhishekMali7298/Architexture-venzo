@@ -53,12 +53,14 @@ function drawTile(
   edgeProfiles?: EdgeProfileData[] | null,
 ) {
   const tileRng = seededRng(tileSeed(config.seed, tile.x, tile.y));
+  const variationRatio = Math.max(0, Math.min(1, toneVariation / 100));
   ctx.save();
   ctx.translate(x + (width * scale) / 2, y + (height * scale) / 2);
   ctx.rotate((rotation * Math.PI) / 180);
   ctx.translate(-(width * scale) / 2, -(height * scale) / 2);
 
-  const delta = (tileRng() - 0.5) * toneVariation * 1.5;
+  // Keep tone variation subtle to avoid large dark/light tile patches.
+  const delta = (tileRng() - 0.5) * variationRatio * 12;
   const { tileX: insetX, tileY: insetY, tileWidth: drawWidth, tileHeight: drawHeight, cornerRadius: radius, clipPath } =
     getTileRenderBox(tile, config, scale, { edgeProfiles });
   const edgeStyle = (config.materials[tile.materialIndex] ?? config.materials[0])?.edges.style ?? 'none';
@@ -109,7 +111,7 @@ function drawTile(
     traceTilePath();
     ctx.clip();
     const variationDelta = (tileRng() - 0.5) * 2;
-    const strength = (toneVariation / 100) * 0.35 * Math.abs(variationDelta);
+    const strength = Math.min(0.08, variationRatio * (0.01 + Math.abs(variationDelta) * 0.06));
     if (strength > 0.005) {
       ctx.globalCompositeOperation = variationDelta > 0 ? 'screen' : 'multiply';
       ctx.fillStyle = variationDelta > 0
@@ -120,9 +122,9 @@ function drawTile(
     ctx.restore();
   }
 
-  if (!materialImage && toneVariation > 15) {
+  if (!materialImage && variationRatio > 0.35) {
     ctx.save();
-    ctx.globalAlpha = 0.025 + (toneVariation / 100) * 0.04;
+    ctx.globalAlpha = 0.01 + variationRatio * 0.02;
     for (let i = 0; i < 12; i++) {
       const nx = insetX + tileRng() * drawWidth;
       const ny = insetY + tileRng() * drawHeight;

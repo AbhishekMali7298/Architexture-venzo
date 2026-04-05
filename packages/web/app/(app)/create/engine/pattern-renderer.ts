@@ -117,10 +117,13 @@ export function renderToCanvas(
     const selectedMaterial = material.definitionId ? getMaterialById(material.definitionId) : null;
     const baseColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#b0a090');
     const variation = material.toneVariation;
+    const variationRatio = Math.max(0, Math.min(1, variation / 100));
 
     // Per-tile stable RNG — same config always produces the same output
     const tileRng = mulberry32(tileSeed(config.seed, tile.x, tile.y));
-    const tileColor = adjustBrightness(baseColor, (tileRng() - 0.5) * variation * 0.4);
+    // Keep tonal shifts subtle even at max so material appears naturally varied,
+    // not patchy or globally darkened.
+    const tileColor = adjustBrightness(baseColor, (tileRng() - 0.5) * variationRatio * 0.08);
 
     ctx.save();
     ctx.translate(drawOffsetX + tile.x * scale, drawOffsetY + tile.y * scale);
@@ -153,8 +156,8 @@ export function renderToCanvas(
     });
 
     if (options?.materialImage) {
-      const variationDelta = (tileRng() - 0.5) * variation * 1.2;
-      const variationStrength = Math.min(0.16, 0.02 + Math.abs(variationDelta) / 140);
+      const variationDelta = (tileRng() - 0.5) * 2;
+      const variationStrength = Math.min(0.08, variationRatio * (0.01 + Math.abs(variationDelta) * 0.06));
       if (variationStrength > 0.001) {
         ctx.save();
         traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius);
@@ -188,8 +191,8 @@ export function renderToCanvas(
       concave: config.joints.concave,
     });
 
-    if (variation > 10) {
-      ctx.globalAlpha = 0.03 + (variation / 100) * 0.05;
+    if (variationRatio > 0.35) {
+      ctx.globalAlpha = 0.01 + variationRatio * 0.02;
       for (let i = 0; i < 20; i++) {
         const nx = tileX + tileRng() * tileWidth;
         const ny = tileY + tileRng() * tileHeight;

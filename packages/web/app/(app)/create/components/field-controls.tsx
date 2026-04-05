@@ -115,6 +115,7 @@ export function RangeField({
   min,
   max,
   step,
+  valueText,
   onChange,
 }: {
   label: string;
@@ -122,6 +123,7 @@ export function RangeField({
   min: number;
   max: number;
   step?: number;
+  valueText?: string;
   onChange: (value: number) => void;
 }) {
   return (
@@ -136,7 +138,7 @@ export function RangeField({
         step={step}
         onChange={(event) => onChange(clampValue(Number.parseFloat(event.target.value), min, max))}
       />
-      <span className={styles.hint}>{value}</span>
+      <span className={styles.hint}>{valueText ?? value}</span>
     </label>
   );
 }

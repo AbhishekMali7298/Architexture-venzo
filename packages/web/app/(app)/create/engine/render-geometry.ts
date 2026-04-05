@@ -276,10 +276,10 @@ function buildEdgeStyleClipPath(
   switch (style) {
     case 'handmade':
       return buildIrregularRectPath(x, y, width, height, {
-        ampX: minDimension * (0.008 + intensity * 0.014),
-        ampY: minDimension * (0.01 + intensity * 0.02),
-        freqX: 4.4 + intensity * 1.6,
-        freqY: 3.6 + intensity * 1.4,
+        ampX: minDimension * (0.004 + intensity * 0.012),
+        ampY: minDimension * (0.006 + intensity * 0.016),
+        freqX: 4.8 + intensity * 1.4,
+        freqY: 3.8 + intensity * 1.2,
         phase: 0.08,
       });
     case 'rough_brick':
