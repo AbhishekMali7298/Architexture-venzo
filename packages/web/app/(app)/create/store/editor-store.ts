@@ -103,6 +103,8 @@ export interface EditorState {
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
+  setRecessJoints: (value: boolean) => void;
+  setConcaveJoints: (value: boolean) => void;
   setJointAdjustment: (key: keyof ImageAdjustments, value: number | boolean) => void;
 
   // Output
@@ -434,6 +436,20 @@ export const useEditorStore = create<EditorState>()(
         if (linked) {
           s.config.joints.verticalSize = s.config.joints.horizontalSize;
         }
+        bumpRender(s);
+      }),
+
+    setRecessJoints: (value) =>
+      set((s) => {
+        pushHistory(s, `Recess joints → ${value ? 'on' : 'off'}`);
+        s.config.joints.recessJoints = value;
+        bumpRender(s);
+      }),
+
+    setConcaveJoints: (value) =>
+      set((s) => {
+        pushHistory(s, `Concave joints → ${value ? 'on' : 'off'}`);
+        s.config.joints.concaveJoints = value;
         bumpRender(s);
       }),
 

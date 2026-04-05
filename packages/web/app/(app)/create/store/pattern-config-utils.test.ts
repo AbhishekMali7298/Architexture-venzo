@@ -114,4 +114,18 @@ describe('pattern config utils', () => {
 
     expect(next.pattern.angle).toBe(45);
   });
+
+  it('preserves joint boolean flags when sanitizing saved project config', () => {
+    const next = sanitizePatternConfig({
+      ...DEFAULT_TEXTURE_CONFIG,
+      joints: {
+        ...DEFAULT_TEXTURE_CONFIG.joints,
+        recessJoints: true,
+        concaveJoints: true,
+      },
+    });
+
+    expect(next.joints.recessJoints).toBe(true);
+    expect(next.joints.concaveJoints).toBe(true);
+  });
 });
