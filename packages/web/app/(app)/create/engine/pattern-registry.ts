@@ -354,6 +354,8 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
     const stepY = projectedSpan + jointH / Math.SQRT2;
     const halfStepX = stepX / 2;
     const halfStepY = stepY / 2;
+    const repeatWidth = columns * stepX;
+    const repeatHeight = rows * stepY;
     const tiles: PatternTile[] = [];
 
     for (let row = 0; row < rows; row++) {
@@ -383,21 +385,35 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
       }
     }
 
-    const layout = helpers.normalizeLayoutBounds(tiles, jointH, jointV, {
-      width: columns * stepX,
-      height: rows * stepY,
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    for (const tile of tiles) {
+      minX = Math.min(minX, tile.x);
+      minY = Math.min(minY, tile.y);
+      maxX = Math.max(maxX, tile.x + tile.width);
+      maxY = Math.max(maxY, tile.y + tile.height);
+    }
+
+    const visualCenterX = (minX + maxX) / 2;
+    const visualCenterY = (minY + maxY) / 2;
+    const desiredCenterX = repeatWidth / 2;
+    const desiredCenterY = repeatHeight / 2;
+    const shiftX = desiredCenterX - visualCenterX;
+    const shiftY = desiredCenterY - visualCenterY;
+
+    const centeredTiles = tiles.map((tile) => ({
+      ...tile,
+      x: tile.x + shiftX,
+      y: tile.y + shiftY,
+    }));
+
+    return helpers.normalizeLayoutBounds(centeredTiles, jointH, jointV, {
+      width: repeatWidth,
+      height: repeatHeight,
     });
-
-    const normalizeOffset = (value: number, period: number) => {
-      const safePeriod = Math.max(period, 1);
-      return ((value % safePeriod) + safePeriod) % safePeriod;
-    };
-
-    return {
-      ...layout,
-      repeatOffsetX: normalizeOffset(layout.repeatOffsetX ?? 0, stepX),
-      repeatOffsetY: normalizeOffset(layout.repeatOffsetY ?? 0, stepY),
-    };
   },
 };
 

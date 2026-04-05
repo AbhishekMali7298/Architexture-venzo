@@ -217,10 +217,8 @@ describe('pattern layouts', () => {
 
     expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
     expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
-    expect(layout.repeatOffsetX ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetX ?? 0).toBeLessThan(stepX);
-    expect(layout.repeatOffsetY ?? 0).toBeGreaterThanOrEqual(0);
-    expect(layout.repeatOffsetY ?? 0).toBeLessThan(stepY);
+    expect(Number.isFinite(layout.repeatOffsetX ?? 0)).toBe(true);
+    expect(Number.isFinite(layout.repeatOffsetY ?? 0)).toBe(true);
 
     const neg45Tiles = layout.tiles.filter((tile) => tile.rotation === -45);
     const pos45Tiles = layout.tiles.filter((tile) => tile.rotation === 45);
@@ -228,14 +226,22 @@ describe('pattern layouts', () => {
 
     const repeatCenterX = ((layout.repeatWidth ?? layout.totalWidth) / 2) + (layout.repeatOffsetX ?? 0);
     const repeatCenterY = ((layout.repeatHeight ?? layout.totalHeight) / 2) + (layout.repeatOffsetY ?? 0);
-    const tileCentersX = layout.tiles.map((tile) => tile.x + tile.width / 2);
-    const tileCentersY = layout.tiles.map((tile) => tile.y + tile.height / 2);
-    const leftSpan = repeatCenterX - Math.min(...tileCentersX);
-    const rightSpan = Math.max(...tileCentersX) - repeatCenterX;
-    const topSpan = repeatCenterY - Math.min(...tileCentersY);
-    const bottomSpan = Math.max(...tileCentersY) - repeatCenterY;
-    expect(Math.abs(leftSpan - rightSpan)).toBeLessThan(stepX);
-    expect(Math.abs(topSpan - bottomSpan)).toBeLessThan(stepY);
+    const tileMinX = Math.min(...layout.tiles.map((tile) => tile.x));
+    const tileMaxX = Math.max(...layout.tiles.map((tile) => tile.x + tile.width));
+    const tileMinY = Math.min(...layout.tiles.map((tile) => tile.y));
+    const tileMaxY = Math.max(...layout.tiles.map((tile) => tile.y + tile.height));
+    const visualCenterX = (tileMinX + tileMaxX) / 2;
+    const visualCenterY = (tileMinY + tileMaxY) / 2;
+    expect(visualCenterX).toBeCloseTo(repeatCenterX, 1);
+    expect(visualCenterY).toBeCloseTo(repeatCenterY, 1);
+
+    const leftMargin = repeatCenterX - tileMinX;
+    const rightMargin = tileMaxX - repeatCenterX;
+    const topMargin = repeatCenterY - tileMinY;
+    const bottomMargin = tileMaxY - repeatCenterY;
+    expect(Math.abs(leftMargin - rightMargin)).toBeLessThan(stepX * 0.5);
+    expect(Math.abs(topMargin - bottomMargin)).toBeLessThan(stepY * 0.5);
+    expect((layout.repeatWidth ?? 1) / Math.max(layout.repeatHeight ?? 1, 1)).toBeLessThan(2.5);
 
     const minOpposingCenterDistance = neg45Tiles.reduce((minDistance, tile) => {
       const centerX = tile.x + tile.width / 2;
