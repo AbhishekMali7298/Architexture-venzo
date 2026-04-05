@@ -212,6 +212,37 @@ describe('pattern layouts', () => {
       .filter((tile) => tile.rotation === 45)
       .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
     const firstOdd = oddTiles[0];
+    const invSqrt2 = 1 / Math.sqrt(2);
+    const firstEvenAnchor = {
+      x: -config.materials[0]!.height * invSqrt2,
+      y: config.materials[0]!.height * invSqrt2,
+    };
+    const firstOddAnchorShift =
+      (config.materials[0]!.width + config.materials[0]!.height + config.joints.horizontalSize) * invSqrt2;
+    const firstOddAnchor = {
+      x: firstEvenAnchor.x + firstOddAnchorShift,
+      y: firstEvenAnchor.y - firstOddAnchorShift,
+    };
+    const expectedFirstEven = {
+      x:
+        firstEvenAnchor.x +
+        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.width / 2,
+      y:
+        firstEvenAnchor.y -
+        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.height / 2,
+    };
+    const expectedFirstOdd = {
+      x:
+        firstOddAnchor.x +
+        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.width / 2,
+      y:
+        firstOddAnchor.y +
+        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.height / 2,
+    };
 
     expect(layout.repeatWidth).toBeCloseTo(expectedWidth, 1);
     expect(layout.repeatHeight).toBeCloseTo(expectedHeight, 1);
@@ -219,10 +250,12 @@ describe('pattern layouts', () => {
     expect(secondEven).toBeDefined();
     expect(nextRowEven).toBeDefined();
     expect(firstOdd).toBeDefined();
-    expect(firstEven?.originalX ?? 0).toBeCloseTo(-93.934028, 3);
-    expect(firstEven?.originalY ?? 0).toBeCloseTo(-85.355339, 3);
-    expect(firstOdd?.originalX ?? 0).toBeCloseTo(192.446965, 2);
-    expect(firstOdd?.originalY ?? 0).toBeCloseTo(-159.604299, 2);
+    expect(firstEven?.applyJointInset).toBe(false);
+    expect(firstOdd?.applyJointInset).toBe(false);
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(expectedFirstEven.x, 3);
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(expectedFirstEven.y, 3);
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(expectedFirstOdd.x, 2);
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(expectedFirstOdd.y, 2);
     expect((secondEven?.originalX ?? 0) - (firstEven?.originalX ?? 0)).toBeCloseTo(572.761986, 1);
     expect((nextRowEven?.originalY ?? 0) - (firstEven?.originalY ?? 0)).toBeCloseTo(148.491, 2);
 
@@ -262,17 +295,112 @@ describe('pattern layouts', () => {
       .filter((tile) => tile.rotation === 45)
       .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX);
     const firstOdd = oddTiles[0];
+    const invSqrt2 = 1 / Math.sqrt(2);
+    const firstEvenAnchor = {
+      x: -config.materials[0]!.height * invSqrt2,
+      y: config.materials[0]!.height * invSqrt2,
+    };
+    const firstOddAnchorShift =
+      (config.materials[0]!.width + config.materials[0]!.height + config.joints.horizontalSize) * invSqrt2;
+    const firstOddAnchor = {
+      x: firstEvenAnchor.x + firstOddAnchorShift,
+      y: firstEvenAnchor.y - firstOddAnchorShift,
+    };
+    const expectedFirstEven = {
+      x:
+        firstEvenAnchor.x +
+        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.width / 2,
+      y:
+        firstEvenAnchor.y -
+        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.height / 2,
+    };
+    const expectedFirstOdd = {
+      x:
+        firstOddAnchor.x +
+        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.width / 2,
+      y:
+        firstOddAnchor.y +
+        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
+        config.materials[0]!.height / 2,
+    };
 
     expect(layout.repeatWidth).toBeCloseTo(4 * (300 + 5) / Math.sqrt(2), 3);
     expect(layout.repeatHeight).toBeCloseTo(6 * (100 + 5) * Math.sqrt(2), 3);
     expect(firstEven).toBeDefined();
     expect(secondEven).toBeDefined();
     expect(firstOdd).toBeDefined();
-    expect(firstEven?.originalX ?? 0).toBeCloseTo(-79.289322, 3);
-    expect(firstEven?.originalY ?? 0).toBeCloseTo(-50, 3);
-    expect(firstOdd?.originalX ?? 0).toBeCloseTo(136.380315, 2);
-    expect(firstOdd?.originalY ?? 0).toBeCloseTo(-124.248961, 2);
+    expect(firstEven?.applyJointInset).toBe(false);
+    expect(firstOdd?.applyJointInset).toBe(false);
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(expectedFirstEven.x, 3);
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(expectedFirstEven.y, 3);
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(expectedFirstOdd.x, 2);
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(expectedFirstOdd.y, 2);
     expect((secondEven?.originalX ?? 0) - (firstEven?.originalX ?? 0)).toBeCloseTo(431.339273, 2);
+  });
+
+  it('keeps thin herringbone pavers on the competitor corner anchors', () => {
+    const config = createPatternConfig('herringbone');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 10;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const originalTiles = layout.tiles.map((tile) => ({
+      ...tile,
+      originalX: tile.x - (layout.repeatOffsetX ?? 0),
+      originalY: tile.y - (layout.repeatOffsetY ?? 0),
+    }));
+    const visibleTiles = originalTiles.filter(
+      (tile) =>
+        tile.originalX > -config.materials[0]!.width &&
+        tile.originalX < (layout.repeatWidth ?? 0) &&
+        tile.originalY > -config.materials[0]!.width &&
+        tile.originalY < (layout.repeatHeight ?? 0),
+    );
+    const firstEven = visibleTiles
+      .filter((tile) => tile.rotation === -45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX)[0];
+    const firstOdd = visibleTiles
+      .filter((tile) => tile.rotation === 45)
+      .sort((a, b) => a.originalY - b.originalY || a.originalX - b.originalX)[0];
+    const invSqrt2 = 1 / Math.sqrt(2);
+    const firstEvenAnchor = {
+      x: -config.materials[0]!.height * invSqrt2,
+      y: config.materials[0]!.height * invSqrt2,
+    };
+    const firstOddAnchorShift =
+      (config.materials[0]!.width + config.materials[0]!.height + config.joints.horizontalSize) * invSqrt2;
+    const firstOddAnchor = {
+      x: firstEvenAnchor.x + firstOddAnchorShift,
+      y: firstEvenAnchor.y - firstOddAnchorShift,
+    };
+
+    expect(layout.repeatWidth).toBeCloseTo(4 * (400 + 5) / Math.sqrt(2), 3);
+    expect(layout.repeatHeight).toBeCloseTo(6 * (10 + 5) * Math.sqrt(2), 3);
+    expect(firstEven?.applyJointInset).toBe(false);
+    expect(firstOdd?.applyJointInset).toBe(false);
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(
+      firstEvenAnchor.x + ((400 - 10) * invSqrt2) / 2 - 200,
+      3,
+    );
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(
+      firstEvenAnchor.y - ((400 + 10) * invSqrt2) / 2 - 5,
+      3,
+    );
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(
+      firstOddAnchor.x + ((400 - 10) * invSqrt2) / 2 - 200,
+      3,
+    );
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(
+      firstOddAnchor.y + ((400 + 10) * invSqrt2) / 2 - 5,
+      3,
+    );
   });
 
   it('changes chevron repeat height with angle while keeping repeat width stable', () => {

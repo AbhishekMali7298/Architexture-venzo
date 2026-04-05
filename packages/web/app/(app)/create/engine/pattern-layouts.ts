@@ -588,12 +588,15 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   const tileForAnchor = (anchorX: number, anchorY: number, rotation: number): PatternTile => {
     if (rotation === -45) {
       return {
-        x: anchorX + ((width + height) * invSqrt2) / 2 - width / 2,
-        y: anchorY + ((height - width) * invSqrt2) / 2 - height / 2,
+        // Competitor rowData stores the first polygon vertex. For -45 tiles
+        // that vertex is the lower-left corner of the rotated rectangle.
+        x: anchorX + ((width - height) * invSqrt2) / 2 - width / 2,
+        y: anchorY - ((width + height) * invSqrt2) / 2 - height / 2,
         width,
         height,
         rotation,
         materialIndex: 0,
+        applyJointInset: false,
       };
     }
 
@@ -604,6 +607,7 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
       height,
       rotation,
       materialIndex: 0,
+      applyJointInset: false,
     };
   };
 
