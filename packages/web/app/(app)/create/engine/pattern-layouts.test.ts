@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getPatternByType, type TextureConfig } from '@textura/shared';
-import { getPatternRepeatCounts } from '../lib/pattern-repeat-semantics';
+import { getPatternRepeatCounts, getHerringboneRepeatPitch } from '../lib/pattern-repeat-semantics';
 import { getPatternSidebarSchema } from '../lib/pattern-sidebar-schema';
 import { getPatternLayout } from './pattern-layouts';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
@@ -27,7 +27,6 @@ const PATTERNS = [
 ] as const;
 
 const MODULE_PARITY_PATTERNS = [
-  'herringbone',
   'ashlar',
   'cubic',
   'hexagonal',
@@ -212,15 +211,15 @@ describe('pattern layouts', () => {
     const layout = getPatternLayout(config);
     const module = SVG_PATTERN_MODULES.herringbone;
     const repeatCounts = getPatternRepeatCounts(config);
-    const expectedRepeatWidth = repeatCounts.columns * (module.repeatWidth ?? module.viewBoxWidth);
-    const expectedRepeatHeight = repeatCounts.rows * (module.repeatHeight ?? module.viewBoxHeight);
+    const pitch = getHerringboneRepeatPitch(config);
+    const expectedRepeatWidth = repeatCounts.columns * 2 * pitch.width;
+    const expectedRepeatHeight = repeatCounts.rows * pitch.height;
 
     expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
     expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
 
     const frameAspect = (layout.repeatWidth ?? 1) / Math.max(layout.repeatHeight ?? 1, 1);
-    const moduleAspect = module.viewBoxWidth / module.viewBoxHeight;
-    const expectedAspect = moduleAspect * (repeatCounts.columns / repeatCounts.rows);
+    const expectedAspect = (2 * pitch.width * repeatCounts.columns) / (pitch.height * repeatCounts.rows);
     expect(frameAspect).toBeCloseTo(expectedAspect, 5);
 
     const hasBleedOnX = module.tiles.some((tile) => tile.x < 0 || tile.x + tile.width > module.viewBoxWidth);

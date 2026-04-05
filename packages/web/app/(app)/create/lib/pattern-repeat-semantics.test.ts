@@ -8,6 +8,7 @@ import {
   getPatternDimensionsHintSize,
   getPatternRepeatCounts,
   resolvePatternRepeatFrame,
+  getHerringboneRepeatPitch,
 } from './pattern-repeat-semantics';
 
 function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' | 'herringbone' | 'cubic' | 'staggered' | 'ashlar'): TextureConfig {
@@ -141,10 +142,11 @@ describe('pattern repeat semantics', () => {
     const layout = getPatternLayout(config);
     const frame = resolvePatternRepeatFrame(config, layout);
 
+    const pitch = getHerringboneRepeatPitch(config);
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(canonical).toEqual({
-      repeatWidth: 2 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
-      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
+      repeatWidth: repeatCounts.columns * 2 * pitch.width,
+      repeatHeight: repeatCounts.rows * pitch.height,
     });
     expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
     expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);

@@ -1,0 +1,18 @@
+--- packages/web/app/(app)/create/engine/pattern-layouts.test.ts
++++ packages/web/app/(app)/create/engine/pattern-layouts.test.ts
+@@ -201,15 +201,14 @@
+   it('uses authored herringbone module bounds and correctly snaps bordered repeat', () => {
+     const config = createPatternConfig('herringbone');
+     config.pattern.rows = 6;
+     config.pattern.columns = 4;
+     config.materials[0]!.width = SVG_PATTERN_MODULES.herringbone.referenceTileWidth;
+     config.materials[0]!.height = SVG_PATTERN_MODULES.herringbone.referenceTileHeight;
+     config.joints.horizontalSize = 5;
+     config.joints.verticalSize = 5;
+ 
+     const layout = getPatternLayout(config);
+     const repeatCounts = getPatternRepeatCounts(config);
+-    const module = SVG_PATTERN_MODULES.herringbone;
+-    const expectedRepeatWidth = repeatCounts.columns * (module.repeatWidth ?? module.viewBoxWidth);
+-    const expectedRepeatHeight = repeatCounts.rows * (module.repeatHeight ?? module.viewBoxHeight);
++    const pitch = import('../lib/pattern-repeat-semantics').then(m => m.getHerringboneRepeatPitch(config)); // wait I can't do this synchronously, I'll use literal math in test or replace tool

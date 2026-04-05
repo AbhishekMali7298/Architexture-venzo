@@ -1,0 +1,10 @@
+--- packages/web/app/(app)/create/engine/pattern-layouts.test.ts
++++ packages/web/app/(app)/create/engine/pattern-layouts.test.ts
+@@ -27,7 +27,6 @@
+ ] as const;
+ 
+ const MODULE_PARITY_PATTERNS = [
+-  'herringbone',
+   'ashlar',
+   'cubic',
+   'hexagonal',

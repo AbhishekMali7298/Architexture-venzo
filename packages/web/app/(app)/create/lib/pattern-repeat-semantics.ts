@@ -41,6 +41,14 @@ export interface SvgModuleScale {
   scaleY: number;
 }
 
+export function getHerringboneRepeatPitch(config: TextureConfig) {
+  const material = config.materials[0]!;
+  return {
+    width: material.width * 2 + config.joints.verticalSize * 2,
+    height: material.width + config.joints.horizontalSize * 2,
+  };
+}
+
 export function getChevronRepeatPitch(config: TextureConfig) {
   const material = config.materials[0]!;
   const clampedAngle = Math.max(0, Math.min(45, config.pattern.angle ?? 0));
@@ -316,6 +324,17 @@ export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModul
 
   if (config.pattern.type === 'chevron') {
     const pitch = getChevronRepeatPitch(config);
+    const moduleWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
+    const moduleHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
+
+    return {
+      scaleX: Math.max(0.01, pitch.width / (moduleWidth / 2)),
+      scaleY: Math.max(0.01, pitch.height / moduleHeight),
+    };
+  }
+
+  if (config.pattern.type === 'herringbone') {
+    const pitch = getHerringboneRepeatPitch(config);
     const moduleWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
     const moduleHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
