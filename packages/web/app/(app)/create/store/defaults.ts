@@ -53,8 +53,8 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       tint: null,
 
       edges: {
-        style: 'none',
-        perimeterScale: 50,
+        style: 'handmade',
+        perimeterScale: 1,
         profileWidth: 50,
         excludeSides: [],
       },
@@ -120,7 +120,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
     verticalSize: 5,
     linkedDimensions: true,
     shadowOpacity: 20,
-    recess: false,
+    recess: true,
     concave: false,
     adjustments: {
       brightness: 0,
