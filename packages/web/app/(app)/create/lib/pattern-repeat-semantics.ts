@@ -80,6 +80,8 @@ const DEFAULT_LABELS = {
   column: 'Columns',
 } as const;
 
+const ASHLAR_VISIBLE_REPEAT_SCALE = 0.61;
+
 const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepeatSemantics, 'patternType' | 'layoutSource'>>> = {
   none: {
     countMode: 'module-counts',
@@ -181,11 +183,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   ashlar: {
     countMode: 'module-counts',
-    rowsMeaning: 'Rows count visible ashlar courses. Six visible rows make one authored module repeat.',
-    columnsMeaning: 'Columns count visible ashlar slots. Two visible columns make one authored module repeat.',
+    rowsMeaning: 'Rows count visible ashlar courses inside the bordered repeat.',
+    columnsMeaning: 'Columns count visible ashlar slots across the bordered repeat.',
     angleMeaning: 'Angle is not used by the Architextures-derived ashlar module.',
     dimensionsMeaning: 'Width and height define the reference stone size that the authored ashlar module scales from.',
-    semanticHint: 'Rows and columns count visible ashlar stones while the authored module is repeated in grouped blocks for live-site-like density.',
+    semanticHint: 'Rows and columns control visible ashlar counts while varied stone proportions come from the authored geometry.',
     materialWidthLabel: 'Stone Width',
     materialHeightLabel: 'Stone Height',
     rowFieldLabel: 'Rows',
@@ -414,13 +416,6 @@ export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCoun
     };
   }
 
-  if (config.pattern.type === 'ashlar') {
-    return {
-      rows: Math.max(1, Math.ceil(config.pattern.rows / 6)),
-      columns: Math.max(1, Math.ceil(config.pattern.columns / 2)),
-    };
-  }
-
   if (pattern?.rowColMode !== 'module') {
     return {
       rows: Math.max(1, config.pattern.rows),
@@ -458,6 +453,15 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
     return {
       repeatWidth: material.width,
       repeatHeight: material.height,
+    };
+  }
+
+  if (config.pattern.type === 'ashlar') {
+    const repeatWidth = Math.max(1, config.pattern.columns) * (material.width + config.joints.verticalSize) * ASHLAR_VISIBLE_REPEAT_SCALE;
+    const repeatHeight = Math.max(1, config.pattern.rows) * (material.height + config.joints.horizontalSize) * ASHLAR_VISIBLE_REPEAT_SCALE;
+    return {
+      repeatWidth,
+      repeatHeight,
     };
   }
 
