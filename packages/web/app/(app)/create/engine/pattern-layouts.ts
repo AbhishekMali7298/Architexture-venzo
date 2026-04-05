@@ -225,6 +225,55 @@ function layoutSvgModule(config: TextureConfig, module: SvgPatternModule): Patte
   });
 }
 
+function layoutRunningBondSvgModule(config: TextureConfig, module: SvgPatternModule): PatternLayoutData {
+  const material = config.materials[0]!;
+  const { horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+  const moduleRows = Math.max(1, Math.ceil(config.pattern.rows / 2));
+  const moduleColumns = Math.max(1, config.pattern.columns);
+  const { scaleX, scaleY } = getSvgModuleScale(config, module);
+  const repeatWidth = (module.repeatWidth ?? module.viewBoxWidth) * scaleX;
+  const repeatHeight = (module.repeatHeight ?? module.viewBoxHeight) * scaleY;
+  const tiles: PatternTile[] = [];
+  const strokes: PatternStroke[] = [];
+
+  for (let row = 0; row < moduleRows; row++) {
+    for (let column = 0; column < moduleColumns; column++) {
+      const offsetX = column * repeatWidth;
+      const offsetY = row * repeatHeight;
+
+      for (const tile of module.tiles) {
+        tiles.push({
+          x: offsetX + tile.x * scaleX,
+          y: offsetY + tile.y * scaleY,
+          width: tile.width * scaleX,
+          height: tile.height * scaleY,
+          rotation: 0,
+          materialIndex: 0,
+          clipPath: tile.clipPath.map((point) => ({
+            x: point.x * scaleX,
+            y: point.y * scaleY,
+          })),
+        });
+      }
+
+      for (const stroke of module.strokes) {
+        strokes.push({
+          closed: stroke.closed,
+          points: stroke.points.map((point) => ({
+            x: offsetX + point.x * scaleX,
+            y: offsetY + point.y * scaleY,
+          })),
+        });
+      }
+    }
+  }
+
+  return normalizeLayoutBounds(tiles, strokes, horizontalJoint, verticalJoint, {
+    width: config.pattern.columns * (material.width + verticalJoint),
+    height: config.pattern.rows * (material.height + horizontalJoint),
+  });
+}
+
 
 function layoutNone(config: TextureConfig): PatternLayoutData {
   const { width, height } = getMaterialMetrics(config);
@@ -988,6 +1037,10 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
   const module = SVG_PATTERN_MODULES[config.pattern.type];
   const layoutSource = getPatternLayoutSource(config.pattern.type);
+
+  if (config.pattern.type === 'running_bond' && isUsableSvgModule(module)) {
+    return layoutRunningBondSvgModule(config, module);
+  }
 
   if (layoutSource === 'svg-module') {
     if (!isUsableSvgModule(module)) {

@@ -272,6 +272,32 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBeCloseTo(6 * unitHeight);
   });
 
+  it('uses Architextures-style running-bond bleed and raw unit spacing', () => {
+    const config = createPatternConfig('running_bond');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.pattern.stretchers = 1;
+
+    const layout = getPatternLayout(config);
+    const module = SVG_PATTERN_MODULES.running_bond;
+    const scaleX = config.materials[0]!.width / 300;
+    const scaleY = config.materials[0]!.height / 100;
+    const expectedOffsetX = -Math.min(...module.tiles.map((tile) => tile.x * scaleX));
+    const expectedOffsetY = -Math.min(...module.tiles.map((tile) => tile.y * scaleY));
+    const firstCourse = layout.tiles.filter((tile) => tile.y === 0);
+    const visibleCourse = layout.tiles.filter((tile) => tile.y === config.materials[0]!.height);
+
+    expect(layout.repeatOffsetX).toBeCloseTo(expectedOffsetX, 5);
+    expect(layout.repeatOffsetY).toBeCloseTo(expectedOffsetY, 5);
+    expect(layout.totalWidth).toBeGreaterThan(layout.repeatWidth ?? 0);
+    expect(layout.totalHeight).toBeGreaterThan(layout.repeatHeight ?? 0);
+
+    expect(firstCourse[0]?.x).toBeCloseTo(100, 5);
+    expect(firstCourse[1]?.x).toBeCloseTo(300, 5);
+    expect(visibleCourse[0]?.x).toBeCloseTo(200, 5);
+    expect(visibleCourse[1]?.x).toBeCloseTo(600, 5);
+  });
+
   it('keeps stretcher layout as fixed half-offset alternating rows', () => {
     const config = createPatternConfig('stretcher_bond');
     const layout = getPatternLayout(config);
