@@ -7,7 +7,7 @@ describe('pattern sidebar schema', () => {
     const nonNonePatterns = PATTERN_CATALOG.filter((pattern) => pattern.type !== 'none');
 
     for (const pattern of nonNonePatterns) {
-      const proceduralTypes = new Set(['chevron', 'running_bond', 'stack_bond', 'stretcher_bond', 'flemish_bond', 'staggered', 'herringbone', 'basketweave']);
+      const proceduralTypes = new Set(['chevron', 'running_bond', 'stack_bond', 'stretcher_bond', 'flemish_bond', 'staggered', 'basketweave']);
       const expectedLayoutSource = proceduralTypes.has(pattern.type) ? 'procedural' : 'svg-module';
       expect(getPatternSidebarSchema(pattern.type).layoutSource).toBe(expectedLayoutSource);
     }
@@ -101,6 +101,7 @@ describe('pattern sidebar schema', () => {
   it('hides herringbone angle to keep create parity with the authored module', () => {
     const schema = getPatternSidebarSchema('herringbone');
     expect(schema.fields.map((field) => field.id)).not.toContain('angle');
+    expect(schema.layoutSource).toBe('svg-module');
   });
 
   it('describes chevron rows and columns as visible counts with authored module parity', () => {

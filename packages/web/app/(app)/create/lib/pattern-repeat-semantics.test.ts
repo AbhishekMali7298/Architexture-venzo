@@ -129,7 +129,7 @@ describe('pattern repeat semantics', () => {
     expect(hint.height).toBe(Math.round(frame.repeatHeight));
   });
 
-  it('keeps herringbone rows and columns as visible counts', () => {
+  it('keeps herringbone rows and columns as visible counts while deriving canonical repeat from authored module bounds', () => {
     const config = createPatternConfig('herringbone');
     config.materials[0]!.width = SVG_PATTERN_MODULES.herringbone.referenceTileWidth;
     config.materials[0]!.height = SVG_PATTERN_MODULES.herringbone.referenceTileHeight;
@@ -142,9 +142,13 @@ describe('pattern repeat semantics', () => {
     const frame = resolvePatternRepeatFrame(config, layout);
 
     expect(repeatCounts).toEqual({ rows: 6, columns: 4 });
-    expect(canonical).toBeNull();
-    expect(frame.repeatWidth).toBeGreaterThan(0);
-    expect(frame.repeatHeight).toBeGreaterThan(0);
+    expect(canonical).toEqual({
+      repeatWidth: 4 * (SVG_PATTERN_MODULES.herringbone.repeatWidth ?? SVG_PATTERN_MODULES.herringbone.viewBoxWidth),
+      repeatHeight: 6 * (SVG_PATTERN_MODULES.herringbone.repeatHeight ?? SVG_PATTERN_MODULES.herringbone.viewBoxHeight),
+    });
+    expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
+    expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
+    expect(frame.repeatWidth).toBeGreaterThan(frame.repeatHeight);
   });
 
   it('maps visible cubic counts onto authored module repeat counts', () => {

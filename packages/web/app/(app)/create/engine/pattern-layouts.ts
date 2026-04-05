@@ -449,49 +449,6 @@ function layoutSoldierCourse(config: TextureConfig): PatternLayoutData {
   return withBounds(tiles, horizontalJoint, verticalJoint);
 }
 
-function layoutHerringbone(config: TextureConfig): PatternLayoutData {
-  const { rows, columns } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
-
-  // Use half-column module grouping so the visual count stays close to the
-  // authored herringbone rhythm while keeping row controls intuitive.
-  const repeatColumns = Math.max(1, Math.ceil(columns / 2));
-  const repeatRows = Math.max(1, rows);
-
-  const stepX = width + height + verticalJoint;
-  const stepY = height + horizontalJoint + width * 0.115;
-  const halfStepX = stepX / 2;
-  const halfStepY = stepY / 2;
-  const tiles: PatternTile[] = [];
-
-  for (let row = 0; row < repeatRows; row++) {
-    for (let column = 0; column < repeatColumns; column++) {
-      const baseX = column * stepX;
-      const baseY = row * stepY;
-
-      tiles.push({
-        x: baseX,
-        y: baseY + halfStepY,
-        width,
-        height,
-        rotation: -45,
-        materialIndex: 0,
-      });
-
-      tiles.push({
-        x: baseX + halfStepX,
-        y: baseY,
-        width,
-        height,
-        rotation: 45,
-        materialIndex: 0,
-      });
-    }
-  }
-
-  return withBounds(tiles, horizontalJoint, verticalJoint);
-}
-
 function layoutStaggered(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
@@ -963,7 +920,6 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
   stack_bond: layoutStackBond,
   stretcher_bond: layoutStretcherBond,
   flemish_bond: layoutFlemishBond,
-  herringbone: layoutHerringbone,
   chevron: layoutChevron,
   staggered: layoutStaggered,
   basketweave: layoutBasketweave,
@@ -973,14 +929,19 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
 };
 
 export function getPatternLayout(config: TextureConfig): PatternLayoutData {
+  const module = SVG_PATTERN_MODULES[config.pattern.type];
+  const layoutSource = getPatternLayoutSource(config.pattern.type);
+
+  if (layoutSource === 'svg-module') {
+    if (!isUsableSvgModule(module)) {
+      throw new Error(`Missing authored SVG module for pattern: ${config.pattern.type}`);
+    }
+    return layoutSvgModule(config, module);
+  }
+
   const registryLayout = generateRegistryPatternLayout(config);
   if (registryLayout) {
     return registryLayout;
-  }
-
-  const module = SVG_PATTERN_MODULES[config.pattern.type];
-  if (getPatternLayoutSource(config.pattern.type) === 'svg-module' && isUsableSvgModule(module)) {
-    return layoutSvgModule(config, module);
   }
 
   const proceduralLayout = PATTERN_LAYOUTS[config.pattern.type];

@@ -334,98 +334,6 @@ const FLEMISH_DEFINITION: PatternEngineDefinition = {
   },
 };
 
-const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
-  tileTypes: {
-    left: { width: 1, height: 1 },
-    right: { width: 1, height: 1 },
-  },
-  offsetX: () => 0,
-  offsetY: () => 0,
-  rotation: (_row, col) => (col % 2 === 0 ? -45 : 45),
-  getTileType: (_row, col) => (col % 2 === 0 ? 'left' : 'right'),
-  customGenerate: (config, helpers) => {
-    const material = config.materials[0]!;
-    const visibleRows = Math.max(1, config.pattern.rows);
-    const visibleColumns = Math.max(1, config.pattern.columns);
-    const placementColumns = visibleColumns;
-    const jointH = config.joints.horizontalSize;
-    const jointV = config.joints.verticalSize;
-    const stepX = (material.width + jointV) / Math.SQRT2;
-    const stepY = (material.height + jointH) * Math.SQRT2;
-    const halfStepX = stepX / 2;
-    const halfStepY = stepY / 2;
-    const repeatWidth = visibleColumns * stepX;
-    const repeatHeight = visibleRows * stepY;
-    const miter = Math.max(1, Math.min(material.height / 2, material.width / 2));
-    const herringboneClipPath = [
-      { x: 0, y: miter },
-      { x: material.width - miter, y: 0 },
-      { x: material.width, y: miter },
-      { x: miter, y: material.height },
-    ];
-    const tiles: PatternTile[] = [];
-
-    for (let row = 0; row < visibleRows; row++) {
-      for (let col = 0; col < placementColumns; col++) {
-        const baseX = col * stepX;
-        const baseY = row * stepY;
-
-        tiles.push({
-          x: baseX - material.width / 2,
-          y: baseY + halfStepY - material.height / 2,
-          width: material.width,
-          height: material.height,
-          rotation: -45,
-          materialIndex: 0,
-          applyJointInset: false,
-          clipPath: herringboneClipPath,
-        });
-
-        tiles.push({
-          x: baseX + halfStepX - material.width / 2,
-          y: baseY - material.height / 2,
-          width: material.width,
-          height: material.height,
-          rotation: 45,
-          materialIndex: 0,
-          applyJointInset: false,
-          clipPath: herringboneClipPath,
-        });
-      }
-    }
-
-    let minX = Number.POSITIVE_INFINITY;
-    let minY = Number.POSITIVE_INFINITY;
-    let maxX = Number.NEGATIVE_INFINITY;
-    let maxY = Number.NEGATIVE_INFINITY;
-
-    for (const tile of tiles) {
-      minX = Math.min(minX, tile.x);
-      minY = Math.min(minY, tile.y);
-      maxX = Math.max(maxX, tile.x + tile.width);
-      maxY = Math.max(maxY, tile.y + tile.height);
-    }
-
-    const visualCenterX = (minX + maxX) / 2;
-    const visualCenterY = (minY + maxY) / 2;
-    const desiredCenterX = repeatWidth / 2;
-    const desiredCenterY = repeatHeight / 2;
-    const shiftX = desiredCenterX - visualCenterX;
-    const shiftY = desiredCenterY - visualCenterY;
-
-    const centeredTiles = tiles.map((tile) => ({
-      ...tile,
-      x: tile.x + shiftX,
-      y: tile.y + shiftY,
-    }));
-
-    return helpers.normalizeLayoutBounds(centeredTiles, jointH, jointV, {
-      width: repeatWidth,
-      height: repeatHeight,
-    });
-  },
-};
-
 const BASKETWEAVE_DEFINITION: PatternEngineDefinition = {
   tileTypes: {
     horizontal: { width: 1, height: 1 },
@@ -503,7 +411,6 @@ const PATTERN_REGISTRY: Partial<Record<PatternType, PatternEngineDefinition>> = 
   stack_bond: STACK_BOND_DEFINITION,
   stretcher_bond: STRETCHER_BOND_DEFINITION,
   flemish_bond: FLEMISH_DEFINITION,
-  herringbone: HERRINGBONE_DEFINITION,
   staggered: STAGGERED_DEFINITION,
   basketweave: BASKETWEAVE_DEFINITION,
 };

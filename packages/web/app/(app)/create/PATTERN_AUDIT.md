@@ -16,7 +16,7 @@ Source of truth in code:
 | `running_bond` | svg-module | repeated running-bond modules | repeated running-bond modules | no | none |
 | `stretcher_bond` | procedural | visible brick courses | visible brick slots before bleed clipping | yes | `stretchers` |
 | `flemish_bond` | svg-module | authored Flemish repeat modules | authored Flemish repeat modules | no | none |
-| `herringbone` | hybrid | repeated herringbone modules | repeated herringbone modules | yes: `45°` module, `90°` orthogonal fallback | none |
+| `herringbone` | svg-module | repeated herringbone modules | repeated herringbone modules | no | none |
 | `chevron` | procedural | visible chevron bands | visible chevron half-arms | yes: live mitre angle and projected vertical spacing | none |
 | `staggered` | svg-module | repeated staggered modules | repeated staggered modules | no | none |
 | `ashlar` | svg-module | repeated ashlar modules | repeated ashlar modules | no | none |
@@ -38,7 +38,7 @@ Source of truth in code:
 - Chevron now uses visible row and column counts directly, and its vertical repeat pitch projects horizontal joint spacing along the sloped mitre so the bordered frame height tracks the live site more closely.
 - `basketweave` remains procedural because `weaves` is now a live layout parameter. The geometry is still an approximation of Architextures rather than a direct replay of the authored SVG module.
 - `stretcher_bond` remains procedural because `stretchers` is a live layout parameter and the authored SVG module represents only one stagger configuration.
-- `herringbone` is hybrid: `45°` uses the authored Architextures module, while `90°` uses the procedural orthogonal layout so the angle control remains truthful.
+- `herringbone` now uses the authored Architextures SVG module in all create-editor cases, preserving the landscape repeat, bleed geometry, and module phase.
 - `running_bond`, `stack_bond`, `flemish_bond`, `ashlar`, `hexagonal`, and `fishscale` now route through the Architextures-derived SVG module data for closer visual parity.
 
 ## Fully Matched
@@ -61,8 +61,6 @@ Source of truth in code:
 
 - `stretcher_bond`
   because the live `stretchers` parameter requires procedural offsets and the checked-in SVG module only captures one authored stagger state
-- `herringbone`
-  because `45°` uses the authored module while `90°` remains a procedural orthogonal fallback
 - `chevron`
   because the procedural geometry now tracks the live angle/count behavior, but we have not yet verified every edge case of the original renderer’s joint shading at extreme angles
 - `basketweave`
