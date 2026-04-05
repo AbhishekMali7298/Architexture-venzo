@@ -145,12 +145,12 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     columnFieldLabel: 'Columns',
   },
   herringbone: {
-    countMode: 'visible-counts',
-    rowsMeaning: 'Rows count visible herringbone bands vertically inside the bordered repeat.',
-    columnsMeaning: 'Columns count visible herringbone columns horizontally inside the bordered repeat.',
+    countMode: 'module-counts',
+    rowsMeaning: 'Rows size the authored herringbone repeat vertically. Each repeat adds 1 visible row.',
+    columnsMeaning: 'Columns size the authored herringbone repeat horizontally. Each repeat adds 2 visible columns.',
     angleMeaning: 'Angle is fixed for herringbone in the create editor.',
     dimensionsMeaning: 'Width and height define the reference paver used to scale the authored herringbone SVG module.',
-    semanticHint: 'Rows and columns keep visible counts intuitive while the authored module preserves Architextures herringbone phase and bleed geometry.',
+    semanticHint: 'Rows and columns repeat the authored module. Columns snap in pairs to preserve Architextures herringbone phase and bleed geometry.',
     materialWidthLabel: 'Paver Width',
     materialHeightLabel: 'Paver Height',
     rowFieldLabel: 'Rows',
@@ -401,13 +401,6 @@ export function getPatternLayoutSource(type: PatternType): PatternLayoutSource {
 
 export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCounts {
   const pattern = getPatternByType(config.pattern.type);
-
-  if (config.pattern.type === 'herringbone') {
-    return {
-      rows: Math.max(1, config.pattern.rows),
-      columns: Math.max(1, config.pattern.columns),
-    };
-  }
 
   if (config.pattern.type === 'chevron') {
     return {

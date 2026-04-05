@@ -200,7 +200,7 @@ describe('pattern layouts', () => {
     expect(baseLayout.repeatHeight).toBeCloseTo(changedLayout.repeatHeight ?? 0);
   });
 
-  it('uses authored herringbone module bounds and keeps the bordered repeat landscape', () => {
+  it('uses authored herringbone module bounds and correctly snaps bordered repeat', () => {
     const config = createPatternConfig('herringbone');
     config.pattern.rows = 6;
     config.pattern.columns = 4;
@@ -211,16 +211,16 @@ describe('pattern layouts', () => {
 
     const layout = getPatternLayout(config);
     const module = SVG_PATTERN_MODULES.herringbone;
-    const expectedRepeatWidth = config.pattern.columns * (module.repeatWidth ?? module.viewBoxWidth);
-    const expectedRepeatHeight = config.pattern.rows * (module.repeatHeight ?? module.viewBoxHeight);
+    const repeatCounts = getPatternRepeatCounts(config);
+    const expectedRepeatWidth = repeatCounts.columns * (module.repeatWidth ?? module.viewBoxWidth);
+    const expectedRepeatHeight = repeatCounts.rows * (module.repeatHeight ?? module.viewBoxHeight);
 
     expect(layout.repeatWidth).toBeCloseTo(expectedRepeatWidth);
     expect(layout.repeatHeight).toBeCloseTo(expectedRepeatHeight);
-    expect((layout.repeatWidth ?? 0)).toBeGreaterThan(layout.repeatHeight ?? 0);
 
     const frameAspect = (layout.repeatWidth ?? 1) / Math.max(layout.repeatHeight ?? 1, 1);
     const moduleAspect = module.viewBoxWidth / module.viewBoxHeight;
-    const expectedAspect = moduleAspect * (config.pattern.columns / config.pattern.rows);
+    const expectedAspect = moduleAspect * (repeatCounts.columns / repeatCounts.rows);
     expect(frameAspect).toBeCloseTo(expectedAspect, 5);
 
     const hasBleedOnX = module.tiles.some((tile) => tile.x < 0 || tile.x + tile.width > module.viewBoxWidth);
