@@ -309,23 +309,21 @@ function layoutStackBond(config: TextureConfig): PatternLayoutData {
 }
 
 function layoutStretcherBond(config: TextureConfig): PatternLayoutData {
-  const { rows, columns, stretchers } = config.pattern;
-  const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
-  const cycle = Math.max(2, stretchers + 1);
-  const offsetStep = (width + verticalJoint) / cycle;
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
   const tiles: PatternTile[] = [];
   const stepX = width + verticalJoint;
   const stepY = height + horizontalJoint;
 
   for (let row = 0; row < rows; row++) {
-    const offset = (row % cycle) * offsetStep;
+    const offset = row % 2 === 1 ? stepX / 2 : 0;
     for (let column = -1; column < columns; column++) {
       tiles.push({
         x: column * stepX + offset,
         y: row * stepY,
         width,
         height,
-        rotation: angle,
+        rotation: 0,
         materialIndex: 0,
       });
     }

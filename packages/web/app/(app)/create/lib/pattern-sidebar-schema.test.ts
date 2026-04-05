@@ -32,6 +32,7 @@ describe('pattern sidebar schema', () => {
   it('hides angle for stretcher pattern to match competitor sidebar behavior', () => {
     const stretcher = getPatternSidebarSchema('stretcher_bond');
     expect(stretcher.fields.map((field) => field.id)).not.toContain('angle');
+    expect(stretcher.fields.map((field) => field.id)).not.toContain('stretchers');
   });
 
   it('keeps common pattern rows and columns as visible counts', () => {

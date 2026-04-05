@@ -87,11 +87,11 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowMultiple: 2,
     columnMultiple: 1,
     displayName: 'Stretcher',
-    description: 'All stretchers with variable offset',
+    description: 'All stretchers with fixed half-offset courses',
     previewPath: 'M0,0h20v12H0zM20,0h20v12M0,12h10v12M10,12h20v12M30,12h10v12',
     previewAssetPath: 'patterns/stretcher_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
-    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 360, step: 1 }, stretchers: { min: 1, max: 10 } },
+    parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
     defaultUnitWidth: 400, defaultUnitHeight: 400,
   },
   {

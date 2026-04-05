@@ -312,4 +312,21 @@ describe('pattern layouts', () => {
     expect(layout.repeatWidth).toBe((module.referenceTileWidth + config.joints.verticalSize) * repeatCounts.columns);
     expect(layout.repeatHeight).toBe((module.referenceTileHeight + config.joints.horizontalSize) * repeatCounts.rows);
   });
+
+  it('keeps stretcher layout as fixed half-offset alternating rows', () => {
+    const config = createPatternConfig('stretcher_bond');
+    config.pattern.rows = 2;
+    config.pattern.columns = 2;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const firstRowLeft = layout.tiles.find((tile) => tile.y === 0 && tile.x >= 0);
+    const secondRowLeft = layout.tiles.find((tile) => tile.y > 0 && tile.x >= 0);
+
+    expect(firstRowLeft?.x).toBeCloseTo(0);
+    expect(secondRowLeft?.x).toBeCloseTo((400 + 5) / 2);
+    expect(layout.tiles.every((tile) => tile.rotation === 0)).toBe(true);
+  });
 });
