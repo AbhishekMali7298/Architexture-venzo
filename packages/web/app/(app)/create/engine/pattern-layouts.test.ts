@@ -209,9 +209,8 @@ describe('pattern layouts', () => {
     config.joints.verticalSize = 5;
 
     const layout = getPatternLayout(config);
-    const projectedSpan = (400 + 100) / Math.SQRT2;
-    const stepX = projectedSpan + 5 / Math.SQRT2;
-    const stepY = projectedSpan + 5 / Math.SQRT2;
+    const stepX = (400 + 5) / Math.SQRT2;
+    const stepY = (100 + 5) * Math.SQRT2;
     const expectedRepeatWidth = config.pattern.columns * stepX;
     const expectedRepeatHeight = config.pattern.rows * stepY;
 
@@ -256,7 +255,7 @@ describe('pattern layouts', () => {
       return Math.min(minDistance, nearest);
     }, Number.POSITIVE_INFINITY);
 
-    expect(minOpposingCenterDistance).toBeGreaterThan(projectedSpan * 0.45);
+    expect(minOpposingCenterDistance).toBeGreaterThan(Math.min(stepX, stepY) * 0.45);
     expect(layout.tiles.every((tile) => tile.applyJointInset === false)).toBe(true);
   });
 

@@ -347,16 +347,22 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
     const material = config.materials[0]!;
     const visibleRows = Math.max(1, config.pattern.rows);
     const visibleColumns = Math.max(1, config.pattern.columns);
-    const placementColumns = Math.max(1, Math.ceil(visibleColumns / 2));
+    const placementColumns = visibleColumns;
     const jointH = config.joints.horizontalSize;
     const jointV = config.joints.verticalSize;
-    const projectedSpan = (material.width + material.height) / Math.SQRT2;
-    const stepX = projectedSpan + jointV / Math.SQRT2;
-    const stepY = projectedSpan + jointH / Math.SQRT2;
+    const stepX = (material.width + jointV) / Math.SQRT2;
+    const stepY = (material.height + jointH) * Math.SQRT2;
     const halfStepX = stepX / 2;
     const halfStepY = stepY / 2;
     const repeatWidth = visibleColumns * stepX;
     const repeatHeight = visibleRows * stepY;
+    const miter = Math.max(1, Math.min(material.height / 2, material.width / 2));
+    const herringboneClipPath = [
+      { x: 0, y: miter },
+      { x: material.width - miter, y: 0 },
+      { x: material.width, y: miter },
+      { x: miter, y: material.height },
+    ];
     const tiles: PatternTile[] = [];
 
     for (let row = 0; row < visibleRows; row++) {
@@ -372,6 +378,7 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
           rotation: -45,
           materialIndex: 0,
           applyJointInset: false,
+          clipPath: herringboneClipPath,
         });
 
         tiles.push({
@@ -382,6 +389,7 @@ const HERRINGBONE_DEFINITION: PatternEngineDefinition = {
           rotation: 45,
           materialIndex: 0,
           applyJointInset: false,
+          clipPath: herringboneClipPath,
         });
       }
     }
