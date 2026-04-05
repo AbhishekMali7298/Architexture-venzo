@@ -482,6 +482,54 @@ function layoutStaggered(config: TextureConfig): PatternLayoutData {
   };
 }
 
+function layoutHerringbone(config: TextureConfig): PatternLayoutData {
+  const { rows, columns } = config.pattern;
+  const { width, height, horizontalJoint, verticalJoint } = getMaterialMetrics(config);
+
+  // Architextures herringbone has columnMultiple: 2
+  // We treat 'columns' as total tiles horizontally, so we have columns / 2 units.
+  const repeatColumns = Math.max(1, Math.floor(columns / 2));
+  const repeatRows = rows;
+
+  const unitSize = (width + height + horizontalJoint + verticalJoint) / Math.sqrt(2);
+  const stepX = unitSize;
+  const stepY = unitSize;
+
+  const tiles: PatternTile[] = [];
+
+  for (let r = 0; r < repeatRows; r++) {
+    for (let c = 0; c < repeatColumns; c++) {
+      const baseX = c * stepX;
+      const baseY = r * stepY;
+
+      // Tile 1: 45 degrees
+      tiles.push({
+        x: baseX,
+        y: baseY,
+        width,
+        height,
+        rotation: 45,
+        materialIndex: 0,
+      });
+
+      // Tile 2: 135 degrees (opposite slant)
+      // Shifted by half a unit to interlock
+      tiles.push({
+        x: baseX + stepX / 2,
+        y: baseY + stepY / 2,
+        width,
+        height,
+        rotation: 135,
+        materialIndex: 0,
+      });
+    }
+  }
+
+  // Use normalizeLayoutBounds to ensure everything is in the positive quadrant
+  // and to compute totalWidth/totalHeight correctly.
+  return normalizeLayoutBounds(tiles, [], horizontalJoint, verticalJoint);
+}
+
 function layoutChevron(config: TextureConfig): PatternLayoutData {
   const { rows, columns } = config.pattern;
   const { width, height, horizontalJoint, verticalJoint, angle } = getMaterialMetrics(config);
@@ -922,6 +970,7 @@ const PATTERN_LAYOUTS: Partial<Record<PatternType, (config: TextureConfig) => Pa
   flemish_bond: layoutFlemishBond,
   chevron: layoutChevron,
   staggered: layoutStaggered,
+  herringbone: layoutHerringbone,
   basketweave: layoutBasketweave,
   hexagonal: layoutHexagonal,
   ashlar: layoutAshlar,

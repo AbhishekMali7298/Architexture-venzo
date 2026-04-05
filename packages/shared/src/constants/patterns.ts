@@ -1,6 +1,7 @@
 import type { PatternCategory, PatternType, PatternConfig } from '../types/config';
 
 export interface PatternDefinition {
+  dimType?: 'single' | 'multi';
   type: PatternType;
   category: PatternCategory;
   rowColMode: 'grid' | 'module';
@@ -31,6 +32,7 @@ export interface PatternDefinition {
 const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   {
     type: 'none',
+    dimType: 'multi',
     category: 'random',
     rowColMode: 'module',
     rowMultiple: 1,
@@ -49,6 +51,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'running_bond',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'module',
     rowMultiple: 1,
@@ -68,6 +71,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'stack_bond',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'grid',
     rowMultiple: 1,
@@ -82,6 +86,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'stretcher_bond',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'grid',
     rowMultiple: 2,
@@ -96,6 +101,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'flemish_bond',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -110,6 +116,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'herringbone',
+    dimType: 'multi',
     category: 'paving',
     rowColMode: 'module',
     rowMultiple: 1,
@@ -124,6 +131,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'chevron',
+    dimType: 'multi',
     category: 'geometric',
     rowColMode: 'grid',
     rowMultiple: 1,
@@ -138,6 +146,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'staggered',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'module',
     rowMultiple: 1,
@@ -152,6 +161,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'ashlar',
+    dimType: 'multi',
     category: 'paving',
     rowColMode: 'module',
     rowMultiple: 1,
@@ -166,6 +176,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'cubic',
+    dimType: 'single',
     category: 'geometric',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -180,6 +191,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'hexagonal',
+    dimType: 'single',
     category: 'geometric',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -194,6 +206,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'basketweave',
+    dimType: 'single',
     category: 'paving',
     rowColMode: 'module',
     rowMultiple: 6,
@@ -208,6 +221,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'hopscotch',
+    dimType: 'multi',
     category: 'paving',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -222,6 +236,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'diamond',
+    dimType: 'multi',
     category: 'geometric',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -236,6 +251,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'intersecting_circle',
+    dimType: 'single',
     category: 'geometric',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -250,6 +266,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'fishscale',
+    dimType: 'multi',
     category: 'roofing',
     rowColMode: 'module',
     rowMultiple: 2,
@@ -264,6 +281,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
   },
   {
     type: 'french',
+    dimType: 'multi',
     category: 'brick_bond',
     rowColMode: 'module',
     rowMultiple: 3,

@@ -30,13 +30,7 @@ export interface PatternSidebarSchema {
   fields: PatternFieldSchema[];
 }
 
-const SINGLE_DIMENSION_PATTERNS = new Set<PatternType>([
-  'cubic',
-  'hexagonal',
-  'basketweave',
-  'intersecting_circle',
-  'fishscale',
-]);
+
 
 function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: string) {
   if (type === 'none') {
@@ -61,6 +55,17 @@ function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: strin
 
 export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema {
   const semantics = getPatternRepeatSemantics(type);
+  const pattern = getPatternByType(type);
+  const isSingleDim = pattern?.dimType === 'single';
+
+  let materialWidthLabel = semantics.materialWidthLabel;
+  if (isSingleDim) {
+    if (type === 'intersecting_circle' || type === 'fishscale' || type === 'circular') {
+      materialWidthLabel = 'Diameter';
+    } else {
+      materialWidthLabel = 'Size';
+    }
+  }
 
   return {
     patternType: type,
@@ -70,9 +75,9 @@ export function getPatternSidebarSchema(type: PatternType): PatternSidebarSchema
     angleMeaning: semantics.angleMeaning,
     dimensionsMeaning: semantics.dimensionsMeaning,
     semanticHint: semantics.semanticHint,
-    materialWidthLabel: semantics.materialWidthLabel,
+    materialWidthLabel,
     materialHeightLabel: semantics.materialHeightLabel,
-    singleDimensionInput: SINGLE_DIMENSION_PATTERNS.has(type),
+    singleDimensionInput: isSingleDim,
     showMinDimensions: type === 'ashlar',
     fields: buildBaseFields(type, semantics.rowFieldLabel, semantics.columnFieldLabel),
   };

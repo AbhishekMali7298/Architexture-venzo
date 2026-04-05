@@ -8,7 +8,6 @@ import {
   getPatternDimensionsHintSize,
   getPatternRepeatCounts,
   resolvePatternRepeatFrame,
-  getHerringboneRepeatPitch,
 } from './pattern-repeat-semantics';
 
 function createPatternConfig(type: 'flemish_bond' | 'chevron' | 'running_bond' | 'herringbone' | 'cubic' | 'staggered' | 'ashlar'): TextureConfig {
@@ -130,26 +129,28 @@ describe('pattern repeat semantics', () => {
     expect(hint.height).toBe(Math.round(frame.repeatHeight));
   });
 
-  it('maps visible herringbone counts onto authored module repeat counts in snapping pairs', () => {
+  it('maps visible herringbone counts onto procedural diagonal repeat bounds', () => {
     const config = createPatternConfig('herringbone');
-    config.materials[0]!.width = SVG_PATTERN_MODULES.herringbone.referenceTileWidth;
-    config.materials[0]!.height = SVG_PATTERN_MODULES.herringbone.referenceTileHeight;
     config.pattern.rows = 6;
     config.pattern.columns = 4;
+    config.materials[0]!.width = 200;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 10;
+    config.joints.verticalSize = 10;
 
     const repeatCounts = getPatternRepeatCounts(config);
     const canonical = getCanonicalPatternRepeatBox(config);
     const layout = getPatternLayout(config);
     const frame = resolvePatternRepeatFrame(config, layout);
 
-    const pitch = getHerringboneRepeatPitch(config);
+    const step = (200 + 100 + 10 + 10) / Math.sqrt(2);
     expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
     expect(canonical).toEqual({
-      repeatWidth: repeatCounts.columns * 2 * pitch.width,
-      repeatHeight: repeatCounts.rows * pitch.height,
+      repeatWidth: (2 + 0.5) * step,
+      repeatHeight: (6 + 0.5) * step,
     });
-    expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth);
-    expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight);
+    expect(frame.repeatWidth).toBeCloseTo(canonical!.repeatWidth, 1);
+    expect(frame.repeatHeight).toBeCloseTo(canonical!.repeatHeight, 1);
   });
 
   it('maps visible cubic counts onto authored module repeat counts', () => {

@@ -41,13 +41,7 @@ export interface SvgModuleScale {
   scaleY: number;
 }
 
-export function getHerringboneRepeatPitch(config: TextureConfig) {
-  const material = config.materials[0]!;
-  return {
-    width: material.width * 2 + config.joints.verticalSize * 2,
-    height: material.width + config.joints.horizontalSize * 2,
-  };
-}
+
 
 export function getChevronRepeatPitch(config: TextureConfig) {
   const material = config.materials[0]!;
@@ -67,7 +61,7 @@ const PATTERN_LAYOUT_SOURCE: Record<string, PatternLayoutSource> = {
   stack_bond: 'procedural',
   stretcher_bond: 'procedural',
   flemish_bond: 'procedural',
-  herringbone: 'svg-module',
+  herringbone: 'procedural',
   chevron: 'procedural',
   staggered: 'procedural',
   ashlar: 'svg-module',
@@ -153,12 +147,13 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
     columnFieldLabel: 'Columns',
   },
   herringbone: {
-    countMode: 'module-counts',
-    rowsMeaning: 'Rows size the authored herringbone repeat vertically. Each repeat adds 1 visible row.',
-    columnsMeaning: 'Columns size the authored herringbone repeat horizontally. Each repeat adds 2 visible columns.',
-    angleMeaning: 'Angle is fixed for herringbone in the create editor.',
-    dimensionsMeaning: 'Width and height define the reference paver used to scale the authored herringbone SVG module.',
-    semanticHint: 'Rows and columns repeat the authored module. Columns snap in pairs to preserve Architextures herringbone phase and bleed geometry.',
+    countMode: 'visible-counts',
+    rowsMeaning: 'Rows count the number of bricks stacked vertically in the repeat pattern.',
+    columnsMeaning: 'Columns count pairs of bricks horizontally. The pattern naturally snaps in units of 2.',
+    angleMeaning: 'Angle for herringbone is fixed at 45 degrees in the editor.',
+    dimensionsMeaning: 'Width and Height scale the individual pavers independently without skewing the 45-degree angle.',
+    semanticHint:
+      'Herringbone uses true geometric math to ensure paver corners stay 90-degrees even when width and height are changed independently.',
     materialWidthLabel: 'Paver Width',
     materialHeightLabel: 'Paver Height',
     rowFieldLabel: 'Rows',
@@ -333,16 +328,7 @@ export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModul
     };
   }
 
-  if (config.pattern.type === 'herringbone') {
-    const pitch = getHerringboneRepeatPitch(config);
-    const moduleWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
-    const moduleHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
 
-    return {
-      scaleX: Math.max(0.01, pitch.width / (moduleWidth / 2)),
-      scaleY: Math.max(0.01, pitch.height / moduleHeight),
-    };
-  }
 
   const repeatWidth = Math.max(module.repeatWidth ?? module.viewBoxWidth, 1);
   const repeatHeight = Math.max(module.repeatHeight ?? module.viewBoxHeight, 1);
@@ -428,6 +414,13 @@ export function getPatternRepeatCounts(config: TextureConfig): PatternRepeatCoun
     };
   }
 
+  if (config.pattern.type === 'herringbone') {
+    return {
+      rows: Math.max(1, config.pattern.rows),
+      columns: Math.max(1, Math.floor(config.pattern.columns / 2)),
+    };
+  }
+
   if (config.pattern.type === 'running_bond') {
     return {
       rows: Math.max(1, config.pattern.rows),
@@ -481,6 +474,16 @@ export function getCanonicalPatternRepeatBox(config: TextureConfig): PatternRepe
     return {
       repeatWidth,
       repeatHeight,
+    };
+  }
+
+  if (config.pattern.type === 'herringbone') {
+    const step = (material.width + material.height + config.joints.horizontalSize + config.joints.verticalSize) / Math.sqrt(2);
+    const repeatColumns = Math.max(1, Math.floor(config.pattern.columns / 2));
+    const repeatRows = Math.max(1, config.pattern.rows);
+    return {
+      repeatWidth: (repeatColumns + 0.5) * step,
+      repeatHeight: (repeatRows + 0.5) * step,
     };
   }
 
