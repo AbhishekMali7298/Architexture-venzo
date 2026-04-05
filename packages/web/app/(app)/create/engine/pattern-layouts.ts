@@ -120,6 +120,34 @@ function getTileAxisAlignedBounds(tile: PatternTile) {
   );
 }
 
+function getRotatedTileCorners(
+  width: number,
+  height: number,
+  rotation: number,
+  originX = 0,
+  originY = 0,
+) {
+  const centerX = originX + width / 2;
+  const centerY = originY + height / 2;
+  const radians = (rotation * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+
+  return [
+    { x: originX, y: originY },
+    { x: originX + width, y: originY },
+    { x: originX + width, y: originY + height },
+    { x: originX, y: originY + height },
+  ].map((point) => {
+    const dx = point.x - centerX;
+    const dy = point.y - centerY;
+    return {
+      x: centerX + dx * cos - dy * sin,
+      y: centerY + dx * sin + dy * cos,
+    };
+  });
+}
+
 function normalizeLayoutBounds(
   tiles: PatternTile[],
   strokes: PatternStroke[],
@@ -589,26 +617,13 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   const repeatWidth = columns * (width + verticalJoint) * invSqrt2;
   const repeatHeight = rows * rowPitch;
   const tiles: PatternTile[] = [];
+  const rotatedCornerOffsets = {
+    [-45]: getRotatedTileCorners(width, height, -45)[0]!,
+    [45]: getRotatedTileCorners(width, height, 45)[0]!,
+  };
 
   const rotatedBounds = (tile: PatternTile) => {
-    const cx = tile.x + tile.width / 2;
-    const cy = tile.y + tile.height / 2;
-    const radians = (tile.rotation * Math.PI) / 180;
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
-    const corners = [
-      { x: tile.x, y: tile.y },
-      { x: tile.x + tile.width, y: tile.y },
-      { x: tile.x + tile.width, y: tile.y + tile.height },
-      { x: tile.x, y: tile.y + tile.height },
-    ].map((point) => {
-      const dx = point.x - cx;
-      const dy = point.y - cy;
-      return {
-        x: cx + dx * cos - dy * sin,
-        y: cy + dx * sin + dy * cos,
-      };
-    });
+    const corners = getRotatedTileCorners(tile.width, tile.height, tile.rotation, tile.x, tile.y);
 
     return corners.reduce(
       (acc, point) => ({
@@ -632,23 +647,13 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
   };
 
   const tileForAnchor = (anchorX: number, anchorY: number, rotation: number): PatternTile => {
-    if (rotation === -45) {
-      return {
-        // Competitor rowData stores the first polygon vertex. For -45 tiles
-        // that vertex is the lower-left corner of the rotated rectangle.
-        x: anchorX + ((width - height) * invSqrt2) / 2 - width / 2,
-        y: anchorY - ((width + height) * invSqrt2) / 2 - height / 2,
-        width,
-        height,
-        rotation,
-        materialIndex: 0,
-        applyJointInset: false,
-      };
-    }
+    const anchorOffset = rotatedCornerOffsets[rotation as -45 | 45];
 
     return {
-      x: anchorX + ((width - height) * invSqrt2) / 2 - width / 2,
-      y: anchorY + ((width + height) * invSqrt2) / 2 - height / 2,
+      // Competitor rowData stores the first polygon vertex for both tile
+      // directions, which matches rotated corner 0 of the rectangle.
+      x: anchorX - anchorOffset.x,
+      y: anchorY - anchorOffset.y,
       width,
       height,
       rotation,
@@ -678,10 +683,15 @@ function layoutHerringbone(config: TextureConfig): PatternLayoutData {
     }
   }
 
-  const cellShifts = [-1, 0, 1];
   for (const tile of baseTiles) {
-    for (const shiftY of cellShifts) {
-      for (const shiftX of cellShifts) {
+    const bounds = rotatedBounds(tile);
+    const minShiftX = Math.floor(-bounds.maxX / repeatWidth);
+    const maxShiftX = Math.ceil((repeatWidth - bounds.minX) / repeatWidth);
+    const minShiftY = Math.floor(-bounds.maxY / repeatHeight);
+    const maxShiftY = Math.ceil((repeatHeight - bounds.minY) / repeatHeight);
+
+    for (let shiftY = minShiftY; shiftY <= maxShiftY; shiftY++) {
+      for (let shiftX = minShiftX; shiftX <= maxShiftX; shiftX++) {
         const shifted = {
           ...tile,
           x: tile.x + shiftX * repeatWidth,

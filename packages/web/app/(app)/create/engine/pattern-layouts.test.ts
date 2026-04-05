@@ -90,6 +90,108 @@ function getRotatedCorners(tile: { x: number; y: number; width: number; height: 
   });
 }
 
+function getTileOriginForRotatedCorner(
+  width: number,
+  height: number,
+  rotation: number,
+  anchorX: number,
+  anchorY: number,
+  cornerIndex = 0,
+) {
+  const rotatedCorners = getRotatedCorners({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    rotation,
+  });
+  const anchorCorner = rotatedCorners[cornerIndex]!;
+  return {
+    x: anchorX - anchorCorner.x,
+    y: anchorY - anchorCorner.y,
+  };
+}
+
+function sampleHerringboneCoverage(
+  layout: ReturnType<typeof getPatternLayout>,
+  sampleStep: number,
+) {
+  const repeatWidth = layout.repeatWidth ?? 0;
+  const repeatHeight = layout.repeatHeight ?? 0;
+  const originalTiles = layout.tiles.map((tile) => ({
+    ...tile,
+    originalX: tile.x - (layout.repeatOffsetX ?? 0),
+    originalY: tile.y - (layout.repeatOffsetY ?? 0),
+  }));
+
+  const pointInPolygon = (x: number, y: number, points: { x: number; y: number }[]) => {
+    let inside = false;
+    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+      const a = points[i]!;
+      const b = points[j]!;
+      const intersects = (a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x;
+      if (intersects) inside = !inside;
+    }
+    return inside;
+  };
+
+  const polygons = originalTiles.map((tile) => {
+    const corners = getRotatedCorners({
+      x: tile.originalX,
+      y: tile.originalY,
+      width: tile.width,
+      height: tile.height,
+      rotation: tile.rotation,
+    });
+    const xs = corners.map((point) => point.x);
+    const ys = corners.map((point) => point.y);
+    return {
+      corners,
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minY: Math.min(...ys),
+      maxY: Math.max(...ys),
+    };
+  });
+
+  let uncovered = 0;
+  let total = 0;
+  let maxGapCells = 0;
+
+  for (let y = sampleStep / 2; y < repeatHeight; y += sampleStep) {
+    let rowGap = 0;
+    let rowMaxGap = 0;
+
+    for (let x = sampleStep / 2; x < repeatWidth; x += sampleStep) {
+      total += 1;
+      const covered = polygons.some(
+        (polygon) =>
+          x >= polygon.minX &&
+          x <= polygon.maxX &&
+          y >= polygon.minY &&
+          y <= polygon.maxY &&
+          pointInPolygon(x, y, polygon.corners),
+      );
+
+      if (!covered) {
+        uncovered += 1;
+        rowGap += 1;
+      } else {
+        rowMaxGap = Math.max(rowMaxGap, rowGap);
+        rowGap = 0;
+      }
+    }
+
+    rowMaxGap = Math.max(rowMaxGap, rowGap);
+    maxGapCells = Math.max(maxGapCells, rowMaxGap);
+  }
+
+  return {
+    maxGapCells,
+    uncoveredRatio: total > 0 ? uncovered / total : 0,
+  };
+}
+
 describe('pattern layouts', () => {
   it.each(PATTERNS)('produces stable bounds for %s', (type) => {
     const layout = getPatternLayout(createPatternConfig(type));
@@ -246,24 +348,22 @@ describe('pattern layouts', () => {
       y: firstEvenAnchor.y - firstOddAnchorShift,
     };
     const expectedFirstEven = {
-      x:
-        firstEvenAnchor.x +
-        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.width / 2,
-      y:
-        firstEvenAnchor.y -
-        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.height / 2,
+      ...getTileOriginForRotatedCorner(
+        config.materials[0]!.width,
+        config.materials[0]!.height,
+        -45,
+        firstEvenAnchor.x,
+        firstEvenAnchor.y,
+      ),
     };
     const expectedFirstOdd = {
-      x:
-        firstOddAnchor.x +
-        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.width / 2,
-      y:
-        firstOddAnchor.y +
-        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.height / 2,
+      ...getTileOriginForRotatedCorner(
+        config.materials[0]!.width,
+        config.materials[0]!.height,
+        45,
+        firstOddAnchor.x,
+        firstOddAnchor.y,
+      ),
     };
 
     expect(layout.repeatWidth).toBeCloseTo(expectedWidth, 1);
@@ -329,24 +429,22 @@ describe('pattern layouts', () => {
       y: firstEvenAnchor.y - firstOddAnchorShift,
     };
     const expectedFirstEven = {
-      x:
-        firstEvenAnchor.x +
-        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.width / 2,
-      y:
-        firstEvenAnchor.y -
-        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.height / 2,
+      ...getTileOriginForRotatedCorner(
+        config.materials[0]!.width,
+        config.materials[0]!.height,
+        -45,
+        firstEvenAnchor.x,
+        firstEvenAnchor.y,
+      ),
     };
     const expectedFirstOdd = {
-      x:
-        firstOddAnchor.x +
-        ((config.materials[0]!.width - config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.width / 2,
-      y:
-        firstOddAnchor.y +
-        ((config.materials[0]!.width + config.materials[0]!.height) * invSqrt2) / 2 -
-        config.materials[0]!.height / 2,
+      ...getTileOriginForRotatedCorner(
+        config.materials[0]!.width,
+        config.materials[0]!.height,
+        45,
+        firstOddAnchor.x,
+        firstOddAnchor.y,
+      ),
     };
 
     expect(layout.repeatWidth).toBeCloseTo(4 * (300 + 5) / Math.sqrt(2), 3);
@@ -407,22 +505,13 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBeCloseTo(6 * (10 + 5) * Math.sqrt(2), 3);
     expect(firstEven?.applyJointInset).toBe(false);
     expect(firstOdd?.applyJointInset).toBe(false);
-    expect(firstEven?.originalX ?? 0).toBeCloseTo(
-      firstEvenAnchor.x + ((400 - 10) * invSqrt2) / 2 - 200,
-      3,
-    );
-    expect(firstEven?.originalY ?? 0).toBeCloseTo(
-      firstEvenAnchor.y - ((400 + 10) * invSqrt2) / 2 - 5,
-      3,
-    );
-    expect(firstOdd?.originalX ?? 0).toBeCloseTo(
-      firstOddAnchor.x + ((400 - 10) * invSqrt2) / 2 - 200,
-      3,
-    );
-    expect(firstOdd?.originalY ?? 0).toBeCloseTo(
-      firstOddAnchor.y + ((400 + 10) * invSqrt2) / 2 - 5,
-      3,
-    );
+    const expectedEven = getTileOriginForRotatedCorner(400, 10, -45, firstEvenAnchor.x, firstEvenAnchor.y);
+    const expectedOdd = getTileOriginForRotatedCorner(400, 10, 45, firstOddAnchor.x, firstOddAnchor.y);
+
+    expect(firstEven?.originalX ?? 0).toBeCloseTo(expectedEven.x, 3);
+    expect(firstEven?.originalY ?? 0).toBeCloseTo(expectedEven.y, 3);
+    expect(firstOdd?.originalX ?? 0).toBeCloseTo(expectedOdd.x, 3);
+    expect(firstOdd?.originalY ?? 0).toBeCloseTo(expectedOdd.y, 3);
   });
 
   it('matches the competitor snapshot for thin herringbone pavers', () => {
@@ -458,7 +547,7 @@ describe('pattern layouts', () => {
         Math.abs((tile.originalX ?? 0) - (firstEven?.originalX ?? 0)) < 0.001 &&
         (tile.originalY ?? 0) > (firstEven?.originalY ?? 0),
     );
-    const evenAnchor = firstEven ? getRotatedCorners(firstEven)[3] : undefined;
+    const evenAnchor = firstEven ? getRotatedCorners(firstEven)[0] : undefined;
     const oddAnchor = firstOdd ? getRotatedCorners(firstOdd)[0] : undefined;
     const oddOffset =
       evenAnchor && oddAnchor
@@ -472,6 +561,22 @@ describe('pattern layouts', () => {
     expect(nextRowEven).toBeDefined();
     expect((nextRowEven?.originalY ?? 0) - (firstEven?.originalY ?? 0)).toBeCloseTo(21.213, 3);
     expect(oddOffset ?? 0).toBeCloseTo(415.004, 2);
+  });
+
+  it('does not leave large voids inside the procedural herringbone repeat', () => {
+    const config = createPatternConfig('herringbone');
+    config.pattern.rows = 6;
+    config.pattern.columns = 6;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
+
+    const layout = getPatternLayout(config);
+    const coverage = sampleHerringboneCoverage(layout, 20);
+
+    expect(coverage.maxGapCells).toBeLessThanOrEqual(3);
+    expect(coverage.uncoveredRatio).toBeLessThan(0.1);
   });
 
   it('changes chevron repeat height with angle while keeping repeat width stable', () => {
