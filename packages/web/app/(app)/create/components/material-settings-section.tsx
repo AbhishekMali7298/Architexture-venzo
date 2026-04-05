@@ -58,9 +58,6 @@ export function MaterialSettingsSection({
   jointVertical,
   linkedJoints,
   jointAdjustments,
-  jointRecess,
-  jointConcave,
-  jointShadowOpacity,
   units,
   onOpenPicker,
   onMaterialTintChange,
@@ -78,9 +75,6 @@ export function MaterialSettingsSection({
   onJointVerticalChange,
   onLinkedJointsChange,
   onJointAdjustmentChange,
-  onJointRecessChange,
-  onJointConcaveChange,
-  onJointShadowOpacityChange,
 }: {
   materialName: string;
   materialCategory: string;
@@ -109,9 +103,6 @@ export function MaterialSettingsSection({
   jointVertical: number;
   linkedJoints: boolean;
   jointAdjustments: ImageAdjustments;
-  jointRecess: boolean;
-  jointConcave: boolean;
-  jointShadowOpacity: number;
   units: 'mm' | 'inches';
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
@@ -129,9 +120,6 @@ export function MaterialSettingsSection({
   onJointVerticalChange: (value: number) => void;
   onLinkedJointsChange: (value: boolean) => void;
   onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
-  onJointRecessChange: (value: boolean) => void;
-  onJointConcaveChange: (value: boolean) => void;
-  onJointShadowOpacityChange: (value: number) => void;
 }) {
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
   const [showEdgeSettings, setShowEdgeSettings] = useState(false);
@@ -282,12 +270,6 @@ export function MaterialSettingsSection({
           onChange={onJointVerticalChange}
         />
       </div>
-
-      <CheckboxField label="Recess joints" checked={jointRecess} onChange={onJointRecessChange} />
-      <CheckboxField label="Concave joints" checked={jointConcave} onChange={onJointConcaveChange} />
-      {(jointRecess || jointConcave) ? (
-        <RangeField label="Shadow depth" value={jointShadowOpacity} min={0} max={100} onChange={onJointShadowOpacityChange} />
-      ) : null}
 
       {showJointAdjustments ? (
         <Modal onClose={() => setShowJointAdjustments(false)}>

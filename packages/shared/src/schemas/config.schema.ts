@@ -164,9 +164,6 @@ export const jointsConfigSchema = z.object({
   horizontalSize: z.number().min(0),
   verticalSize: z.number().min(0),
   linkedDimensions: z.boolean(),
-  shadowOpacity: z.number().min(0).max(100),
-  recess: z.boolean(),
-  concave: z.boolean(),
   adjustments: imageAdjustmentsSchema,
 });
 

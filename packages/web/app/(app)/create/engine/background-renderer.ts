@@ -4,7 +4,6 @@ import { getJointRenderableColor, getMaterialRenderableColor, mixHexColors } fro
 import { resolvePatternRepeatFrame } from '../lib/pattern-repeat-semantics';
 import { isVerticalPatternOrientation } from '../lib/pattern-orientation';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
-import { drawJointRelief } from './joint-relief';
 import { getTileRenderBox } from './render-geometry';
 import type { EdgeProfileData } from '../lib/edge-style-assets';
 
@@ -47,9 +46,6 @@ function drawTile(
   scale: number,
   tintColor?: string | null,
   materialImage?: CanvasImageSource | null,
-  recessJoints?: boolean,
-  concaveJoints?: boolean,
-  jointShadowOpacity?: number,
   edgeProfiles?: EdgeProfileData[] | null,
 ) {
   const tileRng = seededRng(tileSeed(config.seed, tile.x, tile.y));
@@ -134,18 +130,6 @@ function drawTile(
     ctx.restore();
   }
 
-  drawJointRelief(ctx, {
-    tracePath: traceTilePath,
-    x: insetX,
-    y: insetY,
-    width: drawWidth,
-    height: drawHeight,
-    scale,
-    shadowOpacity: jointShadowOpacity ?? 20,
-    recess: recessJoints ?? false,
-    concave: concaveJoints ?? false,
-  });
-
   ctx.restore();
 }
 
@@ -169,9 +153,6 @@ interface PreparedBackgroundScene {
   jointColor: string;
   tintColor?: string | null;
   outline?: ReadonlyArray<{ x: number; y: number }>;
-  recessJoints: boolean;
-  concaveJoints: boolean;
-  shadowOpacity: number;
 }
 
 function traceStrokePath(
@@ -253,9 +234,6 @@ function prepareBackgroundScene(
     toneVariation,
     tintColor: material.tint,
     outline: repeatFrame.previewOutline,
-    recessJoints: config.joints.recess,
-    concaveJoints: config.joints.concave,
-    shadowOpacity: config.joints.shadowOpacity,
   };
 }
 
@@ -293,9 +271,6 @@ function drawPreparedLayout(
       scene.scale,
       scene.tintColor,
       options?.materialImage,
-      scene.recessJoints,
-      scene.concaveJoints,
-      scene.shadowOpacity,
       options?.edgeProfiles,
     );
   }

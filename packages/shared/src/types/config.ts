@@ -183,9 +183,6 @@ export interface JointsConfig {
   horizontalSize: number;
   verticalSize: number;
   linkedDimensions: boolean;
-  shadowOpacity: number;
-  recess: boolean;
-  concave: boolean;
   adjustments: ImageAdjustments;
 }
 

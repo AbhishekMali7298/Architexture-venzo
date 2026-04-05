@@ -104,9 +104,6 @@ export interface EditorState {
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
   setJointAdjustment: (key: keyof ImageAdjustments, value: number | boolean) => void;
-  setJointRecess: (value: boolean) => void;
-  setJointConcave: (value: boolean) => void;
-  setJointShadowOpacity: (value: number) => void;
 
   // Output
   setOutputSize: (width: number, height: number) => void;
@@ -452,27 +449,6 @@ export const useEditorStore = create<EditorState>()(
               : clamp(Number(value), -100, 100);
           s.config.joints.adjustments[key] = nextValue as never;
         }
-        bumpRender(s);
-      }),
-
-    setJointRecess: (value) =>
-      set((s) => {
-        pushHistory(s, `Recess joints → ${value ? 'on' : 'off'}`);
-        s.config.joints.recess = value;
-        bumpRender(s);
-      }),
-
-    setJointConcave: (value) =>
-      set((s) => {
-        pushHistory(s, `Concave joints → ${value ? 'on' : 'off'}`);
-        s.config.joints.concave = value;
-        bumpRender(s);
-      }),
-
-    setJointShadowOpacity: (value) =>
-      set((s) => {
-        pushHistory(s, `Shadow depth → ${value}`);
-        s.config.joints.shadowOpacity = clamp(value, 0, 100);
         bumpRender(s);
       }),
 

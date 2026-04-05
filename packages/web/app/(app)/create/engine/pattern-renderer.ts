@@ -3,7 +3,6 @@ import { getPatternLayout, type PatternStroke, type PatternTile } from './patter
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { fillMaterialSurface, tracePolygonPath, traceRoundedRectPath } from './material-fill';
 import { computePatternRenderFrame, getTileRenderBox } from './render-geometry';
-import { drawJointRelief } from './joint-relief';
 import type { EdgeProfileData } from '../lib/edge-style-assets';
 
 export interface RenderedJoint {
@@ -179,18 +178,6 @@ export function renderToCanvas(
       traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius);
       ctx.stroke();
     }
-
-    drawJointRelief(ctx, {
-      tracePath: () => traceTilePath(clipPath, tileX, tileY, tileWidth, tileHeight, cornerRadius),
-      x: tileX,
-      y: tileY,
-      width: tileWidth,
-      height: tileHeight,
-      scale,
-      shadowOpacity: config.joints.shadowOpacity,
-      recess: config.joints.recess,
-      concave: config.joints.concave,
-    });
 
     if (variationRatio > 0.35) {
       ctx.globalAlpha = 0.01 + variationRatio * 0.02;
