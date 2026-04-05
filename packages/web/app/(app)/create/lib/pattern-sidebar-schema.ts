@@ -35,6 +35,7 @@ const SINGLE_DIMENSION_PATTERNS = new Set<PatternType>([
   'hexagonal',
   'basketweave',
   'intersecting_circle',
+  'fishscale',
 ]);
 
 function buildBaseFields(type: PatternType, rowLabel: string, columnLabel: string) {

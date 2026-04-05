@@ -76,6 +76,9 @@ function applyPatternDefinition(
       activeMaterial.width = Math.max(activeMaterial.minWidth, activeMaterial.width);
       activeMaterial.height = Math.max(activeMaterial.minHeight, activeMaterial.height);
     }
+    if (definition.type === 'fishscale') {
+      activeMaterial.height = activeMaterial.width;
+    }
   }
 
   return next;

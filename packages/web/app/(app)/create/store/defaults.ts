@@ -34,8 +34,8 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       uploadWidth: null,
       width: 400,
       height: 100,
-      minWidth: 10,
-      minHeight: 10,
+      minWidth: 50,
+      minHeight: 50,
 
       appearance: {
         lightIntensity: 50,

@@ -86,6 +86,7 @@ describe('pattern sidebar schema', () => {
     expect(circular.materialWidthLabel).toBe('Diameter');
     expect(fishscale.materialWidthLabel).toBe('Diameter');
     expect(circular.singleDimensionInput).toBe(true);
+    expect(fishscale.singleDimensionInput).toBe(true);
   });
 
   it('hides angle for module-backed patterns that do not use it', () => {

@@ -36,7 +36,7 @@ describe('pattern config utils', () => {
     );
 
     expect(next.pattern.type).toBe('running_bond');
-    expect(next.pattern.stretchers).toBe(1);
+    expect(next.pattern.stretchers).toBe(3);
   });
 
   it('sanitizes unsupported none config without dropping the pattern', () => {

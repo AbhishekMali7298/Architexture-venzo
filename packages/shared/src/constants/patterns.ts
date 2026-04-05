@@ -57,7 +57,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Classic brickwork with each row offset by half',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
     previewAssetPath: 'patterns/running_bond.svg',
-    defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
+    defaults: { rows: 6, columns: 4, angle: 0, stretchers: 3, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 50 },
       columns: { min: 1, max: 50 },
@@ -92,7 +92,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/stretcher_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 1, max: 50 }, columns: { min: 1, max: 50 }, angle: { min: 0, max: 0, step: 1 } },
-    defaultUnitWidth: 400, defaultUnitHeight: 400,
+    defaultUnitWidth: 215, defaultUnitHeight: 65,
   },
   {
     type: 'flemish_bond',
@@ -132,7 +132,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'V-shaped pattern with angled cuts',
     previewPath: 'M0,20 L20,0 L20,10 L0,30z M20,0 L40,20 L40,30 L20,10z',
     previewAssetPath: 'patterns/chevron.svg',
-    defaults: { rows: 6, columns: 4, angle: 45, stretchers: 1, weaves: 1 },
+    defaults: { rows: 6, columns: 4, angle: 30, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 2, max: 50 }, columns: { min: 2, max: 50 }, angle: { min: 0, max: 70, step: 1 } },
     defaultUnitWidth: 400, defaultUnitHeight: 100,
   },
@@ -260,7 +260,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/fishscale.svg',
     defaults: { rows: 8, columns: 6, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: { rows: { min: 2, max: 40 }, columns: { min: 2, max: 40 }, angle: { min: 0, max: 0, step: 1 } },
-    defaultUnitWidth: 180, defaultUnitHeight: 140,
+    defaultUnitWidth: 180, defaultUnitHeight: 180,
   },
   {
     type: 'french',

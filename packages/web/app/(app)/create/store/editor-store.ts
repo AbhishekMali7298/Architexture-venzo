@@ -313,6 +313,9 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.width = Math.max(1, width);
+          if (s.config.pattern.type === 'fishscale') {
+            mat.height = mat.width;
+          }
         }
         bumpRender(s);
       }),
