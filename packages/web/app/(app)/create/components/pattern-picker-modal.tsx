@@ -10,7 +10,7 @@ function getPatternPreviewUrl(pattern: PatternDefinition) {
   return `/patterns/${filename}`;
 }
 
-const ENABLED_PATTERN_TYPES = new Set<PatternType>(['stack_bond']);
+const ENABLED_PATTERN_TYPES = new Set<PatternType>(['stack_bond', 'stretcher_bond', 'herringbone']);
 
 function PatternPreview({
   src,

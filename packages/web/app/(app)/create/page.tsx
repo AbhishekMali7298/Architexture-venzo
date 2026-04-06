@@ -12,7 +12,7 @@ import { SaveExportModal, type ExportFormat } from './components/save-export-mod
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
-import { getStackLayout } from './lib/stack-pattern';
+import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
   exportPreviewPdf,
@@ -86,8 +86,8 @@ export default function CreatePage() {
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
-  const stackLayout = useMemo(() => getStackLayout(config), [config]);
-  const stackHint = `${Math.round(stackLayout.totalWidth)} × ${Math.round(stackLayout.totalHeight)} mm`;
+  const patternLayout = useMemo(() => getPatternLayout(config), [config]);
+  const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} mm`;
   const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');
   const currentPatternName = currentPattern?.displayName ?? 'Stack';
   const currentPatternPreview = `/patterns/${currentPattern?.previewAssetPath?.split('/').pop() ?? 'stack_bond.svg'}`;

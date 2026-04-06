@@ -2,7 +2,7 @@
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
-import { getStackLayout } from './stack-pattern';
+import { getPatternLayout } from './pattern-layout';
 
 function escapeXml(value: string) {
   return value
@@ -55,25 +55,35 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = escapeXml(getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'));
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
-  const layout = getStackLayout(config);
+  const layout = getPatternLayout(config);
   const scale = Math.min(width / Math.max(layout.totalWidth, 1), height / Math.max(layout.totalHeight, 1));
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
   const offsetX = (width - drawWidth) / 2;
   const offsetY = (height - drawHeight) / 2;
   const jointFill = escapeXml(config.joints.tint ?? '#ffffff');
-  const tileMarkup = layout.tiles.map((tile) => {
-    const x = offsetX + tile.x * scale;
-    const y = offsetY + tile.y * scale;
-    const w = tile.width * scale;
-    const h = tile.height * scale;
-    return embeddedMaterial
-      ? `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" />`
-      : `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fallbackFill}" />`;
+  const defs: string[] = [];
+  const tileMarkup = layout.tiles.map((tile, index) => {
+    const points = tile.points
+      .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
+      .join(' ');
+    const x = offsetX + tile.bounds.x * scale;
+    const y = offsetY + tile.bounds.y * scale;
+    const w = tile.bounds.width * scale;
+    const h = tile.bounds.height * scale;
+
+    if (embeddedMaterial) {
+      const clipId = `tile-clip-${index}`;
+      defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
+      return `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
+    }
+
+    return `<polygon points="${points}" fill="${fallbackFill}" />`;
   }).join('');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    defs.length ? `<defs>${defs.join('')}</defs>` : '',
     `<rect x="${offsetX}" y="${offsetY}" width="${drawWidth}" height="${drawHeight}" fill="${jointFill}" />`,
     tileMarkup,
     '</svg>',
@@ -90,7 +100,7 @@ export async function buildVectorPdf(config: TextureConfig) {
 
   const width = config.output.widthPx;
   const height = config.output.heightPx;
-  const layout = getStackLayout(config);
+  const layout = getPatternLayout(config);
   const scale = Math.min(width / Math.max(layout.totalWidth, 1), height / Math.max(layout.totalHeight, 1));
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
@@ -105,12 +115,17 @@ export async function buildVectorPdf(config: TextureConfig) {
   ];
 
   for (const tile of layout.tiles) {
-    const x = offsetX + tile.x * scale;
-    const y = offsetY + tile.y * scale;
-    const tileWidth = tile.width * scale;
-    const tileHeight = tile.height * scale;
     commands.push(`${rgbToPdf(fill)} rg`);
-    commands.push(`${x} ${height - y - tileHeight} ${tileWidth} ${tileHeight} re f`);
+    const points = tile.points.map((point) => ({
+      x: offsetX + point.x * scale,
+      y: height - (offsetY + point.y * scale),
+    }));
+    const [firstPoint, ...otherPoints] = points;
+    commands.push(`${firstPoint!.x} ${firstPoint!.y} m`);
+    for (const point of otherPoints) {
+      commands.push(`${point.x} ${point.y} l`);
+    }
+    commands.push('h f');
   }
 
   commands.push('Q');

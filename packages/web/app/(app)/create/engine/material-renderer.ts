@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getMaterialRenderableColor } from '../lib/material-assets';
-import { getStackLayout } from '../lib/stack-pattern';
+import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 
 export function renderToCanvas(
@@ -21,7 +21,7 @@ export function renderToCanvas(
 
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
-  const layout = getStackLayout(config);
+  const layout = getPatternLayout(config);
   const jointColor = config.joints.tint ?? '#ffffff';
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -45,14 +45,24 @@ export function renderToCanvas(
 
   for (const tile of layout.tiles) {
     fillMaterialSurface(ctx, {
-      x: offsetX + tile.x * scale,
-      y: offsetY + tile.y * scale,
-      width: tile.width * scale,
-      height: tile.height * scale,
+      x: offsetX + tile.bounds.x * scale,
+      y: offsetY + tile.bounds.y * scale,
+      width: tile.bounds.width * scale,
+      height: tile.bounds.height * scale,
       radius: 0,
       fallbackFill,
       image: options?.materialImage,
       tintColor: material.tint,
+      clipPath: tile.points.map((point) => ({
+        x: offsetX + point.x * scale,
+        y: offsetY + point.y * scale,
+      })),
+      imageDrawBox: {
+        x: offsetX + tile.bounds.x * scale,
+        y: offsetY + tile.bounds.y * scale,
+        width: tile.bounds.width * scale,
+        height: tile.bounds.height * scale,
+      },
     });
   }
 }

@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getMaterialRenderableColor } from '../lib/material-assets';
-import { getStackLayout } from '../lib/stack-pattern';
+import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 
 function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
@@ -10,7 +10,7 @@ function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeig
   const availableY = outerPadding;
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
-  const layout = getStackLayout(config);
+  const layout = getPatternLayout(config);
   const outputWidth = Math.max(1, layout.totalWidth);
   const outputHeight = Math.max(1, layout.totalHeight);
   const scale = Math.min(availableWidth / outputWidth, availableHeight / outputHeight);
@@ -40,7 +40,7 @@ export function renderBackground(
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
   const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
-  const layout = getStackLayout(config);
+  const layout = getPatternLayout(config);
   const scale = Math.min(
     bounds.width / Math.max(layout.totalWidth, 1),
     bounds.height / Math.max(layout.totalHeight, 1),
@@ -66,14 +66,24 @@ export function renderBackground(
       const offsetX = bounds.x + xIndex * frameWidth;
       for (const tile of layout.tiles) {
         fillMaterialSurface(ctx, {
-          x: offsetX + tile.x * scale,
-          y: offsetY + tile.y * scale,
-          width: tile.width * scale,
-          height: tile.height * scale,
+          x: offsetX + tile.bounds.x * scale,
+          y: offsetY + tile.bounds.y * scale,
+          width: tile.bounds.width * scale,
+          height: tile.bounds.height * scale,
           radius: 0,
           fallbackFill,
           image: options?.materialImage,
           tintColor: material.tint,
+          clipPath: tile.points.map((point) => ({
+            x: offsetX + point.x * scale,
+            y: offsetY + point.y * scale,
+          })),
+          imageDrawBox: {
+            x: offsetX + tile.bounds.x * scale,
+            y: offsetY + tile.bounds.y * scale,
+            width: tile.bounds.width * scale,
+            height: tile.bounds.height * scale,
+          },
         });
       }
     }
