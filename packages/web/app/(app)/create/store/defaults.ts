@@ -33,7 +33,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       },
       uploadWidth: null,
       width: 400,
-      height: 200,
+      height: 100,
       minWidth: 50,
       minHeight: 50,
 
