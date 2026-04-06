@@ -25,6 +25,8 @@ export function MaterialSettingsSection({
   materialTint,
   width,
   height,
+  minWidth,
+  minHeight,
   toneVariation,
   jointHorizontal,
   jointVertical,
@@ -33,10 +35,18 @@ export function MaterialSettingsSection({
   recessJoints,
   concaveJoints,
   edgeStyle,
+  edgeScale,
+  edgeWidth,
+  bumpEdges,
+  displacementEdges,
+  roughness,
+  metalness,
   onOpenPicker,
   onMaterialTintChange,
   onWidthChange,
   onHeightChange,
+  onMinWidthChange,
+  onMinHeightChange,
   onJointHorizontalChange,
   onJointVerticalChange,
   onJointTintChange,
@@ -44,6 +54,12 @@ export function MaterialSettingsSection({
   onRecessJointsChange,
   onConcaveJointsChange,
   onEdgeStyleChange,
+  onEdgeScaleChange,
+  onEdgeWidthChange,
+  onBumpEdgesChange,
+  onDisplacementEdgesChange,
+  onRoughnessChange,
+  onMetalnessChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -53,6 +69,8 @@ export function MaterialSettingsSection({
   materialTint: string | null;
   width: number;
   height: number;
+  minWidth: number;
+  minHeight: number;
   toneVariation: number;
   jointHorizontal: number;
   jointVertical: number;
@@ -61,10 +79,18 @@ export function MaterialSettingsSection({
   recessJoints: boolean;
   concaveJoints: boolean;
   edgeStyle: EdgeStyle;
+  edgeScale: number;
+  edgeWidth: number;
+  bumpEdges: boolean;
+  displacementEdges: boolean;
+  roughness: number;
+  metalness: number;
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
+  onMinWidthChange: (value: number) => void;
+  onMinHeightChange: (value: number) => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
   onJointTintChange: (value: string | null) => void;
@@ -72,6 +98,12 @@ export function MaterialSettingsSection({
   onRecessJointsChange: (value: boolean) => void;
   onConcaveJointsChange: (value: boolean) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
+  onEdgeScaleChange: (value: number) => void;
+  onEdgeWidthChange: (value: number) => void;
+  onBumpEdgesChange: (value: boolean) => void;
+  onDisplacementEdgesChange: (value: boolean) => void;
+  onRoughnessChange: (value: number) => void;
+  onMetalnessChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
 }) {
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
@@ -91,12 +123,22 @@ export function MaterialSettingsSection({
         <NumberField label="Height" value={height} min={1} max={5000} unit="mm" onChange={onHeightChange} />
       </div>
 
+      <div className={styles.gridTwo}>
+        <NumberField label="Min Width" value={minWidth} min={1} max={5000} unit="mm" onChange={onMinWidthChange} />
+        <NumberField label="Min Height" value={minHeight} min={1} max={5000} unit="mm" onChange={onMinHeightChange} />
+      </div>
+
       <SelectField
         label="Edges"
         value={edgeStyle}
         options={EDGE_STYLE_OPTIONS}
         onChange={(value) => onEdgeStyleChange(value as EdgeStyle)}
       />
+
+      <div className={styles.gridTwo}>
+        <NumberField label="Edge Scale" value={edgeScale} min={0} max={100} step={0.1} onChange={onEdgeScaleChange} />
+        <NumberField label="Edge Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />
+      </div>
 
       <div className={styles.subsectionTitle}>Joints</div>
 
@@ -132,6 +174,42 @@ export function MaterialSettingsSection({
         step={0.01}
         valueText={toneVariationUi.toFixed(2)}
         onChange={(value) => onToneVariationChange(Math.round(value * 100))}
+      />
+
+      <div className={styles.subsectionTitle}>PBR Options</div>
+
+      <label className={styles.checkboxRow}>
+        <input type="checkbox" checked={bumpEdges} onChange={(event) => onBumpEdgesChange(event.target.checked)} />
+        <span>Bump edges</span>
+      </label>
+
+      <label className={styles.checkboxRow}>
+        <input
+          type="checkbox"
+          checked={displacementEdges}
+          onChange={(event) => onDisplacementEdgesChange(event.target.checked)}
+        />
+        <span>Displacement edges</span>
+      </label>
+
+      <RangeField
+        label="Roughness"
+        value={roughness}
+        min={0}
+        max={1}
+        step={0.01}
+        valueText={roughness.toFixed(2)}
+        onChange={onRoughnessChange}
+      />
+
+      <RangeField
+        label="Metalness"
+        value={metalness}
+        min={0}
+        max={1}
+        step={0.01}
+        valueText={metalness.toFixed(2)}
+        onChange={onMetalnessChange}
       />
     </SectionCard>
   );

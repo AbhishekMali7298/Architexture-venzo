@@ -55,7 +55,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       edges: {
         style: 'handmade',
         perimeterScale: 1,
-        profileWidth: 50,
+        profileWidth: 25,
         excludeSides: [],
       },
 

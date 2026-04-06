@@ -39,6 +39,8 @@ export default function CreatePage() {
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
+  const setMaterialMinWidth = useEditorStore((state) => state.setMaterialMinWidth);
+  const setMaterialMinHeight = useEditorStore((state) => state.setMaterialMinHeight);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointTint = useEditorStore((state) => state.setJointTint);
@@ -46,7 +48,11 @@ export default function CreatePage() {
   const setRecessJoints = useEditorStore((state) => state.setRecessJoints);
   const setConcaveJoints = useEditorStore((state) => state.setConcaveJoints);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
+  const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
+  const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
+  const setPbrMapGeometry = useEditorStore((state) => state.setPbrMapGeometry);
+  const setPbrBaseValue = useEditorStore((state) => state.setPbrBaseValue);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
@@ -163,6 +169,8 @@ export default function CreatePage() {
           materialTint={material.tint}
           width={material.width}
           height={material.height}
+          minWidth={material.minWidth}
+          minHeight={material.minHeight}
           toneVariation={material.toneVariation}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
@@ -171,10 +179,18 @@ export default function CreatePage() {
           recessJoints={config.joints.recessJoints}
           concaveJoints={config.joints.concaveJoints}
           edgeStyle={material.edges.style}
+          edgeScale={material.edges.perimeterScale}
+          edgeWidth={material.edges.profileWidth}
+          bumpEdges={material.pbr.bump.geometry}
+          displacementEdges={material.pbr.displacement.geometry}
+          roughness={material.pbr.roughness.baseRoughness / 100}
+          metalness={material.pbr.metalness.baseMetalness / 100}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
+          onMinWidthChange={setMaterialMinWidth}
+          onMinHeightChange={setMaterialMinHeight}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onJointTintChange={setJointTint}
@@ -182,6 +198,12 @@ export default function CreatePage() {
           onRecessJointsChange={setRecessJoints}
           onConcaveJointsChange={setConcaveJoints}
           onEdgeStyleChange={setEdgeStyle}
+          onEdgeScaleChange={setEdgePerimeterScale}
+          onEdgeWidthChange={setEdgeProfileWidth}
+          onBumpEdgesChange={(value) => setPbrMapGeometry('bump', value)}
+          onDisplacementEdgesChange={(value) => setPbrMapGeometry('displacement', value)}
+          onRoughnessChange={(value) => setPbrBaseValue('roughness', Math.round(value * 100))}
+          onMetalnessChange={(value) => setPbrBaseValue('metalness', Math.round(value * 100))}
           onToneVariationChange={setToneVariation}
         />
       </CreateEditorShell>

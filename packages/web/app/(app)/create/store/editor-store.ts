@@ -67,6 +67,8 @@ export interface EditorState {
   setEdgePerimeterScale: (scale: number) => void;
   setEdgeProfileWidth: (width: number) => void;
   setToneVariation: (variation: number) => void;
+  setPbrMapGeometry: (map: 'bump' | 'displacement' | 'roughness' | 'metalness', value: boolean) => void;
+  setPbrBaseValue: (map: 'roughness' | 'metalness', value: number) => void;
 
   // Joints
   setJointTint: (tint: string | null) => void;
@@ -295,6 +297,30 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.toneVariation = clamp(variation, 0, 100);
+        }
+        bumpRender(s);
+      }),
+
+    setPbrMapGeometry: (map, value) =>
+      set((s) => {
+        pushHistory(s, `${map} edges → ${value ? 'on' : 'off'}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (mat) {
+          mat.pbr[map].geometry = value;
+        }
+        bumpRender(s);
+      }),
+
+    setPbrBaseValue: (map, value) =>
+      set((s) => {
+        pushHistory(s, `${map} → ${value}`);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (!mat) return;
+        const nextValue = clamp(value, 0, 100);
+        if (map === 'roughness') {
+          mat.pbr.roughness.baseRoughness = nextValue;
+        } else {
+          mat.pbr.metalness.baseMetalness = nextValue;
         }
         bumpRender(s);
       }),
