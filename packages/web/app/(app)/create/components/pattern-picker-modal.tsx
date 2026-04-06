@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { PATTERN_CATALOG, PATTERN_CATEGORIES, type PatternDefinition, type PatternType } from '@textura/shared';
 import { Modal } from './modal-portal';
-import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
 
 function getPatternPreviewUrl(pattern: PatternDefinition) {
@@ -12,6 +11,20 @@ function getPatternPreviewUrl(pattern: PatternDefinition) {
 }
 
 const ENABLED_PATTERN_TYPES = new Set<PatternType>(['stack_bond']);
+
+function PatternPreview({
+  src,
+  alt,
+}: {
+  src: string;
+  alt: string;
+}) {
+  return (
+    <div className={styles.patternPreviewFrame}>
+      <img className={styles.patternPreviewImage} src={src} alt={alt} />
+    </div>
+  );
+}
 
 export function PatternPickerModal({
   currentPattern,
@@ -98,13 +111,13 @@ export function PatternPickerModal({
             return (
               <section key={item.id} className={styles.modalSection}>
                 <h3 className={styles.modalSectionTitle}>{item.displayName}</h3>
-                <div className={styles.optionGrid}>
+                <div className={styles.patternOptionGrid}>
                   {patterns.map((pattern) => {
                     const enabled = ENABLED_PATTERN_TYPES.has(pattern.type);
                     return (
                       <button
                         key={pattern.type}
-                        className={`${styles.optionButton} ${currentPattern === pattern.type ? styles.optionButtonActive : ''} ${!enabled ? styles.optionButtonDisabled : ''}`}
+                        className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''} ${!enabled ? styles.patternOptionButtonDisabled : ''}`}
                         type="button"
                         disabled={!enabled}
                         onClick={() => {
@@ -112,11 +125,8 @@ export function PatternPickerModal({
                           onClose();
                         }}
                       >
-                        <MaterialThumb color="#f3f1ec" src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
-                        <div>
-                          <div className={styles.optionName}>{pattern.displayName}</div>
-                          <div className={styles.optionMeta}>{enabled ? pattern.description : 'Coming soon'}</div>
-                        </div>
+                        <PatternPreview src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
+                        <div className={styles.patternOptionName}>{pattern.displayName}</div>
                       </button>
                     );
                   })}
