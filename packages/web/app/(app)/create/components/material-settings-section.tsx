@@ -49,7 +49,7 @@ export function MaterialSettingsSection({
         onChange={(value) => onToneVariationChange(Math.round(value * 200))}
       />
 
-      <div className={styles.hint}>Pattern controls are removed. This editor is now a material-only baseline.</div>
+      <div className={styles.hint}>This editor is now a material-only baseline.</div>
     </SectionCard>
   );
 }

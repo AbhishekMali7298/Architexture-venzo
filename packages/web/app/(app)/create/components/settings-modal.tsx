@@ -29,7 +29,7 @@ export function SettingsModal({
           <div className={styles.settingsIntro}>
             <h2 className={styles.settingsHeading}>Create Texture</h2>
             <p className={styles.settingsText}>
-              This stripped-down editor only previews the active material while the pattern system is removed.
+              This stripped-down editor only previews the active material.
             </p>
           </div>
 

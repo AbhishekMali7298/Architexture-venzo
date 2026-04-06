@@ -228,59 +228,6 @@
   align-items: end;
 }
 
-.patternOrientationButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  width: 46px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  background: #fff;
-  color: rgba(0, 0, 0, 0.72);
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-
-.patternOrientationButton:hover {
-  border-color: rgba(0, 0, 0, 1);
-  color: #000;
-}
-
-.patternOrientationButtonActive {
-  border-color: rgba(0, 0, 0, 1);
-  background: rgba(37, 48, 69, 0.06);
-  color: #000;
-}
-
-.patternOrientationButtonInset {
-  position: absolute;
-  top: 50%;
-  right: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  transform: translateY(-50%);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 5px;
-  background: #fff;
-  color: rgba(0, 0, 0, 0.72);
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-
-.patternOrientationButtonInset:hover {
-  border-color: rgba(0, 0, 0, 1);
-  color: #000;
-}
-
-.patternOrientationIcon {
-  width: 14px;
-  height: 14px;
-}
-
 .jointLinkButton {
   display: inline-flex;
   align-items: center;
