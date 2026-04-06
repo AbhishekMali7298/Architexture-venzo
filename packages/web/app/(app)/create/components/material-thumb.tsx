@@ -28,11 +28,10 @@ export function MaterialThumb({
           src={src}
           alt={alt ?? 'Material thumbnail'}
           style={{
-            width: size - 10,
-            height: size - 10,
+            width: '100%',
+            height: '100%',
             borderRadius: '50%',
             objectFit: 'cover',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
           }}
         />
       ) : (

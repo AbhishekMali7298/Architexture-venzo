@@ -8,6 +8,8 @@ export interface MaterialAssetSet {
 
 export function getAssetUrl(asset: MaterialAssetRef | null | undefined): string | null {
   if (!asset?.path) return null;
+  // Paths starting with '/' are direct public folder paths (Next.js serves /public/* at root)
+  if (asset.path.startsWith('/')) return asset.path;
   return `/api/assets/${asset.path}`;
 }
 
