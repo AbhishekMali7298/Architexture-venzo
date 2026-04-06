@@ -102,7 +102,7 @@ export function MaterialPickerModal({
                         onClose();
                       }}
                     >
-                      <MaterialThumb color={material.swatchColor} src={getMaterialThumbnailUrl(material)} alt={material.name} />
+                      <MaterialThumb color={material.swatchColor} src={getMaterialThumbnailUrl(material)} alt={material.name} shape="square" />
                       <div>
                         <div className={styles.optionName}>{material.name}</div>
                         <div className={styles.optionMeta}>

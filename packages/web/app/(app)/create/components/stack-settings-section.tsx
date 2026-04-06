@@ -34,7 +34,7 @@ export function StackSettingsSection({
           <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{patternName}</span>
           <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>Open pattern chooser</span>
         </span>
-        <MaterialThumb color="#f3f1ec" src={previewUrl} alt="Stack pattern" size={36} compact objectFit="contain" />
+        <MaterialThumb color="#f3f1ec" src={previewUrl} alt="Stack pattern" size={36} compact objectFit="contain" shape="square" />
       </button>
 
       <div className={styles.gridTwo}>

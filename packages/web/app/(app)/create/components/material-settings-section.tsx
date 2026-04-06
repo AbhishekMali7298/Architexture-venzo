@@ -97,7 +97,7 @@ export function MaterialSettingsSection({
             <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{materialName}</span>
             <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{materialCategory}</span>
           </span>
-          <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact />
+          <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact shape="square" />
         </button>
 
         <div className={styles.gridTwo}>
