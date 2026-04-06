@@ -59,7 +59,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowMultiple: 1,
     columnMultiple: 2,
     displayName: 'Common',
-    description: 'Classic brickwork with each row offset by half',
+    description: 'Common bond with header courses repeating every few rows',
     previewPath: 'M0,8h40M0,24h40M0,0h10v16H0M10,0h20v16M30,0h10v16 M0,16h20v16M20,16h20v16',
     previewAssetPath: 'patterns/running_bond.svg',
     defaults: { rows: 6, columns: 4, angle: 0, stretchers: 3, weaves: 1 },

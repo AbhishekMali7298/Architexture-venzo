@@ -597,7 +597,7 @@ describe('pattern layouts', () => {
     expect(changedLayout.repeatHeight).toBeGreaterThan(baseLayout.repeatHeight ?? 0);
   });
 
-  it('keeps running-bond on procedural repeat sizing', () => {
+  it('keeps common-bond repeat sizing procedural', () => {
     const config = createPatternConfig('running_bond');
     const layout = getPatternLayout(config);
     const unitWidth = config.materials[0]!.width + config.joints.verticalSize;
@@ -607,18 +607,7 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBeCloseTo(config.pattern.rows * unitHeight);
   });
 
-  it('changes running-bond row offsets when stretchers changes while keeping repeat size stable', () => {
-    const config = createPatternConfig('running_bond');
-    config.pattern.stretchers = 2;
-    const layout = getPatternLayout(config);
-    const unitWidth = config.materials[0]!.width + config.joints.verticalSize;
-    const unitHeight = config.materials[0]!.height + config.joints.horizontalSize;
-
-    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * unitWidth);
-    expect(layout.repeatHeight).toBeCloseTo(config.pattern.rows * unitHeight);
-  });
-
-  it('maps running-bond visible rows and columns directly onto procedural repeat bounds', () => {
+  it('maps common-bond visible rows and columns directly onto procedural repeat bounds', () => {
     const config = createPatternConfig('running_bond');
     config.pattern.rows = 6;
     config.pattern.columns = 4;
@@ -630,52 +619,66 @@ describe('pattern layouts', () => {
     expect(layout.repeatHeight).toBeCloseTo(6 * unitHeight);
   });
 
-  it('matches running-bond procedural repeat at its current unit size contract', () => {
-    const config = createPatternConfig('running_bond');
-    const layout = getPatternLayout(config);
-    const unitWidth = config.materials[0]!.width + config.joints.verticalSize;
-    const unitHeight = config.materials[0]!.height + config.joints.horizontalSize;
-
-    expect(layout.repeatWidth).toBeCloseTo(config.pattern.columns * unitWidth);
-    expect(layout.repeatHeight).toBeCloseTo(config.pattern.rows * unitHeight);
-  });
-
-  it('scales running-bond procedural repeat counts directly with visible rows and columns', () => {
-    const config = createPatternConfig('running_bond');
-    config.pattern.rows = 6;
-    config.pattern.columns = 4;
-    const layout = getPatternLayout(config);
-    const unitWidth = config.materials[0]!.width + config.joints.verticalSize;
-    const unitHeight = config.materials[0]!.height + config.joints.horizontalSize;
-
-    expect(layout.repeatWidth).toBeCloseTo(4 * unitWidth);
-    expect(layout.repeatHeight).toBeCloseTo(6 * unitHeight);
-  });
-
-  it('uses Architextures-style running-bond bleed and raw unit spacing', () => {
+  it('keeps repeat size stable when stretchers changes and moves the header courses', () => {
     const config = createPatternConfig('running_bond');
     config.pattern.rows = 6;
     config.pattern.columns = 4;
     config.pattern.stretchers = 1;
+    const compactLayout = getPatternLayout(config);
+    config.pattern.stretchers = 3;
+    const sparseLayout = getPatternLayout(config);
+    const unitWidth = config.materials[0]!.width + config.joints.verticalSize;
+    const unitHeight = config.materials[0]!.height + config.joints.horizontalSize;
+
+    expect(compactLayout.repeatWidth).toBeCloseTo(config.pattern.columns * unitWidth);
+    expect(compactLayout.repeatHeight).toBeCloseTo(config.pattern.rows * unitHeight);
+    expect(sparseLayout.repeatWidth).toBeCloseTo(config.pattern.columns * unitWidth);
+    expect(sparseLayout.repeatHeight).toBeCloseTo(config.pattern.rows * unitHeight);
+
+    const compactHeaderRows = new Set(
+      compactLayout.tiles
+        .filter((tile) => tile.width < config.materials[0]!.width)
+        .map((tile) => tile.y),
+    );
+    const sparseHeaderRows = new Set(
+      sparseLayout.tiles
+        .filter((tile) => tile.width < config.materials[0]!.width)
+        .map((tile) => tile.y),
+    );
+
+    expect([...compactHeaderRows]).toEqual([0, 210, 420]);
+    expect([...sparseHeaderRows]).toEqual([0, 420]);
+  });
+
+  it('matches competitor common-bond spacing with half-width header courses', () => {
+    const config = createPatternConfig('running_bond');
+    config.pattern.rows = 6;
+    config.pattern.columns = 4;
+    config.pattern.stretchers = 3;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
+    config.joints.horizontalSize = 5;
+    config.joints.verticalSize = 5;
 
     const layout = getPatternLayout(config);
-    const module = SVG_PATTERN_MODULES.running_bond;
-    const scaleX = config.materials[0]!.width / 300;
-    const scaleY = config.materials[0]!.height / 100;
-    const expectedOffsetX = -Math.min(...module.tiles.map((tile) => tile.x * scaleX));
-    const expectedOffsetY = -Math.min(...module.tiles.map((tile) => tile.y * scaleY));
-    const firstCourse = layout.tiles.filter((tile) => tile.y === 0);
-    const visibleCourse = layout.tiles.filter((tile) => tile.y === config.materials[0]!.height);
+    const headerWidth = (config.materials[0]!.width - config.joints.verticalSize) / 2;
+    const headerStepX = headerWidth + config.joints.verticalSize;
+    const stretcherStepX = config.materials[0]!.width + config.joints.verticalSize;
+    const topCourse = layout.tiles.filter((tile) => tile.y === 0).sort((a, b) => a.x - b.x);
+    const firstStretcherCourse = layout.tiles.filter((tile) => tile.y === 105).sort((a, b) => a.x - b.x);
+    const repeatedHeaderCourse = layout.tiles.filter((tile) => tile.y === 420).sort((a, b) => a.x - b.x);
 
-    expect(layout.repeatOffsetX).toBeCloseTo(expectedOffsetX, 5);
-    expect(layout.repeatOffsetY).toBeCloseTo(expectedOffsetY, 5);
-    expect(layout.totalWidth).toBeGreaterThan(layout.repeatWidth ?? 0);
-    expect(layout.totalHeight).toBeGreaterThan(layout.repeatHeight ?? 0);
-
-    expect(firstCourse[0]?.x).toBeCloseTo(100, 5);
-    expect(firstCourse[1]?.x).toBeCloseTo(300, 5);
-    expect(visibleCourse[0]?.x).toBeCloseTo(200, 5);
-    expect(visibleCourse[1]?.x).toBeCloseTo(600, 5);
+    expect(topCourse).toHaveLength(8);
+    expect(firstStretcherCourse).toHaveLength(4);
+    expect(repeatedHeaderCourse).toHaveLength(8);
+    expect(topCourse[0]?.width).toBeCloseTo(headerWidth);
+    expect(topCourse[1]?.x).toBeCloseTo(headerStepX);
+    expect(topCourse[2]?.x).toBeCloseTo(headerStepX * 2);
+    expect(firstStretcherCourse[0]?.width).toBeCloseTo(400);
+    expect(firstStretcherCourse[1]?.x).toBeCloseTo(stretcherStepX);
+    expect(firstStretcherCourse[2]?.x).toBeCloseTo(stretcherStepX * 2);
+    expect(layout.repeatWidth).toBeCloseTo(1620);
+    expect(layout.repeatHeight).toBeCloseTo(630);
   });
 
   it('keeps stretcher layout as fixed half-offset alternating rows', () => {

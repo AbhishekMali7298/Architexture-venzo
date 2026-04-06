@@ -61,11 +61,11 @@ describe('pattern repeat semantics', () => {
 
   it('maps running-bond visible counts onto procedural repeat bounds', () => {
     const config = createPatternConfig('running_bond');
-    config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
-    config.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
     config.pattern.rows = 6;
-    config.pattern.columns = 2;
-    config.pattern.stretchers = 2;
+    config.pattern.columns = 4;
+    config.pattern.stretchers = 3;
 
     const layout = getPatternLayout(config);
     const repeatCounts = getPatternRepeatCounts(config);
@@ -73,9 +73,9 @@ describe('pattern repeat semantics', () => {
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
 
-    expect(repeatCounts).toEqual({ rows: 6, columns: 2 });
+    expect(repeatCounts).toEqual({ rows: 6, columns: 4 });
     expect(canonical).toBeNull();
-    expect(frame.repeatWidth).toBe((config.materials[0]!.width + config.joints.verticalSize) * 2);
+    expect(frame.repeatWidth).toBe((config.materials[0]!.width + config.joints.verticalSize) * 4);
     expect(frame.repeatHeight).toBe((config.materials[0]!.height + config.joints.horizontalSize) * 6);
     expect(hint).toEqual({
       width: Math.round(frame.repeatWidth),
@@ -85,19 +85,19 @@ describe('pattern repeat semantics', () => {
 
   it('swaps the repeat frame dimensions when pattern orientation is vertical', () => {
     const config = createPatternConfig('running_bond');
-    config.materials[0]!.width = SVG_PATTERN_MODULES.running_bond.referenceTileWidth;
-    config.materials[0]!.height = SVG_PATTERN_MODULES.running_bond.referenceTileHeight;
+    config.materials[0]!.width = 400;
+    config.materials[0]!.height = 100;
     config.pattern.rows = 6;
-    config.pattern.columns = 2;
+    config.pattern.columns = 4;
     config.pattern.orientation = 'vertical';
-    config.pattern.stretchers = 2;
+    config.pattern.stretchers = 3;
 
     const layout = getPatternLayout(config);
     const canonical = getCanonicalPatternRepeatBox(config);
     const frame = resolvePatternRepeatFrame(config, layout);
     const hint = getPatternDimensionsHintSize(config, layout);
     const horizontalCanonical = {
-      repeatWidth: (config.materials[0]!.width + config.joints.verticalSize) * 2,
+      repeatWidth: (config.materials[0]!.width + config.joints.verticalSize) * 4,
       repeatHeight: (config.materials[0]!.height + config.joints.horizontalSize) * 6,
     };
 

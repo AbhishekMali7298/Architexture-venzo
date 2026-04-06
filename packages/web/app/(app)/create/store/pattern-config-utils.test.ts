@@ -25,7 +25,7 @@ describe('pattern config utils', () => {
     expect(next.pattern.type).toBe('flemish_bond');
   });
 
-  it('applies the Common pattern default half-offset stretcher setting', () => {
+  it('applies the Common pattern default stretcher-course count', () => {
     const next = applyPatternTypeSelection(
       {
         ...DEFAULT_TEXTURE_CONFIG,

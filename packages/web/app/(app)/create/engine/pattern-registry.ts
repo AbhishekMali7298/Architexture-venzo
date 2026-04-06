@@ -197,30 +197,68 @@ function generateGridLayout(config: TextureConfig, definition: PatternEngineDefi
 
 const RUNNING_BOND_DEFINITION: PatternEngineDefinition = {
   tileTypes: {
-    base: { width: 1, height: 1 },
+    stretcher: { width: 1, height: 1 },
+    header: { width: 0.5, height: 1 },
   },
-  offsetX: (row, _col, tile, joint, config) => {
-    const cycle = Math.max(2, (config.pattern.stretchers ?? 1) + 1);
-    const stepX = tile.width + joint.vertical;
-    return (row % cycle) * (stepX / cycle);
-  },
+  offsetX: () => 0,
   offsetY: () => 0,
   rotation: () => 0,
-  getTileType: () => 'base',
-  colRange: (row, columns, tile, joint, config) => {
-    const cycle = Math.max(2, (config.pattern.stretchers ?? 1) + 1);
-    const stepX = tile.width + joint.vertical;
-    const offset = (row % cycle) * (stepX / cycle);
-    if (offset > 0.0001) {
-      return { start: -1, end: columns };
+  getTileType: () => 'stretcher',
+  customGenerate: (config) => {
+    const material = config.materials[0]!;
+    const rows = Math.max(1, config.pattern.rows);
+    const columns = Math.max(1, config.pattern.columns);
+    const jointH = config.joints.horizontalSize;
+    const jointV = config.joints.verticalSize;
+    const stepX = material.width + jointV;
+    const stepY = material.height + jointH;
+    const headerWidth = Math.max((material.width - jointV) / 2, 1);
+    const headerStepX = headerWidth + jointV;
+    const courseCycle = Math.max(2, (config.pattern.stretchers ?? 1) + 1);
+    const tiles: PatternTile[] = [];
+
+    for (let row = 0; row < rows; row++) {
+      const isHeaderCourse = row % courseCycle === 0;
+      const y = row * stepY;
+
+      if (isHeaderCourse) {
+        for (let column = 0; column < columns * 2; column++) {
+          tiles.push({
+            x: column * headerStepX,
+            y,
+            width: headerWidth,
+            height: material.height,
+            rotation: 0,
+            materialIndex: 0,
+          });
+        }
+        continue;
+      }
+
+      for (let column = 0; column < columns; column++) {
+        tiles.push({
+          x: column * stepX,
+          y,
+          width: material.width,
+          height: material.height,
+          rotation: 0,
+          materialIndex: 0,
+        });
+      }
     }
-    return { start: 0, end: columns - 1 };
+
+    return {
+      tiles,
+      strokes: [],
+      totalWidth: columns * stepX,
+      totalHeight: rows * stepY,
+      repeatWidth: columns * stepX,
+      repeatHeight: rows * stepY,
+      repeatOffsetX: 0,
+      repeatOffsetY: 0,
+      previewOutline: undefined,
+    };
   },
-  repeatSize: (rows, columns, tile, joint) => ({
-    width: columns * (tile.width + joint.vertical),
-    height: rows * (tile.height + joint.horizontal),
-  }),
-  preserveGridCoordinates: true,
 };
 
 const STACK_BOND_DEFINITION: PatternEngineDefinition = {

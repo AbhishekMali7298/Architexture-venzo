@@ -13,7 +13,7 @@ Source of truth in code:
 | --- | --- | --- | --- | --- | --- |
 | `none` | procedural | not used | not used | no | none |
 | `stack_bond` | svg-module | repeated stack-bond modules | repeated stack-bond modules | no | none |
-| `running_bond` | svg-module | repeated running-bond modules | repeated running-bond modules | no | none |
+| `running_bond` | procedural | visible common-bond courses | visible stretcher slots across the repeat | no | `stretchers` |
 | `stretcher_bond` | procedural | visible brick courses | visible brick slots before bleed clipping | yes | `stretchers` |
 | `flemish_bond` | svg-module | authored Flemish repeat modules | authored Flemish repeat modules | no | none |
 | `herringbone` | svg-module | repeated herringbone modules | repeated herringbone modules | no | none |
@@ -39,12 +39,14 @@ Source of truth in code:
 - `basketweave` remains procedural because `weaves` is now a live layout parameter. The geometry is still an approximation of Architextures rather than a direct replay of the authored SVG module.
 - `stretcher_bond` remains procedural because `stretchers` is a live layout parameter and the authored SVG module represents only one stagger configuration.
 - `herringbone` now uses the authored Architextures SVG module in all create-editor cases, preserving the landscape repeat, bleed geometry, and module phase.
-- `running_bond`, `stack_bond`, `flemish_bond`, `ashlar`, `hexagonal`, and `fishscale` now route through the Architextures-derived SVG module data for closer visual parity.
+- `running_bond` is procedural again because the live Common pattern uses a `stretchers` count to insert periodic half-width header courses; the checked-in running-bond SVG only represents a staggered stretcher bond.
+- `stack_bond`, `flemish_bond`, `ashlar`, `hexagonal`, and `fishscale` now route through the Architextures-derived SVG module data for closer visual parity.
 
 ## Fully Matched
 
 - `none`
 - `running_bond`
+  because the editor now matches the competitor Common-bond course rhythm procedurally, but the bundled `running_bond.svg` asset still depicts a staggered stretcher bond rather than the live Common layout
 - `stack_bond`
 - `flemish_bond`
 - `staggered`

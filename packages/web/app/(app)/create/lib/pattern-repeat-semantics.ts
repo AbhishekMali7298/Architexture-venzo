@@ -101,11 +101,11 @@ const PATTERN_SEMANTICS_OVERRIDES: Partial<Record<PatternType, Omit<PatternRepea
   },
   running_bond: {
     countMode: 'visible-counts',
-    rowsMeaning: 'Rows count visible brick courses inside the bordered repeat.',
-    columnsMeaning: 'Columns count visible brick slots across the bordered repeat.',
-    angleMeaning: 'Angle is not used by the common pattern.',
-    dimensionsMeaning: 'Width and height define the brick unit used for repeat framing.',
-    semanticHint: 'Rows and columns directly control visible running-bond counts in the bordered repeat.',
+    rowsMeaning: 'Rows count visible brick courses inside the bordered repeat, including periodic header courses.',
+    columnsMeaning: 'Columns count visible brick slots across the bordered repeat, using stretcher-course spacing.',
+    angleMeaning: 'Angle is not used by the common bond pattern.',
+    dimensionsMeaning: 'Width and height define the stretcher unit, while header courses split that width into two joint-aware halves.',
+    semanticHint: 'Rows and columns control the framed common-bond repeat, and Stretchers sets how many full stretcher courses appear between header courses.',
     materialWidthLabel: 'Brick Width',
     materialHeightLabel: 'Brick Height',
     rowFieldLabel: 'Rows',
@@ -311,13 +311,6 @@ function isUsableSvgModule(module: SvgPatternModule | undefined) {
 
 export function getSvgModuleScale(config: TextureConfig, module: SvgPatternModule): SvgModuleScale {
   const material = config.materials[0]!;
-
-  if (config.pattern.type === 'running_bond') {
-    return {
-      scaleX: Math.max(0.01, material.width / 300),
-      scaleY: Math.max(0.01, material.height / 100),
-    };
-  }
 
   if (config.pattern.type === 'chevron') {
     const pitch = getChevronRepeatPitch(config);
