@@ -5,22 +5,13 @@ import { immer } from 'zustand/middleware/immer';
 import type {
   TextureConfig,
   EditorTab,
-  PatternType,
-  PatternCategory,
-  PatternOrientation,
   EdgeStyle,
   ImageAdjustments,
   MaterialAssetRef,
   MaterialDefinition,
 } from '@textura/shared';
-import { getMaterialById, getPatternByType } from '@textura/shared';
-import {
-  isVerticalPatternOrientation,
-  supportsPatternOrientationToggle,
-  togglePatternOrientation,
-} from '../lib/pattern-orientation';
+import { getMaterialById } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
-import { applyPatternTypeSelection, sanitizePatternConfig } from './pattern-config-utils';
 
 // ======= History (Undo/Redo) =======
 
@@ -35,21 +26,6 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function snapCountByDirection(nextValue: number, previousValue: number, multiple: number, min: number, max: number) {
-  const safeMultiple = Math.max(1, multiple);
-  const clamped = clamp(nextValue, min, max);
-  if (safeMultiple === 1) {
-    return clamped;
-  }
-
-  const snapped =
-    clamped >= previousValue
-      ? Math.ceil(clamped / safeMultiple) * safeMultiple
-      : Math.floor(clamped / safeMultiple) * safeMultiple;
-
-  return clamp(snapped, min, max);
-}
-
 // ======= Store Interface =======
 
 export interface EditorState {
@@ -62,7 +38,6 @@ export interface EditorState {
   leftPanelOpen: boolean;
   zoom: number;
   showBorder: boolean;
-  tileBackground: boolean;
 
   // History
   undoStack: HistoryEntry[];
@@ -72,16 +47,6 @@ export interface EditorState {
   renderVersion: number;
 
   // ===== Actions =====
-
-  // Pattern
-  setPatternType: (type: PatternType, category: PatternCategory) => void;
-  setPatternRows: (rows: number) => void;
-  setPatternColumns: (columns: number) => void;
-  setPatternAngle: (angle: number) => void;
-  setPatternOrientation: (orientation: PatternOrientation) => void;
-  togglePatternOrientation: () => void;
-  setPatternStretchers: (stretchers: number) => void;
-  setPatternWeaves: (weaves: number) => void;
 
   // Material
   setMaterialColor: (color: string) => void;
@@ -119,7 +84,6 @@ export interface EditorState {
   toggleLeftPanel: () => void;
   setZoom: (zoom: number) => void;
   setShowBorder: (show: boolean) => void;
-  setTileBackground: (show: boolean) => void;
 
   // History
   undo: () => void;
@@ -172,96 +136,9 @@ export const useEditorStore = create<EditorState>()(
     leftPanelOpen: true,
     zoom: 1,
     showBorder: true,
-    tileBackground: true,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
-
-    // ===== Pattern Actions =====
-
-    setPatternType: (type, category) =>
-      set((s) => {
-        pushHistory(s, `Pattern → ${type}`);
-        s.config = applyPatternTypeSelection(s.config, type, category, s.activeMaterialIndex);
-        bumpRender(s);
-      }),
-
-    setPatternRows: (rows) =>
-      set((s) => {
-        pushHistory(s, `Rows → ${rows}`);
-        const definition = getPatternByType(s.config.pattern.type);
-        const range = definition?.parameterRanges.rows;
-        s.config.pattern.rows =
-          definition && range
-            ? snapCountByDirection(rows, s.config.pattern.rows, definition.rowMultiple, range.min, range.max)
-            : Math.max(1, Math.min(100, rows));
-        s.config = sanitizePatternConfig(s.config);
-        bumpRender(s);
-      }),
-
-    setPatternColumns: (columns) =>
-      set((s) => {
-        pushHistory(s, `Columns → ${columns}`);
-        const definition = getPatternByType(s.config.pattern.type);
-        const range = definition?.parameterRanges.columns;
-        s.config.pattern.columns =
-          definition && range
-            ? snapCountByDirection(columns, s.config.pattern.columns, definition.columnMultiple, range.min, range.max)
-            : Math.max(1, Math.min(100, columns));
-        s.config = sanitizePatternConfig(s.config);
-        bumpRender(s);
-      }),
-
-    setPatternAngle: (angle) =>
-      set((s) => {
-        pushHistory(s, `Angle → ${angle}°`);
-        s.config.pattern.angle = ((angle % 360) + 360) % 360;
-        s.config = sanitizePatternConfig(s.config);
-        bumpRender(s);
-      }),
-
-    setPatternOrientation: (orientation) =>
-      set((s) => {
-        if (!supportsPatternOrientationToggle(s.config.pattern.type) || s.config.pattern.orientation === orientation) {
-          return;
-        }
-
-        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(orientation) ? 'Vertical' : 'Horizontal'}`);
-        s.config.pattern.orientation = orientation;
-        bumpRender(s);
-      }),
-
-    togglePatternOrientation: () =>
-      set((s) => {
-        if (!supportsPatternOrientationToggle(s.config.pattern.type)) {
-          return;
-        }
-
-        const nextOrientation = togglePatternOrientation(s.config.pattern.orientation);
-        pushHistory(s, `Orientation → ${isVerticalPatternOrientation(nextOrientation) ? 'Vertical' : 'Horizontal'}`);
-        s.config.pattern.orientation = nextOrientation;
-        bumpRender(s);
-      }),
-
-    setPatternStretchers: (stretchers) =>
-      set((s) => {
-        const definition = getPatternByType(s.config.pattern.type);
-        const min = definition?.parameterRanges.stretchers?.min ?? 1;
-        const max = definition?.parameterRanges.stretchers?.max ?? 100;
-        pushHistory(s, `Stretchers → ${stretchers}`);
-        s.config.pattern.stretchers = clamp(stretchers, min, max);
-        bumpRender(s);
-      }),
-
-    setPatternWeaves: (weaves) =>
-      set((s) => {
-        const definition = getPatternByType(s.config.pattern.type);
-        const min = definition?.parameterRanges.weaves?.min ?? 1;
-        const max = definition?.parameterRanges.weaves?.max ?? 100;
-        pushHistory(s, `Weaves → ${weaves}`);
-        s.config.pattern.weaves = clamp(weaves, min, max);
-        bumpRender(s);
-      }),
 
     // ===== Material Actions =====
 
@@ -312,9 +189,6 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.width = Math.max(1, width);
-          if (s.config.pattern.type === 'fishscale') {
-            mat.height = mat.width;
-          }
         }
         bumpRender(s);
       }),
@@ -505,14 +379,14 @@ export const useEditorStore = create<EditorState>()(
           pushHistory(s, options?.label ?? 'Load project');
         }
 
-        s.config = sanitizePatternConfig(config);
+        s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
         bumpRender(s);
       }),
 
     resetProject: () =>
       set((s) => {
         pushHistory(s, 'Reset project');
-        s.config = sanitizePatternConfig(DEFAULT_TEXTURE_CONFIG);
+        s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
         bumpRender(s);
       }),
 
@@ -525,11 +399,6 @@ export const useEditorStore = create<EditorState>()(
     setShowBorder: (show) =>
       set((s) => {
         s.showBorder = show;
-        bumpRender(s);
-      }),
-    setTileBackground: (show) =>
-      set((s) => {
-        s.tileBackground = show;
         bumpRender(s);
       }),
 

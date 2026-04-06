@@ -2,14 +2,9 @@
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/pattern-renderer';
-import {
-  getMaterialRenderableColor,
-  getMaterialRenderableImageUrl,
-  getMaterialSourceRenderableImageUrl,
-} from './material-assets';
-import { loadMaterialImage } from './material-image-cache';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
-import { resolveEdgeProfiles } from './edge-profile-cache';
+import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
+import { loadMaterialImage } from './material-image-cache';
 
 function downloadUrl(url: string, filename: string) {
   const anchor = document.createElement('a');
@@ -18,17 +13,10 @@ function downloadUrl(url: string, filename: string) {
   anchor.click();
 }
 
-function createSlug(input: string) {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 export async function exportProjectJson(config: TextureConfig) {
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  downloadUrl(url, `textura-project-${createSlug(config.pattern.type)}.json`);
+  downloadUrl(url, 'textura-project.json');
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
@@ -47,22 +35,6 @@ async function resolvePreviewMaterialImage(config: TextureConfig): Promise<HTMLI
   }
 }
 
-async function resolvePreviewJointMaterialImage(config: TextureConfig): Promise<HTMLImageElement | null> {
-  const imageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
-  if (!imageUrl) return null;
-
-  try {
-    return await loadMaterialImage(imageUrl);
-  } catch {
-    return null;
-  }
-}
-
-export async function exportPreviewPng(config: TextureConfig) {
-  const canvas = await renderExportCanvas(config);
-  downloadUrl(canvas.toDataURL('image/png'), `textura-preview-${createSlug(config.pattern.type)}.png`);
-}
-
 async function renderExportCanvas(config: TextureConfig) {
   const canvas = document.createElement('canvas');
   canvas.width = config.output.widthPx;
@@ -74,9 +46,11 @@ async function renderExportCanvas(config: TextureConfig) {
   }
 
   const materialImage = await resolvePreviewMaterialImage(config);
-  const jointMaterialImage = await resolvePreviewJointMaterialImage(config);
-  const edgeProfiles = await resolveEdgeProfiles(config.materials[0]?.edges.style ?? 'none');
-  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, jointMaterialImage, edgeProfiles });
+  renderToCanvas(ctx, config, canvas.width, canvas.height, {
+    materialImage,
+    backgroundFill: '#ffffff',
+  });
+
   return canvas;
 }
 
@@ -93,23 +67,25 @@ function createMapCanvas(config: TextureConfig) {
   return { canvas, ctx };
 }
 
+export async function exportPreviewPng(config: TextureConfig) {
+  const canvas = await renderExportCanvas(config);
+  downloadUrl(canvas.toDataURL('image/png'), 'textura-preview.png');
+}
+
 export async function exportAlbedoPng(config: TextureConfig) {
-  const { canvas, ctx } = createMapCanvas(config);
-  const materialImage = await resolvePreviewMaterialImage(config);
-  const edgeProfiles = await resolveEdgeProfiles(config.materials[0]?.edges.style ?? 'none');
-  renderToCanvas(ctx, config, canvas.width, canvas.height, { materialImage, edgeProfiles });
-  downloadUrl(canvas.toDataURL('image/png'), `textura-albedo-${createSlug(config.pattern.type)}.png`);
+  const canvas = await renderExportCanvas(config);
+  downloadUrl(canvas.toDataURL('image/png'), 'textura-albedo.png');
 }
 
 export async function exportPreviewJpg(config: TextureConfig) {
   const canvas = await renderExportCanvas(config);
-  downloadUrl(canvas.toDataURL('image/jpeg', 0.92), `textura-preview-${createSlug(config.pattern.type)}.jpg`);
+  downloadUrl(canvas.toDataURL('image/jpeg', 0.92), 'textura-preview.jpg');
 }
 
 export async function exportPreviewSvg(config: TextureConfig) {
   const svg = await buildPreviewSvg(config);
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-  downloadUrl(url, `textura-preview-${createSlug(config.pattern.type)}.svg`);
+  downloadUrl(url, 'textura-preview.svg');
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
@@ -165,7 +141,7 @@ export async function exportPreviewPdf(config: TextureConfig) {
   const vectorPdf = await buildVectorPdf(config);
   if (vectorPdf) {
     const vectorUrl = URL.createObjectURL(vectorPdf);
-    downloadUrl(vectorUrl, `textura-preview-${createSlug(config.pattern.type)}.pdf`);
+    downloadUrl(vectorUrl, 'textura-preview.pdf');
     window.setTimeout(() => URL.revokeObjectURL(vectorUrl), 0);
     return;
   }
@@ -175,7 +151,7 @@ export async function exportPreviewPdf(config: TextureConfig) {
   const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) => char.charCodeAt(0));
   const blob = buildPdfWithJpeg(jpegBytes, canvas.width, canvas.height);
   const url = URL.createObjectURL(blob);
-  downloadUrl(url, `textura-preview-${createSlug(config.pattern.type)}.pdf`);
+  downloadUrl(url, 'textura-preview.pdf');
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
@@ -206,7 +182,7 @@ function exportPlaceholderMap(config: TextureConfig, kind: 'bump' | 'roughness')
   }
   ctx.globalAlpha = 1;
 
-  downloadUrl(canvas.toDataURL('image/png'), `textura-${kind}-${createSlug(config.pattern.type)}.png`);
+  downloadUrl(canvas.toDataURL('image/png'), `textura-${kind}.png`);
 }
 
 export function exportBumpPlaceholderPng(config: TextureConfig) {

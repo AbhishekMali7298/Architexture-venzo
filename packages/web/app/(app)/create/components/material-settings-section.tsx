@@ -1,34 +1,8 @@
 'use client';
 
-import type { ImageAdjustments } from '@textura/shared';
-import type { EdgeStyle } from '@textura/shared';
-import { useState } from 'react';
-import { CheckboxField, ColorField, NumberField, RangeField, SectionCard, SelectField, SliderField } from './field-controls';
+import { ColorField, RangeField, SectionCard } from './field-controls';
 import { MaterialThumb } from './material-thumb';
-import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
-
-const EDGE_STYLE_OPTIONS: { value: EdgeStyle; label: string; control: 'none' | 'scale' | 'width' }[] = [
-  { value: 'none', label: 'None', control: 'none' },
-  { value: 'fine', label: 'Fine', control: 'scale' },
-  { value: 'handmade', label: 'Handmade', control: 'scale' },
-  { value: 'rough_brick', label: 'Rough Brick', control: 'scale' },
-  { value: 'long_brick', label: 'Long Brick', control: 'scale' },
-  { value: 'rough', label: 'Rough', control: 'scale' },
-  { value: 'uneven', label: 'Uneven', control: 'scale' },
-  { value: 'chamfer', label: 'Chamfer', control: 'width' },
-  { value: 'fillet', label: 'Fillet', control: 'width' },
-  { value: 'cove', label: 'Cove', control: 'width' },
-  { value: 'standing_seam', label: 'Standing Seam', control: 'width' },
-  { value: 'ogee', label: 'Ogee', control: 'width' },
-  { value: 'waterfall', label: 'Waterfall', control: 'width' },
-  { value: 'double_bullnose', label: 'Double Bullnose', control: 'width' },
-  { value: 'wirecut', label: 'Wirecut', control: 'scale' },
-  { value: 'recessed', label: 'Recessed', control: 'width' },
-  { value: 'protruding', label: 'Protruding', control: 'width' },
-  { value: 'rough_stone', label: 'Rough Stone', control: 'scale' },
-  { value: 'parged', label: 'Parged', control: 'scale' },
-];
 
 export function MaterialSettingsSection({
   materialName,
@@ -36,103 +10,21 @@ export function MaterialSettingsSection({
   materialColor,
   materialThumbnailUrl,
   materialTint,
-  width,
-  height,
-  minWidth,
-  minHeight,
-  widthLabel = 'Width',
-  heightLabel = 'Height',
-  showHeightInput = true,
-  showMinDimensions = false,
-  dimensionHint,
   toneVariation,
-  edgeStyle,
-  edgeScale,
-  edgeProfileWidth,
-  jointTint,
-  jointMaterialName,
-  jointMaterialCategory,
-  jointMaterialColor,
-  jointMaterialThumbnailUrl,
-  jointHorizontal,
-  jointVertical,
-  linkedJoints,
-  recessJoints,
-  concaveJoints,
-  jointAdjustments,
-  units,
   onOpenPicker,
   onMaterialTintChange,
-  onWidthChange,
-  onHeightChange,
-  onMinWidthChange,
-  onMinHeightChange,
   onToneVariationChange,
-  onEdgeStyleChange,
-  onEdgeScaleChange,
-  onEdgeProfileWidthChange,
-  onJointTintChange,
-  onOpenJointMaterialPicker,
-  onJointHorizontalChange,
-  onJointVerticalChange,
-  onLinkedJointsChange,
-  onRecessJointsChange,
-  onConcaveJointsChange,
-  onJointAdjustmentChange,
 }: {
   materialName: string;
   materialCategory: string;
   materialColor: string;
   materialThumbnailUrl?: string | null;
   materialTint: string | null;
-  width: number;
-  height: number;
-  minWidth?: number;
-  minHeight?: number;
-  widthLabel?: string;
-  heightLabel?: string;
-  showHeightInput?: boolean;
-  showMinDimensions?: boolean;
-  dimensionHint?: string;
   toneVariation: number;
-  edgeStyle: EdgeStyle;
-  edgeScale: number;
-  edgeProfileWidth: number;
-  jointTint: string | null;
-  jointMaterialName: string;
-  jointMaterialCategory?: string;
-  jointMaterialColor: string;
-  jointMaterialThumbnailUrl?: string | null;
-  jointHorizontal: number;
-  jointVertical: number;
-  linkedJoints: boolean;
-  recessJoints: boolean;
-  concaveJoints: boolean;
-  jointAdjustments: ImageAdjustments;
-  units: 'mm' | 'inches';
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
-  onWidthChange: (value: number) => void;
-  onHeightChange: (value: number) => void;
-  onMinWidthChange?: (value: number) => void;
-  onMinHeightChange?: (value: number) => void;
   onToneVariationChange: (value: number) => void;
-  onEdgeStyleChange: (value: EdgeStyle) => void;
-  onEdgeScaleChange: (value: number) => void;
-  onEdgeProfileWidthChange: (value: number) => void;
-  onJointTintChange: (value: string | null) => void;
-  onOpenJointMaterialPicker: () => void;
-  onJointHorizontalChange: (value: number) => void;
-  onJointVerticalChange: (value: number) => void;
-  onLinkedJointsChange: (value: boolean) => void;
-  onRecessJointsChange: (value: boolean) => void;
-  onConcaveJointsChange: (value: boolean) => void;
-  onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
 }) {
-  const [showJointAdjustments, setShowJointAdjustments] = useState(false);
-  const [showEdgeSettings, setShowEdgeSettings] = useState(false);
-  const measurementUnit = units === 'inches' ? 'in' : 'mm';
-  const edgeOption = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle) ?? EDGE_STYLE_OPTIONS[0]!;
   const toneVariationUi = Number((toneVariation / 200).toFixed(2));
 
   return (
@@ -145,52 +37,7 @@ export function MaterialSettingsSection({
         <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact />
       </button>
 
-      <div className={styles.gridTwo}>
-        <NumberField label={widthLabel} value={width} min={1} max={5000} unit={measurementUnit} onChange={onWidthChange} />
-        {showHeightInput ? (
-          <NumberField label={heightLabel} value={height} min={1} max={5000} unit={measurementUnit} onChange={onHeightChange} />
-        ) : null}
-      </div>
-      {showMinDimensions ? (
-        <div className={styles.gridTwo}>
-          <NumberField
-            label="Min Width"
-            value={minWidth ?? width}
-            min={1}
-            max={5000}
-            unit={measurementUnit}
-            onChange={(value) => onMinWidthChange?.(value)}
-          />
-          <NumberField
-            label="Min Height"
-            value={minHeight ?? height}
-            min={1}
-            max={5000}
-            unit={measurementUnit}
-            onChange={(value) => onMinHeightChange?.(value)}
-          />
-        </div>
-      ) : null}
-      {dimensionHint ? <div className={styles.hint}>{dimensionHint}</div> : null}
-
       <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
-
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>Edges</span>
-        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={() => setShowEdgeSettings(true)}>
-          <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{edgeOption.label}</span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
-              {edgeOption.control === 'scale'
-                ? `Scale ${edgeScale}`
-                : edgeOption.control === 'width'
-                  ? `Width ${edgeProfileWidth}`
-                  : 'Straight perimeter'}
-            </span>
-          </span>
-          <span aria-hidden="true">▾</span>
-        </button>
-      </div>
 
       <RangeField
         label="Tone Variation"
@@ -202,184 +49,7 @@ export function MaterialSettingsSection({
         onChange={(value) => onToneVariationChange(Math.round(value * 200))}
       />
 
-      <div className={styles.sectionDivider} />
-
-      <div className={styles.subsectionTitle}>Joints</div>
-      <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenJointMaterialPicker}>
-        <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-          <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{jointMaterialName}</span>
-          {jointMaterialCategory ? (
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{jointMaterialCategory}</span>
-          ) : null}
-        </span>
-        <MaterialThumb color={jointMaterialColor} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact />
-      </button>
-
-      <ColorField
-        label="Tint"
-        value={jointTint ?? '#FFFFFF'}
-        onChange={(value) => onJointTintChange(value || null)}
-        action={
-          <button
-            className={styles.iconButton}
-            type="button"
-            aria-label="Open joint adjustments"
-            onClick={() => setShowJointAdjustments(true)}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M4 21v-7" />
-              <path d="M4 10V3" />
-              <path d="M12 21v-9" />
-              <path d="M12 8V3" />
-              <path d="M20 21v-4" />
-              <path d="M20 13V3" />
-              <path d="M1 10h6" />
-              <path d="M9 8h6" />
-              <path d="M17 13h6" />
-            </svg>
-          </button>
-        }
-      />
-
-      <div className={styles.jointDimensionRow}>
-        <NumberField
-          label="Horizontal"
-          value={jointHorizontal}
-          min={0}
-          max={500}
-          unit={measurementUnit}
-          onChange={onJointHorizontalChange}
-        />
-        <button
-          className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
-          type="button"
-          aria-label={linkedJoints ? 'Unlock joint dimensions' : 'Lock joint dimensions'}
-          aria-pressed={linkedJoints}
-          onClick={() => onLinkedJointsChange(!linkedJoints)}
-        >
-          {linkedJoints ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="5" y="11" width="14" height="10" rx="2" />
-              <path d="M8 11V8a4 4 0 1 1 8 0v3" />
-            </svg>
-          ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="5" y="11" width="14" height="10" rx="2" />
-              <path d="M16 11V8a4 4 0 1 0-8 0" />
-            </svg>
-          )}
-        </button>
-        <NumberField
-          label="Vertical"
-          value={jointVertical}
-          min={0}
-          max={500}
-          unit={measurementUnit}
-          onChange={onJointVerticalChange}
-        />
-      </div>
-
-      <CheckboxField label="Recess Joints" checked={recessJoints} onChange={onRecessJointsChange} />
-      <CheckboxField label="Concave Joints" checked={concaveJoints} onChange={onConcaveJointsChange} />
-
-      {showJointAdjustments ? (
-        <Modal onClose={() => setShowJointAdjustments(false)}>
-          <div className={styles.popoverCard}>
-            <div className={styles.popoverHeader}>
-              <h3 className={styles.popoverTitle}>Joint Adjustments</h3>
-              <button
-                className={styles.popoverCloseButton}
-                type="button"
-                onClick={() => setShowJointAdjustments(false)}
-                aria-label="Close joint adjustments"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className={styles.adjustmentsPanel}>
-              <SliderField
-                label="Brightness"
-                value={jointAdjustments.brightness}
-                min={-100}
-                max={100}
-                onChange={(value) => onJointAdjustmentChange('brightness', value)}
-                onReset={() => onJointAdjustmentChange('brightness', 0)}
-              />
-              <SliderField
-                label="Contrast"
-                value={jointAdjustments.contrast}
-                min={-100}
-                max={100}
-                onChange={(value) => onJointAdjustmentChange('contrast', value)}
-                onReset={() => onJointAdjustmentChange('contrast', 0)}
-              />
-              <SliderField
-                label="Hue"
-                value={jointAdjustments.hue}
-                min={-180}
-                max={180}
-                onChange={(value) => onJointAdjustmentChange('hue', value)}
-                onReset={() => onJointAdjustmentChange('hue', 0)}
-              />
-              <SliderField
-                label="Saturation"
-                value={jointAdjustments.saturation}
-                min={-100}
-                max={100}
-                onChange={(value) => onJointAdjustmentChange('saturation', value)}
-                onReset={() => onJointAdjustmentChange('saturation', 0)}
-              />
-              <CheckboxField
-                label="Invert Colors"
-                checked={jointAdjustments.invertColors}
-                onChange={(value) => onJointAdjustmentChange('invertColors', value)}
-              />
-            </div>
-          </div>
-        </Modal>
-      ) : null}
-
-      {showEdgeSettings ? (
-        <Modal onClose={() => setShowEdgeSettings(false)}>
-          <div className={styles.popoverCard}>
-            <div className={styles.popoverHeader}>
-              <h3 className={styles.popoverTitle}>Edge Settings</h3>
-              <button
-                className={styles.popoverCloseButton}
-                type="button"
-                onClick={() => setShowEdgeSettings(false)}
-                aria-label="Close edge settings"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className={styles.adjustmentsPanel}>
-              <SelectField
-                label="Style"
-                value={edgeStyle}
-                options={EDGE_STYLE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
-                onChange={(value) => onEdgeStyleChange(value as EdgeStyle)}
-              />
-
-              {edgeOption.control === 'scale' ? (
-                <RangeField label="Scale" value={edgeScale} min={0} max={100} onChange={onEdgeScaleChange} />
-              ) : null}
-
-              {edgeOption.control === 'width' ? (
-                <NumberField
-                  label="Width"
-                  value={edgeProfileWidth}
-                  min={0}
-                  max={100}
-                  onChange={onEdgeProfileWidthChange}
-                />
-              ) : null}
-            </div>
-          </div>
-        </Modal>
-      ) : null}
+      <div className={styles.hint}>Pattern controls are removed. This editor is now a material-only baseline.</div>
     </SectionCard>
   );
 }

@@ -19,7 +19,7 @@ export function CreateEditorShell({
           <div className={styles.brandMark}>TX</div>
           <div className={styles.brandText}>
             <span className={styles.brandTitle}>Create Texture</span>
-            <span className={styles.brandSubtitle}>Pattern-first material editor</span>
+            <span className={styles.brandSubtitle}>Material-only editor baseline</span>
           </div>
         </div>
         <div className={styles.headerActions}>

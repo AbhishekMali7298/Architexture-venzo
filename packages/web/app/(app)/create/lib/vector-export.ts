@@ -1,9 +1,7 @@
 'use client';
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
-import { buildTilePathData, computePatternRenderFrame, getTileRenderBox, polygonPathData } from '../engine/render-geometry';
-import { getJointRenderableColor, getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
-import { isAssetBackedEdgeStyle } from './edge-style-assets';
+import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 
 function escapeXml(value: string) {
   return value
@@ -18,10 +16,6 @@ function rgbToPdf(color: string) {
   const value = Number.parseInt(normalized, 16);
   const channels = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
   return channels.map((channel) => (channel / 255).toFixed(4)).join(' ');
-}
-
-function svgNumber(value: number) {
-  return Number.isFinite(value) ? Number.parseFloat(value.toFixed(3)) : 0;
 }
 
 async function urlToDataUrl(url: string) {
@@ -53,78 +47,19 @@ async function getEmbeddedMaterialAsset(config: TextureConfig) {
   }
 }
 
-function getEffectiveJointFill(config: TextureConfig) {
-  return getJointRenderableColor(config.joints.materialSource, config.joints.tint, config.joints.adjustments);
-}
-
 export async function buildPreviewSvg(config: TextureConfig) {
   const width = config.output.widthPx;
   const height = config.output.heightPx;
-  const frame = computePatternRenderFrame(config, width, height);
   const material = config.materials[0]!;
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
-  const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
+  const fallbackFill = escapeXml(getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'));
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
-  const jointFill = escapeXml(getEffectiveJointFill(config));
-  const frameTransform = frame.verticalOrientation
-    ? `translate(${svgNumber(frame.offsetX + frame.repeatWidth * frame.scale)} ${svgNumber(frame.offsetY)}) rotate(90)`
-    : `translate(${svgNumber(frame.offsetX)} ${svgNumber(frame.offsetY)})`;
-  const defs: string[] = [];
-
-  if (embeddedMaterial) {
-    defs.push(
-      [
-        `<pattern id="material-fill" patternUnits="userSpaceOnUse" width="${svgNumber(Math.max(material.width * frame.scale, 1))}" height="${svgNumber(Math.max(material.height * frame.scale, 1))}">`,
-        `<image href="${embeddedMaterial}" width="${svgNumber(Math.max(material.width * frame.scale, 1))}" height="${svgNumber(Math.max(material.height * frame.scale, 1))}" preserveAspectRatio="none" />`,
-        '</pattern>',
-      ].join(''),
-    );
-  }
-
-  defs.push(
-    `<clipPath id="pattern-repeat-clip"><rect x="${svgNumber(frame.offsetX)}" y="${svgNumber(frame.offsetY)}" width="${svgNumber(frame.repeatWidth * frame.scale)}" height="${svgNumber(frame.repeatHeight * frame.scale)}" /></clipPath>`,
-  );
-
-  const tileMarkup: string[] = [];
-  for (const tile of frame.layout.tiles) {
-    const materialForTile = config.materials[tile.materialIndex] ?? material;
-    const tilePath = buildTilePathData(tile, config, frame.scale);
-    const tileFill = embeddedMaterial ? 'url(#material-fill)' : escapeXml(fallbackFill);
-    const materialStroke = materialForTile.edges.style !== 'none' && !tile.skipEdgeStroke
-      ? ` stroke="rgba(0,0,0,0.12)" stroke-width="1"`
-      : '';
-    const translateX = svgNumber(frame.drawOffsetX + tile.x * frame.scale);
-    const translateY = svgNumber(frame.drawOffsetY + tile.y * frame.scale);
-    const rotate = tile.rotation !== 0
-      ? ` rotate(${svgNumber(tile.rotation)} ${svgNumber((tile.width * frame.scale) / 2)} ${svgNumber((tile.height * frame.scale) / 2)})`
-      : '';
-
-    tileMarkup.push(
-      `<g transform="translate(${translateX} ${translateY})${rotate}"><path d="${tilePath}" fill="${tileFill}"${materialStroke} /></g>`,
-    );
-  }
-
-  const strokeMarkup = frame.layout.strokes
-    .map((stroke) => {
-      const scaledPoints = stroke.points.map((point) => ({
-        x: frame.drawOffsetX + point.x * frame.scale,
-        y: frame.drawOffsetY + point.y * frame.scale,
-      }));
-      const pathData = stroke.closed
-        ? polygonPathData(scaledPoints)
-        : scaledPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${svgNumber(point.x)} ${svgNumber(point.y)}`).join(' ');
-
-      return `<path d="${pathData}" fill="none" stroke="${jointFill}" stroke-width="${svgNumber(
-        stroke.width ? Math.max(1, stroke.width * frame.scale) : Math.max(1, ((config.joints.horizontalSize + config.joints.verticalSize) / 2) * frame.scale),
-      )}" stroke-linejoin="round" stroke-linecap="round" />`;
-    })
-    .join('');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    defs.length > 0 ? `<defs>${defs.join('')}</defs>` : '',
-    `<rect x="${svgNumber(frame.offsetX)}" y="${svgNumber(frame.offsetY)}" width="${svgNumber(frame.repeatWidth * frame.scale)}" height="${svgNumber(frame.repeatHeight * frame.scale)}" fill="${jointFill}" />`,
-    `<g clip-path="url(#pattern-repeat-clip)"><g transform="${frameTransform}">${tileMarkup.join('')}${strokeMarkup}</g></g>`,
+    embeddedMaterial
+      ? `<image href="${embeddedMaterial}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="none" />`
+      : `<rect x="0" y="0" width="${width}" height="${height}" fill="${fallbackFill}" />`,
     '</svg>',
   ].join('');
 }
@@ -133,56 +68,28 @@ export async function buildVectorPdf(config: TextureConfig) {
   const material = config.materials[0];
   const definition = material?.definitionId ? getMaterialById(material.definitionId) : null;
   const imageUrl = material ? getMaterialRenderableImageUrl(material, definition) : null;
-  if (imageUrl) {
-    return null;
-  }
-  if (material && isAssetBackedEdgeStyle(material.edges.style)) {
+  if (imageUrl || !material) {
     return null;
   }
 
   const width = config.output.widthPx;
   const height = config.output.heightPx;
-  const frame = computePatternRenderFrame(config, width, height);
-  if (frame.verticalOrientation) {
-    return null;
-  }
-  const canUseSimpleVectorPdf = frame.layout.tiles.every((tile) => {
-    const { cornerRadius, clipPath } = getTileRenderBox(tile, config, frame.scale);
-    return !clipPath?.length && cornerRadius === 0 && tile.rotation === 0;
-  }) && frame.layout.strokes.length === 0;
-  if (!canUseSimpleVectorPdf) {
-    return null;
-  }
-  const fill = getMaterialRenderableColor(material?.source ?? { type: 'solid', color: '#b8b0a8' }, definition?.swatchColor ?? '#b8b0a8');
-  const joint = getEffectiveJointFill(config);
-  const commands: string[] = [
+  const fill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
+  const commands = [
     'q',
-    `${svgNumber(frame.offsetX)} ${svgNumber(height - frame.offsetY - frame.repeatHeight * frame.scale)} ${svgNumber(frame.repeatWidth * frame.scale)} ${svgNumber(frame.repeatHeight * frame.scale)} re W n`,
-    `${rgbToPdf(joint)} rg`,
-    `${svgNumber(frame.offsetX)} ${svgNumber(height - frame.offsetY - frame.repeatHeight * frame.scale)} ${svgNumber(frame.repeatWidth * frame.scale)} ${svgNumber(frame.repeatHeight * frame.scale)} re f`,
-  ];
-
-  for (const tile of frame.layout.tiles) {
-    const { tileX, tileY, tileWidth, tileHeight } = getTileRenderBox(tile, config, frame.scale);
-    const x = frame.drawOffsetX + tile.x * frame.scale + tileX;
-    const y = frame.drawOffsetY + tile.y * frame.scale + tileY;
-
-    commands.push(`${rgbToPdf(fill)} rg`);
-    commands.push(
-      `${svgNumber(x)} ${svgNumber(height - y - tileHeight)} ${svgNumber(tileWidth)} ${svgNumber(tileHeight)} re f`,
-    );
-  }
-  commands.push('Q');
+    `${rgbToPdf(fill)} rg`,
+    `0 0 ${width} ${height} re f`,
+    'Q',
+  ].join('\n');
 
   const encoder = new TextEncoder();
-  const content = commands.join('\n');
   const objects = [
     encoder.encode('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n'),
     encoder.encode('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n'),
     encoder.encode(
       `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Contents 4 0 R >>\nendobj\n`,
     ),
-    encoder.encode(`4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`),
+    encoder.encode(`4 0 obj\n<< /Length ${commands.length} >>\nstream\n${commands}\nendstream\nendobj\n`),
   ];
 
   const header = encoder.encode('%PDF-1.4\n');

@@ -9,11 +9,11 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   units: 'mm',
 
   pattern: {
-    type: 'stack_bond',
-    category: 'brick_bond',
+    type: 'none',
+    category: 'random',
     orientation: 'horizontal',
-    rows: 6,
-    columns: 4,
+    rows: 1,
+    columns: 1,
     angle: 0,
     stretchers: 1,
     weaves: 1,

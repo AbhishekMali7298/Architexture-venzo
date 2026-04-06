@@ -4,20 +4,12 @@ import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
 export function SettingsModal({
-  units,
-  tileBackground,
   showBorder,
   onClose,
-  onUnitsChange,
-  onTileBackgroundChange,
   onShowBorderChange,
 }: {
-  units: 'mm' | 'inches';
-  tileBackground: boolean;
   showBorder: boolean;
   onClose: () => void;
-  onUnitsChange: (units: 'mm' | 'inches') => void;
-  onTileBackgroundChange: (checked: boolean) => void;
   onShowBorderChange: (checked: boolean) => void;
 }) {
   return (
@@ -35,47 +27,17 @@ export function SettingsModal({
 
         <div className={styles.settingsModalBody}>
           <div className={styles.settingsIntro}>
-            <h2 className={styles.settingsHeading}>Architextures Seamless Texture Editor</h2>
+            <h2 className={styles.settingsHeading}>Create Texture</h2>
             <p className={styles.settingsText}>
-              Use the control panel to adjust parameters and create your desired texture.
+              This stripped-down editor only previews the active material while the pattern system is removed.
             </p>
           </div>
 
           <div className={styles.settingsSection}>
-            <div className={styles.settingsSectionTitle}>Units</div>
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                name="units"
-                checked={units === 'mm'}
-                onChange={() => onUnitsChange('mm')}
-              />
-              <span>Millimetres (mm)</span>
-            </label>
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                name="units"
-                checked={units === 'inches'}
-                onChange={() => onUnitsChange('inches')}
-              />
-              <span>Inches (in)</span>
-            </label>
-          </div>
-
-          <div className={styles.settingsSection}>
-            <div className={styles.settingsSectionTitle}>User Interface</div>
-            <label className={styles.checkboxRow}>
-              <input
-                type="checkbox"
-                checked={tileBackground}
-                onChange={(event) => onTileBackgroundChange(event.target.checked)}
-              />
-              <span>Tile texture in background</span>
-            </label>
+            <div className={styles.settingsSectionTitle}>Preview</div>
             <label className={styles.checkboxRow}>
               <input type="checkbox" checked={showBorder} onChange={(event) => onShowBorderChange(event.target.checked)} />
-              <span>Show image border</span>
+              <span>Show preview border</span>
             </label>
           </div>
         </div>
