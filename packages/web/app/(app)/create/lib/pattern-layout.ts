@@ -155,8 +155,41 @@ function getHerringboneTiles(config: TextureConfig) {
   };
 }
 
+function getFlemishTiles(config: TextureConfig) {
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const fullWidth = tileWidth;
+  const halfWidth = (tileWidth - jointVertical) / 2;
+  const fullStepX = fullWidth + jointVertical;
+  const halfStepX = halfWidth + jointVertical;
+  const rowStepY = tileHeight + jointHorizontal;
+  const oddRowOffsetX = -(fullWidth * 0.75 + jointVertical * 0.75);
+  const tiles: PatternTile[] = [];
+
+  let totalWidth = 0;
+
+  for (let row = 0; row < rows; row++) {
+    let cursorX = row % 2 === 1 ? oddRowOffsetX : 0;
+    const cursorY = row * rowStepY;
+
+    for (let column = 0; column < columns; column++) {
+      const currentWidth = column % 2 === 0 ? fullWidth : halfWidth;
+      tiles.push(buildTileFromAnchor(cursorX, cursorY, 0, currentWidth, tileHeight));
+      cursorX += currentWidth + jointVertical;
+    }
+
+    totalWidth = Math.max(totalWidth, cursorX);
+  }
+
+  return {
+    tiles,
+    totalWidth,
+    totalHeight: rows * rowStepY,
+  };
+}
+
 export function getPatternLayout(config: TextureConfig): PatternLayout {
   const baseLayout =
+    config.pattern.type === 'flemish_bond' ? getFlemishTiles(config) :
     config.pattern.type === 'stretcher_bond' ? getStretcherTiles(config) :
     config.pattern.type === 'herringbone' ? getHerringboneTiles(config) :
     getStackTiles(config);
@@ -167,4 +200,3 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
     totalHeight: roundLayoutValue(baseLayout.totalHeight),
   };
 }
-
