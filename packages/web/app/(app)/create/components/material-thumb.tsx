@@ -14,12 +14,14 @@ export function MaterialThumb({
   alt,
   size = 52,
   compact = false,
+  objectFit = 'cover',
 }: {
   color: string;
   src?: string | null;
   alt?: string;
   size?: number;
   compact?: boolean;
+  objectFit?: 'cover' | 'contain';
 }) {
   return (
     <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
@@ -30,8 +32,8 @@ export function MaterialThumb({
           style={{
             width: '100%',
             height: '100%',
-            borderRadius: '5px',
-            objectFit: 'cover',
+            borderRadius: objectFit === 'contain' ? '5px' : '50%',
+            objectFit,
           }}
         />
       ) : (

@@ -946,13 +946,6 @@
   background: linear-gradient(180deg, #fff, #f8fafc);
 }
 
-.thumbFrame img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
 .thumbFrameCompact {
   width: 44px;
   height: 44px;
