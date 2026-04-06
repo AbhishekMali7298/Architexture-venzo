@@ -9,7 +9,9 @@ import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
+import { StackSettingsSection } from './components/stack-settings-section';
 import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
+import { getStackLayout } from './lib/stack-pattern';
 import {
   exportPreviewJpg,
   exportPreviewPdf,
@@ -29,8 +31,14 @@ function decodeConfig(encoded: string): TextureConfig {
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
+  const setPatternRows = useEditorStore((state) => state.setPatternRows);
+  const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
+  const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
+  const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
+  const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
+  const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
@@ -75,6 +83,8 @@ export default function CreatePage() {
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
+  const stackLayout = useMemo(() => getStackLayout(config), [config]);
+  const stackHint = `${Math.round(stackLayout.totalWidth)} × ${Math.round(stackLayout.totalHeight)} mm`;
 
   if (!isReady) {
     return null;
@@ -123,15 +133,32 @@ export default function CreatePage() {
           </div>
         }
       >
+        <StackSettingsSection
+          rows={config.pattern.rows}
+          columns={config.pattern.columns}
+          previewUrl="/patterns/stack_bond.svg"
+          widthHint={stackHint}
+          onRowsChange={setPatternRows}
+          onColumnsChange={setPatternColumns}
+        />
+
         <MaterialSettingsSection
           materialName={selectedMaterial?.name ?? 'Custom material'}
           materialCategory={materialCategory}
           materialColor={materialColor}
           materialThumbnailUrl={materialThumbnailUrl}
           materialTint={material.tint}
+          width={material.width}
+          height={material.height}
           toneVariation={material.toneVariation}
+          jointHorizontal={config.joints.horizontalSize}
+          jointVertical={config.joints.verticalSize}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
+          onWidthChange={setMaterialWidth}
+          onHeightChange={setMaterialHeight}
+          onJointHorizontalChange={setJointHorizontalSize}
+          onJointVerticalChange={setJointVerticalSize}
           onToneVariationChange={setToneVariation}
         />
       </CreateEditorShell>

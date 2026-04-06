@@ -1,5 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getStackLayout } from '../lib/stack-pattern';
 import { fillMaterialSurface } from './material-fill';
 
 export function renderToCanvas(
@@ -20,6 +21,8 @@ export function renderToCanvas(
 
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
+  const layout = getStackLayout(config);
+  const jointColor = config.joints.tint ?? '#ffffff';
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -28,16 +31,30 @@ export function renderToCanvas(
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   }
 
-  fillMaterialSurface(ctx, {
-    x: 0,
-    y: 0,
-    width: canvasWidth,
-    height: canvasHeight,
-    radius: 0,
-    fallbackFill,
-    image: options?.materialImage,
-    tintColor: material.tint,
-  });
+  const scale = Math.min(
+    canvasWidth / Math.max(layout.totalWidth, 1),
+    canvasHeight / Math.max(layout.totalHeight, 1),
+  );
+  const drawWidth = layout.totalWidth * scale;
+  const drawHeight = layout.totalHeight * scale;
+  const offsetX = (canvasWidth - drawWidth) / 2;
+  const offsetY = (canvasHeight - drawHeight) / 2;
+
+  ctx.fillStyle = jointColor;
+  ctx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+
+  for (const tile of layout.tiles) {
+    fillMaterialSurface(ctx, {
+      x: offsetX + tile.x * scale,
+      y: offsetY + tile.y * scale,
+      width: tile.width * scale,
+      height: tile.height * scale,
+      radius: 0,
+      fallbackFill,
+      image: options?.materialImage,
+      tintColor: material.tint,
+    });
+  }
 }
 
 let renderTimer: ReturnType<typeof setTimeout> | null = null;

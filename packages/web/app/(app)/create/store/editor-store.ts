@@ -48,6 +48,10 @@ export interface EditorState {
 
   // ===== Actions =====
 
+  // Pattern
+  setPatternRows: (rows: number) => void;
+  setPatternColumns: (columns: number) => void;
+
   // Material
   setMaterialColor: (color: string) => void;
   setMaterialById: (materialId: string) => void;
@@ -139,6 +143,22 @@ export const useEditorStore = create<EditorState>()(
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
+
+    // ===== Pattern Actions =====
+
+    setPatternRows: (rows) =>
+      set((s) => {
+        pushHistory(s, `Rows → ${rows}`);
+        s.config.pattern.rows = Math.max(1, Math.min(50, Math.round(rows)));
+        bumpRender(s);
+      }),
+
+    setPatternColumns: (columns) =>
+      set((s) => {
+        pushHistory(s, `Columns → ${columns}`);
+        s.config.pattern.columns = Math.max(1, Math.min(50, Math.round(columns)));
+        bumpRender(s);
+      }),
 
     // ===== Material Actions =====
 

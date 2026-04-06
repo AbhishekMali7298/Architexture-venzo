@@ -1,6 +1,6 @@
 'use client';
 
-import { ColorField, RangeField, SectionCard } from './field-controls';
+import { ColorField, NumberField, RangeField, SectionCard } from './field-controls';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
 
@@ -10,9 +10,17 @@ export function MaterialSettingsSection({
   materialColor,
   materialThumbnailUrl,
   materialTint,
+  width,
+  height,
   toneVariation,
+  jointHorizontal,
+  jointVertical,
   onOpenPicker,
   onMaterialTintChange,
+  onWidthChange,
+  onHeightChange,
+  onJointHorizontalChange,
+  onJointVerticalChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -20,9 +28,17 @@ export function MaterialSettingsSection({
   materialColor: string;
   materialThumbnailUrl?: string | null;
   materialTint: string | null;
+  width: number;
+  height: number;
   toneVariation: number;
+  jointHorizontal: number;
+  jointVertical: number;
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
+  onWidthChange: (value: number) => void;
+  onHeightChange: (value: number) => void;
+  onJointHorizontalChange: (value: number) => void;
+  onJointVerticalChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
 }) {
   const toneVariationUi = Number((toneVariation / 200).toFixed(2));
@@ -37,6 +53,16 @@ export function MaterialSettingsSection({
         <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact />
       </button>
 
+      <div className={styles.gridTwo}>
+        <NumberField label="Width" value={width} min={1} max={5000} unit="mm" onChange={onWidthChange} />
+        <NumberField label="Height" value={height} min={1} max={5000} unit="mm" onChange={onHeightChange} />
+      </div>
+
+      <div className={styles.gridTwo}>
+        <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit="mm" onChange={onJointHorizontalChange} />
+        <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit="mm" onChange={onJointVerticalChange} />
+      </div>
+
       <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 
       <RangeField
@@ -48,8 +74,6 @@ export function MaterialSettingsSection({
         valueText={toneVariationUi.toFixed(2)}
         onChange={(value) => onToneVariationChange(Math.round(value * 200))}
       />
-
-      <div className={styles.hint}>This editor is now a material-only baseline.</div>
     </SectionCard>
   );
 }

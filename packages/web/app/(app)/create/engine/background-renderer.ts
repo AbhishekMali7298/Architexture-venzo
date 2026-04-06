@@ -1,5 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getStackLayout } from '../lib/stack-pattern';
 import { fillMaterialSurface } from './material-fill';
 
 function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
@@ -9,8 +10,9 @@ function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeig
   const availableY = outerPadding;
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
-  const outputWidth = Math.max(1, config.output.widthPx);
-  const outputHeight = Math.max(1, config.output.heightPx);
+  const layout = getStackLayout(config);
+  const outputWidth = Math.max(1, layout.totalWidth);
+  const outputHeight = Math.max(1, layout.totalHeight);
   const scale = Math.min(availableWidth / outputWidth, availableHeight / outputHeight);
   const width = Math.max(1, outputWidth * scale);
   const height = Math.max(1, outputHeight * scale);
@@ -38,6 +40,9 @@ export function renderBackground(
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
   const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
+  const layout = getStackLayout(config);
+  const scale = bounds.width / Math.max(layout.totalWidth, 1);
+  const jointColor = config.joints.tint ?? '#ffffff';
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -46,16 +51,21 @@ export function renderBackground(
   ctx.shadowColor = 'rgba(41, 31, 20, 0.18)';
   ctx.shadowBlur = 28;
   ctx.shadowOffsetY = 16;
-  fillMaterialSurface(ctx, {
-    x: bounds.x,
-    y: bounds.y,
-    width: bounds.width,
-    height: bounds.height,
-    radius: 0,
-    fallbackFill,
-    image: options?.materialImage,
-    tintColor: material.tint,
-  });
+  ctx.fillStyle = jointColor;
+  ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+  for (const tile of layout.tiles) {
+    fillMaterialSurface(ctx, {
+      x: bounds.x + tile.x * scale,
+      y: bounds.y + tile.y * scale,
+      width: tile.width * scale,
+      height: tile.height * scale,
+      radius: 0,
+      fallbackFill,
+      image: options?.materialImage,
+      tintColor: material.tint,
+    });
+  }
   ctx.restore();
 
   return bounds;
