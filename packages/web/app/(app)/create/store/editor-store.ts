@@ -265,6 +265,11 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.edges.style = style;
+          if (style === 'handmade') {
+            mat.edges.profileWidth = 25;
+            const nextScale = Number.isFinite(mat.edges.perimeterScale) ? mat.edges.perimeterScale : 1;
+            mat.edges.perimeterScale = clamp(nextScale, 0.5, 4);
+          }
         }
         bumpRender(s);
       }),
@@ -274,7 +279,9 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Edge scale → ${scale}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
-          mat.edges.perimeterScale = clamp(scale, 0, 100);
+          mat.edges.perimeterScale = mat.edges.style === 'handmade'
+            ? clamp(scale, 0.5, 4)
+            : clamp(scale, 0, 100);
         }
         bumpRender(s);
       }),

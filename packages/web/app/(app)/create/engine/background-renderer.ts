@@ -1,4 +1,5 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
+import { getTileRenderShape } from '../lib/handmade-edge';
 import { getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
@@ -64,25 +65,26 @@ export function renderBackground(
     const offsetY = bounds.y + yIndex * frameHeight;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameWidth;
-      for (const tile of layout.tiles) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
         fillMaterialSurface(ctx, {
-          x: offsetX + tile.bounds.x * scale,
-          y: offsetY + tile.bounds.y * scale,
-          width: tile.bounds.width * scale,
-          height: tile.bounds.height * scale,
+          x: offsetX + shape.bounds.x * scale,
+          y: offsetY + shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
           radius: 0,
           fallbackFill,
           image: options?.materialImage,
           tintColor: material.tint,
-          clipPath: tile.points.map((point) => ({
+          clipPath: shape.points.map((point) => ({
             x: offsetX + point.x * scale,
             y: offsetY + point.y * scale,
           })),
           imageDrawBox: {
-            x: offsetX + tile.bounds.x * scale,
-            y: offsetY + tile.bounds.y * scale,
-            width: tile.bounds.width * scale,
-            height: tile.bounds.height * scale,
+            x: offsetX + shape.bounds.x * scale,
+            y: offsetY + shape.bounds.y * scale,
+            width: shape.bounds.width * scale,
+            height: shape.bounds.height * scale,
           },
         });
       }

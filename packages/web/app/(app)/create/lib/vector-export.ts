@@ -1,6 +1,7 @@
 'use client';
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
+import { getTileRenderShape } from './handmade-edge';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 import { getPatternLayout } from './pattern-layout';
 
@@ -64,13 +65,14 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const jointFill = escapeXml(config.joints.tint ?? '#ffffff');
   const defs: string[] = [];
   const tileMarkup = layout.tiles.map((tile, index) => {
-    const points = tile.points
+    const shape = getTileRenderShape(tile, material, config.seed, index);
+    const points = shape.points
       .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
       .join(' ');
-    const x = offsetX + tile.bounds.x * scale;
-    const y = offsetY + tile.bounds.y * scale;
-    const w = tile.bounds.width * scale;
-    const h = tile.bounds.height * scale;
+    const x = offsetX + shape.bounds.x * scale;
+    const y = offsetY + shape.bounds.y * scale;
+    const w = shape.bounds.width * scale;
+    const h = shape.bounds.height * scale;
 
     if (embeddedMaterial) {
       const clipId = `tile-clip-${index}`;
@@ -114,9 +116,10 @@ export async function buildVectorPdf(config: TextureConfig) {
     `${offsetX} ${height - offsetY - drawHeight} ${drawWidth} ${drawHeight} re f`,
   ];
 
-  for (const tile of layout.tiles) {
+  for (const [tileIndex, tile] of layout.tiles.entries()) {
+    const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
     commands.push(`${rgbToPdf(fill)} rg`);
-    const points = tile.points.map((point) => ({
+    const points = shape.points.map((point) => ({
       x: offsetX + point.x * scale,
       y: height - (offsetY + point.y * scale),
     }));

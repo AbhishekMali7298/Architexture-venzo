@@ -87,6 +87,7 @@ export function MaterialSettingsSection({
   const [showEdgePopup, setShowEdgePopup] = useState(false);
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
   const edgeStyleLabel = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
+  const isHandmade = edgeStyle === 'handmade';
 
   return (
     <>
@@ -172,16 +173,22 @@ export function MaterialSettingsSection({
               />
 
               <RangeField
-                label="Scale"
+                label={isHandmade ? 'Handmade Scale' : 'Scale'}
                 value={edgeScale}
-                min={0}
-                max={5}
+                min={isHandmade ? 0.5 : 0}
+                max={isHandmade ? 4 : 5}
                 step={0.1}
                 valueText={edgeScale.toFixed(1)}
                 onChange={onEdgeScaleChange}
               />
 
-              <NumberField label="Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />
+              {isHandmade ? (
+                <div className={styles.hint}>
+                  Handmade uses the preset edge profile with width fixed to 25.
+                </div>
+              ) : (
+                <NumberField label="Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />
+              )}
             </div>
           </div>
         </Modal>
