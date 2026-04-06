@@ -105,6 +105,46 @@ function getStackTiles(config: TextureConfig) {
   };
 }
 
+function getStaggeredTiles(config: TextureConfig) {
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const angle = config.pattern.angle || 0;
+  const radians = degreesToRadians(angle);
+  const stepX = tileWidth + jointVertical;
+  const stepY = tileHeight + jointHorizontal;
+
+  // When patternAngle > 0: diagonal shift per row (like competitor's angled Staggered).
+  // When patternAngle = 0: classic running bond with alternating half-step offset.
+  const rowShiftX = angle === 0 ? stepX / 2 : tileWidth * Math.sin(radians);
+
+  // Total dimensions are FIXED (like the competitor): width = columns * stepX, height = rows * stepY.
+  // Extra tiles extend past these boundaries to cover edge gaps from row offsets.
+  const totalWidth = columns * stepX;
+  const totalHeight = rows * stepY;
+
+  // Calculate the maximum row offset across all rows.
+  const maxOffset = (rows - 1) * rowShiftX;
+
+  // Generate enough tiles per row to cover totalWidth plus the maximum offset.
+  // This ensures tiles extend past the nominal boundaries to fill edge gaps.
+  const tilesPerRow = Math.ceil((totalWidth + maxOffset) / stepX) + 1;
+
+  const tiles: PatternTile[] = [];
+
+  for (let row = 0; row < rows; row++) {
+    const offsetX = row * rowShiftX;
+
+    for (let column = 0; column < tilesPerRow; column++) {
+      tiles.push(buildTileFromAnchor(offsetX + column * stepX, row * stepY, 0, tileWidth, tileHeight));
+    }
+  }
+
+  return {
+    tiles,
+    totalWidth,
+    totalHeight,
+  };
+}
+
 function getStretcherTiles(config: TextureConfig) {
   const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
   const stepX = tileWidth + jointVertical;
@@ -275,7 +315,8 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
       config.pattern.type === 'stretcher_bond' ? getStretcherTiles(config) :
         config.pattern.type === 'herringbone' ? getHerringboneTiles(config) :
           config.pattern.type === 'chevron' ? getChevronTiles(config) :
-            getStackTiles(config);
+            config.pattern.type === 'staggered' ? getStaggeredTiles(config) :
+              getStackTiles(config);
 
   return {
     tiles: baseLayout.tiles,
