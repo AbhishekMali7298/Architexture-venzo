@@ -887,7 +887,6 @@
 
 .patternOptionButtonActive .patternPreviewFrame {
   border-color: rgba(0, 0, 0, 1);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
 .patternOptionButtonDisabled {
@@ -898,13 +897,11 @@
 .patternPreviewFrame {
   display: grid;
   place-items: center;
-  width: 92px;
-  height: 92px;
-  overflow: hidden;
-  border-radius: 5px;
+  width: 64px;
+  height: 64px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: border-color 120ms ease;
 }
 
 .patternPreviewImage {
@@ -940,8 +937,6 @@
   place-items: center;
   width: 60px;
   height: 60px;
-  overflow: hidden;
-  border-radius: 5px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: linear-gradient(180deg, #fff, #f8fafc);
 }
