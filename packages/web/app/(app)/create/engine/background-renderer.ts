@@ -41,34 +41,50 @@ export function renderBackground(
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
   const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
   const layout = getStackLayout(config);
-  const scale = bounds.width / Math.max(layout.totalWidth, 1);
+  const scale = Math.min(
+    bounds.width / Math.max(layout.totalWidth, 1),
+    bounds.height / Math.max(layout.totalHeight, 1),
+  );
+  const frameWidth = layout.totalWidth * scale;
+  const frameHeight = layout.totalHeight * scale;
   const jointColor = config.joints.tint ?? '#ffffff';
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  ctx.save();
-  ctx.shadowColor = 'rgba(41, 31, 20, 0.18)';
-  ctx.shadowBlur = 28;
-  ctx.shadowOffsetY = 16;
   ctx.fillStyle = jointColor;
-  ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  for (const tile of layout.tiles) {
-    fillMaterialSurface(ctx, {
-      x: bounds.x + tile.x * scale,
-      y: bounds.y + tile.y * scale,
-      width: tile.width * scale,
-      height: tile.height * scale,
-      radius: 0,
-      fallbackFill,
-      image: options?.materialImage,
-      tintColor: material.tint,
-    });
+  const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;
+  const tilesRight = Math.ceil((canvasWidth - bounds.x) / Math.max(frameWidth, 1)) + 1;
+  const tilesAbove = Math.ceil(bounds.y / Math.max(frameHeight, 1)) + 1;
+  const tilesBelow = Math.ceil((canvasHeight - bounds.y) / Math.max(frameHeight, 1)) + 1;
+
+  for (let yIndex = -tilesAbove; yIndex <= tilesBelow; yIndex++) {
+    const offsetY = bounds.y + yIndex * frameHeight;
+    for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
+      const offsetX = bounds.x + xIndex * frameWidth;
+      for (const tile of layout.tiles) {
+        fillMaterialSurface(ctx, {
+          x: offsetX + tile.x * scale,
+          y: offsetY + tile.y * scale,
+          width: tile.width * scale,
+          height: tile.height * scale,
+          radius: 0,
+          fallbackFill,
+          image: options?.materialImage,
+          tintColor: material.tint,
+        });
+      }
+    }
   }
-  ctx.restore();
 
-  return bounds;
+  return {
+    x: bounds.x,
+    y: bounds.y,
+    width: frameWidth,
+    height: frameHeight,
+  };
 }
 
 export function drawDottedBorder(

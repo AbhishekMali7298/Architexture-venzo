@@ -5,12 +5,13 @@ import { immer } from 'zustand/middleware/immer';
 import type {
   TextureConfig,
   EditorTab,
+  PatternType,
   EdgeStyle,
   ImageAdjustments,
   MaterialAssetRef,
   MaterialDefinition,
 } from '@textura/shared';
-import { getMaterialById } from '@textura/shared';
+import { getDefaultPatternConfig, getMaterialById } from '@textura/shared';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 // ======= History (Undo/Redo) =======
@@ -49,6 +50,7 @@ export interface EditorState {
   // ===== Actions =====
 
   // Pattern
+  setPatternType: (type: PatternType) => void;
   setPatternRows: (rows: number) => void;
   setPatternColumns: (columns: number) => void;
 
@@ -145,6 +147,18 @@ export const useEditorStore = create<EditorState>()(
     renderVersion: 0,
 
     // ===== Pattern Actions =====
+
+    setPatternType: (type) =>
+      set((s) => {
+        const nextPattern = getDefaultPatternConfig(type);
+        if (!nextPattern) return;
+        pushHistory(s, `Pattern → ${nextPattern.type}`);
+        s.config.pattern = {
+          ...s.config.pattern,
+          ...nextPattern,
+        };
+        bumpRender(s);
+      }),
 
     setPatternRows: (rows) =>
       set((s) => {

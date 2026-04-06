@@ -32,6 +32,7 @@ function decodeConfig(encoded: string): TextureConfig {
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
+  const setPatternType = useEditorStore((state) => state.setPatternType);
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
@@ -184,7 +185,8 @@ export default function CreatePage() {
         <PatternPickerModal
           currentPattern={config.pattern.type}
           onClose={() => setShowPatternModal(false)}
-          onSelect={() => {
+          onSelect={(pattern) => {
+            setPatternType(pattern.type);
             setShowPatternModal(false);
           }}
         />
