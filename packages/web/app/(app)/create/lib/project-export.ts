@@ -1,7 +1,7 @@
 'use client';
 
 import { getMaterialById, type TextureConfig } from '@textura/shared';
-import { renderToCanvas } from '../engine/pattern-renderer';
+import { renderToCanvas } from '../engine/material-renderer';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
