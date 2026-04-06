@@ -25,8 +25,6 @@ export function MaterialSettingsSection({
   materialTint,
   width,
   height,
-  minWidth,
-  minHeight,
   toneVariation,
   jointHorizontal,
   jointVertical,
@@ -41,8 +39,6 @@ export function MaterialSettingsSection({
   onMaterialTintChange,
   onWidthChange,
   onHeightChange,
-  onMinWidthChange,
-  onMinHeightChange,
   onJointHorizontalChange,
   onJointVerticalChange,
   onJointTintChange,
@@ -61,8 +57,6 @@ export function MaterialSettingsSection({
   materialTint: string | null;
   width: number;
   height: number;
-  minWidth: number;
-  minHeight: number;
   toneVariation: number;
   jointHorizontal: number;
   jointVertical: number;
@@ -77,8 +71,6 @@ export function MaterialSettingsSection({
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
-  onMinWidthChange: (value: number) => void;
-  onMinHeightChange: (value: number) => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
   onJointTintChange: (value: string | null) => void;
@@ -105,11 +97,6 @@ export function MaterialSettingsSection({
       <div className={styles.gridTwo}>
         <NumberField label="Width" value={width} min={1} max={5000} unit="mm" onChange={onWidthChange} />
         <NumberField label="Height" value={height} min={1} max={5000} unit="mm" onChange={onHeightChange} />
-      </div>
-
-      <div className={styles.gridTwo}>
-        <NumberField label="Min Width" value={minWidth} min={1} max={5000} unit="mm" onChange={onMinWidthChange} />
-        <NumberField label="Min Height" value={minHeight} min={1} max={5000} unit="mm" onChange={onMinHeightChange} />
       </div>
 
       <SelectField

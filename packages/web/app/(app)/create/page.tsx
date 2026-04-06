@@ -39,8 +39,6 @@ export default function CreatePage() {
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
-  const setMaterialMinWidth = useEditorStore((state) => state.setMaterialMinWidth);
-  const setMaterialMinHeight = useEditorStore((state) => state.setMaterialMinHeight);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointTint = useEditorStore((state) => state.setJointTint);
@@ -167,8 +165,6 @@ export default function CreatePage() {
           materialTint={material.tint}
           width={material.width}
           height={material.height}
-          minWidth={material.minWidth}
-          minHeight={material.minHeight}
           toneVariation={material.toneVariation}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
@@ -183,8 +179,6 @@ export default function CreatePage() {
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
-          onMinWidthChange={setMaterialMinWidth}
-          onMinHeightChange={setMaterialMinHeight}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onJointTintChange={setJointTint}
