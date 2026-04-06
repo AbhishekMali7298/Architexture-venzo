@@ -760,6 +760,44 @@
   text-transform: uppercase;
 }
 
+.edgePopupCard {
+  width: min(360px, calc(100vw - 24px));
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.edgePopupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.edgePopupTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.edgePopupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px 14px;
+}
+
+.edgePopupValue {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+
 .optionGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
