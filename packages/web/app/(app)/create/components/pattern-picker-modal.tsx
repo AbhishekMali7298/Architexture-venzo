@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { PATTERN_CATALOG, PATTERN_CATEGORIES, type PatternDefinition, type PatternType } from '@textura/shared';
+import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
@@ -36,37 +36,23 @@ export function PatternPickerModal({
   onSelect: (pattern: PatternDefinition) => void;
 }) {
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<'all' | string>('all');
-
-  const categoryLabelById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const item of PATTERN_CATEGORIES) {
-      map.set(item.id, item.displayName);
-    }
-    return map;
-  }, []);
 
   const filteredLibrary = useMemo(() => {
     const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
     const terms = normalized ? normalized.split(' ') : [];
 
     return PATTERN_CATALOG.filter((pattern) => {
-      if (category !== 'all' && pattern.category !== category) {
-        return false;
-      }
-
       if (terms.length === 0) {
         return true;
       }
 
-      const categoryLabel = categoryLabelById.get(pattern.category) ?? pattern.category;
-      const haystack = [pattern.displayName, pattern.description, pattern.type, pattern.category, categoryLabel]
+      const haystack = [pattern.displayName, pattern.description, pattern.type, pattern.category]
         .join(' ')
         .toLowerCase();
 
       return terms.every((term) => haystack.includes(term));
     });
-  }, [category, categoryLabelById, search]);
+  }, [search]);
 
   return (
     <Modal onClose={onClose}>
@@ -88,52 +74,30 @@ export function PatternPickerModal({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
-            <select
-              className={styles.select}
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option value="all">All categories</option>
-              {PATTERN_CATEGORIES.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.displayName}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 
         <div className={styles.modalBody}>
-          {PATTERN_CATEGORIES.map((item) => {
-            const patterns = filteredLibrary.filter((pattern) => pattern.category === item.id);
-            if (!patterns.length) return null;
-
-            return (
-              <section key={item.id} className={styles.modalSection}>
-                <h3 className={styles.modalSectionTitle}>{item.displayName}</h3>
-                <div className={styles.patternOptionGrid}>
-                  {patterns.map((pattern) => {
-                    const enabled = ENABLED_PATTERN_TYPES.has(pattern.type);
-                    return (
-                      <button
-                        key={pattern.type}
-                        className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''} ${!enabled ? styles.patternOptionButtonDisabled : ''}`}
-                        type="button"
-                        disabled={!enabled}
-                        onClick={() => {
-                          onSelect(pattern);
-                          onClose();
-                        }}
-                      >
-                        <PatternPreview src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
-                        <div className={styles.patternOptionName}>{pattern.displayName}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
+          <div className={styles.patternOptionGrid}>
+            {filteredLibrary.map((pattern) => {
+              const enabled = ENABLED_PATTERN_TYPES.has(pattern.type);
+              return (
+                <button
+                  key={pattern.type}
+                  className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''} ${!enabled ? styles.patternOptionButtonDisabled : ''}`}
+                  type="button"
+                  disabled={!enabled}
+                  onClick={() => {
+                    onSelect(pattern);
+                    onClose();
+                  }}
+                >
+                  <PatternPreview src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
+                  <div className={styles.patternOptionName}>{pattern.displayName}</div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </Modal>

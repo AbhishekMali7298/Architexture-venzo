@@ -730,6 +730,10 @@
   gap: 8px;
 }
 
+.modalTools > * {
+  flex: 1 1 auto;
+}
+
 .modalBody {
   overflow: auto;
   padding: 12px 14px 14px;
@@ -861,15 +865,15 @@
 
 .patternOptionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 18px 22px;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 14px 16px;
 }
 
 .patternOptionButton {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -894,23 +898,25 @@
 .patternPreviewFrame {
   display: grid;
   place-items: center;
-  width: 132px;
-  height: 132px;
+  width: 92px;
+  height: 92px;
   overflow: hidden;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #f3f1ec;
+  background: #fff;
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .patternPreviewImage {
-  width: 76%;
-  height: 76%;
+  width: 62%;
+  height: 62%;
   object-fit: contain;
+  object-position: center;
+  filter: grayscale(1) contrast(2.2) brightness(0.15);
 }
 
 .patternOptionName {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   line-height: 1.2;
   color: #000;
