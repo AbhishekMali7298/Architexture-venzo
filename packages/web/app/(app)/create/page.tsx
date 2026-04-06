@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getMaterialById, getMaterialCategory, type TextureConfig } from '@textura/shared';
+import { getMaterialById, getMaterialCategory, getPatternByType, type TextureConfig } from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
+import { PatternPickerModal } from './components/pattern-picker-modal';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
@@ -46,6 +47,7 @@ export default function CreatePage() {
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [showPatternModal, setShowPatternModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -85,6 +87,9 @@ export default function CreatePage() {
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
   const stackLayout = useMemo(() => getStackLayout(config), [config]);
   const stackHint = `${Math.round(stackLayout.totalWidth)} × ${Math.round(stackLayout.totalHeight)} mm`;
+  const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');
+  const currentPatternName = currentPattern?.displayName ?? 'Stack';
+  const currentPatternPreview = `/patterns/${currentPattern?.previewAssetPath?.split('/').pop() ?? 'stack_bond.svg'}`;
 
   if (!isReady) {
     return null;
@@ -134,10 +139,12 @@ export default function CreatePage() {
         }
       >
         <StackSettingsSection
+          patternName={currentPatternName}
           rows={config.pattern.rows}
           columns={config.pattern.columns}
-          previewUrl="/patterns/stack_bond.svg"
+          previewUrl={currentPatternPreview}
           widthHint={stackHint}
+          onOpenPicker={() => setShowPatternModal(true)}
           onRowsChange={setPatternRows}
           onColumnsChange={setPatternColumns}
         />
@@ -169,6 +176,16 @@ export default function CreatePage() {
           onClose={() => setShowMaterialModal(false)}
           onSelect={(nextMaterial) => {
             setMaterialById(nextMaterial.id);
+          }}
+        />
+      ) : null}
+
+      {showPatternModal ? (
+        <PatternPickerModal
+          currentPattern={config.pattern.type}
+          onClose={() => setShowPatternModal(false)}
+          onSelect={() => {
+            setShowPatternModal(false);
           }}
         />
       ) : null}

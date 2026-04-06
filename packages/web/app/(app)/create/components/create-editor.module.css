@@ -816,6 +816,11 @@
   
 }
 
+.optionButtonDisabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
 .optionName {
   font-size: 12px;
   font-weight: 600;
