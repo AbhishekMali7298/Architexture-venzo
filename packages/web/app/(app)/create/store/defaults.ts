@@ -22,18 +22,18 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   materials: [
     {
       id: 'mat_1',
-      definitionId: 'granite',
+      definitionId: 'graphite',
       source: {
         type: 'image',
         asset: {
-          path: 'materials/granite/granite-oriiginal.jpg',
+          path: '/materials/graphite.jpg',
           mimeType: 'image/jpeg',
         },
-        fallbackColor: '#d8d9d4',
+        fallbackColor: '#4a4a4a',
       },
       uploadWidth: null,
       width: 400,
-      height: 100,
+      height: 200,
       minWidth: 50,
       minHeight: 50,
 
