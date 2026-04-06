@@ -50,7 +50,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
         saturation: 0,
         invertColors: false,
       },
-      tint: null,
+      tint: '#FFFFFF',
 
       edges: {
         style: 'handmade',
@@ -61,7 +61,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
 
       profile: null,
       finish: null,
-      toneVariation: 0,
+      toneVariation: 25,
       randomiseFillAngle: false,
 
       placement: {
@@ -119,7 +119,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
     horizontalSize: 5,
     verticalSize: 5,
     linkedDimensions: true,
-    recessJoints: false,
+    recessJoints: true,
     concaveJoints: false,
     adjustments: {
       brightness: 0,

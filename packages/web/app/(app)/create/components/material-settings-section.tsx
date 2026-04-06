@@ -1,8 +1,21 @@
 'use client';
 
-import { ColorField, NumberField, RangeField, SectionCard } from './field-controls';
+import type { EdgeStyle } from '@textura/shared';
+import { ColorField, NumberField, RangeField, SectionCard, SelectField } from './field-controls';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
+
+const EDGE_STYLE_OPTIONS: { value: EdgeStyle; label: string }[] = [
+  { value: 'handmade', label: 'Handmade' },
+  { value: 'fine', label: 'Fine' },
+  { value: 'rough_brick', label: 'Rough Brick' },
+  { value: 'rough_stone', label: 'Rough Stone' },
+  { value: 'wirecut', label: 'Wirecut' },
+  { value: 'chamfer', label: 'Chamfer' },
+  { value: 'fillet', label: 'Fillet' },
+  { value: 'cove', label: 'Cove' },
+  { value: 'none', label: 'None' },
+];
 
 export function MaterialSettingsSection({
   materialName,
@@ -15,12 +28,22 @@ export function MaterialSettingsSection({
   toneVariation,
   jointHorizontal,
   jointVertical,
+  jointTint,
+  linkedJoints,
+  recessJoints,
+  concaveJoints,
+  edgeStyle,
   onOpenPicker,
   onMaterialTintChange,
   onWidthChange,
   onHeightChange,
   onJointHorizontalChange,
   onJointVerticalChange,
+  onJointTintChange,
+  onLinkedJointsChange,
+  onRecessJointsChange,
+  onConcaveJointsChange,
+  onEdgeStyleChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -33,15 +56,25 @@ export function MaterialSettingsSection({
   toneVariation: number;
   jointHorizontal: number;
   jointVertical: number;
+  jointTint: string | null;
+  linkedJoints: boolean;
+  recessJoints: boolean;
+  concaveJoints: boolean;
+  edgeStyle: EdgeStyle;
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
+  onJointTintChange: (value: string | null) => void;
+  onLinkedJointsChange: (value: boolean) => void;
+  onRecessJointsChange: (value: boolean) => void;
+  onConcaveJointsChange: (value: boolean) => void;
+  onEdgeStyleChange: (value: EdgeStyle) => void;
   onToneVariationChange: (value: number) => void;
 }) {
-  const toneVariationUi = Number((toneVariation / 200).toFixed(2));
+  const toneVariationUi = Number((toneVariation / 100).toFixed(2));
 
   return (
     <SectionCard title="Material">
@@ -58,10 +91,36 @@ export function MaterialSettingsSection({
         <NumberField label="Height" value={height} min={1} max={5000} unit="mm" onChange={onHeightChange} />
       </div>
 
+      <SelectField
+        label="Edges"
+        value={edgeStyle}
+        options={EDGE_STYLE_OPTIONS}
+        onChange={(value) => onEdgeStyleChange(value as EdgeStyle)}
+      />
+
+      <div className={styles.subsectionTitle}>Joints</div>
+
       <div className={styles.gridTwo}>
         <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit="mm" onChange={onJointHorizontalChange} />
         <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit="mm" onChange={onJointVerticalChange} />
       </div>
+
+      <label className={styles.checkboxRow}>
+        <input type="checkbox" checked={linkedJoints} onChange={(event) => onLinkedJointsChange(event.target.checked)} />
+        <span>Link joint sizes</span>
+      </label>
+
+      <ColorField label="Joint Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
+
+      <label className={styles.checkboxRow}>
+        <input type="checkbox" checked={recessJoints} onChange={(event) => onRecessJointsChange(event.target.checked)} />
+        <span>Recess joints</span>
+      </label>
+
+      <label className={styles.checkboxRow}>
+        <input type="checkbox" checked={concaveJoints} onChange={(event) => onConcaveJointsChange(event.target.checked)} />
+        <span>Concave joints</span>
+      </label>
 
       <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 
@@ -69,10 +128,10 @@ export function MaterialSettingsSection({
         label="Tone Variation"
         value={toneVariationUi}
         min={0}
-        max={0.5}
+        max={1}
         step={0.01}
         valueText={toneVariationUi.toFixed(2)}
-        onChange={(value) => onToneVariationChange(Math.round(value * 200))}
+        onChange={(value) => onToneVariationChange(Math.round(value * 100))}
       />
     </SectionCard>
   );

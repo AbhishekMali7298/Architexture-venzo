@@ -41,6 +41,11 @@ export default function CreatePage() {
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
+  const setJointTint = useEditorStore((state) => state.setJointTint);
+  const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
+  const setRecessJoints = useEditorStore((state) => state.setRecessJoints);
+  const setConcaveJoints = useEditorStore((state) => state.setConcaveJoints);
+  const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
@@ -161,12 +166,22 @@ export default function CreatePage() {
           toneVariation={material.toneVariation}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
+          jointTint={config.joints.tint}
+          linkedJoints={config.joints.linkedDimensions}
+          recessJoints={config.joints.recessJoints}
+          concaveJoints={config.joints.concaveJoints}
+          edgeStyle={material.edges.style}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
+          onJointTintChange={setJointTint}
+          onLinkedJointsChange={setLinkedDimensions}
+          onRecessJointsChange={setRecessJoints}
+          onConcaveJointsChange={setConcaveJoints}
+          onEdgeStyleChange={setEdgeStyle}
           onToneVariationChange={setToneVariation}
         />
       </CreateEditorShell>
