@@ -51,8 +51,6 @@ export default function CreatePage() {
   const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
   const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
   const setToneVariation = useEditorStore((state) => state.setToneVariation);
-  const setPbrMapGeometry = useEditorStore((state) => state.setPbrMapGeometry);
-  const setPbrBaseValue = useEditorStore((state) => state.setPbrBaseValue);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
@@ -181,10 +179,6 @@ export default function CreatePage() {
           edgeStyle={material.edges.style}
           edgeScale={material.edges.perimeterScale}
           edgeWidth={material.edges.profileWidth}
-          bumpEdges={material.pbr.bump.geometry}
-          displacementEdges={material.pbr.displacement.geometry}
-          roughness={material.pbr.roughness.baseRoughness / 100}
-          metalness={material.pbr.metalness.baseMetalness / 100}
           onOpenPicker={() => setShowMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
@@ -200,10 +194,6 @@ export default function CreatePage() {
           onEdgeStyleChange={setEdgeStyle}
           onEdgeScaleChange={setEdgePerimeterScale}
           onEdgeWidthChange={setEdgeProfileWidth}
-          onBumpEdgesChange={(value) => setPbrMapGeometry('bump', value)}
-          onDisplacementEdgesChange={(value) => setPbrMapGeometry('displacement', value)}
-          onRoughnessChange={(value) => setPbrBaseValue('roughness', Math.round(value * 100))}
-          onMetalnessChange={(value) => setPbrBaseValue('metalness', Math.round(value * 100))}
           onToneVariationChange={setToneVariation}
         />
       </CreateEditorShell>

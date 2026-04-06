@@ -37,10 +37,6 @@ export function MaterialSettingsSection({
   edgeStyle,
   edgeScale,
   edgeWidth,
-  bumpEdges,
-  displacementEdges,
-  roughness,
-  metalness,
   onOpenPicker,
   onMaterialTintChange,
   onWidthChange,
@@ -56,10 +52,6 @@ export function MaterialSettingsSection({
   onEdgeStyleChange,
   onEdgeScaleChange,
   onEdgeWidthChange,
-  onBumpEdgesChange,
-  onDisplacementEdgesChange,
-  onRoughnessChange,
-  onMetalnessChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -81,10 +73,6 @@ export function MaterialSettingsSection({
   edgeStyle: EdgeStyle;
   edgeScale: number;
   edgeWidth: number;
-  bumpEdges: boolean;
-  displacementEdges: boolean;
-  roughness: number;
-  metalness: number;
   onOpenPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
@@ -100,10 +88,6 @@ export function MaterialSettingsSection({
   onEdgeStyleChange: (value: EdgeStyle) => void;
   onEdgeScaleChange: (value: number) => void;
   onEdgeWidthChange: (value: number) => void;
-  onBumpEdgesChange: (value: boolean) => void;
-  onDisplacementEdgesChange: (value: boolean) => void;
-  onRoughnessChange: (value: number) => void;
-  onMetalnessChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
 }) {
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
@@ -174,42 +158,6 @@ export function MaterialSettingsSection({
         step={0.01}
         valueText={toneVariationUi.toFixed(2)}
         onChange={(value) => onToneVariationChange(Math.round(value * 100))}
-      />
-
-      <div className={styles.subsectionTitle}>PBR Options</div>
-
-      <label className={styles.checkboxRow}>
-        <input type="checkbox" checked={bumpEdges} onChange={(event) => onBumpEdgesChange(event.target.checked)} />
-        <span>Bump edges</span>
-      </label>
-
-      <label className={styles.checkboxRow}>
-        <input
-          type="checkbox"
-          checked={displacementEdges}
-          onChange={(event) => onDisplacementEdgesChange(event.target.checked)}
-        />
-        <span>Displacement edges</span>
-      </label>
-
-      <RangeField
-        label="Roughness"
-        value={roughness}
-        min={0}
-        max={1}
-        step={0.01}
-        valueText={roughness.toFixed(2)}
-        onChange={onRoughnessChange}
-      />
-
-      <RangeField
-        label="Metalness"
-        value={metalness}
-        min={0}
-        max={1}
-        step={0.01}
-        valueText={metalness.toFixed(2)}
-        onChange={onMetalnessChange}
       />
     </SectionCard>
   );
