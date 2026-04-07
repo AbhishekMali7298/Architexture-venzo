@@ -33,11 +33,12 @@ export function renderJointProfile(
   const edgeDepth = material.pbr.bump.edgeDepth;
   const edgeProfile = material.edges.profileWidth;
   const shadowStrength = phase === 'under'
-    ? 0.1 + (edgeDepth / 100) * 0.12 + Math.min(edgeProfile, 25) / 320
+    ? 0.11 + (edgeDepth / 100) * 0.12 + Math.min(edgeProfile, 25) / 300
     : 0.05 + (edgeDepth / 100) * 0.08 + Math.min(edgeProfile, 25) / 500;
   const highlightStrength = phase === 'over'
     ? shadowStrength * 0.68
     : shadowStrength * 0.18;
+  const blurRadius = phase === 'under' ? Math.max(2, Math.min(5, scale * 0.8)) : 0;
 
   ctx.save();
   ctx.beginPath();
@@ -77,7 +78,7 @@ export function renderJointProfile(
         ),
       );
 
-      renderProfileStrip(ctx, start, end, normal, profileDepth, shadowStrength, highlightStrength, phase);
+      renderProfileStrip(ctx, start, end, normal, profileDepth, shadowStrength, highlightStrength, blurRadius, phase);
     }
   }
 
@@ -92,6 +93,7 @@ function renderProfileStrip(
   depth: number,
   shadowStrength: number,
   highlightStrength: number,
+  blurRadius: number,
   phase: 'under' | 'over',
 ) {
   const direction = phase === 'under' ? normal : scale(normal, -1);
@@ -102,9 +104,10 @@ function renderProfileStrip(
 
   const shadow = ctx.createLinearGradient(start.x, start.y, outerStart.x, outerStart.y);
   shadow.addColorStop(0, `rgba(0,0,0,${shadowStrength.toFixed(3)})`);
-  shadow.addColorStop(0.34, `rgba(0,0,0,${(shadowStrength * 0.55).toFixed(3)})`);
+  shadow.addColorStop(0.22, `rgba(0,0,0,${(shadowStrength * 0.72).toFixed(3)})`);
+  shadow.addColorStop(0.52, `rgba(0,0,0,${(shadowStrength * 0.34).toFixed(3)})`);
   shadow.addColorStop(1, 'rgba(0,0,0,0)');
-  fillQuad(ctx, start, end, outerEnd, outerStart, shadow);
+  fillQuad(ctx, start, end, outerEnd, outerStart, shadow, blurRadius);
 
   if (phase === 'over') {
     const highlight = ctx.createLinearGradient(midStart.x, midStart.y, outerStart.x, outerStart.y);
@@ -112,6 +115,12 @@ function renderProfileStrip(
     highlight.addColorStop(0.5, `rgba(255,255,255,${(highlightStrength * 0.4).toFixed(3)})`);
     highlight.addColorStop(1, 'rgba(255,255,255,0)');
     fillQuad(ctx, midStart, midEnd, outerEnd, outerStart, highlight);
+
+    const edgeShadow = ctx.createLinearGradient(start.x, start.y, midStart.x, midStart.y);
+    edgeShadow.addColorStop(0, `rgba(0,0,0,${(shadowStrength * 0.65).toFixed(3)})`);
+    edgeShadow.addColorStop(0.55, `rgba(0,0,0,${(shadowStrength * 0.18).toFixed(3)})`);
+    edgeShadow.addColorStop(1, 'rgba(0,0,0,0)');
+    fillQuad(ctx, start, end, midEnd, midStart, edgeShadow);
   }
 }
 
@@ -122,9 +131,14 @@ function fillQuad(
   c: Vec2,
   d: Vec2,
   fillStyle: CanvasFillStrokeStyles['fillStyle'],
+  shadowBlur = 0,
 ) {
   ctx.save();
   ctx.fillStyle = fillStyle;
+  if (shadowBlur > 0) {
+    ctx.shadowBlur = shadowBlur;
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+  }
   ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(b.x, b.y);
