@@ -44,8 +44,6 @@ export default function CreatePage() {
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointTint = useEditorStore((state) => state.setJointTint);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
-  const setRecessJoints = useEditorStore((state) => state.setRecessJoints);
-  const setConcaveJoints = useEditorStore((state) => state.setConcaveJoints);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
   const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
@@ -174,8 +172,6 @@ export default function CreatePage() {
           jointVertical={config.joints.verticalSize}
           jointTint={config.joints.tint}
           linkedJoints={config.joints.linkedDimensions}
-          recessJoints={config.joints.recessJoints}
-          concaveJoints={config.joints.concaveJoints}
           edgeStyle={material.edges.style}
           edgeScale={material.edges.perimeterScale}
           edgeWidth={material.edges.profileWidth}
@@ -187,8 +183,6 @@ export default function CreatePage() {
           onJointVerticalChange={setJointVerticalSize}
           onJointTintChange={setJointTint}
           onLinkedJointsChange={setLinkedDimensions}
-          onRecessJointsChange={setRecessJoints}
-          onConcaveJointsChange={setConcaveJoints}
           onEdgeStyleChange={setEdgeStyle}
           onEdgeScaleChange={setEdgePerimeterScale}
           onEdgeWidthChange={setEdgeProfileWidth}

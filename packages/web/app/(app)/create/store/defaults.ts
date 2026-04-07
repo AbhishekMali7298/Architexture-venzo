@@ -119,8 +119,6 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
     horizontalSize: 5,
     verticalSize: 5,
     linkedDimensions: true,
-    recessJoints: true,
-    concaveJoints: false,
     adjustments: {
       brightness: 0,
       contrast: 0,

@@ -65,6 +65,7 @@ export function renderBackground(
     const offsetY = bounds.y + yIndex * frameHeight;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameWidth;
+
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
         fillMaterialSurface(ctx, {

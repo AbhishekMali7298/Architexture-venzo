@@ -183,8 +183,6 @@ export interface JointsConfig {
   horizontalSize: number;
   verticalSize: number;
   linkedDimensions: boolean;
-  recessJoints: boolean;
-  concaveJoints: boolean;
   adjustments: ImageAdjustments;
 }
 
@@ -293,13 +291,13 @@ export type WorkerMessage =
   | { type: 'loadMaterial'; materialId: string; imageBitmap: unknown }
   | { type: 'render'; config: TextureConfig; width: number; height: number; mapType: MapType }
   | {
-      type: 'exportLocal';
-      config: TextureConfig;
-      width: number;
-      height: number;
-      maps: MapType[];
-      format: 'png' | 'jpg';
-    };
+    type: 'exportLocal';
+    config: TextureConfig;
+    width: number;
+    height: number;
+    maps: MapType[];
+    format: 'png' | 'jpg';
+  };
 
 export type WorkerResponse =
   | { type: 'initComplete' }

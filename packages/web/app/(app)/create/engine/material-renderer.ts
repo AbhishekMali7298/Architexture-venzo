@@ -3,7 +3,6 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
-import { renderJointProfile } from './joint-profile-renderer';
 
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -44,17 +43,6 @@ export function renderToCanvas(
 
   ctx.fillStyle = jointColor;
   ctx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
-
-  // Apply joint depth profiles (recess or concave) BEFORE tiles are drawn
-  // so the depth effects are visible only in the gaps between tiles
-  if (config.joints.recessJoints || config.joints.concaveJoints) {
-    renderJointProfile(ctx, config, {
-      x: offsetX,
-      y: offsetY,
-      width: drawWidth,
-      height: drawHeight,
-    }, scale, layout.tiles);
-  }
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
