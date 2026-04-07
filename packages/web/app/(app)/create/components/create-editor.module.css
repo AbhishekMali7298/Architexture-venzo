@@ -833,6 +833,106 @@
   letter-spacing: 0.01em;
 }
 
+/* Coming soon badge */
+.patternNotImplementedBadge {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 2px;
+}
+
+/* Not implemented pattern button state */
+.patternOptionButtonNotImplemented {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.patternOptionButtonNotImplemented:hover {
+  opacity: 1;
+  background: #fafafa;
+}
+
+.patternOptionButtonNotImplemented .patternPreviewFrame {
+  filter: grayscale(100%);
+}
+
+.patternOptionButtonNotImplemented:hover .patternPreviewFrame {
+  filter: grayscale(50%);
+}
+
+/* Not Implemented Popup */
+.notImplementedCard {
+  width: min(420px, calc(100vw - 40px));
+  border-radius: 8px;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.notImplementedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notImplementedTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.notImplementedBody {
+  padding: 20px 24px;
+}
+
+.notImplementedText {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000;
+}
+
+.notImplementedText strong {
+  font-weight: 600;
+}
+
+.notImplementedHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.notImplementedFooter {
+  padding: 16px 24px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notImplementedButton {
+  padding: 10px 20px;
+  border: 1.5px solid #000;
+  border-radius: 6px;
+  background: #000;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.notImplementedButton:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .modalCard {
