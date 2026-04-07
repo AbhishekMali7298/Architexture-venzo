@@ -4,6 +4,7 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 import { renderJointProfile } from './joint-profile-renderer';
+import { getToneVariationShift } from './tone-variation';
 
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -67,6 +68,11 @@ export function renderToCanvas(
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+    const toneShift = getToneVariationShift(
+      material.toneVariation,
+      config.seed,
+      tileIndex,
+    );
     fillMaterialSurface(ctx, {
       x: offsetX + shape.bounds.x * scale,
       y: offsetY + shape.bounds.y * scale,
@@ -86,6 +92,7 @@ export function renderToCanvas(
         width: shape.bounds.width * scale,
         height: shape.bounds.height * scale,
       },
+      toneShift,
     });
   }
 

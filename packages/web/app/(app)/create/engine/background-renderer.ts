@@ -4,6 +4,7 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 import { renderJointProfile } from './joint-profile-renderer';
+import { getToneVariationShift } from './tone-variation';
 
 function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
   const panelWidth = 336;
@@ -89,6 +90,13 @@ export function renderBackground(
 
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        const toneShift = getToneVariationShift(
+          material.toneVariation,
+          config.seed,
+          tileIndex,
+          xIndex,
+          yIndex,
+        );
         fillMaterialSurface(ctx, {
           x: offsetX + shape.bounds.x * scale,
           y: offsetY + shape.bounds.y * scale,
@@ -108,6 +116,7 @@ export function renderBackground(
             width: shape.bounds.width * scale,
             height: shape.bounds.height * scale,
           },
+          toneShift,
         });
       }
 

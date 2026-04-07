@@ -37,7 +37,6 @@ function drawImageCover(
   width: number,
   height: number,
   imageDrawBox?: { x: number; y: number; width: number; height: number },
-  randomCropFraction?: { x: number; y: number },
 ) {
   const sourceWidth =
     image instanceof HTMLImageElement ? image.naturalWidth :
@@ -53,32 +52,6 @@ function drawImageCover(
     height;
 
   const targetBox = imageDrawBox ?? { x, y, width, height };
-  if (randomCropFraction) {
-    const coverScale = Math.max(
-      targetBox.width / Math.max(sourceWidth, 1),
-      targetBox.height / Math.max(sourceHeight, 1),
-    );
-    const srcCropW = targetBox.width / Math.max(coverScale, 0.0001);
-    const srcCropH = targetBox.height / Math.max(coverScale, 0.0001);
-    const maxSrcOffsetX = Math.max(0, sourceWidth - srcCropW);
-    const maxSrcOffsetY = Math.max(0, sourceHeight - srcCropH);
-    const srcX = randomCropFraction.x * maxSrcOffsetX;
-    const srcY = randomCropFraction.y * maxSrcOffsetY;
-
-    ctx.drawImage(
-      image,
-      srcX,
-      srcY,
-      srcCropW,
-      srcCropH,
-      targetBox.x,
-      targetBox.y,
-      targetBox.width,
-      targetBox.height,
-    );
-    return;
-  }
-
   const scale = Math.max(
     targetBox.width / Math.max(sourceWidth, 1),
     targetBox.height / Math.max(sourceHeight, 1),
@@ -103,12 +76,11 @@ export function fillMaterialSurface(
     tintColor?: string | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
     imageDrawBox?: { x: number; y: number; width: number; height: number };
-    /** Per-tile random crop fractions (0–1). When provided each tile shows a
-     *  different portion of the source image rather than the centred crop. */
-    randomCropFraction?: { x: number; y: number };
+    /** Stable per-tile tone shift. Negative darkens, positive lightens. */
+    toneShift?: number;
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox, randomCropFraction } = options;
+  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox, toneShift } = options;
 
   if (clipPath?.length) {
     tracePolygonPath(ctx, clipPath);
@@ -124,7 +96,7 @@ export function fillMaterialSurface(
   ctx.clip();
 
   if (image) {
-    drawImageCover(ctx, image, x, y, width, height, imageDrawBox, randomCropFraction);
+    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
     if (tintColor) {
       ctx.fillStyle = tintColor;
       ctx.globalCompositeOperation = 'multiply';
@@ -139,6 +111,23 @@ export function fillMaterialSurface(
   } else {
     ctx.fillStyle = fallbackFill;
     ctx.fillRect(x, y, width, height);
+  }
+
+  if (toneShift && Math.abs(toneShift) > 0.0001) {
+    if (toneShift < 0) {
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.globalAlpha = Math.min(0.22, Math.abs(toneShift) * 0.22);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(x, y, width, height);
+    } else {
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = Math.min(0.16, toneShift * 0.16);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x, y, width, height);
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   ctx.restore();
