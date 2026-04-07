@@ -16,8 +16,8 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: #FFF;
-  
-  
+
+
 }
 
 .panelHeader {
@@ -365,7 +365,7 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: #FFF;
-  
+
 }
 
 .popoverHeader {
@@ -431,7 +431,7 @@
   height: 16px;
   border: 2px solid #fff;
   border-radius: 5px;
-  
+
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -440,16 +440,14 @@
   position: relative;
   height: 260px;
   border-radius: 5px;
-  background: linear-gradient(
-    180deg,
-    #ff0000 0%,
-    #ffff00 16.66%,
-    #00ff00 33.33%,
-    #00ffff 50%,
-    #0000ff 66.66%,
-    #ff00ff 83.33%,
-    #ff0000 100%
-  );
+  background: linear-gradient(180deg,
+      #ff0000 0%,
+      #ffff00 16.66%,
+      #00ff00 33.33%,
+      #00ffff 50%,
+      #0000ff 66.66%,
+      #ff00ff 83.33%,
+      #ff0000 100%);
   cursor: ns-resize;
 }
 
@@ -460,7 +458,7 @@
   height: 12px;
   border: 2px solid #fff;
   border-radius: 5px;
-  
+
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -539,7 +537,7 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: #FFF;
-  
+
 }
 
 .settingsModalHeader {
@@ -689,234 +687,200 @@
 }
 
 .modalCard {
-  width: min(700px, calc(100vw - 20px));
-  max-height: min(80vh, 860px);
+  width: min(780px, calc(100vw - 40px));
+  max-height: min(85vh, 900px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
-  
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 .modalHeader {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 12px;
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .modalTitleRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 16px;
 }
 
 .modalTitle {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
+  margin: 0 0 4px 0;
 }
 
 .modalDescription {
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 0;
+  line-height: 1.4;
 }
 
 .modalTools {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
-.modalTools > * {
+.modalTools>* {
   flex: 1 1 auto;
 }
 
-.modalBody {
-  overflow: auto;
-  padding: 12px 14px 14px;
-}
-
-.modalActionStack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.modalSection {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modalSection + .modalSection {
-  margin-top: 12px;
-}
-
-.modalSectionTitle {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: rgba(0, 0, 0, 0.6);
-  text-transform: uppercase;
-}
-
-.edgePopupCard {
-  width: min(360px, calc(100vw - 24px));
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
-  overflow: hidden;
-}
-
-.edgePopupHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.edgePopupTitle {
+.modalTools .input {
+  padding: 10px 14px;
   font-size: 14px;
-  font-weight: 700;
+  border-radius: 6px;
 }
 
-.edgePopupBody {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px 14px 14px;
+.modalBody {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px 32px 32px;
 }
 
-.edgePopupValue {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.optionGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 8px;
-}
-
-.exportFormatGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.exportFormatButton {
-  padding: 10px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  background: #fff;
-  color: #000;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.exportFormatButtonActive {
-  border-color: #000;
-  
-  color: #000;
-}
-
-.optionButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  background: #fff;
-  cursor: pointer;
-  text-align: center;
-}
-
-.optionButton > div {
-  width: 100%;
-}
-
-.optionButton:hover {
-  border-color: rgba(0, 0, 0, 1);
-  background: #FFF;
-}
-
-.optionButtonActive {
-  border-color: #000;
-  
-}
-
-.optionButtonDisabled {
-  opacity: 0.48;
-  cursor: not-allowed;
-}
-
+/* Pattern Grid - Clean responsive layout */
 .patternOptionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 14px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 20px;
 }
 
+/* Individual pattern tile button */
 .patternOptionButton {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  gap: 10px;
+  padding: 18px 16px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: #fff;
   cursor: pointer;
   text-align: center;
+  transition: all 150ms ease;
+}
+
+.patternOptionButton:hover {
+  border-color: rgba(0, 0, 0, 0.25);
+  background: #fafafa;
+  transform: translateY(-1px);
 }
 
 .patternOptionButton:hover .patternPreviewFrame {
-  border-color: rgba(0, 0, 0, 1);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Active/selected state */
+.patternOptionButtonActive {
+  border-color: #000;
+  background: #fafafa;
 }
 
 .patternOptionButtonActive .patternPreviewFrame {
-  border-color: rgba(0, 0, 0, 1);
+  border-color: #000;
+  box-shadow: 0 0 0 1px #000;
 }
 
+/* Disabled state */
 .patternOptionButtonDisabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
-.patternPreviewFrame {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.patternOptionButtonDisabled:hover {
+  transform: none;
+  border-color: rgba(0, 0, 0, 0.08);
   background: #fff;
-  transition: border-color 120ms ease;
 }
 
+/* Icon container - fixed square, centered */
+.patternPreviewFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: #fff;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+}
+
+/* SVG icon - contained, never cropped */
 .patternPreviewImage {
-  width: 100%;
-  height: 100%;
+  width: 72%;
+  height: 72%;
+  max-width: 70px;
+  max-height: 70px;
   object-fit: contain;
   object-position: center;
-  filter: none;
+  display: block;
 }
 
+/* Pattern label */
 .patternOptionName {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.3;
   color: #000;
+  letter-spacing: 0.01em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .modalCard {
+    width: calc(100vw - 24px);
+    max-height: 90vh;
+  }
+
+  .modalHeader {
+    padding: 20px 20px 16px;
+  }
+
+  .modalBody {
+    padding: 20px;
+  }
+
+  .patternOptionGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+  }
+
+  .patternPreviewFrame {
+    width: 80px;
+    height: 80px;
+  }
+
+  .patternOptionButton {
+    padding: 14px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .patternOptionGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .patternPreviewFrame {
+    width: 72px;
+    height: 72px;
+  }
+
+  .patternOptionName {
+    font-size: 12px;
+  }
 }
 
 .optionName {
@@ -974,4 +938,131 @@
   .jointLinkButton {
     width: 100%;
   }
+}
+
+/* Modal action stack and sections */
+.modalActionStack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.modalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalSection+.modalSection {
+  margin-top: 12px;
+}
+
+.modalSectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+}
+
+/* Edge popup styles */
+.edgePopupCard {
+  width: min(360px, calc(100vw - 24px));
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.edgePopupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.edgePopupTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.edgePopupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px 14px;
+}
+
+.edgePopupValue {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Generic option grid */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 8px;
+}
+
+/* Export format grid */
+.exportFormatGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.exportFormatButton {
+  padding: 10px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exportFormatButtonActive {
+  border-color: #000;
+  color: #000;
+}
+
+/* Generic option button */
+.optionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.optionButton>div {
+  width: 100%;
+}
+
+.optionButton:hover {
+  border-color: rgba(0, 0, 0, 1);
+  background: #FFF;
+}
+
+.optionButtonActive {
+  border-color: #000;
+}
+
+.optionButtonDisabled {
+  opacity: 0.48;
+  cursor: not-allowed;
 }

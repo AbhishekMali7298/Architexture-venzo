@@ -10,7 +10,10 @@ function getPatternPreviewUrl(pattern: PatternDefinition) {
   return `/patterns/${filename}`;
 }
 
-const ENABLED_PATTERN_TYPES = new Set<PatternType>(['stack_bond', 'stretcher_bond', 'flemish_bond', 'herringbone', 'chevron', 'staggered']);
+// Enable all pattern types for full catalog access
+const ENABLED_PATTERN_TYPES = new Set<PatternType>(
+  PATTERN_CATALOG.map((p) => p.type)
+);
 
 function PatternPreview({
   src,
@@ -61,9 +64,16 @@ export function PatternPickerModal({
           <div className={styles.modalTitleRow}>
             <div>
               <h2 className={styles.modalTitle}>Choose Pattern</h2>
-              <p className={styles.modalDescription}>Browse the uploaded pattern thumbnails and choose the active layout.</p>
+              <p className={styles.modalDescription}>
+                Browse the pattern thumbnails and choose the active layout.
+              </p>
             </div>
-            <button className={styles.iconButton} type="button" onClick={onClose} aria-label="Close pattern picker">
+            <button
+              className={styles.iconButton}
+              type="button"
+              onClick={onClose}
+              aria-label="Close pattern picker"
+            >
               ✕
             </button>
           </div>
@@ -84,7 +94,8 @@ export function PatternPickerModal({
               return (
                 <button
                   key={pattern.type}
-                  className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''} ${!enabled ? styles.patternOptionButtonDisabled : ''}`}
+                  className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
+                    } ${!enabled ? styles.patternOptionButtonDisabled : ''}`}
                   type="button"
                   disabled={!enabled}
                   onClick={() => {
@@ -93,7 +104,7 @@ export function PatternPickerModal({
                   }}
                 >
                   <PatternPreview src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
-                  <div className={styles.patternOptionName}>{pattern.displayName}</div>
+                  <span className={styles.patternOptionName}>{pattern.displayName}</span>
                 </button>
               );
             })}
