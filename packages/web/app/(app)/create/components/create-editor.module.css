@@ -687,13 +687,13 @@
 }
 
 .modalCard {
-  width: min(780px, calc(100vw - 40px));
+  width: min(720px, calc(100vw - 40px));
   max-height: min(85vh, 900px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 0;
   background: #fff;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
@@ -701,8 +701,8 @@
 .modalHeader {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 28px 32px 20px;
+  gap: 10px;
+  padding: 20px 24px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -714,13 +714,13 @@
 }
 
 .modalTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
 }
 
 .modalDescription {
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(0, 0, 0, 0.55);
   margin: 0;
   line-height: 1.4;
@@ -736,22 +736,22 @@
 }
 
 .modalTools .input {
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 8px 12px;
+  font-size: 13px;
   border-radius: 6px;
 }
 
 .modalBody {
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 28px 32px 32px;
+  padding: 20px 24px 24px;
 }
 
 /* Pattern Grid - Clean responsive layout */
 .patternOptionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
 }
 
 /* Individual pattern tile button */
@@ -759,20 +759,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 18px 16px;
-  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  gap: 8px;
+  padding: 14px 12px;
+  border: 1.5px solid transparent;
   border-radius: 8px;
-  background: #fff;
+  background: transparent;
   cursor: pointer;
   text-align: center;
-  transition: all 150ms ease;
+  transition: all 120ms ease;
 }
 
 .patternOptionButton:hover {
-  border-color: rgba(0, 0, 0, 0.25);
-  background: #fafafa;
-  transform: translateY(-1px);
+  background: #f5f5f5;
 }
 
 .patternOptionButton:hover .patternPreviewFrame {
@@ -798,9 +796,7 @@
 }
 
 .patternOptionButtonDisabled:hover {
-  transform: none;
-  border-color: rgba(0, 0, 0, 0.08);
-  background: #fff;
+  background: transparent;
 }
 
 /* Icon container - fixed square, centered */
@@ -808,21 +804,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 96px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 6px;
   background: #fff;
-  transition: all 150ms ease;
+  transition: all 120ms ease;
   flex-shrink: 0;
 }
 
 /* SVG icon - contained, never cropped */
 .patternPreviewImage {
-  width: 72%;
-  height: 72%;
-  max-width: 70px;
-  max-height: 70px;
+  width: 70%;
+  height: 70%;
+  max-width: 56px;
+  max-height: 56px;
   object-fit: contain;
   object-position: center;
   display: block;
@@ -830,7 +826,7 @@
 
 /* Pattern label */
 .patternOptionName {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.3;
   color: #000;
@@ -845,32 +841,16 @@
   }
 
   .modalHeader {
-    padding: 20px 20px 16px;
+    padding: 16px 20px 14px;
   }
 
   .modalBody {
-    padding: 20px;
+    padding: 16px 20px 20px;
   }
 
   .patternOptionGrid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 16px;
-  }
-
-  .patternPreviewFrame {
-    width: 80px;
-    height: 80px;
-  }
-
-  .patternOptionButton {
-    padding: 14px 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .patternOptionGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 10px;
   }
 
   .patternPreviewFrame {
@@ -878,8 +858,24 @@
     height: 72px;
   }
 
+  .patternOptionButton {
+    padding: 12px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .patternOptionGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .patternPreviewFrame {
+    width: 64px;
+    height: 64px;
+  }
+
   .patternOptionName {
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 
