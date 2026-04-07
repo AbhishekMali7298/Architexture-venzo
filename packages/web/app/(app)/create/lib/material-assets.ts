@@ -207,6 +207,11 @@ export function getJointRenderableColor(
   tint: string | null | undefined,
   adjustments?: ImageAdjustments,
 ) {
+  if (source.type === 'solid') {
+    const solidColor = tint?.toUpperCase() ?? source.color;
+    return adjustments ? applyImageAdjustmentsToColor(solidColor, adjustments) : solidColor;
+  }
+
   const baseColor = getMaterialRenderableColor(source, '#d4cfc6');
   const normalizedTint = tint?.toUpperCase() ?? null;
   const tintedColor = normalizedTint
