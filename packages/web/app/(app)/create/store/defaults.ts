@@ -53,7 +53,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       tint: '#FFFFFF',
 
       edges: {
-        style: 'handmade',
+        style: 'none',
         perimeterScale: 1,
         profileWidth: 25,
         excludeSides: [],
