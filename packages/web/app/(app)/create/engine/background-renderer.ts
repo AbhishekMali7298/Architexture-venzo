@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from '../lib/handmade-edge';
-import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 
@@ -33,6 +33,7 @@ export function renderBackground(
   canvasHeight: number,
   options?: {
     materialImage?: CanvasImageSource | null;
+    jointImage?: CanvasImageSource | null;
   },
 ) {
   const material = config.materials[0];
@@ -48,13 +49,25 @@ export function renderBackground(
   );
   const frameWidth = layout.totalWidth * scale;
   const frameHeight = layout.totalHeight * scale;
-  const jointColor = config.joints.tint ?? '#ffffff';
+  const jointFill = getJointRenderableColor(
+    config.joints.materialSource,
+    config.joints.tint,
+    config.joints.adjustments,
+  );
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  ctx.fillStyle = jointColor;
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  fillMaterialSurface(ctx, {
+    x: 0,
+    y: 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    radius: 0,
+    fallbackFill: jointFill,
+    image: options?.jointImage,
+    tintColor: config.joints.tint,
+  });
 
   const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / Math.max(frameWidth, 1)) + 1;

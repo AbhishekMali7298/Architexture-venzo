@@ -24,6 +24,8 @@ export function MaterialSettingsSection({
   materialCategory,
   materialColor,
   materialThumbnailUrl,
+  jointMaterialName,
+  jointMaterialThumbnailUrl,
   materialTint,
   width,
   height,
@@ -36,6 +38,7 @@ export function MaterialSettingsSection({
   edgeScale,
   edgeWidth,
   onOpenPicker,
+  onOpenJointMaterialPicker,
   onMaterialTintChange,
   onWidthChange,
   onHeightChange,
@@ -52,6 +55,8 @@ export function MaterialSettingsSection({
   materialCategory: string;
   materialColor: string;
   materialThumbnailUrl?: string | null;
+  jointMaterialName: string;
+  jointMaterialThumbnailUrl?: string | null;
   materialTint: string | null;
   width: number;
   height: number;
@@ -64,6 +69,7 @@ export function MaterialSettingsSection({
   edgeScale: number;
   edgeWidth: number;
   onOpenPicker: () => void;
+  onOpenJointMaterialPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
@@ -110,6 +116,14 @@ export function MaterialSettingsSection({
         </button>
 
         <div className={styles.subsectionTitle}>Joints</div>
+
+        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenJointMaterialPicker}>
+          <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{jointMaterialName}</span>
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>Joint material</span>
+          </span>
+          <MaterialThumb color={jointTint ?? '#d4cfc6'} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact shape="circle" />
+        </button>
 
         <div className={styles.jointDimensionRow}>
           <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit="mm" onChange={onJointHorizontalChange} />

@@ -5,13 +5,14 @@ import { getMaterialById, getMaterialCategory, getPatternByType, type TextureCon
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
+import { JointMaterialModal } from './components/joint-material-modal';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
-import { getMaterialRenderableColor, getMaterialThumbnailUrl } from './lib/material-assets';
+import { getMaterialRenderableColor, getMaterialSourceRenderableImageUrl, getMaterialThumbnailUrl } from './lib/material-assets';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
@@ -43,6 +44,7 @@ export default function CreatePage() {
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointTint = useEditorStore((state) => state.setJointTint);
+  const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
@@ -55,6 +57,7 @@ export default function CreatePage() {
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showPatternModal, setShowPatternModal] = useState(false);
+  const [showJointMaterialModal, setShowJointMaterialModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -92,6 +95,26 @@ export default function CreatePage() {
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
   const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
+  const jointMaterialPath =
+    config.joints.materialSource.type === 'image'
+      ? config.joints.materialSource.asset.path
+      : config.joints.materialSource.type === 'generated'
+        ? config.joints.materialSource.asset?.path ?? null
+        : null;
+  const jointMaterialName =
+    config.joints.materialSource.type === 'solid'
+      ? 'Solid Fill'
+      : jointMaterialPath
+        ? jointMaterialPath
+            .split('/')
+            .pop()
+            ?.replace(/\.[a-z0-9]+$/i, '')
+            .replace(/[-_]+/g, ' ')
+            .replace(/\b\w/g, (char: string) => char.toUpperCase()) ?? 'Joint Texture'
+        : 'Joint Texture';
+  const jointMaterialThumbnailUrl = jointMaterialPath
+    ? getMaterialSourceRenderableImageUrl(config.joints.materialSource)
+    : null;
   const patternLayout = useMemo(() => getPatternLayout(config), [config]);
   const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} mm`;
   const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');
@@ -164,6 +187,8 @@ export default function CreatePage() {
           materialCategory={materialCategory}
           materialColor={materialColor}
           materialThumbnailUrl={materialThumbnailUrl}
+          jointMaterialName={jointMaterialName}
+          jointMaterialThumbnailUrl={jointMaterialThumbnailUrl}
           materialTint={material.tint}
           width={material.width}
           height={material.height}
@@ -176,6 +201,7 @@ export default function CreatePage() {
           edgeScale={material.edges.perimeterScale}
           edgeWidth={material.edges.profileWidth}
           onOpenPicker={() => setShowMaterialModal(true)}
+          onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
@@ -207,6 +233,16 @@ export default function CreatePage() {
           onSelect={(pattern) => {
             setPatternType(pattern.type);
             setShowPatternModal(false);
+          }}
+        />
+      ) : null}
+
+      {showJointMaterialModal ? (
+        <JointMaterialModal
+          currentRenderPath={jointMaterialPath}
+          onClose={() => setShowJointMaterialModal(false)}
+          onSelect={(asset) => {
+            setJointMaterialAsset(asset);
           }}
         />
       ) : null}

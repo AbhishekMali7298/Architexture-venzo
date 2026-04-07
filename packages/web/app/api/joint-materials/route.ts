@@ -2,7 +2,11 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
 
-const JOINTS_ROOT = path.resolve(process.cwd(), '../../assets/joints');
+const JOINTS_ROOT_CANDIDATES = [
+  path.resolve(process.cwd(), 'public/Joints-Patterns'),
+  path.resolve(process.cwd(), 'packages/web/public/Joints-Patterns'),
+  path.resolve(process.cwd(), '../../assets/joints'),
+];
 
 function isImageFile(fileName: string) {
   return ['.jpg', '.jpeg', '.png', '.webp'].includes(path.extname(fileName).toLowerCase());
@@ -50,7 +54,12 @@ function pickPreferredFile(files: string[], preferredBaseNames: string[]) {
 
 export async function GET() {
   try {
-    const entries = await fs.readdir(JOINTS_ROOT, { withFileTypes: true });
+    const jointsRoot = await resolveJointsRoot();
+    if (!jointsRoot) {
+      return NextResponse.json([]);
+    }
+
+    const entries = await fs.readdir(jointsRoot, { withFileTypes: true });
     const materials = [];
     const rootFiles = entries.filter((entry) => entry.isFile() && isImageFile(entry.name)).map((entry) => entry.name);
 
@@ -75,8 +84,8 @@ export async function GET() {
       materials.push({
         id: baseName,
         name: titleize(baseName),
-        thumbnailPath: `joints/${thumbnailFile}`,
-        renderPath: `joints/${renderFile}`,
+        thumbnailPath: toPublicAssetPath(jointsRoot, thumbnailFile),
+        renderPath: toPublicAssetPath(jointsRoot, renderFile),
         mimeType: getContentType(renderFile),
       });
     }
@@ -84,7 +93,7 @@ export async function GET() {
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
 
-      const folderPath = path.join(JOINTS_ROOT, entry.name);
+      const folderPath = path.join(jointsRoot, entry.name);
       const files = (await fs.readdir(folderPath)).filter(isImageFile);
       if (!files.length) continue;
 
@@ -100,8 +109,8 @@ export async function GET() {
       materials.push({
         id: entry.name,
         name: titleize(entry.name),
-        thumbnailPath: `joints/${entry.name}/${thumbnailFile}`,
-        renderPath: `joints/${entry.name}/${renderFile}`,
+        thumbnailPath: toPublicAssetPath(jointsRoot, path.join(entry.name, thumbnailFile)),
+        renderPath: toPublicAssetPath(jointsRoot, path.join(entry.name, renderFile)),
         mimeType: getContentType(renderFile),
       });
     }
@@ -114,4 +123,30 @@ export async function GET() {
 
     return NextResponse.json({ error: 'Failed to load joint materials' }, { status: 500 });
   }
+}
+
+async function resolveJointsRoot() {
+  for (const candidate of JOINTS_ROOT_CANDIDATES) {
+    try {
+      const stat = await fs.stat(candidate);
+      if (stat.isDirectory()) {
+        return candidate;
+      }
+    } catch {
+      // Try the next candidate.
+    }
+  }
+
+  return null;
+}
+
+function toPublicAssetPath(rootPath: string, relativeFilePath: string) {
+  const normalizedRoot = rootPath.split(path.sep).join('/');
+  const normalizedRelative = relativeFilePath.split(path.sep).join('/');
+
+  if (normalizedRoot.endsWith('/public/Joints-Patterns')) {
+    return `/Joints-Patterns/${normalizedRelative}`;
+  }
+
+  return `joints/${normalizedRelative}`;
 }

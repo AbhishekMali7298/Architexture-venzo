@@ -3,7 +3,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/material-renderer';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
-import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
+import { getMaterialRenderableColor, getMaterialRenderableImageUrl, getMaterialSourceRenderableImageUrl } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
 
 function downloadUrl(url: string, filename: string) {
@@ -35,6 +35,17 @@ async function resolvePreviewMaterialImage(config: TextureConfig): Promise<HTMLI
   }
 }
 
+async function resolveJointMaterialImage(config: TextureConfig): Promise<HTMLImageElement | null> {
+  const imageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
+  if (!imageUrl) return null;
+
+  try {
+    return await loadMaterialImage(imageUrl);
+  } catch {
+    return null;
+  }
+}
+
 async function renderExportCanvas(config: TextureConfig) {
   const canvas = document.createElement('canvas');
   canvas.width = config.output.widthPx;
@@ -46,8 +57,10 @@ async function renderExportCanvas(config: TextureConfig) {
   }
 
   const materialImage = await resolvePreviewMaterialImage(config);
+  const jointImage = await resolveJointMaterialImage(config);
   renderToCanvas(ctx, config, canvas.width, canvas.height, {
     materialImage,
+    jointImage,
     backgroundFill: '#ffffff',
   });
 

@@ -1,6 +1,6 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from '../lib/handmade-edge';
-import { getMaterialRenderableColor } from '../lib/material-assets';
+import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
 
@@ -11,6 +11,7 @@ export function renderToCanvas(
   canvasHeight: number,
   options?: {
     materialImage?: CanvasImageSource | null;
+    jointImage?: CanvasImageSource | null;
     backgroundFill?: string;
   },
 ): void {
@@ -23,7 +24,11 @@ export function renderToCanvas(
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
   const layout = getPatternLayout(config);
-  const jointColor = config.joints.tint ?? '#ffffff';
+  const jointFill = getJointRenderableColor(
+    config.joints.materialSource,
+    config.joints.tint,
+    config.joints.adjustments,
+  );
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -41,8 +46,16 @@ export function renderToCanvas(
   const offsetX = (canvasWidth - drawWidth) / 2;
   const offsetY = (canvasHeight - drawHeight) / 2;
 
-  ctx.fillStyle = jointColor;
-  ctx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+  fillMaterialSurface(ctx, {
+    x: offsetX,
+    y: offsetY,
+    width: drawWidth,
+    height: drawHeight,
+    radius: 0,
+    fallbackFill: jointFill,
+    image: options?.jointImage,
+    tintColor: config.joints.tint,
+  });
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
@@ -76,6 +89,7 @@ export function scheduleRender(
   config: TextureConfig,
   options?: {
     materialImage?: CanvasImageSource | null;
+    jointImage?: CanvasImageSource | null;
     backgroundFill?: string;
   },
 ): void {
