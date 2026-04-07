@@ -119,15 +119,29 @@ export function MaterialSettingsSection({
 
         <div className={styles.subsectionTitle}>Joints</div>
 
-        <div className={styles.gridTwo}>
+        <div className={styles.jointDimensionRow}>
           <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit="mm" onChange={onJointHorizontalChange} />
+          <button
+            className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
+            type="button"
+            onClick={() => onLinkedJointsChange(!linkedJoints)}
+            aria-label={linkedJoints ? 'Unlock joint sizes' : 'Link joint sizes'}
+            title={linkedJoints ? 'Click to unlink joints' : 'Click to link joints'}
+          >
+            {linkedJoints ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+              </svg>
+            )}
+          </button>
           <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit="mm" onChange={onJointVerticalChange} />
         </div>
-
-        <label className={styles.checkboxRow}>
-          <input type="checkbox" checked={linkedJoints} onChange={(event) => onLinkedJointsChange(event.target.checked)} />
-          <span>Link joint sizes</span>
-        </label>
 
         <ColorField label="Joint Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
 
