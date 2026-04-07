@@ -53,6 +53,7 @@ export interface EditorState {
   setPatternType: (type: PatternType) => void;
   setPatternRows: (rows: number) => void;
   setPatternColumns: (columns: number) => void;
+  setPatternAngle: (angle: number) => void;
 
   // Material
   setMaterialColor: (color: string) => void;
@@ -171,6 +172,13 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Columns → ${columns}`);
         s.config.pattern.columns = Math.max(1, Math.min(50, Math.round(columns)));
+        bumpRender(s);
+      }),
+
+    setPatternAngle: (angle) =>
+      set((s) => {
+        pushHistory(s, `Angle → ${angle}°`);
+        s.config.pattern.angle = Math.max(0, Math.min(70, Math.round(angle)));
         bumpRender(s);
       }),
 

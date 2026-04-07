@@ -35,6 +35,7 @@ export default function CreatePage() {
   const setPatternType = useEditorStore((state) => state.setPatternType);
   const setPatternRows = useEditorStore((state) => state.setPatternRows);
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
+  const setPatternAngle = useEditorStore((state) => state.setPatternAngle);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
   const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
@@ -148,13 +149,16 @@ export default function CreatePage() {
       >
         <StackSettingsSection
           patternName={currentPatternName}
+          patternType={config.pattern.type}
           rows={config.pattern.rows}
           columns={config.pattern.columns}
+          angle={config.pattern.angle}
           previewUrl={currentPatternPreview}
           widthHint={stackHint}
           onOpenPicker={() => setShowPatternModal(true)}
           onRowsChange={setPatternRows}
           onColumnsChange={setPatternColumns}
+          onAngleChange={setPatternAngle}
         />
 
         <MaterialSettingsSection
