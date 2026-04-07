@@ -34,6 +34,8 @@ export function MaterialSettingsSection({
   jointVertical,
   jointTint,
   linkedJoints,
+  recessJoints,
+  concaveJoints,
   edgeStyle,
   edgeScale,
   edgeWidth,
@@ -46,6 +48,8 @@ export function MaterialSettingsSection({
   onJointVerticalChange,
   onJointTintChange,
   onLinkedJointsChange,
+  onRecessJointsChange,
+  onConcaveJointsChange,
   onEdgeStyleChange,
   onEdgeScaleChange,
   onEdgeWidthChange,
@@ -65,6 +69,8 @@ export function MaterialSettingsSection({
   jointVertical: number;
   jointTint: string | null;
   linkedJoints: boolean;
+  recessJoints: boolean;
+  concaveJoints: boolean;
   edgeStyle: EdgeStyle;
   edgeScale: number;
   edgeWidth: number;
@@ -77,6 +83,8 @@ export function MaterialSettingsSection({
   onJointVerticalChange: (value: number) => void;
   onJointTintChange: (value: string | null) => void;
   onLinkedJointsChange: (value: boolean) => void;
+  onRecessJointsChange: (value: boolean) => void;
+  onConcaveJointsChange: (value: boolean) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
   onEdgeScaleChange: (value: number) => void;
   onEdgeWidthChange: (value: number) => void;
@@ -150,6 +158,24 @@ export function MaterialSettingsSection({
         </div>
 
         <ColorField label="Joint Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            checked={recessJoints}
+            onChange={(event) => onRecessJointsChange(event.target.checked)}
+          />
+          <span>Recess joints</span>
+        </label>
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            checked={concaveJoints}
+            onChange={(event) => onConcaveJointsChange(event.target.checked)}
+          />
+          <span>Concave joints</span>
+        </label>
 
         <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
 

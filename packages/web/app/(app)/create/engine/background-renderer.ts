@@ -3,6 +3,7 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
+import { renderJointProfile } from './joint-profile-renderer';
 
 function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
   const panelWidth = 336;
@@ -79,6 +80,13 @@ export function renderBackground(
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameWidth;
 
+      renderJointProfile(ctx, config, {
+        x: offsetX,
+        y: offsetY,
+        width: frameWidth,
+        height: frameHeight,
+      }, scale, layout.tiles, 'under');
+
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
         fillMaterialSurface(ctx, {
@@ -102,6 +110,13 @@ export function renderBackground(
           },
         });
       }
+
+      renderJointProfile(ctx, config, {
+        x: offsetX,
+        y: offsetY,
+        width: frameWidth,
+        height: frameHeight,
+      }, scale, layout.tiles, 'over');
     }
   }
 
