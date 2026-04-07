@@ -98,7 +98,7 @@ export function JointMaterialModal({
                   onClose();
                 }}
               >
-                <MaterialThumb color="#d9d4ca" alt="Solid Fill" shape="circle" />
+                <MaterialThumb color="#d9d4ca" alt="Solid Fill" shape="square" />
                 <div>
                   <div className={styles.optionName}>Solid Fill</div>
                   <div className={styles.optionMeta}>Use the joint tint field as the final color</div>
@@ -127,7 +127,7 @@ export function JointMaterialModal({
                     color="#d9d4ca"
                     src={material.thumbnailPath}
                     alt={material.name}
-                    shape="circle"
+                    shape="square"
                   />
                   <div>
                     <div className={styles.optionName}>{material.name}</div>
