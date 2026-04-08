@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import styles from './create-editor.module.css';
 
@@ -16,7 +17,16 @@ export function CreateEditorShell({
     <div className={styles.panel}>
       <header className={styles.panelHeader}>
         <div className={styles.brand}>
-          <div className={styles.brandMark}>VW</div>
+          <div className={styles.brandMark}>
+            <Image
+              src="/Venzowood.webp"
+              alt="Venzowood logo"
+              width={32}
+              height={32}
+              className={styles.brandLogo}
+              priority
+            />
+          </div>
           <div className={styles.brandText}>
             <span className={styles.brandTitle}>Venzowood</span>
             <span className={styles.brandSubtitle}>Texture and material editor</span>
