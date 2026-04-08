@@ -35,9 +35,9 @@ export function SettingsModal({
 
         <div className={styles.settingsModalBody}>
           <div className={styles.settingsIntro}>
-            <h2 className={styles.settingsHeading}>Create Texture</h2>
+            <h2 className={styles.settingsHeading}>Venzowood</h2>
             <p className={styles.settingsText}>
-              Use the control panel to adjust parameters and preview the active texture layout.
+              Use the control panel to adjust parameters and preview the active Venzowood texture layout.
             </p>
           </div>
 

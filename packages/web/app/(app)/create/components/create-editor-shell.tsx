@@ -16,10 +16,10 @@ export function CreateEditorShell({
     <div className={styles.panel}>
       <header className={styles.panelHeader}>
         <div className={styles.brand}>
-          <div className={styles.brandMark}>TX</div>
+          <div className={styles.brandMark}>VW</div>
           <div className={styles.brandText}>
-            <span className={styles.brandTitle}>Create Texture</span>
-            <span className={styles.brandSubtitle}>Material-only editor baseline</span>
+            <span className={styles.brandTitle}>Venzowood</span>
+            <span className={styles.brandSubtitle}>Texture and material editor</span>
           </div>
         </div>
         <div className={styles.headerActions}>
