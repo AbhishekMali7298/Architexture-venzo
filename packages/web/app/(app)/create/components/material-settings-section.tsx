@@ -6,6 +6,7 @@ import type { EdgeStyle } from '@textura/shared';
 import { CheckboxField, ColorField, NumberField, RangeField, SectionCard, SelectField, SliderField } from './field-controls';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
+import { isPresetEdgeStyle } from '../lib/handmade-edge';
 import styles from './create-editor.module.css';
 
 const EDGE_STYLE_OPTIONS: { value: EdgeStyle; label: string }[] = [
@@ -101,7 +102,7 @@ export function MaterialSettingsSection({
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
   const edgeStyleLabel = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
-  const isHandmade = edgeStyle === 'handmade';
+  const usesPresetWidth = isPresetEdgeStyle(edgeStyle);
   const unitLabel = units === 'inches' ? 'in' : 'mm';
 
   return (
@@ -243,18 +244,18 @@ export function MaterialSettingsSection({
               />
 
               <RangeField
-                label={isHandmade ? 'Handmade Scale' : 'Scale'}
+                label={edgeStyle === 'handmade' ? 'Handmade Scale' : 'Scale'}
                 value={edgeScale}
-                min={isHandmade ? 0.5 : 0}
-                max={isHandmade ? 4 : 5}
+                min={usesPresetWidth ? 0.25 : 0}
+                max={usesPresetWidth ? 4 : 5}
                 step={0.1}
                 valueText={edgeScale.toFixed(1)}
                 onChange={onEdgeScaleChange}
               />
 
-              {isHandmade ? (
+              {usesPresetWidth ? (
                 <div className={styles.hint}>
-                  Handmade uses the preset edge profile with width fixed to 25.
+                  This edge uses a preset profile with width fixed to 25.
                 </div>
               ) : (
                 <NumberField label="Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />

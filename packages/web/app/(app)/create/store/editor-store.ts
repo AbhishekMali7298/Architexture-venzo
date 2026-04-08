@@ -12,6 +12,7 @@ import type {
   MaterialDefinition,
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById } from '@textura/shared';
+import { getDefaultEdgeScale, getDefaultEdgeWidth, isPresetEdgeStyle } from '../lib/handmade-edge';
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 // ======= History (Undo/Redo) =======
@@ -290,10 +291,9 @@ export const useEditorStore = create<EditorState>()(
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
           mat.edges.style = style;
-          if (style === 'handmade') {
-            mat.edges.profileWidth = 25;
-            const nextScale = Number.isFinite(mat.edges.perimeterScale) ? mat.edges.perimeterScale : 1;
-            mat.edges.perimeterScale = clamp(nextScale, 0.5, 4);
+          if (isPresetEdgeStyle(style)) {
+            mat.edges.profileWidth = getDefaultEdgeWidth(style);
+            mat.edges.perimeterScale = getDefaultEdgeScale(style);
           }
         }
         bumpRender(s);
@@ -304,8 +304,8 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Edge scale → ${scale}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
-          mat.edges.perimeterScale = mat.edges.style === 'handmade'
-            ? clamp(scale, 0.5, 4)
+          mat.edges.perimeterScale = isPresetEdgeStyle(mat.edges.style)
+            ? clamp(scale, 0.25, 4)
             : clamp(scale, 0, 100);
         }
         bumpRender(s);
@@ -316,7 +316,9 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, `Edge width → ${width}`);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (mat) {
-          mat.edges.profileWidth = clamp(width, 0, 100);
+          mat.edges.profileWidth = isPresetEdgeStyle(mat.edges.style)
+            ? getDefaultEdgeWidth(mat.edges.style)
+            : clamp(width, 0, 100);
         }
         bumpRender(s);
       }),
