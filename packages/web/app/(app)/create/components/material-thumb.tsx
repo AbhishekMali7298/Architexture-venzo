@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from './create-editor.module.css';
 
 function lighten(hex: string, amount: number): string {
@@ -28,16 +29,24 @@ export function MaterialThumb({
   return (
     <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
       {src ? (
-        <img
-          src={src}
-          alt={alt ?? 'Material thumbnail'}
+        <div
+          className={styles.thumbMedia}
           style={{
-            width: '100%',
-            height: '100%',
             borderRadius: shape === 'circle' ? '50%' : '5px',
-            objectFit,
           }}
-        />
+        >
+          <Image
+            src={src}
+            alt={alt ?? 'Material thumbnail'}
+            fill
+            sizes={compact ? '44px' : '60px'}
+            quality={60}
+            loading="lazy"
+            style={{
+              objectFit,
+            }}
+          />
+        </div>
       ) : (
         <div
           style={{
