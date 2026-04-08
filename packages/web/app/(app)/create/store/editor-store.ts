@@ -53,6 +53,7 @@ export interface EditorState {
   leftPanelOpen: boolean;
   zoom: number;
   showBorder: boolean;
+  tileBackground: boolean;
 
   // History
   undoStack: HistoryEntry[];
@@ -105,6 +106,7 @@ export interface EditorState {
   toggleLeftPanel: () => void;
   setZoom: (zoom: number) => void;
   setShowBorder: (show: boolean) => void;
+  setTileBackground: (show: boolean) => void;
 
   // History
   undo: () => void;
@@ -157,6 +159,7 @@ export const useEditorStore = create<EditorState>()(
     leftPanelOpen: true,
     zoom: 1,
     showBorder: true,
+    tileBackground: true,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -462,6 +465,11 @@ export const useEditorStore = create<EditorState>()(
     setShowBorder: (show) =>
       set((s) => {
         s.showBorder = show;
+        bumpRender(s);
+      }),
+    setTileBackground: (show) =>
+      set((s) => {
+        s.tileBackground = show;
         bumpRender(s);
       }),
 

@@ -56,7 +56,10 @@ export default function CreatePage() {
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
+  const tileBackground = useEditorStore((state) => state.tileBackground);
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
+  const setTileBackground = useEditorStore((state) => state.setTileBackground);
+  const setUnits = useEditorStore((state) => state.setUnits);
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showPatternModal, setShowPatternModal] = useState(false);
@@ -258,9 +261,13 @@ export default function CreatePage() {
 
       {showSettingsModal ? (
         <SettingsModal
+          units={config.units}
           showBorder={showBorder}
+          tileBackground={tileBackground}
           onClose={() => setShowSettingsModal(false)}
+          onUnitsChange={setUnits}
           onShowBorderChange={setShowBorder}
+          onTileBackgroundChange={setTileBackground}
         />
       ) : null}
 

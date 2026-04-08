@@ -36,6 +36,7 @@ export function renderBackground(
   options?: {
     materialImage?: CanvasImageSource | null;
     jointImage?: CanvasImageSource | null;
+    tileBackground?: boolean;
   },
 ) {
   const material = config.materials[0];
@@ -70,6 +71,52 @@ export function renderBackground(
     image: options?.jointImage,
     tintColor: config.joints.tint,
   });
+
+  if (options?.tileBackground === false) {
+    renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'under');
+
+    for (const [tileIndex, tile] of layout.tiles.entries()) {
+      const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+      const toneShift = getToneVariationShift(
+        material.toneVariation,
+        config.seed,
+        tileIndex,
+        0,
+        0,
+      );
+
+      fillMaterialSurface(ctx, {
+        x: bounds.x + shape.bounds.x * scale,
+        y: bounds.y + shape.bounds.y * scale,
+        width: shape.bounds.width * scale,
+        height: shape.bounds.height * scale,
+        radius: 0,
+        fallbackFill,
+        image: options?.materialImage,
+        tintColor: material.tint,
+        clipPath: shape.points.map((point) => ({
+          x: bounds.x + point.x * scale,
+          y: bounds.y + point.y * scale,
+        })),
+        imageDrawBox: {
+          x: bounds.x + shape.bounds.x * scale,
+          y: bounds.y + shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+        },
+        toneShift,
+      });
+    }
+
+    renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'over');
+
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: frameWidth,
+      height: frameHeight,
+    };
+  }
 
   const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / Math.max(frameWidth, 1)) + 1;

@@ -12,6 +12,7 @@ export function BackgroundCanvas() {
   const config = useEditorStore((s) => s.config);
   const renderVersion = useEditorStore((s) => s.renderVersion);
   const showBorder = useEditorStore((s) => s.showBorder);
+  const tileBackground = useEditorStore((s) => s.tileBackground);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId ? getMaterialById(primaryMaterial.definitionId) : null;
   const materialImageUrl = getMaterialRenderableImageUrl(primaryMaterial, selectedMaterial);
@@ -40,7 +41,7 @@ export function BackgroundCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
 
-      const previewBounds = renderBackground(ctx, config, w, h, { materialImage, jointImage });
+      const previewBounds = renderBackground(ctx, config, w, h, { materialImage, jointImage, tileBackground });
       if (previewBounds && showBorder) {
         drawDottedBorder(ctx, previewBounds.x, previewBounds.y, previewBounds.width, previewBounds.height);
       }
@@ -49,7 +50,7 @@ export function BackgroundCanvas() {
     render();
     window.addEventListener('resize', render);
     return () => window.removeEventListener('resize', render);
-  }, [config, renderVersion, materialImage, jointImage, showBorder]);
+  }, [config, renderVersion, materialImage, jointImage, showBorder, tileBackground]);
 
   return (
     <canvas

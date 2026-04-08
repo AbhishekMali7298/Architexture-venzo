@@ -4,13 +4,21 @@ import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
 export function SettingsModal({
+  units,
   showBorder,
+  tileBackground,
   onClose,
+  onUnitsChange,
   onShowBorderChange,
+  onTileBackgroundChange,
 }: {
+  units: 'mm' | 'inches';
   showBorder: boolean;
+  tileBackground: boolean;
   onClose: () => void;
+  onUnitsChange: (units: 'mm' | 'inches') => void;
   onShowBorderChange: (checked: boolean) => void;
+  onTileBackgroundChange: (checked: boolean) => void;
 }) {
   return (
     <Modal onClose={onClose}>
@@ -29,15 +37,35 @@ export function SettingsModal({
           <div className={styles.settingsIntro}>
             <h2 className={styles.settingsHeading}>Create Texture</h2>
             <p className={styles.settingsText}>
-              This stripped-down editor only previews the active material.
+              Use the control panel to adjust parameters and preview the active texture layout.
             </p>
+          </div>
+
+          <div className={styles.settingsSection}>
+            <div className={styles.settingsSectionTitle}>Units</div>
+            <label className={styles.radioRow}>
+              <input type="radio" name="units" checked={units === 'mm'} onChange={() => onUnitsChange('mm')} />
+              <span>Millimetres (mm)</span>
+            </label>
+            <label className={styles.radioRow}>
+              <input type="radio" name="units" checked={units === 'inches'} onChange={() => onUnitsChange('inches')} />
+              <span>Inches (")</span>
+            </label>
           </div>
 
           <div className={styles.settingsSection}>
             <div className={styles.settingsSectionTitle}>Preview</div>
             <label className={styles.checkboxRow}>
+              <input
+                type="checkbox"
+                checked={tileBackground}
+                onChange={(event) => onTileBackgroundChange(event.target.checked)}
+              />
+              <span>Tile texture in background</span>
+            </label>
+            <label className={styles.checkboxRow}>
               <input type="checkbox" checked={showBorder} onChange={(event) => onShowBorderChange(event.target.checked)} />
-              <span>Show preview border</span>
+              <span>Show image border</span>
             </label>
           </div>
         </div>
