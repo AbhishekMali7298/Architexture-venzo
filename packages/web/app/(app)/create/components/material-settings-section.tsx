@@ -35,6 +35,7 @@ export function MaterialSettingsSection({
   jointVertical,
   jointTint,
   jointAdjustments,
+  units,
   linkedJoints,
   recessJoints,
   concaveJoints,
@@ -72,6 +73,7 @@ export function MaterialSettingsSection({
   jointVertical: number;
   jointTint: string | null;
   jointAdjustments: ImageAdjustments;
+  units: 'mm' | 'inches';
   linkedJoints: boolean;
   recessJoints: boolean;
   concaveJoints: boolean;
@@ -100,6 +102,7 @@ export function MaterialSettingsSection({
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
   const edgeStyleLabel = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
   const isHandmade = edgeStyle === 'handmade';
+  const unitLabel = units === 'inches' ? 'in' : 'mm';
 
   return (
     <>
@@ -113,8 +116,8 @@ export function MaterialSettingsSection({
         </button>
 
         <div className={styles.gridTwo}>
-          <NumberField label="Width" value={width} min={1} max={5000} unit="mm" onChange={onWidthChange} />
-          <NumberField label="Height" value={height} min={1} max={5000} unit="mm" onChange={onHeightChange} />
+          <NumberField label="Width" value={width} min={1} max={5000} unit={unitLabel} onChange={onWidthChange} />
+          <NumberField label="Height" value={height} min={1} max={5000} unit={unitLabel} onChange={onHeightChange} />
         </div>
 
         <button
@@ -140,7 +143,7 @@ export function MaterialSettingsSection({
         </button>
 
         <div className={styles.jointDimensionRow}>
-          <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit="mm" onChange={onJointHorizontalChange} />
+          <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit={unitLabel} onChange={onJointHorizontalChange} />
           <button
             className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
             type="button"
@@ -160,7 +163,7 @@ export function MaterialSettingsSection({
               </svg>
             )}
           </button>
-          <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit="mm" onChange={onJointVerticalChange} />
+          <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit={unitLabel} onChange={onJointVerticalChange} />
         </div>
 
         <ColorField

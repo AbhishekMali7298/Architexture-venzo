@@ -122,7 +122,8 @@ export default function CreatePage() {
     ? getMaterialSourceRenderableImageUrl(config.joints.materialSource)
     : null;
   const patternLayout = useMemo(() => getPatternLayout(config), [config]);
-  const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} mm`;
+  const stackHintUnit = config.units === 'inches' ? 'in' : 'mm';
+  const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} ${stackHintUnit}`;
   const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');
   const currentPatternName = currentPattern?.displayName ?? 'Stack';
   const currentPatternPreview = `/patterns/${currentPattern?.previewAssetPath?.split('/').pop() ?? 'stack_bond.svg'}`;
@@ -203,6 +204,7 @@ export default function CreatePage() {
           jointVertical={config.joints.verticalSize}
           jointTint={config.joints.tint}
           jointAdjustments={config.joints.adjustments}
+          units={config.units}
           linkedJoints={config.joints.linkedDimensions}
           recessJoints={config.joints.recessJoints}
           concaveJoints={config.joints.concaveJoints}
