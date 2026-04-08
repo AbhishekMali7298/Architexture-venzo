@@ -45,6 +45,7 @@ export default function CreatePage() {
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointTint = useEditorStore((state) => state.setJointTint);
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
+  const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
   const setRecessJoints = useEditorStore((state) => state.setRecessJoints);
   const setConcaveJoints = useEditorStore((state) => state.setConcaveJoints);
@@ -198,6 +199,7 @@ export default function CreatePage() {
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
           jointTint={config.joints.tint}
+          jointAdjustments={config.joints.adjustments}
           linkedJoints={config.joints.linkedDimensions}
           recessJoints={config.joints.recessJoints}
           concaveJoints={config.joints.concaveJoints}
@@ -212,6 +214,7 @@ export default function CreatePage() {
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onJointTintChange={setJointTint}
+          onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
           onRecessJointsChange={setRecessJoints}
           onConcaveJointsChange={setConcaveJoints}

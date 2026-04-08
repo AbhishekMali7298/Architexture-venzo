@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import type { ImageAdjustments } from '@textura/shared';
 import type { EdgeStyle } from '@textura/shared';
-import { ColorField, NumberField, RangeField, SectionCard, SelectField } from './field-controls';
+import { CheckboxField, ColorField, NumberField, RangeField, SectionCard, SelectField, SliderField } from './field-controls';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
@@ -33,6 +34,7 @@ export function MaterialSettingsSection({
   jointHorizontal,
   jointVertical,
   jointTint,
+  jointAdjustments,
   linkedJoints,
   recessJoints,
   concaveJoints,
@@ -47,6 +49,7 @@ export function MaterialSettingsSection({
   onJointHorizontalChange,
   onJointVerticalChange,
   onJointTintChange,
+  onJointAdjustmentChange,
   onLinkedJointsChange,
   onRecessJointsChange,
   onConcaveJointsChange,
@@ -68,6 +71,7 @@ export function MaterialSettingsSection({
   jointHorizontal: number;
   jointVertical: number;
   jointTint: string | null;
+  jointAdjustments: ImageAdjustments;
   linkedJoints: boolean;
   recessJoints: boolean;
   concaveJoints: boolean;
@@ -82,6 +86,7 @@ export function MaterialSettingsSection({
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
   onJointTintChange: (value: string | null) => void;
+  onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
   onLinkedJointsChange: (value: boolean) => void;
   onRecessJointsChange: (value: boolean) => void;
   onConcaveJointsChange: (value: boolean) => void;
@@ -91,6 +96,7 @@ export function MaterialSettingsSection({
   onToneVariationChange: (value: number) => void;
 }) {
   const [showEdgePopup, setShowEdgePopup] = useState(false);
+  const [showJointAdjustments, setShowJointAdjustments] = useState(false);
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
   const edgeStyleLabel = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
   const isHandmade = edgeStyle === 'handmade';
@@ -157,7 +163,32 @@ export function MaterialSettingsSection({
           <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit="mm" onChange={onJointVerticalChange} />
         </div>
 
-        <ColorField label="Joint Tint" value={jointTint ?? '#FFFFFF'} onChange={(value) => onJointTintChange(value || null)} />
+        <ColorField
+          label="Joint Tint"
+          value={jointTint ?? '#FFFFFF'}
+          onChange={(value) => onJointTintChange(value || null)}
+          action={
+            <button
+              className={styles.fieldActionButton}
+              type="button"
+              onClick={() => setShowJointAdjustments(true)}
+              aria-label="Open joint tint adjustments"
+              title="Joint tint adjustments"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="4" y1="21" x2="4" y2="14" />
+                <line x1="4" y1="10" x2="4" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12" y2="3" />
+                <line x1="20" y1="21" x2="20" y2="16" />
+                <line x1="20" y1="12" x2="20" y2="3" />
+                <line x1="2" y1="14" x2="6" y2="14" />
+                <line x1="10" y1="8" x2="14" y2="8" />
+                <line x1="18" y1="16" x2="22" y2="16" />
+              </svg>
+            </button>
+          }
+        />
 
         <label className={styles.checkboxRow}>
           <input
@@ -225,6 +256,64 @@ export function MaterialSettingsSection({
               ) : (
                 <NumberField label="Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />
               )}
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+
+      {showJointAdjustments ? (
+        <Modal onClose={() => setShowJointAdjustments(false)}>
+          <div className={styles.settingsModalCard}>
+            <div className={styles.settingsModalHeader}>
+              <h3 className={styles.settingsModalTitle}>Joint Adjustments</h3>
+              <button
+                className={styles.settingsCloseButton}
+                type="button"
+                onClick={() => setShowJointAdjustments(false)}
+                aria-label="Close joint adjustments"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.adjustmentsPanel}>
+              <SliderField
+                label="Brightness"
+                value={jointAdjustments.brightness}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('brightness', value)}
+                onReset={() => onJointAdjustmentChange('brightness', 0)}
+              />
+              <SliderField
+                label="Contrast"
+                value={jointAdjustments.contrast}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('contrast', value)}
+                onReset={() => onJointAdjustmentChange('contrast', 0)}
+              />
+              <SliderField
+                label="Hue"
+                value={jointAdjustments.hue}
+                min={-180}
+                max={180}
+                onChange={(value) => onJointAdjustmentChange('hue', value)}
+                onReset={() => onJointAdjustmentChange('hue', 0)}
+              />
+              <SliderField
+                label="Saturation"
+                value={jointAdjustments.saturation}
+                min={-100}
+                max={100}
+                onChange={(value) => onJointAdjustmentChange('saturation', value)}
+                onReset={() => onJointAdjustmentChange('saturation', 0)}
+              />
+              <CheckboxField
+                label="Invert Colors"
+                checked={jointAdjustments.invertColors}
+                onChange={(checked) => onJointAdjustmentChange('invertColors', checked)}
+              />
             </div>
           </div>
         </Modal>
