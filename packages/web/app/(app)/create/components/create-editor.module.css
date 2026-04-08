@@ -283,6 +283,44 @@
 .range {
   width: 100%;
   accent-color: #2b3546;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  background: transparent;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: 0;
+  border-radius: 999px;
+  background: #2b3546;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+
+.range::-moz-range-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #2b3546;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
 }
 
 .inputWrap {
@@ -559,7 +597,7 @@
 }
 
 .settingsModalCard {
-  width: min(520px, calc(100vw - 32px));
+  width: min(460px, calc(100vw - 32px));
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
