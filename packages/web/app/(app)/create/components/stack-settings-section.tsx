@@ -33,6 +33,17 @@ export function StackSettingsSection({
   // Get pattern definition to check if angle is applicable
   const patternDef = getPatternByType(patternType as any);
   const showAngleControl = patternDef && patternDef.parameterRanges.angle.max > 0;
+  const isHerringbone = patternType === 'herringbone';
+  const handleColumnsChange = (value: number) => {
+    if (!isHerringbone) {
+      onColumnsChange(value);
+      return;
+    }
+
+    const roundedValue = Math.round(value);
+    const normalizedValue = roundedValue <= 1 ? 2 : roundedValue % 2 === 0 ? roundedValue : roundedValue + 1;
+    onColumnsChange(normalizedValue);
+  };
 
   return (
     <SectionCard title="Pattern">
@@ -50,7 +61,13 @@ export function StackSettingsSection({
 
       <div className={styles.gridTwo}>
         <NumberField label="Rows" value={rows} min={1} max={50} onChange={onRowsChange} />
-        <NumberField label="Columns" value={columns} min={1} max={50} onChange={onColumnsChange} />
+        <NumberField
+          label="Columns"
+          value={columns}
+          min={isHerringbone ? 2 : 1}
+          max={50}
+          onChange={handleColumnsChange}
+        />
       </div>
 
       {showAngleControl && (

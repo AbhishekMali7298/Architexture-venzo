@@ -27,6 +27,20 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function normalizePatternColumns(patternType: PatternType, columns: number) {
+  const safeColumns = Math.max(1, Math.min(50, Math.round(columns)));
+
+  if (patternType !== 'herringbone') {
+    return safeColumns;
+  }
+
+  if (safeColumns <= 1) {
+    return 2;
+  }
+
+  return safeColumns % 2 === 0 ? safeColumns : Math.min(50, safeColumns + 1);
+}
+
 // ======= Store Interface =======
 
 export interface EditorState {
@@ -171,7 +185,7 @@ export const useEditorStore = create<EditorState>()(
     setPatternColumns: (columns) =>
       set((s) => {
         pushHistory(s, `Columns → ${columns}`);
-        s.config.pattern.columns = Math.max(1, Math.min(50, Math.round(columns)));
+        s.config.pattern.columns = normalizePatternColumns(s.config.pattern.type, columns);
         bumpRender(s);
       }),
 
