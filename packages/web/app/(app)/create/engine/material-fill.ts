@@ -63,6 +63,56 @@ function drawImageCover(
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
 
+function drawImageRepeatPattern(
+  ctx: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  imageDrawBox?: { x: number; y: number; width: number; height: number },
+) {
+  const sourceWidth =
+    image instanceof HTMLImageElement ? image.naturalWidth :
+    image instanceof HTMLCanvasElement ? image.width :
+    image instanceof ImageBitmap ? image.width :
+    image instanceof HTMLVideoElement ? image.videoWidth :
+    width;
+  const sourceHeight =
+    image instanceof HTMLImageElement ? image.naturalHeight :
+    image instanceof HTMLCanvasElement ? image.height :
+    image instanceof ImageBitmap ? image.height :
+    image instanceof HTMLVideoElement ? image.videoHeight :
+    height;
+
+  const targetBox = imageDrawBox ?? { x, y, width, height };
+  const coverScale = Math.max(
+    targetBox.width / Math.max(sourceWidth, 1),
+    targetBox.height / Math.max(sourceHeight, 1),
+  );
+
+  // Match the competitor-style texture behavior more closely:
+  // keep the image dense, avoid stretching one whole bitmap per tile,
+  // and let the texture repeat in shared/world space across adjacent tiles.
+  const patternScale = Math.min(1, coverScale);
+  const pattern = ctx.createPattern(image, 'repeat');
+  if (!pattern) {
+    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
+    return;
+  }
+
+  if (typeof pattern.setTransform === 'function') {
+    pattern.setTransform(new DOMMatrix([
+      patternScale, 0,
+      0, patternScale,
+      0, 0,
+    ]));
+  }
+
+  ctx.fillStyle = pattern;
+  ctx.fillRect(x, y, width, height);
+}
+
 export function fillMaterialSurface(
   ctx: CanvasRenderingContext2D,
   options: {
@@ -96,7 +146,7 @@ export function fillMaterialSurface(
   ctx.clip();
 
   if (image) {
-    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
+    drawImageRepeatPattern(ctx, image, x, y, width, height, imageDrawBox);
     if (tintColor) {
       ctx.fillStyle = tintColor;
       ctx.globalCompositeOperation = 'multiply';
