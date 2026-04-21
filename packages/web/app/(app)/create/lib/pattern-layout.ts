@@ -426,16 +426,58 @@ const VENZOWOOD_MODULE_BOUNDS = VENZOWOOD_MODULE_SHAPES.flat().reduce(
     maxY: 0,
   },
 );
-const VENZOWOOD_MODULE_WIDTH = VENZOWOOD_MODULE_BOUNDS.maxX - VENZOWOOD_MODULE_BOUNDS.minX;
-const VENZOWOOD_MODULE_HEIGHT = VENZOWOOD_MODULE_BOUNDS.maxY - VENZOWOOD_MODULE_BOUNDS.minY;
+const VENZOWOOD_MODULE_CENTER = {
+  x: (VENZOWOOD_MODULE_BOUNDS.minX + VENZOWOOD_MODULE_BOUNDS.maxX) / 2,
+  y: (VENZOWOOD_MODULE_BOUNDS.minY + VENZOWOOD_MODULE_BOUNDS.maxY) / 2,
+};
+
+function getBoundsFromShapes(shapes: ReadonlyArray<ReadonlyArray<PatternPoint>>) {
+  return shapes.flat().reduce(
+    (bounds, point) => ({
+      minX: Math.min(bounds.minX, point.x),
+      maxX: Math.max(bounds.maxX, point.x),
+      minY: Math.min(bounds.minY, point.y),
+      maxY: Math.max(bounds.maxY, point.y),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
+  );
+}
+
+function getVenzowoodRotatedShapes(angle: number) {
+  const clampedAngle = Math.max(0, Math.min(45, Math.round(angle)));
+  const rotation = degreesToRadians(clampedAngle - 45);
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+
+  return VENZOWOOD_MODULE_SHAPES.map((shape) =>
+    shape.map(([x, y]) => {
+      const dx = x - VENZOWOOD_MODULE_CENTER.x;
+      const dy = y - VENZOWOOD_MODULE_CENTER.y;
+
+      return {
+        x: VENZOWOOD_MODULE_CENTER.x + dx * cos - dy * sin,
+        y: VENZOWOOD_MODULE_CENTER.y + dx * sin + dy * cos,
+      };
+    }),
+  );
+}
 
 function getVenzowoodTiles(config: TextureConfig) {
   const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
     getDimensions(config);
+  const moduleShapes = getVenzowoodRotatedShapes(config.pattern.angle);
+  const moduleBounds = getBoundsFromShapes(moduleShapes);
+  const moduleBoundsWidth = moduleBounds.maxX - moduleBounds.minX;
+  const moduleBoundsHeight = moduleBounds.maxY - moduleBounds.minY;
   const moduleSize = Math.max(tileWidth * 3, tileHeight * 3, 1);
-  const scale = moduleSize / Math.max(VENZOWOOD_MODULE_WIDTH, VENZOWOOD_MODULE_HEIGHT, 1);
-  const moduleWidth = VENZOWOOD_MODULE_WIDTH * scale;
-  const moduleHeight = VENZOWOOD_MODULE_HEIGHT * scale;
+  const scale = moduleSize / Math.max(moduleBoundsWidth, moduleBoundsHeight, 1);
+  const moduleWidth = moduleBoundsWidth * scale;
+  const moduleHeight = moduleBoundsHeight * scale;
   const stepX = moduleWidth + jointVertical;
   const stepY = moduleHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
@@ -445,12 +487,12 @@ function getVenzowoodTiles(config: TextureConfig) {
       const offsetX = column * stepX;
       const offsetY = row * stepY;
 
-      for (const shape of VENZOWOOD_MODULE_SHAPES) {
+      for (const shape of moduleShapes) {
         tiles.push(
           buildTileFromPoints(
-            shape.map(([x, y]) => ({
-              x: offsetX + (x - VENZOWOOD_MODULE_BOUNDS.minX) * scale,
-              y: offsetY + (y - VENZOWOOD_MODULE_BOUNDS.minY) * scale,
+            shape.map((point) => ({
+              x: offsetX + (point.x - moduleBounds.minX) * scale,
+              y: offsetY + (point.y - moduleBounds.minY) * scale,
             })),
           ),
         );
