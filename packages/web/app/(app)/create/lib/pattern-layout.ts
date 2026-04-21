@@ -36,7 +36,13 @@ function roundLayoutValue(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
-function buildTileFromAnchor(anchorX: number, anchorY: number, angle: number, width: number, height: number): PatternTile {
+function buildTileFromAnchor(
+  anchorX: number,
+  anchorY: number,
+  angle: number,
+  width: number,
+  height: number,
+): PatternTile {
   const radians = degreesToRadians(angle);
   const ux = Math.cos(radians);
   const uy = Math.sin(radians);
@@ -73,6 +79,30 @@ function buildTileFromAnchor(anchorX: number, anchorY: number, angle: number, wi
   };
 }
 
+function buildTileFromPoints(points: PatternPoint[]): PatternTile {
+  const xs = points.map((point) => point.x);
+  const ys = points.map((point) => point.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+    angle: 0,
+    points,
+    bounds: {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    },
+  };
+}
+
 function getDimensions(config: TextureConfig) {
   const material = config.materials[0]!;
 
@@ -87,7 +117,8 @@ function getDimensions(config: TextureConfig) {
 }
 
 function getStackTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const stepX = tileWidth + jointVertical;
   const stepY = tileHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
@@ -106,7 +137,8 @@ function getStackTiles(config: TextureConfig) {
 }
 
 function getStaggeredTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const angle = config.pattern.angle || 0;
   const radians = degreesToRadians(angle);
   const stepX = tileWidth + jointVertical;
@@ -134,7 +166,9 @@ function getStaggeredTiles(config: TextureConfig) {
     const offsetX = row * rowShiftX;
 
     for (let column = 0; column < tilesPerRow; column++) {
-      tiles.push(buildTileFromAnchor(offsetX + column * stepX, row * stepY, 0, tileWidth, tileHeight));
+      tiles.push(
+        buildTileFromAnchor(offsetX + column * stepX, row * stepY, 0, tileWidth, tileHeight),
+      );
     }
   }
 
@@ -146,7 +180,8 @@ function getStaggeredTiles(config: TextureConfig) {
 }
 
 function getStretcherTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const stepX = tileWidth + jointVertical;
   const stepY = tileHeight + jointHorizontal;
   const rowOffset = stepX / 2;
@@ -155,7 +190,9 @@ function getStretcherTiles(config: TextureConfig) {
   for (let row = 0; row < rows; row++) {
     const offsetX = row % 2 === 0 ? -rowOffset : 0;
     for (let column = 0; column < columns; column++) {
-      tiles.push(buildTileFromAnchor(offsetX + column * stepX, row * stepY, 0, tileWidth, tileHeight));
+      tiles.push(
+        buildTileFromAnchor(offsetX + column * stepX, row * stepY, 0, tileWidth, tileHeight),
+      );
     }
   }
 
@@ -167,7 +204,8 @@ function getStretcherTiles(config: TextureConfig) {
 }
 
 function getHerringboneTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const jointSize = (jointHorizontal + jointVertical) / 2;
   const rowPitch = (tileHeight + jointSize) * SQRT_2;
   const pairPitch = (tileWidth + jointSize) * SQRT_2;
@@ -200,7 +238,13 @@ function getHerringboneTiles(config: TextureConfig) {
  * Unlike buildTileFromAnchor (which creates rotated rectangles),
  * chevron tiles are parallelograms with slanted side edges.
  */
-function buildParallelogramTile(anchorX: number, anchorY: number, width: number, height: number, slantAngleDeg: number): PatternTile {
+function buildParallelogramTile(
+  anchorX: number,
+  anchorY: number,
+  width: number,
+  height: number,
+  slantAngleDeg: number,
+): PatternTile {
   const radians = degreesToRadians(slantAngleDeg);
   const slantY = width * Math.tan(radians);
 
@@ -236,7 +280,8 @@ function buildParallelogramTile(anchorX: number, anchorY: number, width: number,
 }
 
 function getChevronTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const angle = config.pattern.angle || 30;
   const radians = degreesToRadians(angle);
 
@@ -278,7 +323,8 @@ function getChevronTiles(config: TextureConfig) {
 }
 
 function getFlemishTiles(config: TextureConfig) {
-  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } = getDimensions(config);
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
   const fullWidth = tileWidth;
   const halfWidth = (tileWidth - jointVertical) / 2;
   const fullStepX = fullWidth + jointVertical;
@@ -309,14 +355,114 @@ function getFlemishTiles(config: TextureConfig) {
   };
 }
 
+const VENZOWOOD_SOURCE_SIZE = 30000;
+const VENZOWOOD_MODULE_SHAPES: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
+  [
+    [6661.91, 15051.7],
+    [15012.78, 6700.83],
+    [23363.65, 15051.7],
+    [15012.78, 23402.57],
+  ],
+  [
+    [14226.3, 3794.44],
+    [14999.13, 3021.61],
+    [15800.59, 3823.5],
+    [15027.76, 4596.33],
+  ],
+  [
+    [2982.08, 15035],
+    [3754.91, 14262.17],
+    [4556.37, 15064.06],
+    [3783.54, 15836.89],
+  ],
+  [
+    [25468.4, 15036.6],
+    [26241.23, 14263.77],
+    [27042.69, 15065.66],
+    [26269.86, 15838.49],
+  ],
+  [
+    [14226, 26278.9],
+    [14998.83, 25506.07],
+    [15800.29, 26307.96],
+    [15027.46, 27080.79],
+  ],
+  [
+    [4830.92, 16883.8],
+    [5603.75, 16110.97],
+    [13952.01, 24460.28],
+    [13179.18, 25233.11],
+  ],
+  [
+    [16066.4, 5643.5],
+    [16839.23, 4870.67],
+    [25191.83, 13224.32],
+    [24419, 13997.15],
+  ],
+  [
+    [4837.39, 13221.3],
+    [13192.16, 4866.53],
+    [13988.62, 5674.25],
+    [5633.85, 14029.02],
+  ],
+  [
+    [16058.1, 24442],
+    [24413.83, 16086.27],
+    [25210.29, 16893.99],
+    [16854.56, 25249.72],
+  ],
+];
+
+function getVenzowoodTiles(config: TextureConfig) {
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
+  const jointAverage = (jointHorizontal + jointVertical) / 2;
+  const moduleSize = Math.max(tileWidth * 4, tileHeight * 4, 1);
+  const stepX = moduleSize + jointVertical;
+  const stepY = moduleSize + jointHorizontal;
+  const scale = moduleSize / VENZOWOOD_SOURCE_SIZE;
+  const tiles: PatternTile[] = [];
+
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const offsetX = column * stepX + jointAverage / 2;
+      const offsetY = row * stepY + jointAverage / 2;
+
+      for (const shape of VENZOWOOD_MODULE_SHAPES) {
+        tiles.push(
+          buildTileFromPoints(
+            shape.map(([x, y]) => ({
+              x: offsetX + x * scale,
+              y: offsetY + y * scale,
+            })),
+          ),
+        );
+      }
+    }
+  }
+
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
+}
+
 export function getPatternLayout(config: TextureConfig): PatternLayout {
   const baseLayout =
-    config.pattern.type === 'flemish_bond' ? getFlemishTiles(config) :
-      config.pattern.type === 'stretcher_bond' ? getStretcherTiles(config) :
-        config.pattern.type === 'herringbone' ? getHerringboneTiles(config) :
-          config.pattern.type === 'chevron' ? getChevronTiles(config) :
-            config.pattern.type === 'staggered' ? getStaggeredTiles(config) :
-              getStackTiles(config);
+    config.pattern.type === 'flemish_bond'
+      ? getFlemishTiles(config)
+      : config.pattern.type === 'stretcher_bond'
+        ? getStretcherTiles(config)
+        : config.pattern.type === 'herringbone'
+          ? getHerringboneTiles(config)
+          : config.pattern.type === 'chevron'
+            ? getChevronTiles(config)
+            : config.pattern.type === 'staggered'
+              ? getStaggeredTiles(config)
+              : config.pattern.type === 'venzowood'
+                ? getVenzowoodTiles(config)
+                : getStackTiles(config);
 
   return {
     tiles: baseLayout.tiles,

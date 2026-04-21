@@ -18,15 +18,10 @@ const IMPLEMENTED_PATTERNS = new Set<PatternType>([
   'herringbone',
   'chevron',
   'staggered',
+  'venzowood',
 ]);
 
-function PatternPreview({
-  src,
-  alt,
-}: {
-  src: string;
-  alt: string;
-}) {
+function PatternPreview({ src, alt }: { src: string; alt: string }) {
   return (
     <div className={styles.patternPreviewFrame}>
       <img className={styles.patternPreviewImage} src={src} alt={alt} />
@@ -112,8 +107,9 @@ export function PatternPickerModal({
                 return (
                   <button
                     key={pattern.type}
-                    className={`${styles.patternOptionButton} ${currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
-                      } ${!isImplemented ? styles.patternOptionButtonNotImplemented : ''}`}
+                    className={`${styles.patternOptionButton} ${
+                      currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
+                    } ${!isImplemented ? styles.patternOptionButtonNotImplemented : ''}`}
                     type="button"
                     onClick={() => handlePatternClick(pattern)}
                   >
