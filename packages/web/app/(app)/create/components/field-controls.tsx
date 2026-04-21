@@ -51,6 +51,7 @@ export function NumberField({
   const [draft, setDraft] = useState(() => String(Number.isFinite(value) ? value : 0));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the editable draft synced when the controlled value changes externally.
     setDraft(String(Number.isFinite(value) ? value : 0));
   }, [value]);
 
@@ -157,7 +158,11 @@ export function SelectField({
   return (
     <label className={styles.field}>
       <span className={styles.fieldLabel}>{label}</span>
-      <select className={styles.select} value={value} onChange={(event) => onChange(event.target.value)}>
+      <select
+        className={styles.select}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -180,7 +185,12 @@ export function TextField({
   return (
     <label className={styles.field}>
       <span className={styles.fieldLabel}>{label}</span>
-      <input className={styles.input} type="text" value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        className={styles.input}
+        type="text"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
     </label>
   );
 }
@@ -205,7 +215,11 @@ function hexToRgb(hex: string): [number, number, number] {
 
 function rgbToHex(r: number, g: number, b: number) {
   return `#${[r, g, b]
-    .map((channel) => Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0'))
+    .map((channel) =>
+      Math.max(0, Math.min(255, Math.round(channel)))
+        .toString(16)
+        .padStart(2, '0'),
+    )
     .join('')
     .toUpperCase()}`;
 }
@@ -274,6 +288,7 @@ export function ColorField({
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the typed hex field synced when the controlled value changes externally.
     setDraft(value);
     const [r, g, b] = hexToRgb(value);
     const [h, s, v] = rgbToHsv(r, g, b);
@@ -377,7 +392,12 @@ export function ColorField({
           <div className={styles.popoverCard}>
             <div className={styles.popoverHeader}>
               <h3 className={styles.popoverTitle}>Select Colour</h3>
-              <button className={styles.popoverCloseButton} type="button" onClick={() => setOpen(false)} aria-label="Close color picker">
+              <button
+                className={styles.popoverCloseButton}
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close color picker"
+              >
                 ×
               </button>
             </div>
@@ -388,13 +408,19 @@ export function ColorField({
                   ref={paletteRef}
                   className={styles.colorPalette}
                   style={{ backgroundColor: hueColor }}
-                  onMouseDown={(event) => attachDrag(event, (clientX, clientY) => updateFromPalette(clientX, clientY))}
+                  onMouseDown={(event) =>
+                    attachDrag(event, (clientX, clientY) => updateFromPalette(clientX, clientY))
+                  }
                 >
                   <div className={styles.colorPaletteWhite} />
                   <div className={styles.colorPaletteBlack} />
                   <div
                     className={styles.colorPaletteHandle}
-                    style={{ left: paletteHandleLeft, top: paletteHandleTop, background: previewColor }}
+                    style={{
+                      left: paletteHandleLeft,
+                      top: paletteHandleTop,
+                      background: previewColor,
+                    }}
                   />
                 </div>
                 <div
@@ -481,7 +507,11 @@ export function CheckboxField({
 }) {
   return (
     <label className={styles.checkboxRow}>
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+      />
       <span>{label}</span>
     </label>
   );

@@ -93,6 +93,7 @@ export function useEdgeProfiles(style: EdgeStyle): EdgeProfileData[] | null {
 
   useEffect(() => {
     if (!urls.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear async cache state when no edge assets apply.
       setProfiles(null);
       return;
     }

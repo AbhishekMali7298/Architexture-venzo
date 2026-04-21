@@ -31,7 +31,7 @@ export function StackSettingsSection({
   onAngleChange: (value: number) => void;
 }) {
   // Get pattern definition to check if angle is applicable
-  const patternDef = getPatternByType(patternType as any);
+  const patternDef = getPatternByType(patternType);
   const showAngleControl = patternDef && patternDef.parameterRanges.angle.max > 0;
   const isHerringbone = patternType === 'herringbone';
   const handleColumnsChange = (value: number) => {
@@ -41,7 +41,8 @@ export function StackSettingsSection({
     }
 
     const roundedValue = Math.round(value);
-    const normalizedValue = roundedValue <= 1 ? 2 : roundedValue % 2 === 0 ? roundedValue : roundedValue + 1;
+    const normalizedValue =
+      roundedValue <= 1 ? 2 : roundedValue % 2 === 0 ? roundedValue : roundedValue + 1;
     onColumnsChange(normalizedValue);
   };
 
@@ -53,10 +54,22 @@ export function StackSettingsSection({
         onClick={onOpenPicker}
       >
         <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-          <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{patternName}</span>
-          <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>Open pattern chooser</span>
+          <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+            {patternName}
+          </span>
+          <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+            Open pattern chooser
+          </span>
         </span>
-        <MaterialThumb color="#f3f1ec" src={previewUrl} alt="Stack pattern" size={36} compact objectFit="contain" shape="square" />
+        <MaterialThumb
+          color="#f3f1ec"
+          src={previewUrl}
+          alt="Stack pattern"
+          size={36}
+          compact
+          objectFit="contain"
+          shape="square"
+        />
       </button>
 
       <div className={styles.gridTwo}>

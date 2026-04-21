@@ -27,8 +27,9 @@ export async function GET(
 ) {
   const { assetPath } = await context.params;
   const resolvedAssetPath = path.resolve(ASSET_ROOT, ...assetPath);
+  const relativeAssetPath = path.relative(ASSET_ROOT, resolvedAssetPath);
 
-  if (!resolvedAssetPath.startsWith(ASSET_ROOT)) {
+  if (relativeAssetPath.startsWith('..') || path.isAbsolute(relativeAssetPath)) {
     return NextResponse.json({ error: 'Invalid asset path' }, { status: 400 });
   }
 

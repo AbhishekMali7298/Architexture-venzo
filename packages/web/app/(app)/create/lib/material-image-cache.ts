@@ -48,6 +48,7 @@ export function useMaterialImage(url: string | null): HTMLImageElement | null {
 
   useEffect(() => {
     if (!url) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear async cache state when the caller has no image URL.
       setImage(null);
       return;
     }

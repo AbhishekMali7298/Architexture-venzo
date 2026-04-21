@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getMaterialById, getMaterialCategory, getPatternByType, type TextureConfig } from '@textura/shared';
+import {
+  getMaterialById,
+  getMaterialCategory,
+  getPatternByType,
+  type TextureConfig,
+} from '@textura/shared';
 import { BackgroundCanvas } from './components/background-canvas';
 import styles from './components/create-editor.module.css';
 import { CreateEditorShell } from './components/create-editor-shell';
@@ -12,7 +17,11 @@ import { PatternPickerModal } from './components/pattern-picker-modal';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
-import { getMaterialRenderableColor, getMaterialSourceRenderableImageUrl, getMaterialThumbnailUrl } from './lib/material-assets';
+import {
+  getMaterialRenderableColor,
+  getMaterialSourceRenderableImageUrl,
+  getMaterialThumbnailUrl,
+} from './lib/material-assets';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
@@ -20,7 +29,11 @@ import {
   exportPreviewPng,
   exportPreviewSvg,
 } from './lib/project-export';
-import { clearProjectFromStorage, loadProjectFromStorage, saveProjectToStorage } from './lib/project-storage';
+import {
+  clearProjectFromStorage,
+  loadProjectFromStorage,
+  saveProjectToStorage,
+} from './lib/project-storage';
 import { useEditorStore } from './store/editor-store';
 
 function encodeConfig(config: TextureConfig) {
@@ -76,17 +89,24 @@ export default function CreatePage() {
 
     if (sharedConfig) {
       try {
-        loadProjectConfig(decodeConfig(sharedConfig), { resetHistory: true, label: 'Open shared texture' });
+        loadProjectConfig(decodeConfig(sharedConfig), {
+          resetHistory: true,
+          label: 'Open shared texture',
+        });
       } catch {
         // Ignore malformed shared links and fall back to local state.
       }
     } else {
       const savedProject = loadProjectFromStorage();
       if (savedProject) {
-        loadProjectConfig(savedProject.config, { resetHistory: true, label: 'Restore saved project' });
+        loadProjectConfig(savedProject.config, {
+          resetHistory: true,
+          label: 'Restore saved project',
+        });
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration gate opens after local/shared project state has been restored.
     setIsReady(true);
   }, [loadProjectConfig]);
 
@@ -96,27 +116,30 @@ export default function CreatePage() {
   }, [material.definitionId]);
 
   const materialCategory = selectedMaterial
-    ? getMaterialCategory(selectedMaterial.categoryId)?.displayName ?? selectedMaterial.categoryId
+    ? (getMaterialCategory(selectedMaterial.categoryId)?.displayName ?? selectedMaterial.categoryId)
     : 'Custom material';
 
   const materialThumbnailUrl = getMaterialThumbnailUrl(selectedMaterial);
-  const materialColor = getMaterialRenderableColor(material.source, selectedMaterial?.swatchColor ?? '#c8c8c8');
+  const materialColor = getMaterialRenderableColor(
+    material.source,
+    selectedMaterial?.swatchColor ?? '#c8c8c8',
+  );
   const jointMaterialPath =
     config.joints.materialSource.type === 'image'
       ? config.joints.materialSource.asset.path
       : config.joints.materialSource.type === 'generated'
-        ? config.joints.materialSource.asset?.path ?? null
+        ? (config.joints.materialSource.asset?.path ?? null)
         : null;
   const jointMaterialName =
     config.joints.materialSource.type === 'solid'
       ? 'Solid Fill'
       : jointMaterialPath
-        ? jointMaterialPath
+        ? (jointMaterialPath
             .split('/')
             .pop()
             ?.replace(/\.[a-z0-9]+$/i, '')
             .replace(/[-_]+/g, ' ')
-            .replace(/\b\w/g, (char: string) => char.toUpperCase()) ?? 'Joint Texture'
+            .replace(/\b\w/g, (char: string) => char.toUpperCase()) ?? 'Joint Texture')
         : 'Joint Texture';
   const jointMaterialThumbnailUrl = jointMaterialPath
     ? getMaterialSourceRenderableImageUrl(config.joints.materialSource)
@@ -166,7 +189,11 @@ export default function CreatePage() {
         onOpenSettings={() => setShowSettingsModal(true)}
         footer={
           <div className={styles.footerActions}>
-            <button className={styles.primaryButton} type="button" onClick={() => setShowSaveModal(true)}>
+            <button
+              className={styles.primaryButton}
+              type="button"
+              onClick={() => setShowSaveModal(true)}
+            >
               Save
             </button>
             <button className={styles.secondaryButton} type="button" onClick={handleReset}>

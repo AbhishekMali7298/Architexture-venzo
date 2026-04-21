@@ -25,8 +25,20 @@ export function SettingsModal({
       <div className={styles.settingsModalCard}>
         <div className={styles.settingsModalHeader}>
           <div className={styles.settingsModalTitle}>Settings</div>
-          <button className={styles.settingsCloseButton} type="button" onClick={onClose} aria-label="Close settings">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <button
+            className={styles.settingsCloseButton}
+            type="button"
+            onClick={onClose}
+            aria-label="Close settings"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
@@ -37,19 +49,30 @@ export function SettingsModal({
           <div className={styles.settingsIntro}>
             <h2 className={styles.settingsHeading}>Venzowood</h2>
             <p className={styles.settingsText}>
-              Use the control panel to adjust parameters and preview the active Venzowood texture layout.
+              Use the control panel to adjust parameters and preview the active Venzowood texture
+              layout.
             </p>
           </div>
 
           <div className={styles.settingsSection}>
             <div className={styles.settingsSectionTitle}>Units</div>
             <label className={styles.radioRow}>
-              <input type="radio" name="units" checked={units === 'mm'} onChange={() => onUnitsChange('mm')} />
+              <input
+                type="radio"
+                name="units"
+                checked={units === 'mm'}
+                onChange={() => onUnitsChange('mm')}
+              />
               <span>Millimetres (mm)</span>
             </label>
             <label className={styles.radioRow}>
-              <input type="radio" name="units" checked={units === 'inches'} onChange={() => onUnitsChange('inches')} />
-              <span>Inches (")</span>
+              <input
+                type="radio"
+                name="units"
+                checked={units === 'inches'}
+                onChange={() => onUnitsChange('inches')}
+              />
+              <span>Inches (&quot;)</span>
             </label>
           </div>
 
@@ -64,7 +87,11 @@ export function SettingsModal({
               <span>Tile texture in background</span>
             </label>
             <label className={styles.checkboxRow}>
-              <input type="checkbox" checked={showBorder} onChange={(event) => onShowBorderChange(event.target.checked)} />
+              <input
+                type="checkbox"
+                checked={showBorder}
+                onChange={(event) => onShowBorderChange(event.target.checked)}
+              />
               <span>Show image border</span>
             </label>
           </div>

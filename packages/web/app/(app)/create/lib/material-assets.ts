@@ -1,4 +1,10 @@
-import type { ImageAdjustments, MaterialAssetRef, MaterialConfig, MaterialDefinition, MaterialSource } from '@textura/shared';
+import type {
+  ImageAdjustments,
+  MaterialAssetRef,
+  MaterialConfig,
+  MaterialDefinition,
+  MaterialSource,
+} from '@textura/shared';
 
 export interface MaterialAssetSet {
   thumbnail: MaterialAssetRef | null;
@@ -63,7 +69,9 @@ export function getMaterialAssetSet(
   }
 }
 
-export function getMaterialThumbnailUrl(material: MaterialDefinition | null | undefined): string | null {
+export function getMaterialThumbnailUrl(
+  material: MaterialDefinition | null | undefined,
+): string | null {
   return getAssetUrl(material?.thumbnail);
 }
 
@@ -108,13 +116,25 @@ export function getMaterialRenderableColor(source: MaterialSource, fallback = '#
 
 function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace('#', '');
-  const value = Number.parseInt(clean.length === 3 ? clean.split('').map((char) => char + char).join('') : clean, 16);
+  const value = Number.parseInt(
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : clean,
+    16,
+  );
   return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
 }
 
 function rgbToHex([r, g, b]: [number, number, number]) {
   return `#${[r, g, b]
-    .map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0'))
+    .map((value) =>
+      Math.max(0, Math.min(255, Math.round(value)))
+        .toString(16)
+        .padStart(2, '0'),
+    )
     .join('')}`;
 }
 
@@ -190,16 +210,19 @@ export function applyImageAdjustmentsToColor(hex: string, adjustments: ImageAdju
   g += brightnessDelta;
   b += brightnessDelta;
 
-  const contrastFactor = (259 * (adjustments.contrast + 255)) / (255 * (259 - adjustments.contrast));
+  const contrastFactor =
+    (259 * (adjustments.contrast + 255)) / (255 * (259 - adjustments.contrast));
   r = contrastFactor * (r - 128) + 128;
   g = contrastFactor * (g - 128) + 128;
   b = contrastFactor * (b - 128) + 128;
 
-  let [h, s, l] = hexToHsl(rgbToHex([r, g, b]));
+  const [initialHue, initialSaturation, lightness] = hexToHsl(rgbToHex([r, g, b]));
+  let h = initialHue;
+  let s = initialSaturation;
   h += adjustments.hue;
   s = Math.max(0, Math.min(1, s * (1 + adjustments.saturation / 100)));
 
-  return rgbToHex(hslToRgb(h, s, l));
+  return rgbToHex(hslToRgb(h, s, lightness));
 }
 
 export function getJointRenderableColor(
@@ -208,7 +231,13 @@ export function getJointRenderableColor(
   adjustments?: ImageAdjustments,
 ) {
   if (source.type === 'solid') {
-    const solidColor = tint?.toUpperCase() ?? source.color;
+    const baseColor = source.color.toUpperCase();
+    const normalizedTint = tint?.toUpperCase() ?? null;
+    const solidColor = normalizedTint
+      ? normalizedTint === '#FFFFFF'
+        ? mixHexColors(baseColor, normalizedTint, 0.28)
+        : normalizedTint
+      : baseColor;
     return adjustments ? applyImageAdjustmentsToColor(solidColor, adjustments) : solidColor;
   }
 

@@ -8,6 +8,7 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- portals must wait until the browser document exists.
     setMounted(true);
     const updateViewportWidth = () => setViewportWidth(window.innerWidth);
     updateViewportWidth();
@@ -39,7 +40,7 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
       }}
     >
       <div
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
           position: 'relative',
           marginTop: modalMarginTop,
@@ -67,6 +68,6 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
         {children}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
