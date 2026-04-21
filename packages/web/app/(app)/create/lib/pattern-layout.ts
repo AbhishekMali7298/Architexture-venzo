@@ -412,28 +412,45 @@ const VENZOWOOD_MODULE_SHAPES: ReadonlyArray<ReadonlyArray<readonly [number, num
     [16854.56, 25249.72],
   ],
 ];
+const VENZOWOOD_MODULE_BOUNDS = VENZOWOOD_MODULE_SHAPES.flat().reduce(
+  (bounds, [x, y]) => ({
+    minX: Math.min(bounds.minX, x),
+    maxX: Math.max(bounds.maxX, x),
+    minY: Math.min(bounds.minY, y),
+    maxY: Math.max(bounds.maxY, y),
+  }),
+  {
+    minX: VENZOWOOD_SOURCE_SIZE,
+    maxX: 0,
+    minY: VENZOWOOD_SOURCE_SIZE,
+    maxY: 0,
+  },
+);
+const VENZOWOOD_MODULE_WIDTH = VENZOWOOD_MODULE_BOUNDS.maxX - VENZOWOOD_MODULE_BOUNDS.minX;
+const VENZOWOOD_MODULE_HEIGHT = VENZOWOOD_MODULE_BOUNDS.maxY - VENZOWOOD_MODULE_BOUNDS.minY;
 
 function getVenzowoodTiles(config: TextureConfig) {
   const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
     getDimensions(config);
-  const jointAverage = (jointHorizontal + jointVertical) / 2;
-  const moduleSize = Math.max(tileWidth * 4, tileHeight * 4, 1);
-  const stepX = moduleSize + jointVertical;
-  const stepY = moduleSize + jointHorizontal;
-  const scale = moduleSize / VENZOWOOD_SOURCE_SIZE;
+  const moduleSize = Math.max(tileWidth * 3, tileHeight * 3, 1);
+  const scale = moduleSize / Math.max(VENZOWOOD_MODULE_WIDTH, VENZOWOOD_MODULE_HEIGHT, 1);
+  const moduleWidth = VENZOWOOD_MODULE_WIDTH * scale;
+  const moduleHeight = VENZOWOOD_MODULE_HEIGHT * scale;
+  const stepX = moduleWidth + jointVertical;
+  const stepY = moduleHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      const offsetX = column * stepX + jointAverage / 2;
-      const offsetY = row * stepY + jointAverage / 2;
+      const offsetX = column * stepX;
+      const offsetY = row * stepY;
 
       for (const shape of VENZOWOOD_MODULE_SHAPES) {
         tiles.push(
           buildTileFromPoints(
             shape.map(([x, y]) => ({
-              x: offsetX + x * scale,
-              y: offsetY + y * scale,
+              x: offsetX + (x - VENZOWOOD_MODULE_BOUNDS.minX) * scale,
+              y: offsetY + (y - VENZOWOOD_MODULE_BOUNDS.minY) * scale,
             })),
           ),
         );
