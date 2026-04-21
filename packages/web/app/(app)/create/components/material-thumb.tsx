@@ -17,6 +17,7 @@ export function MaterialThumb({
   compact = false,
   objectFit = 'cover',
   shape = 'square',
+  loading = 'lazy',
 }: {
   color: string;
   src?: string | null;
@@ -25,6 +26,7 @@ export function MaterialThumb({
   compact?: boolean;
   objectFit?: 'cover' | 'contain';
   shape?: 'square' | 'circle';
+  loading?: 'eager' | 'lazy';
 }) {
   return (
     <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
@@ -41,7 +43,7 @@ export function MaterialThumb({
             fill
             sizes={compact ? '44px' : '60px'}
             quality={60}
-            loading="lazy"
+            loading={loading}
             style={{
               objectFit,
             }}

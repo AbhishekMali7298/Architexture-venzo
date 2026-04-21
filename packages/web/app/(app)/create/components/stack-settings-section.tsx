@@ -69,6 +69,7 @@ export function StackSettingsSection({
           compact
           objectFit="contain"
           shape="square"
+          loading="eager"
         />
       </button>
 

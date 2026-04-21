@@ -113,7 +113,7 @@ export function MaterialSettingsSection({
             <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{materialName}</span>
             <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{materialCategory}</span>
           </span>
-          <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact shape="square" />
+          <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact shape="square" loading="eager" />
         </button>
 
         <div className={styles.gridTwo}>
@@ -140,7 +140,7 @@ export function MaterialSettingsSection({
             <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{jointMaterialName}</span>
             <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>Joint material</span>
           </span>
-          <MaterialThumb color={jointTint ?? '#d4cfc6'} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact shape="circle" />
+          <MaterialThumb color={jointTint ?? '#d4cfc6'} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact shape="circle" loading="eager" />
         </button>
 
         <div className={styles.jointDimensionRow}>
