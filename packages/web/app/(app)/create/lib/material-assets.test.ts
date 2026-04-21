@@ -29,7 +29,7 @@ describe('material asset color helpers', () => {
       invertColors: false,
     });
 
-    expect(base).not.toBe('#FFFFFF');
+    expect(base).toBe('#FFFFFF');
     expect(adjusted).not.toBe(base);
   });
 

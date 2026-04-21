@@ -233,11 +233,7 @@ export function getJointRenderableColor(
   if (source.type === 'solid') {
     const baseColor = source.color.toUpperCase();
     const normalizedTint = tint?.toUpperCase() ?? null;
-    const solidColor = normalizedTint
-      ? normalizedTint === '#FFFFFF'
-        ? mixHexColors(baseColor, normalizedTint, 0.28)
-        : normalizedTint
-      : baseColor;
+    const solidColor = normalizedTint ?? baseColor;
     return adjustments ? applyImageAdjustmentsToColor(solidColor, adjustments) : solidColor;
   }
 
