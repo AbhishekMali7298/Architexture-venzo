@@ -4,7 +4,10 @@ import { useEffect, useRef } from 'react';
 import { getMaterialById } from '@textura/shared';
 import { useEditorStore } from '../store/editor-store';
 import { drawDottedBorder, renderBackground } from '../engine/background-renderer';
-import { getMaterialRenderableImageUrl, getMaterialSourceRenderableImageUrl } from '../lib/material-assets';
+import {
+  getMaterialRenderableImageUrl,
+  getMaterialSourceRenderableImageUrl,
+} from '../lib/material-assets';
 import { useMaterialImage } from '../lib/material-image-cache';
 
 export function BackgroundCanvas() {
@@ -14,7 +17,9 @@ export function BackgroundCanvas() {
   const showBorder = useEditorStore((s) => s.showBorder);
   const tileBackground = useEditorStore((s) => s.tileBackground);
   const primaryMaterial = config.materials[0]!;
-  const selectedMaterial = primaryMaterial.definitionId ? getMaterialById(primaryMaterial.definitionId) : null;
+  const selectedMaterial = primaryMaterial.definitionId
+    ? getMaterialById(primaryMaterial.definitionId)
+    : null;
   const materialImageUrl = getMaterialRenderableImageUrl(primaryMaterial, selectedMaterial);
   const jointImageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
   const materialImage = useMaterialImage(materialImageUrl);
@@ -41,9 +46,19 @@ export function BackgroundCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
 
-      const previewBounds = renderBackground(ctx, config, w, h, { materialImage, jointImage, tileBackground });
+      const previewBounds = renderBackground(ctx, config, w, h, {
+        materialImage,
+        jointImage,
+        tileBackground,
+      });
       if (previewBounds && showBorder) {
-        drawDottedBorder(ctx, previewBounds.x, previewBounds.y, previewBounds.width, previewBounds.height);
+        drawDottedBorder(
+          ctx,
+          previewBounds.x,
+          previewBounds.y,
+          previewBounds.width,
+          previewBounds.height,
+        );
       }
     };
 

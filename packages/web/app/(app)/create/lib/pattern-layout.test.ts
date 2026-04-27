@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SVG_PATTERN_MODULES } from '../../engine/generated/svg-pattern-modules';
 import { getPatternLayout } from './pattern-layout';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
 
@@ -51,5 +52,79 @@ describe('pattern layout', () => {
     expect(squareFirstTile.points[0]!.y).toBeCloseTo(squareFirstTile.points[3]!.y, 2);
     expect(squareFirstTile.points[1]!.y).toBeCloseTo(squareFirstTile.points[2]!.y, 2);
     expect(squareFirstTile.points[0]!.x).not.toBeCloseTo(angledFirstTile.points[0]!.x, 2);
+  });
+
+  it('builds the added Venzowood SVG variants as selectable background layouts', () => {
+    for (const patternType of ['venzowood_2', 'venzowood_3']) {
+      const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+      config.pattern = {
+        ...config.pattern,
+        type: patternType,
+        category: patternType === 'venzowood_3' ? 'organic' : 'geometric',
+        rows: 2,
+        columns: 2,
+      };
+
+      const layout = getPatternLayout(config);
+
+      expect(layout.tiles.length).toBeGreaterThan(0);
+      expect(layout.totalWidth).toBeGreaterThan(0);
+      expect(layout.totalHeight).toBeGreaterThan(0);
+      expect(layout.tiles.every((tile) => tile.points.length >= 4)).toBe(true);
+      expect(layout.tiles.every((tile) => tile.bounds.width > 0 && tile.bounds.height > 0)).toBe(
+        true,
+      );
+    }
+  });
+
+  it('does not add SVG viewBox margins between repeated Venzowood modules', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'venzowood_3',
+      category: 'organic',
+      rows: 1,
+      columns: 2,
+    };
+    config.joints.horizontalSize = 0;
+    config.joints.verticalSize = 0;
+
+    const layout = getPatternLayout(config);
+    const moduleTileCount = layout.tiles.length / config.pattern.columns;
+    const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
+    const secondModuleTiles = layout.tiles.slice(moduleTileCount);
+    const firstMaxX = Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const secondMinX = Math.min(...secondModuleTiles.map((tile) => tile.bounds.x));
+
+    expect(secondMinX - firstMaxX).toBeCloseTo(0, 2);
+  });
+
+  it('supports negative joint values as overlap between repeated modules', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'venzowood_3',
+      category: 'organic',
+      rows: 1,
+      columns: 2,
+    };
+    config.joints.horizontalSize = 0;
+    config.joints.verticalSize = -50;
+
+    const layout = getPatternLayout(config);
+    const moduleTileCount = layout.tiles.length / config.pattern.columns;
+    const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
+    const secondModuleTiles = layout.tiles.slice(moduleTileCount);
+    const firstMaxX = Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const secondMinX = Math.min(...secondModuleTiles.map((tile) => tile.bounds.x));
+
+    expect(secondMinX - firstMaxX).toBeLessThan(0);
+  });
+
+  it('preserves rounded rectangle corners from SVG pattern assets', () => {
+    const module = SVG_PATTERN_MODULES.venzowood_2;
+
+    expect(module.tiles.length).toBeGreaterThan(0);
+    expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
   });
 });

@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import type { ImageAdjustments } from '@textura/shared';
 import type { EdgeStyle } from '@textura/shared';
-import { CheckboxField, ColorField, NumberField, RangeField, SectionCard, SelectField, SliderField } from './field-controls';
+import {
+  CheckboxField,
+  ColorField,
+  NumberField,
+  RangeField,
+  SectionCard,
+  SelectField,
+  SliderField,
+} from './field-controls';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import { isPresetEdgeStyle } from '../lib/handmade-edge';
@@ -101,24 +109,55 @@ export function MaterialSettingsSection({
   const [showEdgePopup, setShowEdgePopup] = useState(false);
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
   const toneVariationUi = Number((toneVariation / 100).toFixed(2));
-  const edgeStyleLabel = EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
+  const edgeStyleLabel =
+    EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
   const usesPresetWidth = isPresetEdgeStyle(edgeStyle);
   const unitLabel = units === 'inches' ? 'in' : 'mm';
 
   return (
     <>
       <SectionCard title="Material">
-        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenPicker}>
+        <button
+          className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
+          type="button"
+          onClick={onOpenPicker}
+        >
           <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{materialName}</span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{materialCategory}</span>
+            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+              {materialName}
+            </span>
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+              {materialCategory}
+            </span>
           </span>
-          <MaterialThumb color={materialColor} src={materialThumbnailUrl} alt={materialName} size={36} compact shape="square" loading="eager" />
+          <MaterialThumb
+            color={materialColor}
+            src={materialThumbnailUrl}
+            alt={materialName}
+            size={36}
+            compact
+            shape="square"
+            loading="eager"
+          />
         </button>
 
         <div className={styles.gridTwo}>
-          <NumberField label="Width" value={width} min={1} max={5000} unit={unitLabel} onChange={onWidthChange} />
-          <NumberField label="Height" value={height} min={1} max={5000} unit={unitLabel} onChange={onHeightChange} />
+          <NumberField
+            label="Width"
+            value={width}
+            min={1}
+            max={5000}
+            unit={unitLabel}
+            onChange={onWidthChange}
+          />
+          <NumberField
+            label="Height"
+            value={height}
+            min={1}
+            max={5000}
+            unit={unitLabel}
+            onChange={onHeightChange}
+          />
         </div>
 
         <button
@@ -127,24 +166,51 @@ export function MaterialSettingsSection({
           onClick={() => setShowEdgePopup(true)}
         >
           <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>Edges</span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>{edgeStyleLabel}</span>
+            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+              Edges
+            </span>
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+              {edgeStyleLabel}
+            </span>
           </span>
           <span className={styles.edgePopupValue}>Edit</span>
         </button>
 
         <div className={styles.subsectionTitle}>Joints</div>
 
-        <button className={`${styles.selectionButton} ${styles.selectionButtonCompact}`} type="button" onClick={onOpenJointMaterialPicker}>
+        <button
+          className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
+          type="button"
+          onClick={onOpenJointMaterialPicker}
+        >
           <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>{jointMaterialName}</span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>Joint material</span>
+            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+              {jointMaterialName}
+            </span>
+            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+              Joint material
+            </span>
           </span>
-          <MaterialThumb color={jointTint ?? '#d4cfc6'} src={jointMaterialThumbnailUrl} alt={jointMaterialName} size={36} compact shape="circle" loading="eager" />
+          <MaterialThumb
+            color={jointTint ?? '#d4cfc6'}
+            src={jointMaterialThumbnailUrl}
+            alt={jointMaterialName}
+            size={36}
+            compact
+            shape="circle"
+            loading="eager"
+          />
         </button>
 
         <div className={styles.jointDimensionRow}>
-          <NumberField label="H Joint" value={jointHorizontal} min={0} max={500} unit={unitLabel} onChange={onJointHorizontalChange} />
+          <NumberField
+            label="H Joint"
+            value={jointHorizontal}
+            min={-500}
+            max={500}
+            unit={unitLabel}
+            onChange={onJointHorizontalChange}
+          />
           <button
             className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
             type="button"
@@ -153,18 +219,43 @@ export function MaterialSettingsSection({
             title={linkedJoints ? 'Click to unlink joints' : 'Click to link joints'}
           >
             {linkedJoints ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 9.9-1" />
               </svg>
             )}
           </button>
-          <NumberField label="V Joint" value={jointVertical} min={0} max={500} unit={unitLabel} onChange={onJointVerticalChange} />
+          <NumberField
+            label="V Joint"
+            value={jointVertical}
+            min={-500}
+            max={500}
+            unit={unitLabel}
+            onChange={onJointVerticalChange}
+          />
         </div>
 
         <ColorField
@@ -179,7 +270,15 @@ export function MaterialSettingsSection({
               aria-label="Open joint tint adjustments"
               title="Joint tint adjustments"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
                 <line x1="4" y1="21" x2="4" y2="14" />
                 <line x1="4" y1="10" x2="4" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="12" />
@@ -212,7 +311,11 @@ export function MaterialSettingsSection({
           <span>Concave joints</span>
         </label>
 
-        <ColorField label="Tint" value={materialTint ?? '#FFFFFF'} onChange={(value) => onMaterialTintChange(value || null)} />
+        <ColorField
+          label="Tint"
+          value={materialTint ?? '#FFFFFF'}
+          onChange={(value) => onMaterialTintChange(value || null)}
+        />
 
         <RangeField
           label="Tone Variation"
@@ -230,7 +333,12 @@ export function MaterialSettingsSection({
           <div className={styles.edgePopupCard}>
             <div className={styles.edgePopupHeader}>
               <h3 className={styles.edgePopupTitle}>Edge settings</h3>
-              <button className={styles.iconButton} type="button" onClick={() => setShowEdgePopup(false)} aria-label="Close edge settings">
+              <button
+                className={styles.iconButton}
+                type="button"
+                onClick={() => setShowEdgePopup(false)}
+                aria-label="Close edge settings"
+              >
                 ✕
               </button>
             </div>
@@ -258,7 +366,13 @@ export function MaterialSettingsSection({
                   This edge uses a preset profile with width fixed to 25.
                 </div>
               ) : (
-                <NumberField label="Width" value={edgeWidth} min={0} max={100} onChange={onEdgeWidthChange} />
+                <NumberField
+                  label="Width"
+                  value={edgeWidth}
+                  min={0}
+                  max={100}
+                  onChange={onEdgeWidthChange}
+                />
               )}
             </div>
           </div>

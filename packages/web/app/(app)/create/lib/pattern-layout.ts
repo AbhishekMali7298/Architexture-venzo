@@ -1,4 +1,5 @@
 import type { TextureConfig } from '@textura/shared';
+import { SVG_PATTERN_MODULES, type SvgPatternModule } from '../engine/generated/svg-pattern-modules';
 
 export interface PatternPoint {
   x: number;
@@ -105,14 +106,18 @@ function buildTileFromPoints(points: PatternPoint[]): PatternTile {
 
 function getDimensions(config: TextureConfig) {
   const material = config.materials[0]!;
+  const tileWidth = Math.max(1, material.width);
+  const tileHeight = Math.max(1, material.height);
+  const minJointHorizontal = -tileHeight + 1;
+  const minJointVertical = -tileWidth + 1;
 
   return {
     columns: Math.max(1, Math.floor(config.pattern.columns || 1)),
     rows: Math.max(1, Math.floor(config.pattern.rows || 1)),
-    tileWidth: Math.max(1, material.width),
-    tileHeight: Math.max(1, material.height),
-    jointHorizontal: Math.max(0, config.joints.horizontalSize),
-    jointVertical: Math.max(0, config.joints.verticalSize),
+    tileWidth,
+    tileHeight,
+    jointHorizontal: Math.max(minJointHorizontal, config.joints.horizontalSize),
+    jointVertical: Math.max(minJointVertical, config.joints.verticalSize),
   };
 }
 
@@ -507,7 +512,61 @@ function getVenzowoodTiles(config: TextureConfig) {
   };
 }
 
+function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
+  const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
+    getDimensions(config);
+  const referenceWidth = Math.max(1, module.referenceTileWidth);
+  const referenceHeight = Math.max(1, module.referenceTileHeight);
+  const scale = Math.min(tileWidth / referenceWidth, tileHeight / referenceHeight);
+  const contentBounds = module.tiles.reduce(
+    (bounds, tile) => ({
+      minX: Math.min(bounds.minX, tile.x),
+      minY: Math.min(bounds.minY, tile.y),
+      maxX: Math.max(bounds.maxX, tile.x + tile.width),
+      maxY: Math.max(bounds.maxY, tile.y + tile.height),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
+  );
+  const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
+  const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
+  const moduleWidth = Math.max(1, (module.repeatWidth ?? contentWidth) * scale);
+  const moduleHeight = Math.max(1, (module.repeatHeight ?? contentHeight) * scale);
+  const stepX = moduleWidth + jointVertical;
+  const stepY = moduleHeight + jointHorizontal;
+  const tiles: PatternTile[] = [];
+
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const offsetX = column * stepX;
+      const offsetY = row * stepY;
+
+      for (const tile of module.tiles) {
+        tiles.push(
+          buildTileFromPoints(
+            tile.clipPath.map((point) => ({
+              x: offsetX + (tile.x - contentBounds.minX + point.x) * scale,
+              y: offsetY + (tile.y - contentBounds.minY + point.y) * scale,
+            })),
+          ),
+        );
+      }
+    }
+  }
+
+  return {
+    tiles,
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+  };
+}
+
 export function getPatternLayout(config: TextureConfig): PatternLayout {
+  const svgPatternModule = SVG_PATTERN_MODULES[config.pattern.type];
   const baseLayout =
     config.pattern.type === 'flemish_bond'
       ? getFlemishTiles(config)
@@ -521,6 +580,8 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
               ? getStaggeredTiles(config)
               : config.pattern.type === 'venzowood'
                 ? getVenzowoodTiles(config)
+                : svgPatternModule?.tiles.length
+                  ? getSvgPatternTiles(config, svgPatternModule)
                 : getStackTiles(config);
 
   return {

@@ -173,7 +173,14 @@ export interface PBRConfig {
   metalness: PBRMapConfig & { baseMetalness: number };
 }
 
-export type MapType = 'diffuse' | 'bump' | 'specular' | 'normal' | 'displacement' | 'roughness' | 'metalness';
+export type MapType =
+  | 'diffuse'
+  | 'bump'
+  | 'specular'
+  | 'normal'
+  | 'displacement'
+  | 'roughness'
+  | 'metalness';
 
 // ======= Joints =======
 
@@ -293,13 +300,13 @@ export type WorkerMessage =
   | { type: 'loadMaterial'; materialId: string; imageBitmap: unknown }
   | { type: 'render'; config: TextureConfig; width: number; height: number; mapType: MapType }
   | {
-    type: 'exportLocal';
-    config: TextureConfig;
-    width: number;
-    height: number;
-    maps: MapType[];
-    format: 'png' | 'jpg';
-  };
+      type: 'exportLocal';
+      config: TextureConfig;
+      width: number;
+      height: number;
+      maps: MapType[];
+      format: 'png' | 'jpg';
+    };
 
 export type WorkerResponse =
   | { type: 'initComplete' }

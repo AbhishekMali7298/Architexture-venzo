@@ -3,6 +3,7 @@ import {
   applyImageAdjustmentsToColor,
   getJointRenderableColor,
   getMaterialSourceRenderableImageUrl,
+  getPatternPreviewImageUrl,
 } from './material-assets';
 
 describe('material asset color helpers', () => {
@@ -44,5 +45,9 @@ describe('material asset color helpers', () => {
         fallbackColor: '#b87352',
       }),
     ).toBe('/api/assets/joints/adobe-main.jpg');
+  });
+
+  it('resolves pattern preview SVGs from the selected pattern', () => {
+    expect(getPatternPreviewImageUrl('venzowood')).toBe('/patterns/venzowood.svg');
   });
 });

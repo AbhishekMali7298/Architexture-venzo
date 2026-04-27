@@ -43,7 +43,10 @@ export function renderBackground(
   if (!material) return null;
 
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
-  const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
+  const fallbackFill = getMaterialRenderableColor(
+    material.source,
+    definition?.swatchColor ?? '#c8c8c8',
+  );
   const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
   const layout = getPatternLayout(config);
   const scale = Math.min(
@@ -77,13 +80,7 @@ export function renderBackground(
 
     for (const [tileIndex, tile] of layout.tiles.entries()) {
       const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-      const toneShift = getToneVariationShift(
-        material.toneVariation,
-        config.seed,
-        tileIndex,
-        0,
-        0,
-      );
+      const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex, 0, 0);
 
       fillMaterialSurface(ctx, {
         x: bounds.x + shape.bounds.x * scale,
@@ -128,12 +125,19 @@ export function renderBackground(
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameWidth;
 
-      renderJointProfile(ctx, config, {
-        x: offsetX,
-        y: offsetY,
-        width: frameWidth,
-        height: frameHeight,
-      }, scale, layout.tiles, 'under');
+      renderJointProfile(
+        ctx,
+        config,
+        {
+          x: offsetX,
+          y: offsetY,
+          width: frameWidth,
+          height: frameHeight,
+        },
+        scale,
+        layout.tiles,
+        'under',
+      );
 
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
@@ -167,12 +171,19 @@ export function renderBackground(
         });
       }
 
-      renderJointProfile(ctx, config, {
-        x: offsetX,
-        y: offsetY,
-        width: frameWidth,
-        height: frameHeight,
-      }, scale, layout.tiles, 'over');
+      renderJointProfile(
+        ctx,
+        config,
+        {
+          x: offsetX,
+          y: offsetY,
+          width: frameWidth,
+          height: frameHeight,
+        },
+        scale,
+        layout.tiles,
+        'over',
+      );
     }
   }
 

@@ -5,7 +5,7 @@ import type { TextureConfig } from '@textura/shared';
  */
 export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   version: 1,
-  seed: 42,  // Fixed seed — avoids Next.js hydration mismatch
+  seed: 42, // Fixed seed — avoids Next.js hydration mismatch
   units: 'mm',
 
   pattern: {
@@ -75,39 +75,81 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
           geometry: true,
           edgeDepth: 50,
           imageSource: 'grayscale',
-          adjustments: { brightness: 0, contrast: 0, hue: 0, saturation: 0, invertColors: false, opacity: 100 },
+          adjustments: {
+            brightness: 0,
+            contrast: 0,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 100,
+          },
         },
         specular: {
           geometry: true,
           edgeDepth: 30,
           imageSource: 'none',
-          adjustments: { brightness: 0, contrast: 0, hue: 0, saturation: 0, invertColors: false, opacity: 100 },
+          adjustments: {
+            brightness: 0,
+            contrast: 0,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 100,
+          },
         },
         normal: {
           geometry: true,
           edgeDepth: 50,
           imageSource: 'grayscale',
-          adjustments: { brightness: 0, contrast: 0, hue: 0, saturation: 0, invertColors: false, opacity: 100 },
+          adjustments: {
+            brightness: 0,
+            contrast: 0,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 100,
+          },
         },
         displacement: {
           geometry: true,
           edgeDepth: 50,
           imageSource: 'grayscale',
-          adjustments: { brightness: 0, contrast: 0, hue: 0, saturation: 0, invertColors: false, opacity: 100 },
+          adjustments: {
+            brightness: 0,
+            contrast: 0,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 100,
+          },
         },
         roughness: {
           geometry: true,
           edgeDepth: 30,
           baseRoughness: 70,
           imageSource: 'grayscale',
-          adjustments: { brightness: -10, contrast: 20, hue: 0, saturation: 0, invertColors: false, opacity: 50 },
+          adjustments: {
+            brightness: -10,
+            contrast: 20,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 50,
+          },
         },
         metalness: {
           geometry: false,
           edgeDepth: 0,
           baseMetalness: 0,
           imageSource: 'none',
-          adjustments: { brightness: 0, contrast: 0, hue: 0, saturation: 0, invertColors: false, opacity: 100 },
+          adjustments: {
+            brightness: 0,
+            contrast: 0,
+            hue: 0,
+            saturation: 0,
+            invertColors: false,
+            opacity: 100,
+          },
         },
       },
     },

@@ -21,6 +21,7 @@ import {
   getMaterialRenderableColor,
   getMaterialSourceRenderableImageUrl,
   getMaterialThumbnailUrl,
+  getPatternPreviewImageUrl,
 } from './lib/material-assets';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
@@ -149,7 +150,8 @@ export default function CreatePage() {
   const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} ${stackHintUnit}`;
   const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');
   const currentPatternName = currentPattern?.displayName ?? 'Stack';
-  const currentPatternPreview = `/patterns/${currentPattern?.previewAssetPath?.split('/').pop() ?? 'stack_bond.svg'}`;
+  const currentPatternPreview =
+    getPatternPreviewImageUrl(config.pattern.type) ?? '/patterns/stack_bond.svg';
 
   if (!isReady) {
     return null;

@@ -3,7 +3,11 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/material-renderer';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
-import { getMaterialRenderableColor, getMaterialRenderableImageUrl, getMaterialSourceRenderableImageUrl } from './material-assets';
+import {
+  getMaterialRenderableColor,
+  getMaterialRenderableImageUrl,
+  getMaterialSourceRenderableImageUrl,
+} from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
 
 function downloadUrl(url: string, filename: string) {
@@ -20,7 +24,9 @@ export async function exportProjectJson(config: TextureConfig) {
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-async function resolvePreviewMaterialImage(config: TextureConfig): Promise<HTMLImageElement | null> {
+async function resolvePreviewMaterialImage(
+  config: TextureConfig,
+): Promise<HTMLImageElement | null> {
   const material = config.materials[0];
   if (!material) return null;
 
@@ -130,7 +136,11 @@ function buildPdfWithJpeg(jpegBytes: Uint8Array, width: number, height: number) 
     ]),
   ];
   const contentStream = `q\n${width} 0 0 ${height} 0 0 cm\n/Im0 Do\nQ\n`;
-  objects.push(encoder.encode(`5 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`));
+  objects.push(
+    encoder.encode(
+      `5 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`,
+    ),
+  );
 
   const header = encoder.encode('%PDF-1.3\n');
   const body = concatBytes(objects);
@@ -161,7 +171,9 @@ export async function exportPreviewPdf(config: TextureConfig) {
 
   const canvas = await renderExportCanvas(config);
   const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) => char.charCodeAt(0));
+  const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) =>
+    char.charCodeAt(0),
+  );
   const blob = buildPdfWithJpeg(jpegBytes, canvas.width, canvas.height);
   const url = URL.createObjectURL(blob);
   downloadUrl(url, 'textura-preview.pdf');
@@ -172,7 +184,10 @@ function exportPlaceholderMap(config: TextureConfig, kind: 'bump' | 'roughness')
   const { canvas, ctx } = createMapCanvas(config);
   const material = config.materials[0];
   const definition = material?.definitionId ? getMaterialById(material.definitionId) : null;
-  const baseColor = getMaterialRenderableColor(material?.source ?? { type: 'solid', color: '#b8b0a8' }, definition?.swatchColor ?? '#b8b0a8');
+  const baseColor = getMaterialRenderableColor(
+    material?.source ?? { type: 'solid', color: '#b8b0a8' },
+    definition?.swatchColor ?? '#b8b0a8',
+  );
 
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 

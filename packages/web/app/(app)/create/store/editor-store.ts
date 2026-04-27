@@ -23,6 +23,8 @@ interface HistoryEntry {
 }
 
 const MAX_HISTORY = 50;
+const MIN_JOINT_SIZE = -500;
+const MAX_JOINT_SIZE = 500;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -98,7 +100,10 @@ export interface EditorState {
   // Output
   setOutputSize: (width: number, height: number) => void;
   setUnits: (units: 'mm' | 'inches') => void;
-  loadProjectConfig: (config: TextureConfig, options?: { resetHistory?: boolean; label?: string }) => void;
+  loadProjectConfig: (
+    config: TextureConfig,
+    options?: { resetHistory?: boolean; label?: string },
+  ) => void;
   resetProject: () => void;
 
   // UI
@@ -141,7 +146,10 @@ function cloneMaterialSource(source: MaterialDefinition['source']) {
   return JSON.parse(JSON.stringify(source)) as MaterialDefinition['source'];
 }
 
-function applyMaterialLibrarySelection(mat: TextureConfig['materials'][number], definition: MaterialDefinition) {
+function applyMaterialLibrarySelection(
+  mat: TextureConfig['materials'][number],
+  definition: MaterialDefinition,
+) {
   // Switching library material should only swap the underlying image source.
   // User-edited sizing, tint, edges, joints, and other overrides stay intact.
   mat.definitionId = definition.id;
@@ -354,9 +362,10 @@ export const useEditorStore = create<EditorState>()(
     setJointHorizontalSize: (size) =>
       set((s) => {
         pushHistory(s, `H joint → ${size}`);
-        s.config.joints.horizontalSize = Math.max(0, size);
+        const nextSize = clamp(size, MIN_JOINT_SIZE, MAX_JOINT_SIZE);
+        s.config.joints.horizontalSize = nextSize;
         if (s.config.joints.linkedDimensions) {
-          s.config.joints.verticalSize = Math.max(0, size);
+          s.config.joints.verticalSize = nextSize;
         }
         bumpRender(s);
       }),
@@ -364,9 +373,10 @@ export const useEditorStore = create<EditorState>()(
     setJointVerticalSize: (size) =>
       set((s) => {
         pushHistory(s, `V joint → ${size}`);
-        s.config.joints.verticalSize = Math.max(0, size);
+        const nextSize = clamp(size, MIN_JOINT_SIZE, MAX_JOINT_SIZE);
+        s.config.joints.verticalSize = nextSize;
         if (s.config.joints.linkedDimensions) {
-          s.config.joints.horizontalSize = Math.max(0, size);
+          s.config.joints.horizontalSize = nextSize;
         }
         bumpRender(s);
       }),
@@ -402,9 +412,7 @@ export const useEditorStore = create<EditorState>()(
           s.config.joints.adjustments.invertColors = Boolean(value);
         } else {
           const nextValue =
-            key === 'hue'
-              ? clamp(Number(value), -180, 180)
-              : clamp(Number(value), -100, 100);
+            key === 'hue' ? clamp(Number(value), -180, 180) : clamp(Number(value), -100, 100);
           s.config.joints.adjustments[key] = nextValue as never;
         }
         bumpRender(s);
@@ -460,10 +468,22 @@ export const useEditorStore = create<EditorState>()(
 
     // ===== UI Actions =====
 
-    setActiveTab: (tab) => set((s) => { s.activeTab = tab; }),
-    setActiveMaterialIndex: (index) => set((s) => { s.activeMaterialIndex = index; }),
-    toggleLeftPanel: () => set((s) => { s.leftPanelOpen = !s.leftPanelOpen; }),
-    setZoom: (zoom) => set((s) => { s.zoom = Math.max(0.1, Math.min(5, zoom)); }),
+    setActiveTab: (tab) =>
+      set((s) => {
+        s.activeTab = tab;
+      }),
+    setActiveMaterialIndex: (index) =>
+      set((s) => {
+        s.activeMaterialIndex = index;
+      }),
+    toggleLeftPanel: () =>
+      set((s) => {
+        s.leftPanelOpen = !s.leftPanelOpen;
+      }),
+    setZoom: (zoom) =>
+      set((s) => {
+        s.zoom = Math.max(0.1, Math.min(5, zoom));
+      }),
     setShowBorder: (show) =>
       set((s) => {
         s.showBorder = show;

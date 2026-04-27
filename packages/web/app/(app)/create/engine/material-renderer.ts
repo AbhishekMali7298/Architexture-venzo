@@ -24,7 +24,10 @@ export function renderToCanvas(
   }
 
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
-  const fallbackFill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#c8c8c8');
+  const fallbackFill = getMaterialRenderableColor(
+    material.source,
+    definition?.swatchColor ?? '#c8c8c8',
+  );
   const layout = getPatternLayout(config);
   const jointFill = getJointRenderableColor(
     config.joints.materialSource,
@@ -59,20 +62,23 @@ export function renderToCanvas(
     tintColor: config.joints.tint,
   });
 
-  renderJointProfile(ctx, config, {
-    x: offsetX,
-    y: offsetY,
-    width: drawWidth,
-    height: drawHeight,
-  }, scale, layout.tiles, 'under');
+  renderJointProfile(
+    ctx,
+    config,
+    {
+      x: offsetX,
+      y: offsetY,
+      width: drawWidth,
+      height: drawHeight,
+    },
+    scale,
+    layout.tiles,
+    'under',
+  );
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-    const toneShift = getToneVariationShift(
-      material.toneVariation,
-      config.seed,
-      tileIndex,
-    );
+    const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex);
     fillMaterialSurface(ctx, {
       x: offsetX + shape.bounds.x * scale,
       y: offsetY + shape.bounds.y * scale,
@@ -96,12 +102,19 @@ export function renderToCanvas(
     });
   }
 
-  renderJointProfile(ctx, config, {
-    x: offsetX,
-    y: offsetY,
-    width: drawWidth,
-    height: drawHeight,
-  }, scale, layout.tiles, 'over');
+  renderJointProfile(
+    ctx,
+    config,
+    {
+      x: offsetX,
+      y: offsetY,
+      width: drawWidth,
+      height: drawHeight,
+    },
+    scale,
+    layout.tiles,
+    'over',
+  );
 }
 
 let renderTimer: ReturnType<typeof setTimeout> | null = null;

@@ -54,34 +54,41 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const height = config.output.heightPx;
   const material = config.materials[0]!;
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
-  const fallbackFill = escapeXml(getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'));
+  const fallbackFill = escapeXml(
+    getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'),
+  );
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
   const layout = getPatternLayout(config);
-  const scale = Math.min(width / Math.max(layout.totalWidth, 1), height / Math.max(layout.totalHeight, 1));
+  const scale = Math.min(
+    width / Math.max(layout.totalWidth, 1),
+    height / Math.max(layout.totalHeight, 1),
+  );
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
   const offsetX = (width - drawWidth) / 2;
   const offsetY = (height - drawHeight) / 2;
   const jointFill = escapeXml(config.joints.tint ?? '#ffffff');
   const defs: string[] = [];
-  const tileMarkup = layout.tiles.map((tile, index) => {
-    const shape = getTileRenderShape(tile, material, config.seed, index);
-    const points = shape.points
-      .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
-      .join(' ');
-    const x = offsetX + shape.bounds.x * scale;
-    const y = offsetY + shape.bounds.y * scale;
-    const w = shape.bounds.width * scale;
-    const h = shape.bounds.height * scale;
+  const tileMarkup = layout.tiles
+    .map((tile, index) => {
+      const shape = getTileRenderShape(tile, material, config.seed, index);
+      const points = shape.points
+        .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
+        .join(' ');
+      const x = offsetX + shape.bounds.x * scale;
+      const y = offsetY + shape.bounds.y * scale;
+      const w = shape.bounds.width * scale;
+      const h = shape.bounds.height * scale;
 
-    if (embeddedMaterial) {
-      const clipId = `tile-clip-${index}`;
-      defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
-      return `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
-    }
+      if (embeddedMaterial) {
+        const clipId = `tile-clip-${index}`;
+        defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
+        return `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
+      }
 
-    return `<polygon points="${points}" fill="${fallbackFill}" />`;
-  }).join('');
+      return `<polygon points="${points}" fill="${fallbackFill}" />`;
+    })
+    .join('');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
@@ -103,7 +110,10 @@ export async function buildVectorPdf(config: TextureConfig) {
   const width = config.output.widthPx;
   const height = config.output.heightPx;
   const layout = getPatternLayout(config);
-  const scale = Math.min(width / Math.max(layout.totalWidth, 1), height / Math.max(layout.totalHeight, 1));
+  const scale = Math.min(
+    width / Math.max(layout.totalWidth, 1),
+    height / Math.max(layout.totalHeight, 1),
+  );
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
   const offsetX = (width - drawWidth) / 2;
@@ -141,7 +151,9 @@ export async function buildVectorPdf(config: TextureConfig) {
     encoder.encode(
       `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Contents 4 0 R >>\nendobj\n`,
     ),
-    encoder.encode(`4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`),
+    encoder.encode(
+      `4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`,
+    ),
   ];
 
   const header = encoder.encode('%PDF-1.4\n');

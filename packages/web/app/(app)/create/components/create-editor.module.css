@@ -176,6 +176,27 @@
   padding-right: 42px;
 }
 
+.selectionInsetAction {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.74);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.selectionInsetAction:hover {
+  background: rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+}
+
 .selectionButton:hover {
   border-color: rgba(0, 0, 0, 1);
 }
@@ -366,6 +387,10 @@
   gap: 7px;
   font-size: 12px;
   color: #000;
+}
+
+.hiddenFileInput {
+  display: none;
 }
 
 .colorFieldRow {

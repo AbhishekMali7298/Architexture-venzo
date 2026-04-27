@@ -5,6 +5,7 @@ import type {
   MaterialDefinition,
   MaterialSource,
 } from '@textura/shared';
+import { getPatternByType, type PatternType } from '@textura/shared';
 
 export interface MaterialAssetSet {
   thumbnail: MaterialAssetRef | null;
@@ -14,6 +15,7 @@ export interface MaterialAssetSet {
 
 export function getAssetUrl(asset: MaterialAssetRef | null | undefined): string | null {
   if (!asset?.path) return null;
+  if (asset.path.startsWith('data:') || asset.path.startsWith('blob:')) return asset.path;
   // Paths starting with '/' are direct public folder paths (Next.js serves /public/* at root)
   if (asset.path.startsWith('/')) return asset.path;
   return `/api/assets/${asset.path}`;
@@ -99,6 +101,15 @@ export function getMaterialSourceRenderableAsset(source: MaterialSource): Materi
 
 export function getMaterialSourceRenderableImageUrl(source: MaterialSource): string | null {
   return getAssetUrl(getMaterialSourceRenderableAsset(source));
+}
+
+export function getPatternPreviewImageUrl(
+  patternType: PatternType | null | undefined,
+): string | null {
+  if (!patternType) return null;
+  const pattern = getPatternByType(patternType);
+  const assetPath = pattern?.previewAssetPath?.replace(/^\/+/, '');
+  return assetPath ? `/${assetPath}` : null;
 }
 
 export function getMaterialRenderableColor(source: MaterialSource, fallback = '#b8b0a8'): string {

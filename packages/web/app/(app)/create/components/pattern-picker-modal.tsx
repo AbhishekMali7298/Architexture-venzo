@@ -2,13 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
+import { getPatternPreviewImageUrl } from '../lib/material-assets';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
-
-function getPatternPreviewUrl(pattern: PatternDefinition) {
-  const filename = pattern.previewAssetPath?.split('/').pop() ?? `${pattern.type}.svg`;
-  return `/patterns/${filename}`;
-}
 
 // Implemented pattern types
 const IMPLEMENTED_PATTERNS = new Set<PatternType>([
@@ -19,6 +15,8 @@ const IMPLEMENTED_PATTERNS = new Set<PatternType>([
   'chevron',
   'staggered',
   'venzowood',
+  'venzowood_2',
+  'venzowood_3',
 ]);
 
 function PatternPreview({ src, alt }: { src: string; alt: string }) {
@@ -113,7 +111,10 @@ export function PatternPickerModal({
                     type="button"
                     onClick={() => handlePatternClick(pattern)}
                   >
-                    <PatternPreview src={getPatternPreviewUrl(pattern)} alt={pattern.displayName} />
+                    <PatternPreview
+                      src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
+                      alt={pattern.displayName}
+                    />
                     <span className={styles.patternOptionName}>{pattern.displayName}</span>
                     {!isImplemented && (
                       <span className={styles.patternNotImplementedBadge}>Coming soon</span>

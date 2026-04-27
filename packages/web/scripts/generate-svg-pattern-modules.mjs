@@ -352,6 +352,67 @@ function sampleCircle(cx, cy, r, samples = 48) {
   return { points, isClosed: true };
 }
 
+function parseNumericAttribute(element, name) {
+  const match = element.match(new RegExp(`\\s${name}="([^"]+)"`, 'i'));
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isNaN(value) ? null : value;
+}
+
+function roundedRectClipPath(width, height, rxInput, ryInput, samples = 8) {
+  let rx = rxInput ?? ryInput ?? 0;
+  let ry = ryInput ?? rxInput ?? 0;
+
+  rx = Math.max(0, Math.min(rx, width / 2));
+  ry = Math.max(0, Math.min(ry, height / 2));
+
+  if (rx === 0 || ry === 0) {
+    return [
+      { x: 0, y: 0 },
+      { x: width, y: 0 },
+      { x: width, y: height },
+      { x: 0, y: height },
+    ];
+  }
+
+  const points = [];
+  const addArc = (cx, cy, startAngle, endAngle) => {
+    for (let index = 0; index <= samples; index++) {
+      const angle = startAngle + ((endAngle - startAngle) * index) / samples;
+      points.push({
+        x: cx + Math.cos(angle) * rx,
+        y: cy + Math.sin(angle) * ry,
+      });
+    }
+  };
+
+  addArc(width - rx, ry, -Math.PI / 2, 0);
+  addArc(width - rx, height - ry, 0, Math.PI / 2);
+  addArc(rx, height - ry, Math.PI / 2, Math.PI);
+  addArc(rx, ry, Math.PI, (Math.PI * 3) / 2);
+
+  return points;
+}
+
+function rectToTile(rectElement, viewBox) {
+  const x = parseNumericAttribute(rectElement, 'x') ?? 0;
+  const y = parseNumericAttribute(rectElement, 'y') ?? 0;
+  const width = parseNumericAttribute(rectElement, 'width');
+  const height = parseNumericAttribute(rectElement, 'height');
+  const rx = parseNumericAttribute(rectElement, 'rx');
+  const ry = parseNumericAttribute(rectElement, 'ry');
+
+  if (width === null || height === null || width <= 0 || height <= 0) return null;
+
+  return {
+    x: x - viewBox.minX,
+    y: y - viewBox.minY,
+    width,
+    height,
+    clipPath: roundedRectClipPath(width, height, rx, ry),
+  };
+}
+
 function median(values) {
   if (!values.length) return 1;
   const sorted = [...values].sort((a, b) => a - b);
@@ -375,6 +436,7 @@ async function generate() {
 
     const pathMatches = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"[^>]*>/gi)];
     const circleMatches = [...svg.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\sr="([^"]+)"[^>]*>/gi)];
+    const rectMatches = [...svg.matchAll(/<rect\b[^>]*>/gi)];
     const tiles = [];
     const strokes = [];
 
@@ -421,6 +483,11 @@ async function generate() {
       });
     }
 
+    for (const rectMatch of rectMatches) {
+      const tile = rectToTile(rectMatch[0], viewBox);
+      if (tile) tiles.push(tile);
+    }
+
     const override = MODULE_OVERRIDES[patternType];
     const referenceTileWidth =
       override?.referenceTileWidth ??
@@ -440,7 +507,7 @@ async function generate() {
       strokes,
     };
 
-    diagnostics.push(`${patternType}: ${tiles.length} tile path(s), ${strokes.length} stroke path(s) from ${filename}`);
+    diagnostics.push(`${patternType}: ${tiles.length} tile shape(s), ${strokes.length} stroke path(s) from ${filename}`);
   }
 
   const outputDir = path.dirname(OUTPUT_FILE);
