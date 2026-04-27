@@ -35,6 +35,7 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: false,
   },
 };
+const DEFAULT_JOINT_SIZE = 5;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -55,8 +56,11 @@ function normalizePatternColumns(patternType: PatternType, columns: number) {
 }
 
 function applyPatternJointDefaults(config: TextureConfig, patternType: PatternType) {
-  const jointDefaults = PATTERN_JOINT_DEFAULTS[patternType];
-  if (!jointDefaults) return;
+  const jointDefaults = PATTERN_JOINT_DEFAULTS[patternType] ?? {
+    horizontalSize: DEFAULT_JOINT_SIZE,
+    verticalSize: DEFAULT_JOINT_SIZE,
+    linkedDimensions: true,
+  };
 
   config.joints.horizontalSize = jointDefaults.horizontalSize;
   config.joints.verticalSize = jointDefaults.verticalSize;
