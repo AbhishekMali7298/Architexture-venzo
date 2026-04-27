@@ -358,7 +358,7 @@ export function drawDottedBorder(
   ctx.save();
   ctx.lineWidth = 3;
   ctx.setLineDash([0, 7]);
-  ctx.strokeStyle = 'rgba(20,20,20,0.88)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.88)';
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
