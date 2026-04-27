@@ -33,4 +33,17 @@ describe('editor store', () => {
     expect(config.joints.verticalSize).toBe(5);
     expect(config.joints.linkedDimensions).toBe(true);
   });
+
+  it('selects the base Venzowood pattern at 0 degrees', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('venzowood');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('venzowood');
+    expect(config.pattern.angle).toBe(0);
+  });
 });

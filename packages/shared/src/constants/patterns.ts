@@ -387,7 +387,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Decorative diamond parquet module with long inlay strips',
     previewPath: '',
     previewAssetPath: 'patterns/venzowood.svg',
-    defaults: { rows: 3, columns: 3, angle: 45, stretchers: 1, weaves: 1 },
+    defaults: { rows: 3, columns: 3, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 20 },
       columns: { min: 1, max: 20 },
