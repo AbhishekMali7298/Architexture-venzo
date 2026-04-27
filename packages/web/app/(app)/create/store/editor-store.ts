@@ -57,6 +57,7 @@ export interface EditorState {
   zoom: number;
   showBorder: boolean;
   tileBackground: boolean;
+  embossMode: boolean;
 
   // History
   undoStack: HistoryEntry[];
@@ -113,6 +114,7 @@ export interface EditorState {
   setZoom: (zoom: number) => void;
   setShowBorder: (show: boolean) => void;
   setTileBackground: (show: boolean) => void;
+  setEmbossMode: (value: boolean) => void;
 
   // History
   undo: () => void;
@@ -169,6 +171,7 @@ export const useEditorStore = create<EditorState>()(
     zoom: 1,
     showBorder: true,
     tileBackground: true,
+    embossMode: false,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -492,6 +495,11 @@ export const useEditorStore = create<EditorState>()(
     setTileBackground: (show) =>
       set((s) => {
         s.tileBackground = show;
+        bumpRender(s);
+      }),
+    setEmbossMode: (value) =>
+      set((s) => {
+        s.embossMode = value;
         bumpRender(s);
       }),
 

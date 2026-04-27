@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { getMaterialById } from '@textura/shared';
 import { useEditorStore } from '../store/editor-store';
-import { drawDottedBorder, renderBackground } from '../engine/background-renderer';
+import { drawDottedBorder, renderBackground, renderEmbossBackground } from '../engine/background-renderer';
 import {
   getMaterialRenderableImageUrl,
   getMaterialSourceRenderableImageUrl,
@@ -16,6 +16,7 @@ export function BackgroundCanvas() {
   const renderVersion = useEditorStore((s) => s.renderVersion);
   const showBorder = useEditorStore((s) => s.showBorder);
   const tileBackground = useEditorStore((s) => s.tileBackground);
+  const embossMode = useEditorStore((s) => s.embossMode);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId
     ? getMaterialById(primaryMaterial.definitionId)
@@ -46,11 +47,16 @@ export function BackgroundCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
 
-      const previewBounds = renderBackground(ctx, config, w, h, {
-        materialImage,
-        jointImage,
-        tileBackground,
-      });
+      const previewBounds = embossMode
+        ? renderEmbossBackground(ctx, config, w, h, {
+            materialImage,
+            tileBackground,
+          })
+        : renderBackground(ctx, config, w, h, {
+            materialImage,
+            jointImage,
+            tileBackground,
+          });
       if (previewBounds && showBorder) {
         drawDottedBorder(
           ctx,
@@ -65,7 +71,7 @@ export function BackgroundCanvas() {
     render();
     window.addEventListener('resize', render);
     return () => window.removeEventListener('resize', render);
-  }, [config, renderVersion, materialImage, jointImage, showBorder, tileBackground]);
+  }, [config, renderVersion, materialImage, jointImage, showBorder, tileBackground, embossMode]);
 
   return (
     <canvas

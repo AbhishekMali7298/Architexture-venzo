@@ -66,6 +66,8 @@ export function MaterialSettingsSection({
   onEdgeStyleChange,
   onEdgeScaleChange,
   onEdgeWidthChange,
+  embossMode,
+  onEmbossModeChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -105,6 +107,8 @@ export function MaterialSettingsSection({
   onEdgeScaleChange: (value: number) => void;
   onEdgeWidthChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
+  embossMode: boolean;
+  onEmbossModeChange: (value: boolean) => void;
 }) {
   const [showEdgePopup, setShowEdgePopup] = useState(false);
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
@@ -140,6 +144,15 @@ export function MaterialSettingsSection({
             loading="eager"
           />
         </button>
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            checked={embossMode}
+            onChange={(event) => onEmbossModeChange(event.target.checked)}
+          />
+          <span>Embossed surface</span>
+        </label>
 
         <div className={styles.gridTwo}>
           <NumberField
