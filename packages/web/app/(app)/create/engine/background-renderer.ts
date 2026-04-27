@@ -28,6 +28,29 @@ function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeig
   };
 }
 
+function cloneConfigWithPatternSize(config: TextureConfig, rows: number, columns: number) {
+  const nextConfig = JSON.parse(JSON.stringify(config)) as TextureConfig;
+  nextConfig.pattern.rows = Math.max(1, Math.round(rows));
+  nextConfig.pattern.columns = Math.max(1, Math.round(columns));
+  return nextConfig;
+}
+
+function getModuleRepeatStep(config: TextureConfig) {
+  const oneColumnLayout = getPatternLayout(cloneConfigWithPatternSize(config, config.pattern.rows, 1));
+  const twoColumnLayout = getPatternLayout(cloneConfigWithPatternSize(config, config.pattern.rows, 2));
+  const oneRowLayout = getPatternLayout(cloneConfigWithPatternSize(config, 1, config.pattern.columns));
+  const twoRowLayout = getPatternLayout(cloneConfigWithPatternSize(config, 2, config.pattern.columns));
+
+  return {
+    x: Math.max(1, twoColumnLayout.totalWidth - oneColumnLayout.totalWidth),
+    y: Math.max(1, twoRowLayout.totalHeight - oneRowLayout.totalHeight),
+  };
+}
+
+function shouldExtendBackgroundByModule(config: TextureConfig) {
+  return config.pattern.type === 'venzowood_3';
+}
+
 export function renderBackground(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
@@ -106,6 +129,85 @@ export function renderBackground(
     }
 
     renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'over');
+
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: frameWidth,
+      height: frameHeight,
+    };
+  }
+
+  if (shouldExtendBackgroundByModule(config)) {
+    const repeatStep = getModuleRepeatStep(config);
+    const stepWidth = Math.max(1, repeatStep.x * scale);
+    const stepHeight = Math.max(1, repeatStep.y * scale);
+    const columnsBefore = Math.ceil(bounds.x / stepWidth) + 1;
+    const columnsAfter = Math.ceil((canvasWidth - bounds.x - frameWidth) / stepWidth) + 1;
+    const rowsBefore = Math.ceil(bounds.y / stepHeight) + 1;
+    const rowsAfter = Math.ceil((canvasHeight - bounds.y - frameHeight) / stepHeight) + 1;
+    const extendedConfig = cloneConfigWithPatternSize(
+      config,
+      config.pattern.rows + rowsBefore + rowsAfter,
+      config.pattern.columns + columnsBefore + columnsAfter,
+    );
+    const extendedLayout = getPatternLayout(extendedConfig);
+    const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
+    const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
+
+    renderJointProfile(
+      ctx,
+      config,
+      {
+        x: offsetX,
+        y: offsetY,
+        width: extendedLayout.totalWidth * scale,
+        height: extendedLayout.totalHeight * scale,
+      },
+      scale,
+      extendedLayout.tiles,
+      'under',
+    );
+
+    for (const [tileIndex, tile] of extendedLayout.tiles.entries()) {
+      const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+      const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex);
+      fillMaterialSurface(ctx, {
+        x: offsetX + shape.bounds.x * scale,
+        y: offsetY + shape.bounds.y * scale,
+        width: shape.bounds.width * scale,
+        height: shape.bounds.height * scale,
+        radius: 0,
+        fallbackFill,
+        image: options?.materialImage,
+        tintColor: material.tint,
+        clipPath: shape.points.map((point) => ({
+          x: offsetX + point.x * scale,
+          y: offsetY + point.y * scale,
+        })),
+        imageDrawBox: {
+          x: offsetX + shape.bounds.x * scale,
+          y: offsetY + shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+        },
+        toneShift,
+      });
+    }
+
+    renderJointProfile(
+      ctx,
+      config,
+      {
+        x: offsetX,
+        y: offsetY,
+        width: extendedLayout.totalWidth * scale,
+        height: extendedLayout.totalHeight * scale,
+      },
+      scale,
+      extendedLayout.tiles,
+      'over',
+    );
 
     return {
       x: bounds.x,
@@ -324,6 +426,28 @@ export function renderEmbossBackground(
     image: options?.materialImage,
     tintColor: material.tint,
   });
+
+  if (shouldExtendBackgroundByModule(config)) {
+    const repeatStep = getModuleRepeatStep(config);
+    const stepWidth = Math.max(1, repeatStep.x * scale);
+    const stepHeight = Math.max(1, repeatStep.y * scale);
+    const columnsBefore = Math.ceil(bounds.x / stepWidth) + 1;
+    const columnsAfter = Math.ceil((canvasWidth - bounds.x - frameWidth) / stepWidth) + 1;
+    const rowsBefore = Math.ceil(bounds.y / stepHeight) + 1;
+    const rowsAfter = Math.ceil((canvasHeight - bounds.y - frameHeight) / stepHeight) + 1;
+    const extendedConfig = cloneConfigWithPatternSize(
+      config,
+      config.pattern.rows + rowsBefore + rowsAfter,
+      config.pattern.columns + columnsBefore + columnsAfter,
+    );
+    const extendedLayout = getPatternLayout(extendedConfig);
+    const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
+    const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
+
+    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles);
+
+    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
+  }
 
   // Tile emboss lines across the canvas
   const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;

@@ -25,6 +25,16 @@ interface HistoryEntry {
 const MAX_HISTORY = 50;
 const MIN_JOINT_SIZE = -500;
 const MAX_JOINT_SIZE = 500;
+const PATTERN_JOINT_DEFAULTS: Record<
+  PatternType,
+  { horizontalSize: number; verticalSize: number; linkedDimensions: boolean }
+> = {
+  venzowood_3: {
+    horizontalSize: -30,
+    verticalSize: -120,
+    linkedDimensions: false,
+  },
+};
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -42,6 +52,15 @@ function normalizePatternColumns(patternType: PatternType, columns: number) {
   }
 
   return safeColumns % 2 === 0 ? safeColumns : Math.min(50, safeColumns + 1);
+}
+
+function applyPatternJointDefaults(config: TextureConfig, patternType: PatternType) {
+  const jointDefaults = PATTERN_JOINT_DEFAULTS[patternType];
+  if (!jointDefaults) return;
+
+  config.joints.horizontalSize = jointDefaults.horizontalSize;
+  config.joints.verticalSize = jointDefaults.verticalSize;
+  config.joints.linkedDimensions = jointDefaults.linkedDimensions;
 }
 
 // ======= Store Interface =======
@@ -187,6 +206,7 @@ export const useEditorStore = create<EditorState>()(
           ...s.config.pattern,
           ...nextPattern,
         };
+        applyPatternJointDefaults(s.config, nextPattern.type);
         bumpRender(s);
       }),
 

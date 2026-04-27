@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SVG_PATTERN_MODULES } from '../../engine/generated/svg-pattern-modules';
+import { SVG_PATTERN_MODULES } from '../engine/generated/svg-pattern-modules';
 import { getPatternLayout } from './pattern-layout';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
 
@@ -77,7 +77,7 @@ describe('pattern layout', () => {
     }
   });
 
-  it('does not add SVG viewBox margins between repeated Venzowood modules', () => {
+  it('keeps the full Venzowood 3 module visible while closing repeat seams', () => {
     const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
     config.pattern = {
       ...config.pattern,
@@ -96,7 +96,14 @@ describe('pattern layout', () => {
     const firstMaxX = Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
     const secondMinX = Math.min(...secondModuleTiles.map((tile) => tile.bounds.x));
 
-    expect(secondMinX - firstMaxX).toBeCloseTo(0, 2);
+    expect(secondMinX - firstMaxX).toBeLessThan(0);
+
+    const singleConfig = structuredClone(config);
+    singleConfig.pattern.columns = 1;
+    const singleLayout = getPatternLayout(singleConfig);
+    const singleMaxX = Math.max(...singleLayout.tiles.map((tile) => tile.bounds.x + tile.bounds.width));
+
+    expect(singleLayout.totalWidth).toBeCloseTo(singleMaxX, 2);
   });
 
   it('supports negative joint values as overlap between repeated modules', () => {

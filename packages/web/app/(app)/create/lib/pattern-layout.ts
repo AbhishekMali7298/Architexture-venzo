@@ -534,10 +534,12 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   );
   const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
   const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
-  const moduleWidth = Math.max(1, (module.repeatWidth ?? contentWidth) * scale);
-  const moduleHeight = Math.max(1, (module.repeatHeight ?? contentHeight) * scale);
-  const stepX = moduleWidth + jointVertical;
-  const stepY = moduleHeight + jointHorizontal;
+  const moduleWidth = contentWidth * scale;
+  const moduleHeight = contentHeight * scale;
+  const repeatWidth = Math.max(1, (module.repeatWidth ?? contentWidth) * scale);
+  const repeatHeight = Math.max(1, (module.repeatHeight ?? contentHeight) * scale);
+  const stepX = repeatWidth + jointVertical;
+  const stepY = repeatHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
 
   for (let row = 0; row < rows; row++) {
@@ -560,8 +562,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
 
   return {
     tiles,
-    totalWidth: columns * stepX,
-    totalHeight: rows * stepY,
+    totalWidth: moduleWidth + Math.max(0, columns - 1) * stepX,
+    totalHeight: moduleHeight + Math.max(0, rows - 1) * stepY,
   };
 }
 

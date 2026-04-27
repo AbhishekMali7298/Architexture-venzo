@@ -19,6 +19,10 @@ const MODULE_OVERRIDES = {
     repeatWidth: 1000,
     repeatHeight: 500,
   },
+  venzowood_3: {
+    repeatWidth: 20000,
+    repeatHeight: 24000,
+  },
 };
 
 function tokenizePathData(d) {
