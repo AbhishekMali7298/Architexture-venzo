@@ -3,7 +3,11 @@
 import { useEffect, useRef } from 'react';
 import { getMaterialById } from '@textura/shared';
 import { useEditorStore } from '../store/editor-store';
-import { drawDottedBorder, renderBackground, renderEmbossBackground } from '../engine/background-renderer';
+import {
+  drawPreviewBorder,
+  renderBackground,
+  renderEmbossBackground,
+} from '../engine/background-renderer';
 import {
   getMaterialRenderableImageUrl,
   getMaterialSourceRenderableImageUrl,
@@ -58,7 +62,7 @@ export function BackgroundCanvas() {
             tileBackground,
           });
       if (previewBounds && showBorder) {
-        drawDottedBorder(
+        drawPreviewBorder(
           ctx,
           previewBounds.x,
           previewBounds.y,

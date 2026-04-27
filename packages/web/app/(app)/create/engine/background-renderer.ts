@@ -342,7 +342,7 @@ export function renderEmbossBackground(
   return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
 }
 
-export function drawDottedBorder(
+export function drawPreviewBorder(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -356,11 +356,11 @@ export function drawDottedBorder(
   const snapY = (value: number) => (Math.round(value * scaleY) + 0.5) / scaleY;
 
   ctx.save();
-  ctx.lineWidth = 3;
-  ctx.setLineDash([0, 7]);
-  ctx.strokeStyle = 'rgba(255,255,255,0.88)';
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#000000';
+  ctx.lineCap = 'square';
+  ctx.lineJoin = 'miter';
   ctx.beginPath();
   const inset = ctx.lineWidth * 0.5;
   const rx = snapX(x + inset);
