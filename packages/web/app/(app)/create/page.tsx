@@ -62,12 +62,9 @@ export default function CreatePage() {
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
   const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
-  const setRecessJoints = useEditorStore((state) => state.setRecessJoints);
-  const setConcaveJoints = useEditorStore((state) => state.setConcaveJoints);
   const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
   const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
   const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
-  const setToneVariation = useEditorStore((state) => state.setToneVariation);
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
@@ -234,15 +231,12 @@ export default function CreatePage() {
           materialTint={material.tint}
           width={material.width}
           height={material.height}
-          toneVariation={material.toneVariation}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
           jointTint={config.joints.tint}
           jointAdjustments={config.joints.adjustments}
           units={config.units}
           linkedJoints={config.joints.linkedDimensions}
-          recessJoints={config.joints.recessJoints}
-          concaveJoints={config.joints.concaveJoints}
           edgeStyle={material.edges.style}
           edgeScale={material.edges.perimeterScale}
           edgeWidth={material.edges.profileWidth}
@@ -256,12 +250,9 @@ export default function CreatePage() {
           onJointTintChange={setJointTint}
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
-          onRecessJointsChange={setRecessJoints}
-          onConcaveJointsChange={setConcaveJoints}
           onEdgeStyleChange={setEdgeStyle}
           onEdgeScaleChange={setEdgePerimeterScale}
           onEdgeWidthChange={setEdgeProfileWidth}
-          onToneVariationChange={setToneVariation}
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}

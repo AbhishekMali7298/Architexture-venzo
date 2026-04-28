@@ -61,7 +61,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
 
       profile: null,
       finish: null,
-      toneVariation: 25,
+
       randomiseFillAngle: false,
 
       placement: {
@@ -161,8 +161,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
     horizontalSize: 5,
     verticalSize: 5,
     linkedDimensions: true,
-    recessJoints: false,
-    concaveJoints: false,
+
     adjustments: {
       brightness: 0,
       contrast: 0,

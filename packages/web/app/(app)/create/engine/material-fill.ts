@@ -126,11 +126,9 @@ export function fillMaterialSurface(
     tintColor?: string | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
     imageDrawBox?: { x: number; y: number; width: number; height: number };
-    /** Stable per-tile tone shift. Negative darkens, positive lightens. */
-    toneShift?: number;
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox, toneShift } = options;
+  const { x, y, width, height, radius, fallbackFill, image, tintColor, clipPath, imageDrawBox } = options;
 
   if (clipPath?.length) {
     tracePolygonPath(ctx, clipPath);
@@ -161,23 +159,6 @@ export function fillMaterialSurface(
   } else {
     ctx.fillStyle = fallbackFill;
     ctx.fillRect(x, y, width, height);
-  }
-
-  if (toneShift && Math.abs(toneShift) > 0.0001) {
-    if (toneShift < 0) {
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.globalAlpha = Math.min(0.22, Math.abs(toneShift) * 0.22);
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(x, y, width, height);
-    } else {
-      ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = Math.min(0.16, toneShift * 0.16);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x, y, width, height);
-    }
-
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
   }
 
   ctx.restore();

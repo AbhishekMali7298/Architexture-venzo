@@ -3,8 +3,6 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
-import { renderJointProfile } from './joint-profile-renderer';
-import { getToneVariationShift } from './tone-variation';
 
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -62,23 +60,8 @@ export function renderToCanvas(
     tintColor: config.joints.tint,
   });
 
-  renderJointProfile(
-    ctx,
-    config,
-    {
-      x: offsetX,
-      y: offsetY,
-      width: drawWidth,
-      height: drawHeight,
-    },
-    scale,
-    layout.tiles,
-    'under',
-  );
-
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-    const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex);
     fillMaterialSurface(ctx, {
       x: offsetX + shape.bounds.x * scale,
       y: offsetY + shape.bounds.y * scale,
@@ -98,23 +81,8 @@ export function renderToCanvas(
         width: shape.bounds.width * scale,
         height: shape.bounds.height * scale,
       },
-      toneShift,
     });
   }
-
-  renderJointProfile(
-    ctx,
-    config,
-    {
-      x: offsetX,
-      y: offsetY,
-      width: drawWidth,
-      height: drawHeight,
-    },
-    scale,
-    layout.tiles,
-    'over',
-  );
 }
 
 let renderTimer: ReturnType<typeof setTimeout> | null = null;

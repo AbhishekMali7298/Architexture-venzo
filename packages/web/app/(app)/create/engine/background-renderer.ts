@@ -3,8 +3,6 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
-import { renderJointProfile } from './joint-profile-renderer';
-import { getToneVariationShift } from './tone-variation';
 
 function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
   const panelWidth = 336;
@@ -222,11 +220,8 @@ export function renderBackground(
   });
 
   if (options?.tileBackground === false) {
-    renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'under');
-
     for (const [tileIndex, tile] of layout.tiles.entries()) {
       const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-      const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex, 0, 0);
 
       fillMaterialSurface(ctx, {
         x: bounds.x + shape.bounds.x * scale,
@@ -247,11 +242,8 @@ export function renderBackground(
           width: shape.bounds.width * scale,
           height: shape.bounds.height * scale,
         },
-        toneShift,
       });
     }
-
-    renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'over');
     drawVenzowood4Holes(
       ctx,
       config,
@@ -290,23 +282,8 @@ export function renderBackground(
     const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
     const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
 
-    renderJointProfile(
-      ctx,
-      config,
-      {
-        x: offsetX,
-        y: offsetY,
-        width: extendedLayout.totalWidth * scale,
-        height: extendedLayout.totalHeight * scale,
-      },
-      scale,
-      extendedLayout.tiles,
-      'under',
-    );
-
     for (const [tileIndex, tile] of extendedLayout.tiles.entries()) {
       const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-      const toneShift = getToneVariationShift(material.toneVariation, config.seed, tileIndex);
       fillMaterialSurface(ctx, {
         x: offsetX + shape.bounds.x * scale,
         y: offsetY + shape.bounds.y * scale,
@@ -326,23 +303,8 @@ export function renderBackground(
           width: shape.bounds.width * scale,
           height: shape.bounds.height * scale,
         },
-        toneShift,
       });
     }
-
-    renderJointProfile(
-      ctx,
-      config,
-      {
-        x: offsetX,
-        y: offsetY,
-        width: extendedLayout.totalWidth * scale,
-        height: extendedLayout.totalHeight * scale,
-      },
-      scale,
-      extendedLayout.tiles,
-      'over',
-    );
     drawVenzowood4Holes(
       ctx,
       config,
@@ -375,29 +337,8 @@ export function renderBackground(
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
 
-      renderJointProfile(
-        ctx,
-        config,
-        {
-          x: offsetX,
-          y: offsetY,
-          width: frameWidth,
-          height: frameHeight,
-        },
-        scale,
-        layout.tiles,
-        'under',
-      );
-
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-        const toneShift = getToneVariationShift(
-          material.toneVariation,
-          config.seed,
-          tileIndex,
-          xIndex,
-          yIndex,
-        );
         fillMaterialSurface(ctx, {
           x: offsetX + shape.bounds.x * scale,
           y: offsetY + shape.bounds.y * scale,
@@ -417,23 +358,8 @@ export function renderBackground(
             width: shape.bounds.width * scale,
             height: shape.bounds.height * scale,
           },
-          toneShift,
         });
       }
-
-      renderJointProfile(
-        ctx,
-        config,
-        {
-          x: offsetX,
-          y: offsetY,
-          width: frameWidth,
-          height: frameHeight,
-        },
-        scale,
-        layout.tiles,
-        'over',
-      );
       drawVenzowood4Holes(
         ctx,
         config,

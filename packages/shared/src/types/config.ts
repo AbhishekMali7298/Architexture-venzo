@@ -117,7 +117,7 @@ export interface MaterialConfig {
 
   profile: string | null;
   finish: string | null;
-  toneVariation: number;
+
   randomiseFillAngle: boolean;
 
   placement: {
@@ -190,8 +190,7 @@ export interface JointsConfig {
   horizontalSize: number;
   verticalSize: number;
   linkedDimensions: boolean;
-  recessJoints: boolean;
-  concaveJoints: boolean;
+
   adjustments: ImageAdjustments;
 }
 

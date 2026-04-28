@@ -147,7 +147,7 @@ export const materialConfigSchema = z.object({
 
   profile: z.string().nullable(),
   finish: z.string().nullable(),
-  toneVariation: z.number().min(0).max(100),
+
   randomiseFillAngle: z.boolean(),
 
   placement: z.object({
@@ -170,8 +170,7 @@ export const jointsConfigSchema = z.object({
   horizontalSize: z.number().min(-500).max(500),
   verticalSize: z.number().min(-500).max(500),
   linkedDimensions: z.boolean(),
-  recessJoints: z.boolean(),
-  concaveJoints: z.boolean(),
+
   adjustments: imageAdjustmentsSchema,
 });
 

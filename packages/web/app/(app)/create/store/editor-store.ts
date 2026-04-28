@@ -111,7 +111,7 @@ export interface EditorState {
   setEdgeStyle: (style: EdgeStyle) => void;
   setEdgePerimeterScale: (scale: number) => void;
   setEdgeProfileWidth: (width: number) => void;
-  setToneVariation: (variation: number) => void;
+
 
   // Joints
   setJointTint: (tint: string | null) => void;
@@ -119,8 +119,7 @@ export interface EditorState {
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
   setLinkedDimensions: (linked: boolean) => void;
-  setRecessJoints: (value: boolean) => void;
-  setConcaveJoints: (value: boolean) => void;
+
   setJointAdjustment: (key: keyof ImageAdjustments, value: number | boolean) => void;
 
   // Output
@@ -182,7 +181,7 @@ function applyMaterialLibrarySelection(
   // User-edited sizing, tint, edges, joints, and other overrides stay intact.
   mat.definitionId = definition.id;
   mat.source = cloneMaterialSource(definition.source);
-  mat.toneVariation = 0;
+
 }
 
 // ======= Store =======
@@ -362,15 +361,7 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-    setToneVariation: (variation) =>
-      set((s) => {
-        pushHistory(s, `Tone variation → ${variation}`);
-        const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.toneVariation = clamp(variation, 0, 100);
-        }
-        bumpRender(s);
-      }),
+
 
     // ===== Joint Actions =====
 
@@ -422,19 +413,7 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-    setRecessJoints: (value) =>
-      set((s) => {
-        pushHistory(s, `Recess joints → ${value ? 'on' : 'off'}`);
-        s.config.joints.recessJoints = value;
-        bumpRender(s);
-      }),
 
-    setConcaveJoints: (value) =>
-      set((s) => {
-        pushHistory(s, `Concave joints → ${value ? 'on' : 'off'}`);
-        s.config.joints.concaveJoints = value;
-        bumpRender(s);
-      }),
 
     setJointAdjustment: (key, value) =>
       set((s) => {

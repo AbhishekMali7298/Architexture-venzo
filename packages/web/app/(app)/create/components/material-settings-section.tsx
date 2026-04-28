@@ -39,15 +39,12 @@ export function MaterialSettingsSection({
   materialTint,
   width,
   height,
-  toneVariation,
   jointHorizontal,
   jointVertical,
   jointTint,
   jointAdjustments,
   units,
   linkedJoints,
-  recessJoints,
-  concaveJoints,
   edgeStyle,
   edgeScale,
   edgeWidth,
@@ -61,8 +58,6 @@ export function MaterialSettingsSection({
   onJointTintChange,
   onJointAdjustmentChange,
   onLinkedJointsChange,
-  onRecessJointsChange,
-  onConcaveJointsChange,
   onEdgeStyleChange,
   onEdgeScaleChange,
   onEdgeWidthChange,
@@ -71,7 +66,6 @@ export function MaterialSettingsSection({
   embossAvailable = true,
   onEmbossModeChange,
   onEmbossStrengthChange,
-  onToneVariationChange,
 }: {
   materialName: string;
   materialCategory: string;
@@ -82,15 +76,12 @@ export function MaterialSettingsSection({
   materialTint: string | null;
   width: number;
   height: number;
-  toneVariation: number;
   jointHorizontal: number;
   jointVertical: number;
   jointTint: string | null;
   jointAdjustments: ImageAdjustments;
   units: 'mm' | 'inches';
   linkedJoints: boolean;
-  recessJoints: boolean;
-  concaveJoints: boolean;
   edgeStyle: EdgeStyle;
   edgeScale: number;
   edgeWidth: number;
@@ -107,18 +98,15 @@ export function MaterialSettingsSection({
   onJointTintChange: (value: string | null) => void;
   onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
   onLinkedJointsChange: (value: boolean) => void;
-  onRecessJointsChange: (value: boolean) => void;
-  onConcaveJointsChange: (value: boolean) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
   onEdgeScaleChange: (value: number) => void;
   onEdgeWidthChange: (value: number) => void;
-  onToneVariationChange: (value: number) => void;
   onEmbossModeChange: (value: boolean) => void;
   onEmbossStrengthChange: (value: number) => void;
 }) {
   const [showEdgePopup, setShowEdgePopup] = useState(false);
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
-  const toneVariationUi = Number((toneVariation / 100).toFixed(2));
+
   const edgeStyleLabel =
     EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
   const usesPresetWidth = isPresetEdgeStyle(edgeStyle);
@@ -328,23 +316,7 @@ export function MaterialSettingsSection({
           }
         />
 
-        <label className={styles.checkboxRow}>
-          <input
-            type="checkbox"
-            checked={recessJoints}
-            onChange={(event) => onRecessJointsChange(event.target.checked)}
-          />
-          <span>Recess joints</span>
-        </label>
 
-        <label className={styles.checkboxRow}>
-          <input
-            type="checkbox"
-            checked={concaveJoints}
-            onChange={(event) => onConcaveJointsChange(event.target.checked)}
-          />
-          <span>Concave joints</span>
-        </label>
 
         <ColorField
           label="Tint"
@@ -352,15 +324,7 @@ export function MaterialSettingsSection({
           onChange={(value) => onMaterialTintChange(value || null)}
         />
 
-        <RangeField
-          label="Tone Variation"
-          value={toneVariationUi}
-          min={0}
-          max={1}
-          step={0.01}
-          valueText={toneVariationUi.toFixed(2)}
-          onChange={(value) => onToneVariationChange(Math.round(value * 100))}
-        />
+
       </SectionCard>
 
       {showEdgePopup ? (
