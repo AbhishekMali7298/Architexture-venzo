@@ -23,6 +23,7 @@ import {
   getMaterialThumbnailUrl,
   getPatternPreviewImageUrl,
 } from './lib/material-assets';
+import { supportsEmbossPattern } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
@@ -156,6 +157,7 @@ export default function CreatePage() {
   const currentPatternName = currentPattern?.displayName ?? 'Stack';
   const currentPatternPreview =
     getPatternPreviewImageUrl(config.pattern.type) ?? '/patterns/stack_bond.svg';
+  const embossAvailable = supportsEmbossPattern(config.pattern.type);
 
   if (!isReady) {
     return null;
@@ -260,6 +262,7 @@ export default function CreatePage() {
           onEdgeScaleChange={setEdgePerimeterScale}
           onEdgeWidthChange={setEdgeProfileWidth}
           onToneVariationChange={setToneVariation}
+          embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}
           onEmbossModeChange={setEmbossMode}

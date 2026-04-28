@@ -68,6 +68,7 @@ export function MaterialSettingsSection({
   onEdgeWidthChange,
   embossMode,
   embossStrength,
+  embossAvailable = true,
   onEmbossModeChange,
   onEmbossStrengthChange,
   onToneVariationChange,
@@ -95,6 +96,7 @@ export function MaterialSettingsSection({
   edgeWidth: number;
   embossMode: boolean;
   embossStrength: number;
+  embossAvailable?: boolean;
   onOpenPicker: () => void;
   onOpenJointMaterialPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
@@ -149,25 +151,29 @@ export function MaterialSettingsSection({
           />
         </button>
 
-        <label className={styles.checkboxRow}>
-          <input
-            type="checkbox"
-            checked={embossMode}
-            onChange={(event) => onEmbossModeChange(event.target.checked)}
-          />
-          <span>Embossed surface</span>
-        </label>
+        {embossAvailable ? (
+          <>
+            <label className={styles.checkboxRow}>
+              <input
+                type="checkbox"
+                checked={embossMode}
+                onChange={(event) => onEmbossModeChange(event.target.checked)}
+              />
+              <span>Embossed surface</span>
+            </label>
 
-        {embossMode ? (
-          <RangeField
-            label="Emboss Strength"
-            value={embossStrength}
-            min={0}
-            max={100}
-            step={5}
-            valueText={`${embossStrength}%`}
-            onChange={onEmbossStrengthChange}
-          />
+            {embossMode ? (
+              <RangeField
+                label="Emboss Strength"
+                value={embossStrength}
+                min={0}
+                max={100}
+                step={5}
+                valueText={`${embossStrength}%`}
+                onChange={onEmbossStrengthChange}
+              />
+            ) : null}
+          </>
         ) : null}
 
         <div className={styles.gridTwo}>

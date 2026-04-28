@@ -1,7 +1,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
-import { getPatternLayout, type PatternTile } from '../lib/pattern-layout';
+import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
 import { renderJointProfile } from './joint-profile-renderer';
 import { getToneVariationShift } from './tone-variation';
@@ -72,6 +72,109 @@ function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof get
     width: Math.max(1, repeatWidth * scale),
     height: Math.max(1, repeatHeight * scale),
   };
+}
+
+function drawPatternStrokes(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  strokes: ReadonlyArray<PatternStroke>,
+) {
+  if (!strokes.length) return;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(1, Math.min(3, scale * 5));
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+
+  for (const stroke of strokes) {
+    const firstPoint = stroke.points[0];
+    if (!firstPoint) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(offsetX + firstPoint.x * scale, offsetY + firstPoint.y * scale);
+
+    for (const point of stroke.points.slice(1)) {
+      ctx.lineTo(offsetX + point.x * scale, offsetY + point.y * scale);
+    }
+
+    if (stroke.closed) {
+      ctx.closePath();
+    }
+
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {
+  if (points.length < 3) return 0;
+  let area = 0;
+  for (let index = 0; index < points.length; index++) {
+    const current = points[index]!;
+    const next = points[(index + 1) % points.length]!;
+    area += current.x * next.y - next.x * current.y;
+  }
+  return Math.abs(area) * 0.5;
+}
+
+function drawVenzowood4Holes(
+  ctx: CanvasRenderingContext2D,
+  config: TextureConfig,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  layout: ReturnType<typeof getPatternLayout>,
+  jointFill: string,
+  jointImage?: CanvasImageSource | null,
+) {
+  if (config.pattern.type !== 'venzowood_4') return;
+  if (!layout.strokes.length || !layout.tiles.length) return;
+
+  const maxTileArea = Math.max(...layout.tiles.map((tile) => tile.width * tile.height), 0);
+  if (maxTileArea <= 0) return;
+
+  const holeCandidates = layout.strokes.filter((stroke) => {
+    if (!stroke.closed || stroke.points.length < 3) return false;
+    const area = polygonArea(stroke.points);
+    return area > 0 && area < maxTileArea * 0.2;
+  });
+
+  if (!holeCandidates.length) return;
+
+  for (const hole of holeCandidates) {
+    const points = hole.points.map((point) => ({
+      x: offsetX + point.x * scale,
+      y: offsetY + point.y * scale,
+    }));
+    const xs = points.map((point) => point.x);
+    const ys = points.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+
+    fillMaterialSurface(ctx, {
+      x: minX,
+      y: minY,
+      width: Math.max(1, maxX - minX),
+      height: Math.max(1, maxY - minY),
+      radius: 0,
+      fallbackFill: jointFill,
+      image: jointImage,
+      tintColor: config.joints.tint,
+      clipPath: points,
+      imageDrawBox: {
+        x: minX,
+        y: minY,
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY),
+      },
+    });
+  }
 }
 
 export function renderBackground(
@@ -152,6 +255,8 @@ export function renderBackground(
     }
 
     renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'over');
+    drawVenzowood4Holes(ctx, config, bounds.x, bounds.y, scale, layout, jointFill, options?.jointImage);
+    drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
 
     return {
       x: bounds.x,
@@ -231,6 +336,17 @@ export function renderBackground(
       extendedLayout.tiles,
       'over',
     );
+    drawVenzowood4Holes(
+      ctx,
+      config,
+      offsetX,
+      offsetY,
+      scale,
+      extendedLayout,
+      jointFill,
+      options?.jointImage,
+    );
+    drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
 
     return {
       x: bounds.x,
@@ -310,6 +426,17 @@ export function renderBackground(
         layout.tiles,
         'over',
       );
+      drawVenzowood4Holes(
+        ctx,
+        config,
+        offsetX,
+        offsetY,
+        scale,
+        layout,
+        jointFill,
+        options?.jointImage,
+      );
+      drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
   }
 

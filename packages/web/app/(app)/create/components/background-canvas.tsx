@@ -13,6 +13,7 @@ import {
   getMaterialSourceRenderableImageUrl,
 } from '../lib/material-assets';
 import { useMaterialImage } from '../lib/material-image-cache';
+import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 export function BackgroundCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -52,7 +53,8 @@ export function BackgroundCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
 
-      const previewBounds = embossMode
+      const shouldRenderEmboss = embossMode && supportsEmbossPattern(config.pattern.type);
+      const previewBounds = shouldRenderEmboss
         ? renderEmbossBackground(ctx, config, w, h, {
             materialImage,
             tileBackground,

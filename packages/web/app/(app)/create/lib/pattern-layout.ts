@@ -21,8 +21,14 @@ export interface PatternTile {
   };
 }
 
+export interface PatternStroke {
+  points: PatternPoint[];
+  closed: boolean;
+}
+
 export interface PatternLayout {
   tiles: PatternTile[];
+  strokes: PatternStroke[];
   totalWidth: number;
   totalHeight: number;
 }
@@ -541,13 +547,19 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const stepX = repeatWidth + jointVertical;
   const stepY = repeatHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
+  const strokes: PatternStroke[] = [];
+  const fillTiles =
+    config.pattern.type === 'venzowood_4'
+      ? module.tiles.filter((tile) => tile.height >= contentHeight * 0.8)
+      : module.tiles;
+  const outlineTiles = config.pattern.type === 'venzowood_4' ? module.tiles : [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const offsetX = column * stepX;
       const offsetY = row * stepY;
 
-      for (const tile of module.tiles) {
+      for (const tile of fillTiles) {
         tiles.push(
           buildTileFromPoints(
             tile.clipPath.map((point) => ({
@@ -557,11 +569,32 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
           ),
         );
       }
+
+      for (const tile of outlineTiles) {
+        strokes.push({
+          closed: true,
+          points: tile.clipPath.map((point) => ({
+            x: offsetX + (tile.x - contentBounds.minX + point.x) * scale,
+            y: offsetY + (tile.y - contentBounds.minY + point.y) * scale,
+          })),
+        });
+      }
+
+      for (const stroke of module.strokes) {
+        strokes.push({
+          closed: stroke.closed,
+          points: stroke.points.map((point) => ({
+            x: offsetX + (point.x - contentBounds.minX) * scale,
+            y: offsetY + (point.y - contentBounds.minY) * scale,
+          })),
+        });
+      }
     }
   }
 
   return {
     tiles,
+    strokes,
     totalWidth: moduleWidth + Math.max(0, columns - 1) * stepX,
     totalHeight: moduleHeight + Math.max(0, rows - 1) * stepY,
   };
@@ -569,7 +602,12 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
 
 export function getPatternLayout(config: TextureConfig): PatternLayout {
   const svgPatternModule = SVG_PATTERN_MODULES[config.pattern.type];
-  const baseLayout =
+  const baseLayout: {
+    tiles: PatternTile[];
+    totalWidth: number;
+    totalHeight: number;
+    strokes?: PatternStroke[];
+  } =
     config.pattern.type === 'flemish_bond'
       ? getFlemishTiles(config)
       : config.pattern.type === 'stretcher_bond'
@@ -588,6 +626,7 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
 
   return {
     tiles: baseLayout.tiles,
+    strokes: baseLayout.strokes ?? [],
     totalWidth: roundLayoutValue(baseLayout.totalWidth),
     totalHeight: roundLayoutValue(baseLayout.totalHeight),
   };
