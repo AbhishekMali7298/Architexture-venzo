@@ -241,6 +241,7 @@ export default function CreatePage() {
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
 
+          isImpressPattern={['venzowood', 'venzowood_2', 'venzowood_3'].includes(config.pattern.type)}
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}

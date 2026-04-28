@@ -194,7 +194,7 @@ export const useEditorStore = create<EditorState>()(
     zoom: 1,
     showBorder: true,
     tileBackground: true,
-    embossMode: true,
+    embossMode: ['venzowood', 'venzowood_2', 'venzowood_3'].includes(DEFAULT_TEXTURE_CONFIG.pattern.type),
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
     undoStack: [],
     redoStack: [],
@@ -212,6 +212,8 @@ export const useEditorStore = create<EditorState>()(
           ...nextPattern,
         };
         applyPatternJointDefaults(s.config, nextPattern.type);
+        const impressPatterns = ['venzowood', 'venzowood_2', 'venzowood_3'];
+        s.embossMode = impressPatterns.includes(type);
         bumpRender(s);
       }),
 
@@ -415,6 +417,7 @@ export const useEditorStore = create<EditorState>()(
         }
 
         s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
+        s.embossMode = ['venzowood', 'venzowood_2', 'venzowood_3'].includes(config.pattern.type);
         bumpRender(s);
       }),
 
@@ -422,7 +425,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, 'Reset project');
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
-        s.embossMode = true;
+        s.embossMode = ['venzowood', 'venzowood_2', 'venzowood_3'].includes(DEFAULT_TEXTURE_CONFIG.pattern.type);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
         bumpRender(s);
       }),

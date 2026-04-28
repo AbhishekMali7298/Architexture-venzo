@@ -44,6 +44,7 @@ export function MaterialSettingsSection({
   embossAvailable = true,
   onEmbossModeChange,
   onEmbossStrengthChange,
+  isImpressPattern = false,
 }: {
   materialName: string;
   materialCategory: string;
@@ -73,6 +74,7 @@ export function MaterialSettingsSection({
 
   onEmbossModeChange: (value: boolean) => void;
   onEmbossStrengthChange: (value: number) => void;
+  isImpressPattern?: boolean;
 }) {
 
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
@@ -109,14 +111,16 @@ export function MaterialSettingsSection({
 
         {embossAvailable ? (
           <>
-            <label className={styles.checkboxRow}>
-              <input
-                type="checkbox"
-                checked={embossMode}
-                onChange={(event) => onEmbossModeChange(event.target.checked)}
-              />
-              <span>Embossed surface</span>
-            </label>
+            {!isImpressPattern && (
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={embossMode}
+                  onChange={(event) => onEmbossModeChange(event.target.checked)}
+                />
+                <span>Embossed surface</span>
+              </label>
+            )}
 
             {embossMode ? (
               <RangeField
