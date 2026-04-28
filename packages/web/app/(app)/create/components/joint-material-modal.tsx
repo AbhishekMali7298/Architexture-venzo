@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import type { MaterialAssetRef } from '@textura/shared';
+import {
+  MATERIAL_CATEGORIES,
+  MATERIAL_LIBRARY,
+  type MaterialAssetRef,
+} from '@textura/shared';
+import { getMaterialThumbnailUrl } from '../lib/material-assets';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
@@ -25,6 +30,14 @@ export function JointMaterialModal({
 }) {
   const [materials, setMaterials] = useState<JointMaterialOption[]>([]);
   const [search, setSearch] = useState('');
+
+  const categoryLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of MATERIAL_CATEGORIES) {
+      map.set(item.id, item.displayName);
+    }
+    return map;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +65,7 @@ export function JointMaterialModal({
     };
   }, []);
 
-  const filteredMaterials = useMemo(() => {
+  const filteredJointMaterials = useMemo(() => {
     const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
     const terms = normalized ? normalized.split(' ') : [];
 
@@ -63,6 +76,24 @@ export function JointMaterialModal({
     });
   }, [materials, search]);
 
+  const filteredLibrary = useMemo(() => {
+    const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
+    const terms = normalized ? normalized.split(' ') : [];
+
+    return MATERIAL_LIBRARY.filter((material) => {
+      const renderAsset = material.albedo ?? material.thumbnail;
+      if (!renderAsset) return false;
+      if (!terms.length) return true;
+
+      const categoryLabel = categoryLabelById.get(material.categoryId) ?? material.categoryId;
+      const haystack = [material.name, material.id, material.categoryId, categoryLabel]
+        .join(' ')
+        .toLowerCase();
+
+      return terms.every((term) => haystack.includes(term));
+    });
+  }, [categoryLabelById, search]);
+
   return (
     <Modal onClose={onClose}>
       <div className={styles.modalCard}>
@@ -70,7 +101,7 @@ export function JointMaterialModal({
           <div className={styles.modalTitleRow}>
             <div>
               <h2 className={styles.modalTitle}>Choose Joint Material</h2>
-              <p className={styles.modalDescription}>Pick a solid fill or one of the local joint textures from `public/Joints-Patterns`.</p>
+              <p className={styles.modalDescription}>Pick a solid fill, a joint texture, or any shared material image.</p>
             </div>
             <button className={styles.iconButton} type="button" onClick={onClose} aria-label="Close joint material picker">
               ✕
@@ -110,7 +141,7 @@ export function JointMaterialModal({
           <section className={styles.modalSection}>
             <h3 className={styles.modalSectionTitle}>Joint Textures</h3>
             <div className={styles.optionGrid}>
-              {filteredMaterials.map((material) => (
+              {filteredJointMaterials.map((material) => (
                 <button
                   key={material.id}
                   className={`${styles.optionButton} ${currentRenderPath === material.renderPath ? styles.optionButtonActive : ''}`}
@@ -137,6 +168,50 @@ export function JointMaterialModal({
               ))}
             </div>
           </section>
+
+          {MATERIAL_CATEGORIES.map((category) => {
+            const categoryMaterials = filteredLibrary.filter(
+              (material) => material.categoryId === category.id,
+            );
+            if (!categoryMaterials.length) return null;
+
+            return (
+              <section key={category.id} className={styles.modalSection}>
+                <h3 className={styles.modalSectionTitle}>{category.displayName}</h3>
+                <div className={styles.optionGrid}>
+                  {categoryMaterials.map((material) => {
+                    const renderAsset = material.albedo ?? material.thumbnail;
+                    if (!renderAsset) return null;
+
+                    return (
+                      <button
+                        key={material.id}
+                        className={`${styles.optionButton} ${currentRenderPath === renderAsset.path ? styles.optionButtonActive : ''}`}
+                        type="button"
+                        onClick={() => {
+                          onSelect(renderAsset);
+                          onClose();
+                        }}
+                      >
+                        <MaterialThumb
+                          color={material.swatchColor}
+                          src={getMaterialThumbnailUrl(material)}
+                          alt={material.name}
+                          shape="square"
+                        />
+                        <div>
+                          <div className={styles.optionName}>{material.name}</div>
+                          <div className={styles.optionMeta}>
+                            {material.defaults.width} × {material.defaults.height} mm
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
     </Modal>
