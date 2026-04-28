@@ -6,13 +6,13 @@ import type {
   TextureConfig,
   EditorTab,
   PatternType,
-  EdgeStyle,
+
   ImageAdjustments,
   MaterialAssetRef,
   MaterialDefinition,
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById } from '@textura/shared';
-import { getDefaultEdgeScale, getDefaultEdgeWidth, isPresetEdgeStyle } from '../lib/handmade-edge';
+
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
 // ======= History (Undo/Redo) =======
@@ -108,9 +108,7 @@ export interface EditorState {
   setMaterialHeight: (height: number) => void;
   setMaterialMinWidth: (width: number) => void;
   setMaterialMinHeight: (height: number) => void;
-  setEdgeStyle: (style: EdgeStyle) => void;
-  setEdgePerimeterScale: (scale: number) => void;
-  setEdgeProfileWidth: (width: number) => void;
+
 
 
   // Joints
@@ -315,43 +313,7 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-    setEdgeStyle: (style) =>
-      set((s) => {
-        pushHistory(s, `Edges → ${style}`);
-        const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.edges.style = style;
-          if (isPresetEdgeStyle(style)) {
-            mat.edges.profileWidth = getDefaultEdgeWidth(style);
-            mat.edges.perimeterScale = getDefaultEdgeScale(style);
-          }
-        }
-        bumpRender(s);
-      }),
 
-    setEdgePerimeterScale: (scale) =>
-      set((s) => {
-        pushHistory(s, `Edge scale → ${scale}`);
-        const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.edges.perimeterScale = isPresetEdgeStyle(mat.edges.style)
-            ? clamp(scale, 0.25, 4)
-            : clamp(scale, 0, 100);
-        }
-        bumpRender(s);
-      }),
-
-    setEdgeProfileWidth: (width) =>
-      set((s) => {
-        pushHistory(s, `Edge width → ${width}`);
-        const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.edges.profileWidth = isPresetEdgeStyle(mat.edges.style)
-            ? getDefaultEdgeWidth(mat.edges.style)
-            : clamp(width, 0, 100);
-        }
-        bumpRender(s);
-      }),
 
 
 

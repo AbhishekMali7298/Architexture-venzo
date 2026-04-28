@@ -52,12 +52,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
       },
 
 
-      edges: {
-        style: 'none',
-        perimeterScale: 1,
-        profileWidth: 25,
-        excludeSides: [],
-      },
+
 
       profile: null,
       finish: null,

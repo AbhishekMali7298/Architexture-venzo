@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { ImageAdjustments } from '@textura/shared';
-import type { EdgeStyle } from '@textura/shared';
 import {
   CheckboxField,
   ColorField,
@@ -14,20 +13,9 @@ import {
 } from './field-controls';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
-import { isPresetEdgeStyle } from '../lib/handmade-edge';
 import styles from './create-editor.module.css';
 
-const EDGE_STYLE_OPTIONS: { value: EdgeStyle; label: string }[] = [
-  { value: 'handmade', label: 'Handmade' },
-  { value: 'fine', label: 'Fine' },
-  { value: 'rough_brick', label: 'Rough Brick' },
-  { value: 'rough_stone', label: 'Rough Stone' },
-  { value: 'wirecut', label: 'Wirecut' },
-  { value: 'chamfer', label: 'Chamfer' },
-  { value: 'fillet', label: 'Fillet' },
-  { value: 'cove', label: 'Cove' },
-  { value: 'none', label: 'None' },
-];
+
 
 export function MaterialSettingsSection({
   materialName,
@@ -43,9 +31,6 @@ export function MaterialSettingsSection({
   jointAdjustments,
   units,
   linkedJoints,
-  edgeStyle,
-  edgeScale,
-  edgeWidth,
   onOpenPicker,
   onOpenJointMaterialPicker,
   onWidthChange,
@@ -54,9 +39,6 @@ export function MaterialSettingsSection({
   onJointVerticalChange,
   onJointAdjustmentChange,
   onLinkedJointsChange,
-  onEdgeStyleChange,
-  onEdgeScaleChange,
-  onEdgeWidthChange,
   embossMode,
   embossStrength,
   embossAvailable = true,
@@ -76,9 +58,7 @@ export function MaterialSettingsSection({
   jointAdjustments: ImageAdjustments;
   units: 'mm' | 'inches';
   linkedJoints: boolean;
-  edgeStyle: EdgeStyle;
-  edgeScale: number;
-  edgeWidth: number;
+
   embossMode: boolean;
   embossStrength: number;
   embossAvailable?: boolean;
@@ -90,18 +70,14 @@ export function MaterialSettingsSection({
   onJointVerticalChange: (value: number) => void;
   onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
   onLinkedJointsChange: (value: boolean) => void;
-  onEdgeStyleChange: (value: EdgeStyle) => void;
-  onEdgeScaleChange: (value: number) => void;
-  onEdgeWidthChange: (value: number) => void;
+
   onEmbossModeChange: (value: boolean) => void;
   onEmbossStrengthChange: (value: number) => void;
 }) {
-  const [showEdgePopup, setShowEdgePopup] = useState(false);
+
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
 
-  const edgeStyleLabel =
-    EDGE_STYLE_OPTIONS.find((option) => option.value === edgeStyle)?.label ?? edgeStyle;
-  const usesPresetWidth = isPresetEdgeStyle(edgeStyle);
+
   const unitLabel = units === 'inches' ? 'in' : 'mm';
 
   return (
@@ -175,21 +151,7 @@ export function MaterialSettingsSection({
           />
         </div>
 
-        <button
-          className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
-          type="button"
-          onClick={() => setShowEdgePopup(true)}
-        >
-          <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
-              Edges
-            </span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
-              {edgeStyleLabel}
-            </span>
-          </span>
-          <span className={styles.edgePopupValue}>Edit</span>
-        </button>
+
 
         <div className={styles.subsectionTitle}>Joints</div>
 
@@ -282,56 +244,7 @@ export function MaterialSettingsSection({
 
       </SectionCard>
 
-      {showEdgePopup ? (
-        <Modal onClose={() => setShowEdgePopup(false)}>
-          <div className={styles.edgePopupCard}>
-            <div className={styles.edgePopupHeader}>
-              <h3 className={styles.edgePopupTitle}>Edge settings</h3>
-              <button
-                className={styles.iconButton}
-                type="button"
-                onClick={() => setShowEdgePopup(false)}
-                aria-label="Close edge settings"
-              >
-                ✕
-              </button>
-            </div>
 
-            <div className={styles.edgePopupBody}>
-              <SelectField
-                label="Style"
-                value={edgeStyle}
-                options={EDGE_STYLE_OPTIONS}
-                onChange={(value) => onEdgeStyleChange(value as EdgeStyle)}
-              />
-
-              <RangeField
-                label={edgeStyle === 'handmade' ? 'Handmade Scale' : 'Scale'}
-                value={edgeScale}
-                min={usesPresetWidth ? 0.25 : 0}
-                max={usesPresetWidth ? 4 : 5}
-                step={0.1}
-                valueText={edgeScale.toFixed(1)}
-                onChange={onEdgeScaleChange}
-              />
-
-              {usesPresetWidth ? (
-                <div className={styles.hint}>
-                  This edge uses a preset profile with width fixed to 25.
-                </div>
-              ) : (
-                <NumberField
-                  label="Width"
-                  value={edgeWidth}
-                  min={0}
-                  max={100}
-                  onChange={onEdgeWidthChange}
-                />
-              )}
-            </div>
-          </div>
-        </Modal>
-      ) : null}
 
       {showJointAdjustments ? (
         <Modal onClose={() => setShowJointAdjustments(false)}>

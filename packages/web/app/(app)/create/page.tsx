@@ -60,9 +60,7 @@ export default function CreatePage() {
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
   const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
-  const setEdgeStyle = useEditorStore((state) => state.setEdgeStyle);
-  const setEdgePerimeterScale = useEditorStore((state) => state.setEdgePerimeterScale);
-  const setEdgeProfileWidth = useEditorStore((state) => state.setEdgeProfileWidth);
+
   const loadProjectConfig = useEditorStore((state) => state.loadProjectConfig);
   const resetProject = useEditorStore((state) => state.resetProject);
   const showBorder = useEditorStore((state) => state.showBorder);
@@ -233,9 +231,7 @@ export default function CreatePage() {
           jointAdjustments={config.joints.adjustments}
           units={config.units}
           linkedJoints={config.joints.linkedDimensions}
-          edgeStyle={material.edges.style}
-          edgeScale={material.edges.perimeterScale}
-          edgeWidth={material.edges.profileWidth}
+
           onOpenPicker={() => setShowMaterialModal(true)}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onWidthChange={setMaterialWidth}
@@ -244,9 +240,7 @@ export default function CreatePage() {
           onJointVerticalChange={setJointVerticalSize}
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
-          onEdgeStyleChange={setEdgeStyle}
-          onEdgeScaleChange={setEdgePerimeterScale}
-          onEdgeWidthChange={setEdgeProfileWidth}
+
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}

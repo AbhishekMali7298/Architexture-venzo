@@ -8,7 +8,7 @@ export type {
   MaterialAssetRef,
   MaterialSource,
   SurfaceType,
-  EdgeStyle,
+
   PlacementMode,
   MaterialConfig,
   ImageAdjustments,

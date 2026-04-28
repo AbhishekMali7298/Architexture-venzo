@@ -115,32 +115,7 @@ export const materialConfigSchema = z.object({
   adjustments: imageAdjustmentsSchema,
 
 
-  edges: z.object({
-    style: z.enum([
-      'none',
-      'fine',
-      'handmade',
-      'rough_brick',
-      'long_brick',
-      'rough',
-      'uneven',
-      'chamfer',
-      'fillet',
-      'cove',
-      'standing_seam',
-      'ogee',
-      'waterfall',
-      'double_bullnose',
-      'wirecut',
-      'recessed',
-      'protruding',
-      'rough_stone',
-      'parged',
-    ]),
-    perimeterScale: z.number().min(0).max(100),
-    profileWidth: z.number().min(0).max(100),
-    excludeSides: z.array(z.number().int().min(1).max(6)),
-  }),
+
 
   profile: z.string().nullable(),
   finish: z.string().nullable(),

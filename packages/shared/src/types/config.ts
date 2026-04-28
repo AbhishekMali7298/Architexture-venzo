@@ -66,26 +66,7 @@ export type MaterialSource =
 
 export type SurfaceType = 'none' | 'vermiculated' | 'rough' | 'grooved' | 'voids';
 
-export type EdgeStyle =
-  | 'none'
-  | 'fine'
-  | 'handmade'
-  | 'rough_brick'
-  | 'long_brick'
-  | 'rough'
-  | 'uneven'
-  | 'chamfer'
-  | 'fillet'
-  | 'cove'
-  | 'standing_seam'
-  | 'ogee'
-  | 'waterfall'
-  | 'double_bullnose'
-  | 'wirecut'
-  | 'recessed'
-  | 'protruding'
-  | 'rough_stone'
-  | 'parged';
+
 
 export type PlacementMode = 'random' | 'defined' | 'manual';
 
@@ -108,12 +89,7 @@ export interface MaterialConfig {
   adjustments: ImageAdjustments;
 
 
-  edges: {
-    style: EdgeStyle;
-    perimeterScale: number;
-    profileWidth: number;
-    excludeSides: number[];
-  };
+
 
   profile: string | null;
   finish: string | null;
