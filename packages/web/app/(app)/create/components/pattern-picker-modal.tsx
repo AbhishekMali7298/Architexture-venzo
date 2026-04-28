@@ -17,6 +17,8 @@ const IMPLEMENTED_PATTERNS = new Set<PatternType>([
   'venzowood',
   'venzowood_2',
   'venzowood_3',
+  'venzowood_4',
+  'venzowood_5',
 ]);
 
 function PatternPreview({ src, alt }: { src: string; alt: string }) {
@@ -37,14 +39,16 @@ export function PatternPickerModal({
   onSelect: (pattern: PatternDefinition) => void;
 }) {
   const [search, setSearch] = useState('');
-  const [showNotImplementedPopup, setShowNotImplementedPopup] = useState(false);
-  const [pendingPattern, setPendingPattern] = useState<PatternDefinition | null>(null);
 
   const filteredLibrary = useMemo(() => {
     const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
     const terms = normalized ? normalized.split(' ') : [];
 
     return PATTERN_CATALOG.filter((pattern) => {
+      if (!IMPLEMENTED_PATTERNS.has(pattern.type)) {
+        return false;
+      }
+
       if (terms.length === 0) {
         return true;
       }
@@ -58,110 +62,61 @@ export function PatternPickerModal({
   }, [search]);
 
   const handlePatternClick = (pattern: PatternDefinition) => {
-    if (IMPLEMENTED_PATTERNS.has(pattern.type)) {
-      onSelect(pattern);
-      onClose();
-    } else {
-      setPendingPattern(pattern);
-      setShowNotImplementedPopup(true);
-    }
+    onSelect(pattern);
+    onClose();
   };
 
   return (
-    <>
-      <Modal onClose={onClose}>
-        <div className={styles.modalCard}>
-          <div className={styles.modalHeader}>
-            <div className={styles.modalTitleRow}>
-              <div>
-                <h2 className={styles.modalTitle}>Choose Pattern</h2>
-                <p className={styles.modalDescription}>
-                  Browse the pattern thumbnails and choose the active layout.
-                </p>
-              </div>
-              <button
-                className={styles.iconButton}
-                type="button"
-                onClick={onClose}
-                aria-label="Close pattern picker"
-              >
-                ✕
-              </button>
+    <Modal onClose={onClose}>
+      <div className={styles.modalCard}>
+        <div className={styles.modalHeader}>
+          <div className={styles.modalTitleRow}>
+            <div>
+              <h2 className={styles.modalTitle}>Choose Pattern</h2>
+              <p className={styles.modalDescription}>
+                Browse the pattern thumbnails and choose the active layout.
+              </p>
             </div>
-            <div className={styles.modalTools}>
-              <input
-                className={styles.input}
-                placeholder="Search patterns"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </div>
+            <button
+              className={styles.iconButton}
+              type="button"
+              onClick={onClose}
+              aria-label="Close pattern picker"
+            >
+              ✕
+            </button>
           </div>
-
-          <div className={styles.modalBody}>
-            <div className={styles.patternOptionGrid}>
-              {filteredLibrary.map((pattern) => {
-                const isImplemented = IMPLEMENTED_PATTERNS.has(pattern.type);
-                return (
-                  <button
-                    key={pattern.type}
-                    className={`${styles.patternOptionButton} ${
-                      currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
-                    } ${!isImplemented ? styles.patternOptionButtonNotImplemented : ''}`}
-                    type="button"
-                    onClick={() => handlePatternClick(pattern)}
-                  >
-                    <PatternPreview
-                      src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
-                      alt={pattern.displayName}
-                    />
-                    <span className={styles.patternOptionName}>{pattern.displayName}</span>
-                    {!isImplemented && (
-                      <span className={styles.patternNotImplementedBadge}>Coming soon</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          <div className={styles.modalTools}>
+            <input
+              className={styles.input}
+              placeholder="Search patterns"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
         </div>
-      </Modal>
 
-      {/* Not Implemented Popup */}
-      {showNotImplementedPopup && pendingPattern && (
-        <Modal onClose={() => setShowNotImplementedPopup(false)}>
-          <div className={styles.notImplementedCard}>
-            <div className={styles.notImplementedHeader}>
-              <h3 className={styles.notImplementedTitle}>Pattern Not Available</h3>
+        <div className={styles.modalBody}>
+          <div className={styles.patternOptionGrid}>
+            {filteredLibrary.map((pattern) => (
               <button
-                className={styles.iconButton}
+                key={pattern.type}
+                className={`${styles.patternOptionButton} ${
+                  currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
+                }`}
                 type="button"
-                onClick={() => setShowNotImplementedPopup(false)}
-                aria-label="Close"
+                onClick={() => handlePatternClick(pattern)}
               >
-                ✕
+                <PatternPreview
+                  src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
+                  alt={pattern.displayName}
+                />
+                <span className={styles.patternOptionName}>{pattern.displayName}</span>
               </button>
-            </div>
-            <div className={styles.notImplementedBody}>
-              <p className={styles.notImplementedText}>
-                The <strong>{pendingPattern.displayName}</strong> pattern is not implemented yet.
-              </p>
-              <p className={styles.notImplementedHint}>
-                This pattern is coming soon. Try one of the available patterns instead.
-              </p>
-            </div>
-            <div className={styles.notImplementedFooter}>
-              <button
-                className={styles.notImplementedButton}
-                type="button"
-                onClick={() => setShowNotImplementedPopup(false)}
-              >
-                Got it
-              </button>
-            </div>
+            ))}
           </div>
-        </Modal>
-      )}
-    </>
+        </div>
+      </div>
+    </Modal>
   );
 }

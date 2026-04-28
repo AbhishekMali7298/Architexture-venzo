@@ -23,6 +23,10 @@ const MODULE_OVERRIDES = {
     repeatWidth: 20000,
     repeatHeight: 24000,
   },
+  venzowood_4: {
+    referenceTileWidth: 6369.43,
+    referenceTileHeight: 17834.4,
+  },
 };
 
 function tokenizePathData(d) {
@@ -356,6 +360,36 @@ function sampleCircle(cx, cy, r, samples = 48) {
   return { points, isClosed: true };
 }
 
+function sampleEllipse(cx, cy, rx, ry, samples = 48) {
+  const points = [];
+  for (let index = 0; index < samples; index++) {
+    const theta = (index / samples) * Math.PI * 2;
+    points.push({
+      x: cx + Math.cos(theta) * rx,
+      y: cy + Math.sin(theta) * ry,
+    });
+  }
+  return { points, isClosed: true };
+}
+
+function sampledShapeToTile(parsed, viewBox) {
+  const minX = Math.min(...parsed.points.map((point) => point.x));
+  const maxX = Math.max(...parsed.points.map((point) => point.x));
+  const minY = Math.min(...parsed.points.map((point) => point.y));
+  const maxY = Math.max(...parsed.points.map((point) => point.y));
+  const width = maxX - minX;
+  const height = maxY - minY;
+  if (width <= 0 || height <= 0) return null;
+
+  return {
+    x: minX - viewBox.minX,
+    y: minY - viewBox.minY,
+    width,
+    height,
+    clipPath: parsed.points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
+  };
+}
+
 function parseNumericAttribute(element, name) {
   const match = element.match(new RegExp(`\\s${name}="([^"]+)"`, 'i'));
   if (!match) return null;
@@ -440,6 +474,7 @@ async function generate() {
 
     const pathMatches = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"[^>]*>/gi)];
     const circleMatches = [...svg.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\sr="([^"]+)"[^>]*>/gi)];
+    const ellipseMatches = [...svg.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"[^>]*>/gi)];
     const rectMatches = [...svg.matchAll(/<rect\b[^>]*>/gi)];
     const tiles = [];
     const strokes = [];
@@ -481,10 +516,19 @@ async function generate() {
       const r = Number(circleMatch[3]);
       if ([cx, cy, r].some((value) => Number.isNaN(value))) continue;
       const parsed = sampleCircle(cx, cy, r);
-      strokes.push({
-        points: parsed.points.map((point) => ({ x: point.x - viewBox.minX, y: point.y - viewBox.minY })),
-        closed: true,
-      });
+      const tile = sampledShapeToTile(parsed, viewBox);
+      if (tile) tiles.push(tile);
+    }
+
+    for (const ellipseMatch of ellipseMatches) {
+      const cx = Number(ellipseMatch[1]);
+      const cy = Number(ellipseMatch[2]);
+      const rx = Number(ellipseMatch[3]);
+      const ry = Number(ellipseMatch[4]);
+      if ([cx, cy, rx, ry].some((value) => Number.isNaN(value))) continue;
+      const parsed = sampleEllipse(cx, cy, rx, ry);
+      const tile = sampledShapeToTile(parsed, viewBox);
+      if (tile) tiles.push(tile);
     }
 
     for (const rectMatch of rectMatches) {

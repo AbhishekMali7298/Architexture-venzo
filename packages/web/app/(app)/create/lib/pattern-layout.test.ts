@@ -55,7 +55,7 @@ describe('pattern layout', () => {
   });
 
   it('builds the added Venzowood SVG variants as selectable background layouts', () => {
-    for (const patternType of ['venzowood_2', 'venzowood_3']) {
+    for (const patternType of ['venzowood_2', 'venzowood_3', 'venzowood_4', 'venzowood_5']) {
       const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
       config.pattern = {
         ...config.pattern,
@@ -132,6 +132,20 @@ describe('pattern layout', () => {
     const module = SVG_PATTERN_MODULES.venzowood_2;
 
     expect(module.tiles.length).toBeGreaterThan(0);
+    expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
+  });
+
+  it('preserves circular inlay shapes from Venzowood 4', () => {
+    const module = SVG_PATTERN_MODULES.venzowood_4;
+
+    expect(module.tiles).toHaveLength(3);
+    expect(module.tiles.filter((tile) => tile.clipPath.length > 4)).toHaveLength(2);
+  });
+
+  it('builds Venzowood 5 from closed SVG paths', () => {
+    const module = SVG_PATTERN_MODULES.venzowood_5;
+
+    expect(module.tiles).toHaveLength(3);
     expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
   });
 });
