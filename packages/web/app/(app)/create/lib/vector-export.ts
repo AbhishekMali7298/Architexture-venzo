@@ -84,6 +84,10 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const grooveAlpha = Math.min(0.322, 0.322 * clampedStrength);
   const highlightAlpha = Math.min(0.414, 0.414 * clampedStrength);
   const shadowAlpha = Math.min(0.207, 0.207 * clampedStrength);
+  
+  if (embeddedMaterial) {
+    defs.push(`<symbol id="material-symbol" viewBox="0 0 100 100" preserveAspectRatio="none"><image href="${embeddedMaterial}" x="0" y="0" width="100" height="100" preserveAspectRatio="none" /></symbol>`);
+  }
 
   const tileMarkup = layout.tiles
     .map((tile, index) => {
@@ -100,7 +104,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
       if (embeddedMaterial) {
         const clipId = `tile-clip-${index}`;
         defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
-        markup += `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
+        markup += `<use href="#material-symbol" x="${x}" y="${y}" width="${w}" height="${h}" clip-path="url(#${clipId})" />`;
       } else {
         markup += `<polygon points="${points}" fill="${fallbackFill}" />`;
       }
