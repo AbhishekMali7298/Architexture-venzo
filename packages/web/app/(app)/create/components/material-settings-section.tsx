@@ -109,31 +109,16 @@ export function MaterialSettingsSection({
           />
         </button>
 
-        {embossAvailable ? (
-          <>
-            {!isImpressPattern && (
-              <label className={styles.checkboxRow}>
-                <input
-                  type="checkbox"
-                  checked={embossMode}
-                  onChange={(event) => onEmbossModeChange(event.target.checked)}
-                />
-                <span>Embossed surface</span>
-              </label>
-            )}
-
-            {embossMode ? (
-              <RangeField
-                label="Emboss Strength"
-                value={embossStrength}
-                min={0}
-                max={100}
-                step={5}
-                valueText={`${embossStrength}%`}
-                onChange={onEmbossStrengthChange}
-              />
-            ) : null}
-          </>
+        {isImpressPattern ? (
+          <RangeField
+            label="Emboss Strength"
+            value={embossStrength}
+            min={0}
+            max={100}
+            step={5}
+            valueText={`${embossStrength}%`}
+            onChange={onEmbossStrengthChange}
+          />
         ) : null}
 
         <div className={styles.gridTwo}>
