@@ -310,13 +310,13 @@ function drawEmbossEffect(
   const clampedStrength = Math.sqrt(normalizedStrength);
 
   // grooveWidth scales with tile density — wider when tiles are larger on screen
-  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.3);
-  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.25);
-  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.055 * clampedStrength;
-  const grooveAlpha = Math.min(0.28, 0.28 * clampedStrength);
-  const highlightAlpha = Math.min(0.36, 0.36 * clampedStrength);
-  const shadowAlpha = Math.min(0.18, 0.18 * clampedStrength);
+  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.345);
+  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.2875);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.5175);
+  const faceAlpha = 0.063 * clampedStrength;
+  const grooveAlpha = Math.min(0.322, 0.322 * clampedStrength);
+  const highlightAlpha = Math.min(0.414, 0.414 * clampedStrength);
+  const shadowAlpha = Math.min(0.207, 0.207 * clampedStrength);
 
   ctx.save();
   ctx.lineCap = 'round';
