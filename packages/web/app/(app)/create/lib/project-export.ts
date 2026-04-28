@@ -9,6 +9,7 @@ import {
   getMaterialSourceRenderableImageUrl,
 } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
+import { useEditorStore } from '../store/editor-store';
 
 function downloadUrl(url: string, filename: string) {
   const anchor = document.createElement('a');
@@ -68,6 +69,8 @@ async function renderExportCanvas(config: TextureConfig) {
     materialImage,
     jointImage,
     backgroundFill: '#ffffff',
+    embossMode: useEditorStore.getState().embossMode,
+    embossStrength: useEditorStore.getState().embossStrength,
   });
 
   return canvas;

@@ -3,6 +3,8 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
+import { drawEmbossEffect } from './background-renderer';
+import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -13,6 +15,8 @@ export function renderToCanvas(
     materialImage?: CanvasImageSource | null;
     jointImage?: CanvasImageSource | null;
     backgroundFill?: string;
+    embossMode?: boolean;
+    embossStrength?: number;
   },
 ): void {
   const material = config.materials[0];
@@ -80,6 +84,12 @@ export function renderToCanvas(
         height: shape.bounds.height * scale,
       },
     });
+  }
+
+  const shouldRenderEmboss = options?.embossMode && supportsEmbossPattern(config.pattern.type);
+  if (shouldRenderEmboss) {
+    const strength = (options?.embossStrength ?? 100) / 100;
+    drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, strength);
   }
 }
 

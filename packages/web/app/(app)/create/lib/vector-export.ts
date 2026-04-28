@@ -4,6 +4,8 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from './handmade-edge';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 import { getPatternLayout } from './pattern-layout';
+import { useEditorStore } from '../store/editor-store';
+import { supportsEmbossPattern } from './pattern-capabilities';
 
 function escapeXml(value: string) {
   return value
@@ -69,6 +71,20 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const offsetY = (height - drawHeight) / 2;
   const jointFill = '#ffffff';
   const defs: string[] = [];
+  const embossMode = useEditorStore.getState().embossMode;
+  const embossStrength = useEditorStore.getState().embossStrength;
+  const shouldRenderEmboss = embossMode && supportsEmbossPattern(config.pattern.type);
+
+  const normalizedStrength = Math.max(0, Math.min(1, embossStrength / 100));
+  const clampedStrength = Math.sqrt(normalizedStrength);
+  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.345);
+  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.2875);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.5175);
+  const faceAlpha = 0.063 * clampedStrength;
+  const grooveAlpha = Math.min(0.322, 0.322 * clampedStrength);
+  const highlightAlpha = Math.min(0.414, 0.414 * clampedStrength);
+  const shadowAlpha = Math.min(0.207, 0.207 * clampedStrength);
+
   const tileMarkup = layout.tiles
     .map((tile, index) => {
       const shape = getTileRenderShape(tile, material, config.seed, index);
@@ -80,13 +96,32 @@ export async function buildPreviewSvg(config: TextureConfig) {
       const w = shape.bounds.width * scale;
       const h = shape.bounds.height * scale;
 
+      let markup = '';
       if (embeddedMaterial) {
         const clipId = `tile-clip-${index}`;
         defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
-        return `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
+        markup += `<image href="${embeddedMaterial}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${clipId})" />`;
+      } else {
+        markup += `<polygon points="${points}" fill="${fallbackFill}" />`;
       }
 
-      return `<polygon points="${points}" fill="${fallbackFill}" />`;
+      if (shouldRenderEmboss && normalizedStrength > 0) {
+        // 1. Face (brighten)
+        markup += `<polygon points="${points}" fill="white" opacity="${faceAlpha.toFixed(3)}" />`;
+
+        // 2. Groove
+        markup += `<polygon points="${points}" stroke="black" stroke-width="${grooveWidth * 0.5}" fill="none" opacity="${grooveAlpha.toFixed(3)}" />`;
+
+        // 3. Highlight
+        const clipBevelId = `tile-bevel-clip-${index}`;
+        defs.push(`<clipPath id="${clipBevelId}"><polygon points="${points}" /></clipPath>`);
+        markup += `<polygon points="${points}" stroke="white" stroke-width="${bevelLineWidth}" fill="none" opacity="${highlightAlpha.toFixed(3)}" transform="translate(${bevelOffset}, ${bevelOffset})" clip-path="url(#${clipBevelId})" />`;
+
+        // 4. Shadow
+        markup += `<polygon points="${points}" stroke="black" stroke-width="${bevelLineWidth}" fill="none" opacity="${shadowAlpha.toFixed(3)}" transform="translate(${-bevelOffset}, ${-bevelOffset})" clip-path="url(#${clipBevelId})" />`;
+      }
+
+      return markup;
     })
     .join('');
 

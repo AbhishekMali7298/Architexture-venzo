@@ -378,7 +378,7 @@ export function renderBackground(
   };
 }
 
-function drawEmbossEffect(
+export function drawEmbossEffect(
   ctx: CanvasRenderingContext2D,
   offsetX: number,
   offsetY: number,
