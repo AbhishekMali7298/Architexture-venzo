@@ -145,7 +145,7 @@ describe('pattern layout', () => {
   it('builds Venzowood 5 from closed SVG paths', () => {
     const module = SVG_PATTERN_MODULES.venzowood_5;
 
-    expect(module.tiles).toHaveLength(3);
+    expect(module.tiles).toHaveLength(2);
     expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
   });
 });

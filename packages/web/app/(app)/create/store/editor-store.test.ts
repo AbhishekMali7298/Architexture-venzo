@@ -21,7 +21,7 @@ describe('editor store', () => {
     const store = useEditorStore.getState();
 
     store.setEmbossStrength(260);
-    expect(useEditorStore.getState().embossStrength).toBe(200);
+    expect(useEditorStore.getState().embossStrength).toBe(100);
 
     store.setEmbossStrength(-20);
     expect(useEditorStore.getState().embossStrength).toBe(0);

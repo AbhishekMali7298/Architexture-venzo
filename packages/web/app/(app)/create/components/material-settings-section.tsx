@@ -163,7 +163,7 @@ export function MaterialSettingsSection({
             label="Emboss Strength"
             value={embossStrength}
             min={0}
-            max={200}
+            max={100}
             step={5}
             valueText={`${embossStrength}%`}
             onChange={onEmbossStrengthChange}

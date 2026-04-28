@@ -305,17 +305,18 @@ function drawEmbossEffect(
   tiles: ReadonlyArray<PatternTile>,
   strength = 1,
 ) {
-  const clampedStrength = Math.max(0, Math.min(2, strength));
-  if (clampedStrength <= 0) return;
+  const normalizedStrength = Math.max(0, Math.min(1, strength));
+  if (normalizedStrength <= 0) return;
+  const clampedStrength = Math.sqrt(normalizedStrength);
 
   // grooveWidth scales with tile density — wider when tiles are larger on screen
-  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.65 + clampedStrength * 0.45);
-  const bevelOffset = Math.max(1, grooveWidth * 0.8) * (0.75 + clampedStrength * 0.25);
-  const bevelLineWidth = grooveWidth * (1 + clampedStrength * 0.6);
-  const faceAlpha = 0.09 * clampedStrength;
-  const grooveAlpha = Math.min(0.76, 0.38 * clampedStrength);
-  const highlightAlpha = Math.min(1, 0.5 * clampedStrength);
-  const shadowAlpha = Math.min(0.5, 0.25 * clampedStrength);
+  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.3);
+  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.25);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
+  const faceAlpha = 0.055 * clampedStrength;
+  const grooveAlpha = Math.min(0.28, 0.28 * clampedStrength);
+  const highlightAlpha = Math.min(0.36, 0.36 * clampedStrength);
+  const shadowAlpha = Math.min(0.18, 0.18 * clampedStrength);
 
   ctx.save();
   ctx.lineCap = 'round';

@@ -534,7 +534,7 @@ export const useEditorStore = create<EditorState>()(
       }),
     setEmbossStrength: (value) =>
       set((s) => {
-        s.embossStrength = clamp(Math.round(value), 0, 200);
+        s.embossStrength = clamp(Math.round(value), 0, 100);
         bumpRender(s);
       }),
 
