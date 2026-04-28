@@ -3,6 +3,17 @@ import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 import { useEditorStore } from './editor-store';
 
 describe('editor store', () => {
+  it('enables embossed surface by default and after reset', () => {
+    const store = useEditorStore.getState();
+
+    expect(store.embossMode).toBe(true);
+
+    store.setEmbossMode(false);
+    store.resetProject();
+
+    expect(useEditorStore.getState().embossMode).toBe(true);
+  });
+
   it('applies the aligned Venzowood 3 joint defaults when selected', () => {
     useEditorStore
       .getState()

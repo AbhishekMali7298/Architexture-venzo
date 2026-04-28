@@ -194,7 +194,7 @@ export const useEditorStore = create<EditorState>()(
     zoom: 1,
     showBorder: true,
     tileBackground: true,
-    embossMode: false,
+    embossMode: true,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -490,6 +490,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, 'Reset project');
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
+        s.embossMode = true;
         bumpRender(s);
       }),
 
