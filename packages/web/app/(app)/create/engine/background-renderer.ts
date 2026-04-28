@@ -51,6 +51,29 @@ function shouldExtendBackgroundByModule(config: TextureConfig) {
   return config.pattern.type === 'venzowood_3';
 }
 
+function getLayoutContentMax(layout: { tiles: ReadonlyArray<PatternTile> }) {
+  return layout.tiles.reduce(
+    (bounds, tile) => ({
+      x: Math.max(bounds.x, tile.bounds.x + tile.bounds.width),
+      y: Math.max(bounds.y, tile.bounds.y + tile.bounds.height),
+    }),
+    { x: 0, y: 0 },
+  );
+}
+
+function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof getPatternLayout>, scale: number) {
+  const contentMax = getLayoutContentMax(layout);
+  const currentTrailingX = layout.totalWidth - contentMax.x;
+  const currentTrailingY = layout.totalHeight - contentMax.y;
+  const repeatWidth = layout.totalWidth + (config.joints.verticalSize - currentTrailingX);
+  const repeatHeight = layout.totalHeight + (config.joints.horizontalSize - currentTrailingY);
+
+  return {
+    width: Math.max(1, repeatWidth * scale),
+    height: Math.max(1, repeatHeight * scale),
+  };
+}
+
 export function renderBackground(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
@@ -217,15 +240,16 @@ export function renderBackground(
     };
   }
 
-  const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;
-  const tilesRight = Math.ceil((canvasWidth - bounds.x) / Math.max(frameWidth, 1)) + 1;
-  const tilesAbove = Math.ceil(bounds.y / Math.max(frameHeight, 1)) + 1;
-  const tilesBelow = Math.ceil((canvasHeight - bounds.y) / Math.max(frameHeight, 1)) + 1;
+  const frameRepeat = getFrameRepeatSize(config, layout, scale);
+  const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
+  const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
+  const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
+  const tilesBelow = Math.ceil((canvasHeight - bounds.y) / frameRepeat.height) + 1;
 
   for (let yIndex = -tilesAbove; yIndex <= tilesBelow; yIndex++) {
-    const offsetY = bounds.y + yIndex * frameHeight;
+    const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
-      const offsetX = bounds.x + xIndex * frameWidth;
+      const offsetX = bounds.x + xIndex * frameRepeat.width;
 
       renderJointProfile(
         ctx,
@@ -461,15 +485,16 @@ export function renderEmbossBackground(
   }
 
   // Tile emboss lines across the canvas
-  const tilesLeft = Math.ceil(bounds.x / Math.max(frameWidth, 1)) + 1;
-  const tilesRight = Math.ceil((canvasWidth - bounds.x) / Math.max(frameWidth, 1)) + 1;
-  const tilesAbove = Math.ceil(bounds.y / Math.max(frameHeight, 1)) + 1;
-  const tilesBelow = Math.ceil((canvasHeight - bounds.y) / Math.max(frameHeight, 1)) + 1;
+  const frameRepeat = getFrameRepeatSize(config, layout, scale);
+  const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
+  const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
+  const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
+  const tilesBelow = Math.ceil((canvasHeight - bounds.y) / frameRepeat.height) + 1;
 
   for (let yIndex = -tilesAbove; yIndex <= tilesBelow; yIndex++) {
-    const offsetY = bounds.y + yIndex * frameHeight;
+    const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
-      const offsetX = bounds.x + xIndex * frameWidth;
+      const offsetX = bounds.x + xIndex * frameRepeat.width;
       drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength);
     }
   }
