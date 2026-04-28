@@ -130,6 +130,7 @@ function drawVenzowood4Holes(
   layout: ReturnType<typeof getPatternLayout>,
   jointFill: string,
   jointImage?: CanvasImageSource | null,
+  jointImageDrawBox?: { x: number; y: number; width: number; height: number },
 ) {
   if (config.pattern.type !== 'venzowood_4') return;
   if (!layout.strokes.length || !layout.tiles.length) return;
@@ -167,12 +168,7 @@ function drawVenzowood4Holes(
       image: jointImage,
       tintColor: config.joints.tint,
       clipPath: points,
-      imageDrawBox: {
-        x: minX,
-        y: minY,
-        width: Math.max(1, maxX - minX),
-        height: Math.max(1, maxY - minY),
-      },
+      imageDrawBox: jointImageDrawBox,
     });
   }
 }
@@ -209,6 +205,7 @@ export function renderBackground(
     config.joints.tint,
     config.joints.adjustments,
   );
+  const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -255,7 +252,17 @@ export function renderBackground(
     }
 
     renderJointProfile(ctx, config, bounds, scale, layout.tiles, 'over');
-    drawVenzowood4Holes(ctx, config, bounds.x, bounds.y, scale, layout, jointFill, options?.jointImage);
+    drawVenzowood4Holes(
+      ctx,
+      config,
+      bounds.x,
+      bounds.y,
+      scale,
+      layout,
+      jointFill,
+      options?.jointImage,
+      jointImageDrawBox,
+    );
     drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
 
     return {
@@ -345,6 +352,7 @@ export function renderBackground(
       extendedLayout,
       jointFill,
       options?.jointImage,
+      jointImageDrawBox,
     );
     drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
 
@@ -435,6 +443,7 @@ export function renderBackground(
         layout,
         jointFill,
         options?.jointImage,
+        jointImageDrawBox,
       );
       drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
