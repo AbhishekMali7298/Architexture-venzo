@@ -7,19 +7,22 @@ import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
 // Implemented pattern types
-const IMPLEMENTED_PATTERNS = new Set<PatternType>([
-  'stack_bond',
-  'stretcher_bond',
-  'flemish_bond',
-  'herringbone',
-  'chevron',
-  'staggered',
-  'venzowood',
-  'venzowood_2',
-  'venzowood_3',
-  'venzowood_4',
-  'venzowood_5',
-]);
+const PATTERN_GROUPS: Array<{ title: string; patternTypes: PatternType[] }> = [
+  {
+    title: 'Testing Category',
+    patternTypes: ['stack_bond', 'stretcher_bond', 'flemish_bond', 'herringbone', 'chevron'],
+  },
+  {
+    title: 'Impress',
+    patternTypes: ['venzowood', 'venzowood_2', 'venzowood_3'],
+  },
+  {
+    title: 'Vita Components',
+    patternTypes: ['venzowood_4', 'venzowood_5'],
+  },
+];
+
+const SELECTABLE_PATTERNS = new Set(PATTERN_GROUPS.flatMap((group) => group.patternTypes));
 
 function PatternPreview({ src, alt }: { src: string; alt: string }) {
   return (
@@ -40,25 +43,31 @@ export function PatternPickerModal({
 }) {
   const [search, setSearch] = useState('');
 
-  const filteredLibrary = useMemo(() => {
+  const groupedLibrary = useMemo(() => {
     const normalized = search.trim().toLowerCase().replace(/\s+/g, ' ');
     const terms = normalized ? normalized.split(' ') : [];
+    const catalogByType = new Map(PATTERN_CATALOG.map((pattern) => [pattern.type, pattern]));
 
-    return PATTERN_CATALOG.filter((pattern) => {
-      if (!IMPLEMENTED_PATTERNS.has(pattern.type)) {
-        return false;
-      }
+    return PATTERN_GROUPS.map((group) => ({
+      ...group,
+      patterns: group.patternTypes
+        .map((type) => catalogByType.get(type))
+        .filter((pattern): pattern is PatternDefinition => {
+          if (!pattern || !SELECTABLE_PATTERNS.has(pattern.type)) {
+            return false;
+          }
 
-      if (terms.length === 0) {
-        return true;
-      }
+          if (terms.length === 0) {
+            return true;
+          }
 
-      const haystack = [pattern.displayName, pattern.description, pattern.type, pattern.category]
-        .join(' ')
-        .toLowerCase();
+          const haystack = [pattern.displayName, pattern.description, pattern.type, pattern.category]
+            .join(' ')
+            .toLowerCase();
 
-      return terms.every((term) => haystack.includes(term));
-    });
+          return terms.every((term) => haystack.includes(term));
+        }),
+    })).filter((group) => group.patterns.length > 0);
   }, [search]);
 
   const handlePatternClick = (pattern: PatternDefinition) => {
@@ -97,24 +106,29 @@ export function PatternPickerModal({
         </div>
 
         <div className={styles.modalBody}>
-          <div className={styles.patternOptionGrid}>
-            {filteredLibrary.map((pattern) => (
-              <button
-                key={pattern.type}
-                className={`${styles.patternOptionButton} ${
-                  currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
-                }`}
-                type="button"
-                onClick={() => handlePatternClick(pattern)}
-              >
-                <PatternPreview
-                  src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
-                  alt={pattern.displayName}
-                />
-                <span className={styles.patternOptionName}>{pattern.displayName}</span>
-              </button>
-            ))}
-          </div>
+          {groupedLibrary.map((group) => (
+            <section className={styles.patternGroup} key={group.title}>
+              <h3 className={styles.patternGroupTitle}>{group.title}</h3>
+              <div className={styles.patternOptionGrid}>
+                {group.patterns.map((pattern) => (
+                  <button
+                    key={pattern.type}
+                    className={`${styles.patternOptionButton} ${
+                      currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
+                    }`}
+                    type="button"
+                    onClick={() => handlePatternClick(pattern)}
+                  >
+                    <PatternPreview
+                      src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
+                      alt={pattern.displayName}
+                    />
+                    <span className={styles.patternOptionName}>{pattern.displayName}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       </div>
     </Modal>
