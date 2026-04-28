@@ -86,8 +86,8 @@ function drawPatternStrokes(
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.lineWidth = Math.max(1, Math.min(3, scale * 5));
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.34)';
 
   for (const stroke of strokes) {
     const firstPoint = stroke.points[0];
