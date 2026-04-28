@@ -29,7 +29,7 @@ export function renderToCanvas(
   const layout = getPatternLayout(config);
   const jointFill = getJointRenderableColor(
     config.joints.materialSource,
-    config.joints.tint,
+    undefined,
     config.joints.adjustments,
   );
 
@@ -57,7 +57,6 @@ export function renderToCanvas(
     radius: 0,
     fallbackFill: jointFill,
     image: options?.jointImage,
-    tintColor: config.joints.tint,
   });
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
@@ -70,7 +69,6 @@ export function renderToCanvas(
       radius: 0,
       fallbackFill,
       image: options?.materialImage,
-      tintColor: material.tint,
       clipPath: shape.points.map((point) => ({
         x: offsetX + point.x * scale,
         y: offsetY + point.y * scale,

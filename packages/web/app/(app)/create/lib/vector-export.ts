@@ -67,7 +67,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const drawHeight = layout.totalHeight * scale;
   const offsetX = (width - drawWidth) / 2;
   const offsetY = (height - drawHeight) / 2;
-  const jointFill = escapeXml(config.joints.tint ?? '#ffffff');
+  const jointFill = '#ffffff';
   const defs: string[] = [];
   const tileMarkup = layout.tiles
     .map((tile, index) => {
@@ -119,7 +119,7 @@ export async function buildVectorPdf(config: TextureConfig) {
   const offsetX = (width - drawWidth) / 2;
   const offsetY = (height - drawHeight) / 2;
   const fill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
-  const jointFill = config.joints.tint ?? '#ffffff';
+  const jointFill = '#ffffff';
   const commands = [
     'q',
     `${rgbToPdf(jointFill)} rg`,

@@ -113,10 +113,7 @@ export const materialConfigSchema = z.object({
   }),
 
   adjustments: imageAdjustmentsSchema,
-  tint: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/)
-    .nullable(),
+
 
   edges: z.object({
     style: z.enum([
@@ -163,10 +160,7 @@ export const materialConfigSchema = z.object({
 
 export const jointsConfigSchema = z.object({
   materialSource: materialSourceSchema,
-  tint: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/)
-    .nullable(),
+
   horizontalSize: z.number().min(-500).max(500),
   verticalSize: z.number().min(-500).max(500),
   linkedDimensions: z.boolean(),

@@ -53,12 +53,10 @@ export default function CreatePage() {
   const setPatternColumns = useEditorStore((state) => state.setPatternColumns);
   const setPatternAngle = useEditorStore((state) => state.setPatternAngle);
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
-  const setMaterialTint = useEditorStore((state) => state.setMaterialTint);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
-  const setJointTint = useEditorStore((state) => state.setJointTint);
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
   const setJointAdjustment = useEditorStore((state) => state.setJointAdjustment);
   const setLinkedDimensions = useEditorStore((state) => state.setLinkedDimensions);
@@ -228,12 +226,10 @@ export default function CreatePage() {
           materialThumbnailUrl={materialThumbnailUrl}
           jointMaterialName={jointMaterialName}
           jointMaterialThumbnailUrl={jointMaterialThumbnailUrl}
-          materialTint={material.tint}
           width={material.width}
           height={material.height}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
-          jointTint={config.joints.tint}
           jointAdjustments={config.joints.adjustments}
           units={config.units}
           linkedJoints={config.joints.linkedDimensions}
@@ -242,12 +238,10 @@ export default function CreatePage() {
           edgeWidth={material.edges.profileWidth}
           onOpenPicker={() => setShowMaterialModal(true)}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
-          onMaterialTintChange={setMaterialTint}
           onWidthChange={setMaterialWidth}
           onHeightChange={setMaterialHeight}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
-          onJointTintChange={setJointTint}
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
           onEdgeStyleChange={setEdgeStyle}

@@ -164,7 +164,6 @@ function drawVenzowood4Holes(
       radius: 0,
       fallbackFill: jointFill,
       image: jointImage,
-      tintColor: config.joints.tint,
       clipPath: points,
       imageDrawBox: jointImageDrawBox,
     });
@@ -200,7 +199,7 @@ export function renderBackground(
   const frameHeight = layout.totalHeight * scale;
   const jointFill = getJointRenderableColor(
     config.joints.materialSource,
-    config.joints.tint,
+    undefined,
     config.joints.adjustments,
   );
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
@@ -216,7 +215,6 @@ export function renderBackground(
     radius: 0,
     fallbackFill: jointFill,
     image: options?.jointImage,
-    tintColor: config.joints.tint,
   });
 
   if (options?.tileBackground === false) {
@@ -231,7 +229,6 @@ export function renderBackground(
         radius: 0,
         fallbackFill,
         image: options?.materialImage,
-        tintColor: material.tint,
         clipPath: shape.points.map((point) => ({
           x: bounds.x + point.x * scale,
           y: bounds.y + point.y * scale,
@@ -292,7 +289,6 @@ export function renderBackground(
         radius: 0,
         fallbackFill,
         image: options?.materialImage,
-        tintColor: material.tint,
         clipPath: shape.points.map((point) => ({
           x: offsetX + point.x * scale,
           y: offsetY + point.y * scale,
@@ -347,7 +343,6 @@ export function renderBackground(
           radius: 0,
           fallbackFill,
           image: options?.materialImage,
-          tintColor: material.tint,
           clipPath: shape.points.map((point) => ({
             x: offsetX + point.x * scale,
             y: offsetY + point.y * scale,
@@ -501,7 +496,6 @@ export function renderEmbossBackground(
       radius: 0,
       fallbackFill,
       image: options?.materialImage,
-      tintColor: material.tint,
     });
 
     drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength);
@@ -521,7 +515,6 @@ export function renderEmbossBackground(
     radius: 0,
     fallbackFill,
     image: options?.materialImage,
-    tintColor: material.tint,
   });
 
   if (shouldExtendBackgroundByModule(config)) {

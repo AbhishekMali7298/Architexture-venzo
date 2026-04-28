@@ -106,7 +106,7 @@ export interface MaterialConfig {
   };
 
   adjustments: ImageAdjustments;
-  tint: string | null;
+
 
   edges: {
     style: EdgeStyle;
@@ -186,7 +186,7 @@ export type MapType =
 
 export interface JointsConfig {
   materialSource: MaterialSource;
-  tint: string | null;
+
   horizontalSize: number;
   verticalSize: number;
   linkedDimensions: boolean;

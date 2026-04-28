@@ -50,7 +50,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
         saturation: 0,
         invertColors: false,
       },
-      tint: '#FFFFFF',
+
 
       edges: {
         style: 'none',
@@ -157,7 +157,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
 
   joints: {
     materialSource: { type: 'solid', color: '#FFFFFF' },
-    tint: '#FFFFFF',
+
     horizontalSize: 5,
     verticalSize: 5,
     linkedDimensions: true,

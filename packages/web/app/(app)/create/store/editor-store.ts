@@ -103,7 +103,7 @@ export interface EditorState {
   setMaterialColor: (color: string) => void;
   setMaterialById: (materialId: string) => void;
   setMaterialDefinition: (material: MaterialDefinition) => void;
-  setMaterialTint: (tint: string | null) => void;
+
   setMaterialWidth: (width: number) => void;
   setMaterialHeight: (height: number) => void;
   setMaterialMinWidth: (width: number) => void;
@@ -114,7 +114,7 @@ export interface EditorState {
 
 
   // Joints
-  setJointTint: (tint: string | null) => void;
+
   setJointMaterialAsset: (asset: MaterialAssetRef | null) => void;
   setJointHorizontalSize: (size: number) => void;
   setJointVerticalSize: (size: number) => void;
@@ -271,15 +271,7 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-    setMaterialTint: (tint) =>
-      set((s) => {
-        pushHistory(s, `Tint → ${tint ?? 'none'}`);
-        const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.tint = tint;
-        }
-        bumpRender(s);
-      }),
+
 
     setMaterialWidth: (width) =>
       set((s) => {
@@ -365,12 +357,7 @@ export const useEditorStore = create<EditorState>()(
 
     // ===== Joint Actions =====
 
-    setJointTint: (tint) =>
-      set((s) => {
-        pushHistory(s, `Joint tint → ${tint ?? 'none'}`);
-        s.config.joints.tint = tint;
-        bumpRender(s);
-      }),
+
 
     setJointMaterialAsset: (asset) =>
       set((s) => {

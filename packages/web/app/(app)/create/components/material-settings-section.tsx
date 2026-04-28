@@ -36,12 +36,10 @@ export function MaterialSettingsSection({
   materialThumbnailUrl,
   jointMaterialName,
   jointMaterialThumbnailUrl,
-  materialTint,
   width,
   height,
   jointHorizontal,
   jointVertical,
-  jointTint,
   jointAdjustments,
   units,
   linkedJoints,
@@ -50,12 +48,10 @@ export function MaterialSettingsSection({
   edgeWidth,
   onOpenPicker,
   onOpenJointMaterialPicker,
-  onMaterialTintChange,
   onWidthChange,
   onHeightChange,
   onJointHorizontalChange,
   onJointVerticalChange,
-  onJointTintChange,
   onJointAdjustmentChange,
   onLinkedJointsChange,
   onEdgeStyleChange,
@@ -73,12 +69,10 @@ export function MaterialSettingsSection({
   materialThumbnailUrl?: string | null;
   jointMaterialName: string;
   jointMaterialThumbnailUrl?: string | null;
-  materialTint: string | null;
   width: number;
   height: number;
   jointHorizontal: number;
   jointVertical: number;
-  jointTint: string | null;
   jointAdjustments: ImageAdjustments;
   units: 'mm' | 'inches';
   linkedJoints: boolean;
@@ -90,12 +84,10 @@ export function MaterialSettingsSection({
   embossAvailable?: boolean;
   onOpenPicker: () => void;
   onOpenJointMaterialPicker: () => void;
-  onMaterialTintChange: (value: string | null) => void;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
   onJointHorizontalChange: (value: number) => void;
   onJointVerticalChange: (value: number) => void;
-  onJointTintChange: (value: string | null) => void;
   onJointAdjustmentChange: (key: keyof ImageAdjustments, value: number | boolean) => void;
   onLinkedJointsChange: (value: boolean) => void;
   onEdgeStyleChange: (value: EdgeStyle) => void;
@@ -215,7 +207,7 @@ export function MaterialSettingsSection({
             </span>
           </span>
           <MaterialThumb
-            color={jointTint ?? '#d4cfc6'}
+            color="#FFFFFF"
             src={jointMaterialThumbnailUrl}
             alt={jointMaterialName}
             size={36}
@@ -281,48 +273,11 @@ export function MaterialSettingsSection({
           />
         </div>
 
-        <ColorField
-          label="Joint Tint"
-          value={jointTint ?? '#FFFFFF'}
-          onChange={(value) => onJointTintChange(value || null)}
-          action={
-            <button
-              className={styles.fieldActionButton}
-              type="button"
-              onClick={() => setShowJointAdjustments(true)}
-              aria-label="Open joint tint adjustments"
-              title="Joint tint adjustments"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <line x1="4" y1="21" x2="4" y2="14" />
-                <line x1="4" y1="10" x2="4" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12" y2="3" />
-                <line x1="20" y1="21" x2="20" y2="16" />
-                <line x1="20" y1="12" x2="20" y2="3" />
-                <line x1="2" y1="14" x2="6" y2="14" />
-                <line x1="10" y1="8" x2="14" y2="8" />
-                <line x1="18" y1="16" x2="22" y2="16" />
-              </svg>
-            </button>
-          }
-        />
 
 
 
-        <ColorField
-          label="Tint"
-          value={materialTint ?? '#FFFFFF'}
-          onChange={(value) => onMaterialTintChange(value || null)}
-        />
+
+
 
 
       </SectionCard>

@@ -243,16 +243,12 @@ export function getJointRenderableColor(
 ) {
   if (source.type === 'solid') {
     const baseColor = source.color.toUpperCase();
-    const normalizedTint = tint?.toUpperCase() ?? null;
-    const solidColor = normalizedTint ?? baseColor;
+    const solidColor = baseColor;
     return adjustments ? applyImageAdjustmentsToColor(solidColor, adjustments) : solidColor;
   }
 
   const baseColor = getMaterialRenderableColor(source, '#d4cfc6');
-  const normalizedTint = tint?.toUpperCase() ?? null;
-  const tintedColor = normalizedTint
-    ? mixHexColors(baseColor, normalizedTint, normalizedTint === '#FFFFFF' ? 0.28 : 0.82)
-    : baseColor;
+  const tintedColor = baseColor;
 
   return adjustments ? applyImageAdjustmentsToColor(tintedColor, adjustments) : tintedColor;
 }
