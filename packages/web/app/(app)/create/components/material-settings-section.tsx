@@ -67,7 +67,9 @@ export function MaterialSettingsSection({
   onEdgeScaleChange,
   onEdgeWidthChange,
   embossMode,
+  embossStrength,
   onEmbossModeChange,
+  onEmbossStrengthChange,
   onToneVariationChange,
 }: {
   materialName: string;
@@ -91,6 +93,8 @@ export function MaterialSettingsSection({
   edgeStyle: EdgeStyle;
   edgeScale: number;
   edgeWidth: number;
+  embossMode: boolean;
+  embossStrength: number;
   onOpenPicker: () => void;
   onOpenJointMaterialPicker: () => void;
   onMaterialTintChange: (value: string | null) => void;
@@ -107,8 +111,8 @@ export function MaterialSettingsSection({
   onEdgeScaleChange: (value: number) => void;
   onEdgeWidthChange: (value: number) => void;
   onToneVariationChange: (value: number) => void;
-  embossMode: boolean;
   onEmbossModeChange: (value: boolean) => void;
+  onEmbossStrengthChange: (value: number) => void;
 }) {
   const [showEdgePopup, setShowEdgePopup] = useState(false);
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
@@ -153,6 +157,18 @@ export function MaterialSettingsSection({
           />
           <span>Embossed surface</span>
         </label>
+
+        {embossMode ? (
+          <RangeField
+            label="Emboss Strength"
+            value={embossStrength}
+            min={0}
+            max={200}
+            step={5}
+            valueText={`${embossStrength}%`}
+            onChange={onEmbossStrengthChange}
+          />
+        ) : null}
 
         <div className={styles.gridTwo}>
           <NumberField

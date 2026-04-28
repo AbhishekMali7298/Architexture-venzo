@@ -36,6 +36,7 @@ const PATTERN_JOINT_DEFAULTS: Record<
   },
 };
 const DEFAULT_JOINT_SIZE = 5;
+const DEFAULT_EMBOSS_STRENGTH = 100;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -81,6 +82,7 @@ export interface EditorState {
   showBorder: boolean;
   tileBackground: boolean;
   embossMode: boolean;
+  embossStrength: number;
 
   // History
   undoStack: HistoryEntry[];
@@ -138,6 +140,7 @@ export interface EditorState {
   setShowBorder: (show: boolean) => void;
   setTileBackground: (show: boolean) => void;
   setEmbossMode: (value: boolean) => void;
+  setEmbossStrength: (value: number) => void;
 
   // History
   undo: () => void;
@@ -195,6 +198,7 @@ export const useEditorStore = create<EditorState>()(
     showBorder: true,
     tileBackground: true,
     embossMode: true,
+    embossStrength: DEFAULT_EMBOSS_STRENGTH,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -491,6 +495,7 @@ export const useEditorStore = create<EditorState>()(
         pushHistory(s, 'Reset project');
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
         s.embossMode = true;
+        s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
         bumpRender(s);
       }),
 
@@ -525,6 +530,11 @@ export const useEditorStore = create<EditorState>()(
     setEmbossMode: (value) =>
       set((s) => {
         s.embossMode = value;
+        bumpRender(s);
+      }),
+    setEmbossStrength: (value) =>
+      set((s) => {
+        s.embossStrength = clamp(Math.round(value), 0, 200);
         bumpRender(s);
       }),
 

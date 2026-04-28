@@ -303,11 +303,19 @@ function drawEmbossEffect(
   offsetY: number,
   scale: number,
   tiles: ReadonlyArray<PatternTile>,
+  strength = 1,
 ) {
+  const clampedStrength = Math.max(0, Math.min(2, strength));
+  if (clampedStrength <= 0) return;
+
   // grooveWidth scales with tile density — wider when tiles are larger on screen
-  const grooveWidth = Math.max(2, Math.min(8, scale * 6));
-  const bevelOffset = Math.max(1, grooveWidth * 0.8);
-  const bevelLineWidth = grooveWidth * 1.6;
+  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.65 + clampedStrength * 0.45);
+  const bevelOffset = Math.max(1, grooveWidth * 0.8) * (0.75 + clampedStrength * 0.25);
+  const bevelLineWidth = grooveWidth * (1 + clampedStrength * 0.6);
+  const faceAlpha = 0.09 * clampedStrength;
+  const grooveAlpha = Math.min(0.76, 0.38 * clampedStrength);
+  const highlightAlpha = Math.min(1, 0.5 * clampedStrength);
+  const shadowAlpha = Math.min(0.5, 0.25 * clampedStrength);
 
   ctx.save();
   ctx.lineCap = 'round';
@@ -321,12 +329,12 @@ function drawEmbossEffect(
 
     // 1. Slightly brighten the raised face (the interior of each cell is elevated)
     tracePolygonPath(ctx, pts);
-    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
     ctx.fill();
 
     // 2. Groove (dark pressed-in valley between cells — straddles the boundary)
     tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = 'rgba(0,0,0,0.38)';
+    ctx.strokeStyle = `rgba(0,0,0,${grooveAlpha.toFixed(3)})`;
     ctx.lineWidth = grooveWidth * 0.5;
     ctx.stroke();
 
@@ -339,7 +347,7 @@ function drawEmbossEffect(
     ctx.save();
     ctx.translate(bevelOffset, bevelOffset);
     tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = 'rgba(255,255,255,0.50)';
+    ctx.strokeStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
     ctx.lineWidth = bevelLineWidth;
     ctx.stroke();
     ctx.restore();
@@ -354,7 +362,7 @@ function drawEmbossEffect(
     ctx.save();
     ctx.translate(-bevelOffset, -bevelOffset);
     tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.strokeStyle = `rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
     ctx.lineWidth = bevelLineWidth;
     ctx.stroke();
     ctx.restore();
@@ -372,6 +380,7 @@ export function renderEmbossBackground(
   options?: {
     materialImage?: CanvasImageSource | null;
     tileBackground?: boolean;
+    embossStrength?: number;
   },
 ) {
   const material = config.materials[0];
@@ -390,6 +399,7 @@ export function renderEmbossBackground(
   );
   const frameWidth = layout.totalWidth * scale;
   const frameHeight = layout.totalHeight * scale;
+  const embossStrength = (options?.embossStrength ?? 100) / 100;
 
   if (options?.tileBackground === false) {
     // Preview-only mode: fill preview area with material, emboss on top
@@ -407,7 +417,7 @@ export function renderEmbossBackground(
       tintColor: material.tint,
     });
 
-    drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles);
+    drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength);
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -444,7 +454,7 @@ export function renderEmbossBackground(
     const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
     const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
 
-    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles);
+    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength);
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -459,7 +469,7 @@ export function renderEmbossBackground(
     const offsetY = bounds.y + yIndex * frameHeight;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameWidth;
-      drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles);
+      drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength);
     }
   }
 

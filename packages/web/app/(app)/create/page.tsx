@@ -72,9 +72,11 @@ export default function CreatePage() {
   const showBorder = useEditorStore((state) => state.showBorder);
   const tileBackground = useEditorStore((state) => state.tileBackground);
   const embossMode = useEditorStore((state) => state.embossMode);
+  const embossStrength = useEditorStore((state) => state.embossStrength);
   const setShowBorder = useEditorStore((state) => state.setShowBorder);
   const setTileBackground = useEditorStore((state) => state.setTileBackground);
   const setEmbossMode = useEditorStore((state) => state.setEmbossMode);
+  const setEmbossStrength = useEditorStore((state) => state.setEmbossStrength);
   const setUnits = useEditorStore((state) => state.setUnits);
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
@@ -259,7 +261,9 @@ export default function CreatePage() {
           onEdgeWidthChange={setEdgeProfileWidth}
           onToneVariationChange={setToneVariation}
           embossMode={embossMode}
+          embossStrength={embossStrength}
           onEmbossModeChange={setEmbossMode}
+          onEmbossStrengthChange={setEmbossStrength}
         />
       </CreateEditorShell>
 

@@ -21,6 +21,7 @@ export function BackgroundCanvas() {
   const showBorder = useEditorStore((s) => s.showBorder);
   const tileBackground = useEditorStore((s) => s.tileBackground);
   const embossMode = useEditorStore((s) => s.embossMode);
+  const embossStrength = useEditorStore((s) => s.embossStrength);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId
     ? getMaterialById(primaryMaterial.definitionId)
@@ -55,6 +56,7 @@ export function BackgroundCanvas() {
         ? renderEmbossBackground(ctx, config, w, h, {
             materialImage,
             tileBackground,
+            embossStrength,
           })
         : renderBackground(ctx, config, w, h, {
             materialImage,
@@ -75,7 +77,16 @@ export function BackgroundCanvas() {
     render();
     window.addEventListener('resize', render);
     return () => window.removeEventListener('resize', render);
-  }, [config, renderVersion, materialImage, jointImage, showBorder, tileBackground, embossMode]);
+  }, [
+    config,
+    renderVersion,
+    materialImage,
+    jointImage,
+    showBorder,
+    tileBackground,
+    embossMode,
+    embossStrength,
+  ]);
 
   return (
     <canvas

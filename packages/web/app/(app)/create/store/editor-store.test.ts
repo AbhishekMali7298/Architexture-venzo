@@ -7,11 +7,24 @@ describe('editor store', () => {
     const store = useEditorStore.getState();
 
     expect(store.embossMode).toBe(true);
+    expect(store.embossStrength).toBe(100);
 
     store.setEmbossMode(false);
+    store.setEmbossStrength(55);
     store.resetProject();
 
     expect(useEditorStore.getState().embossMode).toBe(true);
+    expect(useEditorStore.getState().embossStrength).toBe(100);
+  });
+
+  it('clamps emboss strength to the supported range', () => {
+    const store = useEditorStore.getState();
+
+    store.setEmbossStrength(260);
+    expect(useEditorStore.getState().embossStrength).toBe(200);
+
+    store.setEmbossStrength(-20);
+    expect(useEditorStore.getState().embossStrength).toBe(0);
   });
 
   it('applies the aligned Venzowood 3 joint defaults when selected', () => {
