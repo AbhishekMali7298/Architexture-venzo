@@ -524,17 +524,6 @@ export const useEditorStore = create<EditorState>()(
 
         applyPatternSheetDefaults(s);
 
-        // --- Restore user adjustments ---
-        s.embossStrength = previousEffects.embossStrength;
-        s.embossIntensity = previousEffects.embossIntensity;
-        s.embossDepth = previousEffects.embossDepth;
-
-        if (userEditedJoints) {
-          s.config.joints.horizontalSize = previousJoints.horizontalSize;
-          s.config.joints.verticalSize = previousJoints.verticalSize;
-          s.config.joints.linkedDimensions = previousJoints.linkedDimensions;
-        }
-
         console.log('[Pattern Select] after effects', {
           embossStrength: s.embossStrength,
           embossIntensity: s.embossIntensity,
