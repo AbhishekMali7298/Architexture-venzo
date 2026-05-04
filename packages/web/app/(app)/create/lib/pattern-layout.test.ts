@@ -210,6 +210,35 @@ describe('pattern layout', () => {
     expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
   });
 
+  it('preserves the authored SVG seam gap for repeated Chequer Pattern modules', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'chequer_pattern',
+      category: 'geometric',
+      rows: 1,
+      columns: 2,
+    };
+    config.joints.horizontalSize = 0;
+    config.joints.verticalSize = 0;
+
+    const layout = getPatternLayout(config, chequerPatternModule);
+    const moduleTileCount = layout.tiles.length / config.pattern.columns;
+    const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
+    const secondModuleTiles = layout.tiles.slice(moduleTileCount);
+    const firstLeftGap = Math.min(...firstModuleTiles.map((tile) => tile.bounds.x));
+    const firstRightGap =
+      layout.totalWidth / config.pattern.columns -
+      Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const secondLeftGap =
+      Math.min(...secondModuleTiles.map((tile) => tile.bounds.x)) -
+      layout.totalWidth / config.pattern.columns;
+
+    expect(firstLeftGap).toBeGreaterThan(0);
+    expect(firstRightGap).toBeGreaterThan(0);
+    expect(secondLeftGap).toBeCloseTo(firstLeftGap, 2);
+  });
+
   it('preserves transformed rhombus geometry from SVG rectangles', () => {
     const module = rhombusPatternModule;
 

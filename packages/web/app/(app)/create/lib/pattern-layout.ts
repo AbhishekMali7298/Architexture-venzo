@@ -569,10 +569,13 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
 
   const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
   const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
-  const moduleWidth = contentWidth * scale;
-  const moduleHeight = contentHeight * scale;
-  const repeatWidth = Math.max(1, (module.repeatWidth ?? contentWidth) * scale);
-  const repeatHeight = Math.max(1, (module.repeatHeight ?? contentHeight) * scale);
+  // Preserve the authored SVG module cell when repeating so seam gaps match the source SVG.
+  const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
+  const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
+  const moduleWidth = Math.max(authoredRepeatWidth, contentWidth) * scale;
+  const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scale;
+  const repeatWidth = authoredRepeatWidth * scale;
+  const repeatHeight = authoredRepeatHeight * scale;
   const stepX = repeatWidth + jointVertical;
   const stepY = repeatHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
@@ -592,8 +595,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         tiles.push(
           buildTileFromPoints(
             tile.clipPath.map((point) => ({
-              x: offsetX + (tile.x - contentBounds.minX + point.x) * scale,
-              y: offsetY + (tile.y - contentBounds.minY + point.y) * scale,
+              x: offsetX + (tile.x + point.x) * scale,
+              y: offsetY + (tile.y + point.y) * scale,
             })),
           ),
         );
@@ -603,8 +606,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: true,
           points: tile.clipPath.map((point) => ({
-            x: offsetX + (tile.x - contentBounds.minX + point.x) * scale,
-            y: offsetY + (tile.y - contentBounds.minY + point.y) * scale,
+            x: offsetX + (tile.x + point.x) * scale,
+            y: offsetY + (tile.y + point.y) * scale,
           })),
         });
       }
@@ -613,19 +616,30 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
-            x: offsetX + (point.x - contentBounds.minX) * scale,
-            y: offsetY + (point.y - contentBounds.minY) * scale,
+            x: offsetX + point.x * scale,
+            y: offsetY + point.y * scale,
           })),
         });
       }
     }
   }
 
+  const contentMaxX = Math.max(
+    0,
+    ...tiles.map((tile) => tile.bounds.x + tile.bounds.width),
+    ...strokes.flatMap((stroke) => stroke.points.map((point) => point.x)),
+  );
+  const contentMaxY = Math.max(
+    0,
+    ...tiles.map((tile) => tile.bounds.y + tile.bounds.height),
+    ...strokes.flatMap((stroke) => stroke.points.map((point) => point.y)),
+  );
+
   return {
     tiles,
     strokes,
-    totalWidth: moduleWidth + Math.max(0, columns - 1) * stepX,
-    totalHeight: moduleHeight + Math.max(0, rows - 1) * stepY,
+    totalWidth: Math.max(moduleWidth + Math.max(0, columns - 1) * stepX, contentMaxX),
+    totalHeight: Math.max(moduleHeight + Math.max(0, rows - 1) * stepY, contentMaxY),
   };
 }
 

@@ -53,13 +53,31 @@ function shouldExtendBackgroundByModule(config: TextureConfig) {
   return config.pattern.type === 'venzowood_3';
 }
 
-function getLayoutContentMax(layout: { tiles: ReadonlyArray<PatternTile> }) {
-  return layout.tiles.reduce(
+function getLayoutContentMax(layout: {
+  tiles: ReadonlyArray<PatternTile>;
+  strokes?: ReadonlyArray<PatternStroke>;
+}) {
+  const tileMax = layout.tiles.reduce(
     (bounds, tile) => ({
       x: Math.max(bounds.x, tile.bounds.x + tile.bounds.width),
       y: Math.max(bounds.y, tile.bounds.y + tile.bounds.height),
     }),
     { x: 0, y: 0 },
+  );
+
+  if (!layout.strokes?.length) {
+    return tileMax;
+  }
+
+  return layout.strokes.reduce(
+    (bounds, stroke) => {
+      for (const point of stroke.points) {
+        bounds.x = Math.max(bounds.x, point.x);
+        bounds.y = Math.max(bounds.y, point.y);
+      }
+      return bounds;
+    },
+    { ...tileMax },
   );
 }
 
