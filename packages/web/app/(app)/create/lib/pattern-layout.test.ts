@@ -54,8 +54,14 @@ describe('pattern layout', () => {
     expect(squareFirstTile.points[0]!.x).not.toBeCloseTo(angledFirstTile.points[0]!.x, 2);
   });
 
-  it('builds the added Venzowood SVG variants as selectable background layouts', () => {
-    for (const patternType of ['venzowood_2', 'venzowood_3', 'venzowood_4', 'venzowood_5']) {
+  it('builds the added SVG variants as selectable background layouts', () => {
+    for (const patternType of [
+      'venzowood_2',
+      'venzowood_3',
+      'chequer_pattern',
+      'venzowood_4',
+      'venzowood_5',
+    ]) {
       const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
       config.pattern = {
         ...config.pattern,
@@ -147,5 +153,12 @@ describe('pattern layout', () => {
 
     expect(module.tiles).toHaveLength(2);
     expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
+  });
+
+  it('builds Chequer Pattern from SVG rectangles', () => {
+    const module = SVG_PATTERN_MODULES.chequer_pattern;
+
+    expect(module.tiles).toHaveLength(4);
+    expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
   });
 });

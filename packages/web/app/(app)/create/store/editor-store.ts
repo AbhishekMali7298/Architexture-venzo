@@ -12,6 +12,7 @@ import type {
   MaterialDefinition,
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById } from '@textura/shared';
+import { isImpressPattern } from '../lib/pattern-capabilities';
 
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
@@ -194,7 +195,7 @@ export const useEditorStore = create<EditorState>()(
     zoom: 1,
     showBorder: true,
     tileBackground: true,
-    embossMode: ['venzowood', 'venzowood_2', 'venzowood_3'].includes(DEFAULT_TEXTURE_CONFIG.pattern.type),
+    embossMode: isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type),
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
     undoStack: [],
     redoStack: [],
@@ -212,8 +213,7 @@ export const useEditorStore = create<EditorState>()(
           ...nextPattern,
         };
         applyPatternJointDefaults(s.config, nextPattern.type);
-        const impressPatterns = ['venzowood', 'venzowood_2', 'venzowood_3'];
-        s.embossMode = impressPatterns.includes(type);
+        s.embossMode = isImpressPattern(type);
         bumpRender(s);
       }),
 
@@ -417,7 +417,7 @@ export const useEditorStore = create<EditorState>()(
         }
 
         s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
-        s.embossMode = ['venzowood', 'venzowood_2', 'venzowood_3'].includes(config.pattern.type);
+        s.embossMode = isImpressPattern(config.pattern.type);
         bumpRender(s);
       }),
 
@@ -425,7 +425,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, 'Reset project');
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
-        s.embossMode = ['venzowood', 'venzowood_2', 'venzowood_3'].includes(DEFAULT_TEXTURE_CONFIG.pattern.type);
+        s.embossMode = isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
         bumpRender(s);
       }),

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
 import { getPatternPreviewImageUrl } from '../lib/material-assets';
+import { IMPRESS_PATTERN_TYPES } from '../lib/pattern-capabilities';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
@@ -14,7 +15,7 @@ const PATTERN_GROUPS: Array<{ title: string; patternTypes: PatternType[] }> = [
   },
   {
     title: 'Impress',
-    patternTypes: ['venzowood', 'venzowood_2', 'venzowood_3'],
+    patternTypes: IMPRESS_PATTERN_TYPES,
   },
   {
     title: 'Vita Components',

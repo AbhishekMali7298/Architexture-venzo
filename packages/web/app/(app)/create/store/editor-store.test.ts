@@ -70,4 +70,14 @@ describe('editor store', () => {
     expect(config.pattern.type).toBe('venzowood');
     expect(config.pattern.angle).toBe(0);
   });
+
+  it('keeps emboss mode enabled for impress SVG patterns', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('chequer_pattern');
+
+    expect(useEditorStore.getState().embossMode).toBe(true);
+  });
 });

@@ -23,7 +23,7 @@ import {
   getMaterialThumbnailUrl,
   getPatternPreviewImageUrl,
 } from './lib/material-assets';
-import { supportsEmbossPattern } from './lib/pattern-capabilities';
+import { isImpressPattern, supportsEmbossPattern } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
@@ -241,7 +241,7 @@ export default function CreatePage() {
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
 
-          isImpressPattern={['venzowood', 'venzowood_2', 'venzowood_3'].includes(config.pattern.type)}
+          isImpressPattern={isImpressPattern(config.pattern.type)}
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}
