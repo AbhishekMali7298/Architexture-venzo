@@ -5,6 +5,12 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
   'venzowood_2',
   'venzowood_3',
   'chequer_pattern',
+  'concave_pattern',
+  'convex_pattern',
+  'grate_pattern',
+  'rhombus_pattern',
+  'ripple_pattern',
+  'weave_pattern',
 ];
 
 const VITA_COMPONENT_PATTERNS = new Set<PatternType>(['venzowood_4', 'venzowood_5']);

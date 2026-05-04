@@ -54,11 +54,16 @@ describe('pattern layout', () => {
     expect(squareFirstTile.points[0]!.x).not.toBeCloseTo(angledFirstTile.points[0]!.x, 2);
   });
 
-  it('builds the added SVG variants as selectable background layouts', () => {
+  it('builds the added SVG tile variants as selectable background layouts', () => {
     for (const patternType of [
       'venzowood_2',
       'venzowood_3',
       'chequer_pattern',
+      'concave_pattern',
+      'convex_pattern',
+      'rhombus_pattern',
+      'ripple_pattern',
+      'weave_pattern',
       'venzowood_4',
       'venzowood_5',
     ]) {
@@ -81,6 +86,24 @@ describe('pattern layout', () => {
         true,
       );
     }
+  });
+
+  it('builds stroke-based SVG variants without falling back to stack tiles', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'grate_pattern',
+      category: 'geometric',
+      rows: 1,
+      columns: 1,
+    };
+
+    const layout = getPatternLayout(config);
+
+    expect(layout.tiles).toHaveLength(0);
+    expect(layout.strokes.length).toBeGreaterThan(0);
+    expect(layout.totalWidth).toBeGreaterThan(0);
+    expect(layout.totalHeight).toBeGreaterThan(0);
   });
 
   it('keeps the full Venzowood 3 module visible while closing repeat seams', () => {
@@ -160,5 +183,13 @@ describe('pattern layout', () => {
 
     expect(module.tiles).toHaveLength(4);
     expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
+  });
+
+  it('preserves transformed rhombus geometry from SVG rectangles', () => {
+    const module = SVG_PATTERN_MODULES.rhombus_pattern;
+
+    expect(module.tiles).toHaveLength(2);
+    expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
+    expect(module.strokes.length).toBeGreaterThan(0);
   });
 });

@@ -50,6 +50,7 @@ describe('material asset color helpers', () => {
   it('resolves pattern preview SVGs from the selected pattern', () => {
     expect(getPatternPreviewImageUrl('venzowood')).toBe('/patterns/venzowood.svg');
     expect(getPatternPreviewImageUrl('chequer_pattern')).toBe('/patterns/chequer_pattern.svg');
+    expect(getPatternPreviewImageUrl('grate_pattern')).toBe('/patterns/grate_pattern.svg');
     expect(getPatternPreviewImageUrl('venzowood_4')).toBe('/patterns/venzowood_4.svg');
     expect(getPatternPreviewImageUrl('venzowood_5')).toBe('/patterns/venzowood_5.svg');
   });

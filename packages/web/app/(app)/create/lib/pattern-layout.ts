@@ -524,20 +524,36 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const referenceWidth = Math.max(1, module.referenceTileWidth);
   const referenceHeight = Math.max(1, module.referenceTileHeight);
   const scale = Math.min(tileWidth / referenceWidth, tileHeight / referenceHeight);
-  const contentBounds = module.tiles.reduce(
-    (bounds, tile) => ({
-      minX: Math.min(bounds.minX, tile.x),
-      minY: Math.min(bounds.minY, tile.y),
-      maxX: Math.max(bounds.maxX, tile.x + tile.width),
-      maxY: Math.max(bounds.maxY, tile.y + tile.height),
-    }),
-    {
-      minX: Number.POSITIVE_INFINITY,
-      minY: Number.POSITIVE_INFINITY,
-      maxX: Number.NEGATIVE_INFINITY,
-      maxY: Number.NEGATIVE_INFINITY,
-    },
-  );
+  const contentBounds = {
+    minX: Number.POSITIVE_INFINITY,
+    minY: Number.POSITIVE_INFINITY,
+    maxX: Number.NEGATIVE_INFINITY,
+    maxY: Number.NEGATIVE_INFINITY,
+  };
+
+  for (const tile of module.tiles) {
+    contentBounds.minX = Math.min(contentBounds.minX, tile.x);
+    contentBounds.minY = Math.min(contentBounds.minY, tile.y);
+    contentBounds.maxX = Math.max(contentBounds.maxX, tile.x + tile.width);
+    contentBounds.maxY = Math.max(contentBounds.maxY, tile.y + tile.height);
+  }
+
+  for (const stroke of module.strokes) {
+    for (const point of stroke.points) {
+      contentBounds.minX = Math.min(contentBounds.minX, point.x);
+      contentBounds.minY = Math.min(contentBounds.minY, point.y);
+      contentBounds.maxX = Math.max(contentBounds.maxX, point.x);
+      contentBounds.maxY = Math.max(contentBounds.maxY, point.y);
+    }
+  }
+
+  if (!Number.isFinite(contentBounds.minX)) {
+    contentBounds.minX = 0;
+    contentBounds.minY = 0;
+    contentBounds.maxX = module.viewBoxWidth;
+    contentBounds.maxY = module.viewBoxHeight;
+  }
+
   const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
   const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
   const moduleWidth = contentWidth * scale;
@@ -620,9 +636,9 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
               ? getStaggeredTiles(config)
               : config.pattern.type === 'venzowood'
                 ? getVenzowoodTiles(config)
-                : svgPatternModule?.tiles.length
+                : svgPatternModule && (svgPatternModule.tiles.length || svgPatternModule.strokes.length)
                   ? getSvgPatternTiles(config, svgPatternModule)
-                : getStackTiles(config);
+                  : getStackTiles(config);
 
   return {
     tiles: baseLayout.tiles,

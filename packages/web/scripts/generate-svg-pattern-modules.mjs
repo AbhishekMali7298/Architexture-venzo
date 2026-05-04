@@ -439,8 +439,43 @@ function rectToTile(rectElement, viewBox) {
   const height = parseNumericAttribute(rectElement, 'height');
   const rx = parseNumericAttribute(rectElement, 'rx');
   const ry = parseNumericAttribute(rectElement, 'ry');
+  const transformMatch = rectElement.match(/\stransform="([^"]+)"/i);
 
   if (width === null || height === null || width <= 0 || height <= 0) return null;
+
+  if (transformMatch) {
+    const matrixMatch = transformMatch[1]?.match(
+      /matrix\(\s*([-+.\deE]+)[,\s]+([-+.\deE]+)[,\s]+([-+.\deE]+)[,\s]+([-+.\deE]+)[,\s]+([-+.\deE]+)[,\s]+([-+.\deE]+)\s*\)/i,
+    );
+
+    if (matrixMatch) {
+      const [a, b, c, d, e, f] = matrixMatch.slice(1).map(Number);
+      if (![a, b, c, d, e, f].some((value) => Number.isNaN(value))) {
+        const corners = [
+          { x, y },
+          { x: x + width, y },
+          { x: x + width, y: y + height },
+          { x, y: y + height },
+        ].map((point) => ({
+          x: a * point.x + c * point.y + e,
+          y: b * point.x + d * point.y + f,
+        }));
+
+        const minX = Math.min(...corners.map((point) => point.x));
+        const minY = Math.min(...corners.map((point) => point.y));
+        const maxX = Math.max(...corners.map((point) => point.x));
+        const maxY = Math.max(...corners.map((point) => point.y));
+
+        return {
+          x: minX - viewBox.minX,
+          y: minY - viewBox.minY,
+          width: maxX - minX,
+          height: maxY - minY,
+          clipPath: corners.map((point) => ({ x: point.x - minX, y: point.y - minY })),
+        };
+      }
+    }
+  }
 
   return {
     x: x - viewBox.minX,
@@ -536,13 +571,41 @@ async function generate() {
       if (tile) tiles.push(tile);
     }
 
+    const strokeBounds =
+      strokes.length > 0
+        ? strokes.reduce(
+            (bounds, stroke) => {
+              for (const point of stroke.points) {
+                bounds.minX = Math.min(bounds.minX, point.x);
+                bounds.minY = Math.min(bounds.minY, point.y);
+                bounds.maxX = Math.max(bounds.maxX, point.x);
+                bounds.maxY = Math.max(bounds.maxY, point.y);
+              }
+              return bounds;
+            },
+            {
+              minX: Number.POSITIVE_INFINITY,
+              minY: Number.POSITIVE_INFINITY,
+              maxX: Number.NEGATIVE_INFINITY,
+              maxY: Number.NEGATIVE_INFINITY,
+            },
+          )
+        : null;
     const override = MODULE_OVERRIDES[patternType];
+    const fallbackReferenceWidth =
+      strokeBounds && Number.isFinite(strokeBounds.minX)
+        ? Math.max(1, strokeBounds.maxX - strokeBounds.minX)
+        : viewBox.width;
+    const fallbackReferenceHeight =
+      strokeBounds && Number.isFinite(strokeBounds.minY)
+        ? Math.max(1, strokeBounds.maxY - strokeBounds.minY)
+        : viewBox.height;
     const referenceTileWidth =
       override?.referenceTileWidth ??
-      (tiles.length > 0 ? median(tiles.map((tile) => tile.width)) : viewBox.width);
+      (tiles.length > 0 ? median(tiles.map((tile) => tile.width)) : fallbackReferenceWidth);
     const referenceTileHeight =
       override?.referenceTileHeight ??
-      (tiles.length > 0 ? median(tiles.map((tile) => tile.height)) : viewBox.height);
+      (tiles.length > 0 ? median(tiles.map((tile) => tile.height)) : fallbackReferenceHeight);
 
     modules[patternType] = {
       viewBoxWidth: viewBox.width,

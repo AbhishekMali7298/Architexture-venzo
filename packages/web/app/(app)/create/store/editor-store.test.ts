@@ -80,4 +80,14 @@ describe('editor store', () => {
 
     expect(useEditorStore.getState().embossMode).toBe(true);
   });
+
+  it('keeps emboss mode enabled for stroke-based impress SVG patterns', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('grate_pattern');
+
+    expect(useEditorStore.getState().embossMode).toBe(true);
+  });
 });

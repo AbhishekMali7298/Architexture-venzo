@@ -3,7 +3,7 @@ import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
 import { fillMaterialSurface } from './material-fill';
-import { drawEmbossEffect } from './background-renderer';
+import { drawEmbossEffect, drawEmbossStrokeEffect } from './background-renderer';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 export function renderToCanvas(
@@ -90,6 +90,7 @@ export function renderToCanvas(
   if (shouldRenderEmboss) {
     const strength = (options?.embossStrength ?? 100) / 100;
     drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, strength);
+    drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, strength);
   }
 }
 

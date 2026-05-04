@@ -108,6 +108,54 @@ function drawPatternStrokes(
   ctx.restore();
 }
 
+export function drawEmbossStrokeEffect(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  strokes: ReadonlyArray<PatternStroke>,
+  strength = 1,
+) {
+  const normalizedStrength = Math.max(0, Math.min(1, strength));
+  if (!strokes.length || normalizedStrength <= 0) return;
+
+  const embossOffset = Math.max(0.6, 1.8 * normalizedStrength);
+  const strokeWidth = Math.max(1, 1.1 * normalizedStrength);
+
+  const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha;
+
+    for (const stroke of strokes) {
+      const firstPoint = stroke.points[0];
+      if (!firstPoint) continue;
+
+      ctx.beginPath();
+      ctx.moveTo(offsetX + firstPoint.x * scale + deltaX, offsetY + firstPoint.y * scale + deltaY);
+
+      for (const point of stroke.points.slice(1)) {
+        ctx.lineTo(offsetX + point.x * scale + deltaX, offsetY + point.y * scale + deltaY);
+      }
+
+      if (stroke.closed) {
+        ctx.closePath();
+      }
+
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  };
+
+  drawOffsetStroke(-embossOffset, -embossOffset, '#fff8ef', 0.75);
+  drawOffsetStroke(embossOffset, embossOffset, '#2f2416', 0.28);
+  drawOffsetStroke(0, 0, '#8d7453', 0.24);
+}
+
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {
   if (points.length < 3) return 0;
   let area = 0;
@@ -499,6 +547,7 @@ export function renderEmbossBackground(
     });
 
     drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength);
+    drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength);
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -535,6 +584,7 @@ export function renderEmbossBackground(
     const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
 
     drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength);
+    drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, extendedLayout.strokes, embossStrength);
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -551,6 +601,7 @@ export function renderEmbossBackground(
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
       drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength);
+      drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, embossStrength);
     }
   }
 
