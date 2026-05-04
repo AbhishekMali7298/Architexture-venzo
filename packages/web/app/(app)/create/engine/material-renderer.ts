@@ -2,6 +2,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout } from '../lib/pattern-layout';
+import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface } from './material-fill';
 import { drawEmbossEffect, drawEmbossStrokeEffect } from './background-renderer';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
@@ -17,6 +18,7 @@ export function renderToCanvas(
     backgroundFill?: string;
     embossMode?: boolean;
     embossStrength?: number;
+    svgPatternModule?: SvgPatternModule | null;
   },
 ): void {
   const material = config.materials[0];
@@ -30,7 +32,7 @@ export function renderToCanvas(
     material.source,
     definition?.swatchColor ?? '#c8c8c8',
   );
-  const layout = getPatternLayout(config);
+  const layout = getPatternLayout(config, options?.svgPatternModule ?? null);
   const jointFill = getJointRenderableColor(
     config.joints.materialSource,
     undefined,

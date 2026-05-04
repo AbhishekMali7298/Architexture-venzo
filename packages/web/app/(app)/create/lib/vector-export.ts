@@ -4,6 +4,7 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from './handmade-edge';
 import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './material-assets';
 import { getPatternLayout } from './pattern-layout';
+import { loadSvgPatternModule } from './svg-pattern-module-cache';
 import { useEditorStore } from '../store/editor-store';
 import { supportsEmbossPattern } from './pattern-capabilities';
 
@@ -59,8 +60,9 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const fallbackFill = escapeXml(
     getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'),
   );
+  const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
-  const layout = getPatternLayout(config);
+  const layout = getPatternLayout(config, svgPatternModule);
   const scale = Math.min(
     width / Math.max(layout.totalWidth, 1),
     height / Math.max(layout.totalHeight, 1),
@@ -146,9 +148,10 @@ export async function buildVectorPdf(config: TextureConfig) {
     return null;
   }
 
+  const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
   const width = config.output.widthPx;
   const height = config.output.heightPx;
-  const layout = getPatternLayout(config);
+  const layout = getPatternLayout(config, svgPatternModule);
   const scale = Math.min(
     width / Math.max(layout.totalWidth, 1),
     height / Math.max(layout.totalHeight, 1),

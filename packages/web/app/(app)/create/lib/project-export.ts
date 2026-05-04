@@ -9,6 +9,7 @@ import {
   getMaterialSourceRenderableImageUrl,
 } from './material-assets';
 import { loadMaterialImage } from './material-image-cache';
+import { loadSvgPatternModule } from './svg-pattern-module-cache';
 import { useEditorStore } from '../store/editor-store';
 
 function downloadUrl(url: string, filename: string) {
@@ -65,12 +66,14 @@ async function renderExportCanvas(config: TextureConfig) {
 
   const materialImage = await resolvePreviewMaterialImage(config);
   const jointImage = await resolveJointMaterialImage(config);
+  const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
   renderToCanvas(ctx, config, canvas.width, canvas.height, {
     materialImage,
     jointImage,
     backgroundFill: '#ffffff',
     embossMode: useEditorStore.getState().embossMode,
     embossStrength: useEditorStore.getState().embossStrength,
+    svgPatternModule,
   });
 
   return canvas;

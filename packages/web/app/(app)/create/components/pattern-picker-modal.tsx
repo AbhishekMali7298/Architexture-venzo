@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
 import { getPatternPreviewImageUrl } from '../lib/material-assets';
 import { IMPRESS_PATTERN_TYPES } from '../lib/pattern-capabilities';
+import { hasSvgPatternModule, primeSvgPatternModule } from '../lib/svg-pattern-module-cache';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
@@ -72,6 +73,9 @@ export function PatternPickerModal({
   }, [search]);
 
   const handlePatternClick = (pattern: PatternDefinition) => {
+    if (hasSvgPatternModule(pattern.type)) {
+      primeSvgPatternModule(pattern.type);
+    }
     onSelect(pattern);
     onClose();
   };
@@ -118,6 +122,11 @@ export function PatternPickerModal({
                       currentPattern === pattern.type ? styles.patternOptionButtonActive : ''
                     }`}
                     type="button"
+                    onMouseEnter={() => {
+                      if (hasSvgPatternModule(pattern.type)) {
+                        primeSvgPatternModule(pattern.type);
+                      }
+                    }}
                     onClick={() => handlePatternClick(pattern)}
                   >
                     <PatternPreview

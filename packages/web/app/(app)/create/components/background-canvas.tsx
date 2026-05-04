@@ -14,6 +14,7 @@ import {
 } from '../lib/material-assets';
 import { useMaterialImage } from '../lib/material-image-cache';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { useSvgPatternModule } from '../lib/svg-pattern-module-cache';
 
 export function BackgroundCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,6 +24,7 @@ export function BackgroundCanvas() {
   const tileBackground = useEditorStore((s) => s.tileBackground);
   const embossMode = useEditorStore((s) => s.embossMode);
   const embossStrength = useEditorStore((s) => s.embossStrength);
+  const svgPatternModule = useSvgPatternModule(config.pattern.type);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId
     ? getMaterialById(primaryMaterial.definitionId)
@@ -59,11 +61,13 @@ export function BackgroundCanvas() {
             materialImage,
             tileBackground,
             embossStrength,
+            svgPatternModule,
           })
         : renderBackground(ctx, config, w, h, {
             materialImage,
             jointImage,
             tileBackground,
+            svgPatternModule,
           });
       if (previewBounds && showBorder) {
         drawPreviewBorder(
@@ -88,6 +92,7 @@ export function BackgroundCanvas() {
     tileBackground,
     embossMode,
     embossStrength,
+    svgPatternModule,
   ]);
 
   return (

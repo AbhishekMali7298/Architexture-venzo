@@ -1,7 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { SVG_PATTERN_MODULES } from '../engine/generated/svg-pattern-modules';
 import { getPatternLayout } from './pattern-layout';
 import { DEFAULT_TEXTURE_CONFIG } from '../store/defaults';
+import venzowood2Module from '../engine/generated/svg-pattern-modules/modules/venzowood_2';
+import venzowood3Module from '../engine/generated/svg-pattern-modules/modules/venzowood_3';
+import chequerPatternModule from '../engine/generated/svg-pattern-modules/modules/chequer_pattern';
+import concavePatternModule from '../engine/generated/svg-pattern-modules/modules/concave_pattern';
+import convexPatternModule from '../engine/generated/svg-pattern-modules/modules/convex_pattern';
+import gratePatternModule from '../engine/generated/svg-pattern-modules/modules/grate_pattern';
+import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
+import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
+import weavePatternModule from '../engine/generated/svg-pattern-modules/modules/weave_pattern';
+import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
+import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
+import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
+
+const SVG_TEST_MODULES: Record<string, SvgPatternModule> = {
+  venzowood_2: venzowood2Module,
+  venzowood_3: venzowood3Module,
+  chequer_pattern: chequerPatternModule,
+  concave_pattern: concavePatternModule,
+  convex_pattern: convexPatternModule,
+  grate_pattern: gratePatternModule,
+  rhombus_pattern: rhombusPatternModule,
+  ripple_pattern: ripplePatternModule,
+  weave_pattern: weavePatternModule,
+  venzowood_4: venzowood4Module,
+  venzowood_5: venzowood5Module,
+};
 
 describe('pattern layout', () => {
   it('builds Venzowood as a repeated nine-piece parquet module', () => {
@@ -76,7 +101,7 @@ describe('pattern layout', () => {
         columns: 2,
       };
 
-      const layout = getPatternLayout(config);
+      const layout = getPatternLayout(config, SVG_TEST_MODULES[patternType]);
 
       expect(layout.tiles.length).toBeGreaterThan(0);
       expect(layout.totalWidth).toBeGreaterThan(0);
@@ -98,7 +123,7 @@ describe('pattern layout', () => {
       columns: 1,
     };
 
-    const layout = getPatternLayout(config);
+    const layout = getPatternLayout(config, gratePatternModule);
 
     expect(layout.tiles).toHaveLength(0);
     expect(layout.strokes.length).toBeGreaterThan(0);
@@ -118,7 +143,7 @@ describe('pattern layout', () => {
     config.joints.horizontalSize = 0;
     config.joints.verticalSize = 0;
 
-    const layout = getPatternLayout(config);
+    const layout = getPatternLayout(config, venzowood3Module);
     const moduleTileCount = layout.tiles.length / config.pattern.columns;
     const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
     const secondModuleTiles = layout.tiles.slice(moduleTileCount);
@@ -129,7 +154,7 @@ describe('pattern layout', () => {
 
     const singleConfig = structuredClone(config);
     singleConfig.pattern.columns = 1;
-    const singleLayout = getPatternLayout(singleConfig);
+    const singleLayout = getPatternLayout(singleConfig, venzowood3Module);
     const singleMaxX = Math.max(...singleLayout.tiles.map((tile) => tile.bounds.x + tile.bounds.width));
 
     expect(singleLayout.totalWidth).toBeCloseTo(singleMaxX, 2);
@@ -147,7 +172,7 @@ describe('pattern layout', () => {
     config.joints.horizontalSize = 0;
     config.joints.verticalSize = -50;
 
-    const layout = getPatternLayout(config);
+    const layout = getPatternLayout(config, venzowood3Module);
     const moduleTileCount = layout.tiles.length / config.pattern.columns;
     const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
     const secondModuleTiles = layout.tiles.slice(moduleTileCount);
@@ -158,35 +183,35 @@ describe('pattern layout', () => {
   });
 
   it('preserves rounded rectangle corners from SVG pattern assets', () => {
-    const module = SVG_PATTERN_MODULES.venzowood_2;
+    const module = venzowood2Module;
 
     expect(module.tiles.length).toBeGreaterThan(0);
     expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
   });
 
   it('preserves circular inlay shapes from Venzowood 4', () => {
-    const module = SVG_PATTERN_MODULES.venzowood_4;
+    const module = venzowood4Module;
 
     expect(module.tiles).toHaveLength(3);
     expect(module.tiles.filter((tile) => tile.clipPath.length > 4)).toHaveLength(2);
   });
 
   it('builds Venzowood 5 from closed SVG paths', () => {
-    const module = SVG_PATTERN_MODULES.venzowood_5;
+    const module = venzowood5Module;
 
     expect(module.tiles).toHaveLength(2);
     expect(module.tiles.every((tile) => tile.clipPath.length > 4)).toBe(true);
   });
 
   it('builds Chequer Pattern from SVG rectangles', () => {
-    const module = SVG_PATTERN_MODULES.chequer_pattern;
+    const module = chequerPatternModule;
 
     expect(module.tiles).toHaveLength(4);
     expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
   });
 
   it('preserves transformed rhombus geometry from SVG rectangles', () => {
-    const module = SVG_PATTERN_MODULES.rhombus_pattern;
+    const module = rhombusPatternModule;
 
     expect(module.tiles).toHaveLength(2);
     expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);

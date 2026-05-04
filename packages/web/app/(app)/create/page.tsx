@@ -36,6 +36,7 @@ import {
   loadProjectFromStorage,
   saveProjectToStorage,
 } from './lib/project-storage';
+import { primeSvgPatternModule, useSvgPatternModule } from './lib/svg-pattern-module-cache';
 import { useEditorStore } from './store/editor-store';
 
 function encodeConfig(config: TextureConfig) {
@@ -81,6 +82,7 @@ export default function CreatePage() {
   const [isReady, setIsReady] = useState(false);
 
   const material = config.materials[0]!;
+  const svgPatternModule = useSvgPatternModule(config.pattern.type);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -108,6 +110,10 @@ export default function CreatePage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration gate opens after local/shared project state has been restored.
     setIsReady(true);
   }, [loadProjectConfig]);
+
+  useEffect(() => {
+    primeSvgPatternModule(config.pattern.type);
+  }, [config.pattern.type]);
 
   const selectedMaterial = useMemo(() => {
     if (!material.definitionId) return null;
@@ -143,7 +149,10 @@ export default function CreatePage() {
   const jointMaterialThumbnailUrl = jointMaterialPath
     ? getMaterialSourceRenderableImageUrl(config.joints.materialSource)
     : null;
-  const patternLayout = useMemo(() => getPatternLayout(config), [config]);
+  const patternLayout = useMemo(
+    () => getPatternLayout(config, svgPatternModule),
+    [config, svgPatternModule],
+  );
   const stackHintUnit = config.units === 'inches' ? 'in' : 'mm';
   const stackHint = `${Math.round(patternLayout.totalWidth)} × ${Math.round(patternLayout.totalHeight)} ${stackHintUnit}`;
   const currentPattern = getPatternByType(config.pattern.type) ?? getPatternByType('stack_bond');

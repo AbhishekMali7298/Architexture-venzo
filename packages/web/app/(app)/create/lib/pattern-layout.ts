@@ -1,5 +1,7 @@
 import type { TextureConfig } from '@textura/shared';
-import { SVG_PATTERN_MODULES, type SvgPatternModule } from '../engine/generated/svg-pattern-modules';
+import { getPatternByType } from '@textura/shared';
+import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
+import { getCachedSvgPatternModule, hasSvgPatternModule } from './svg-pattern-module-cache';
 
 export interface PatternPoint {
   x: number;
@@ -31,6 +33,17 @@ export interface PatternLayout {
   strokes: PatternStroke[];
   totalWidth: number;
   totalHeight: number;
+}
+
+function getFallbackSvgPatternLayout(config: TextureConfig): PatternLayout {
+  const stackLayout = getStackTiles(config);
+
+  return {
+    tiles: stackLayout.tiles,
+    strokes: [],
+    totalWidth: stackLayout.totalWidth,
+    totalHeight: stackLayout.totalHeight,
+  };
 }
 
 const SQRT_2 = Math.SQRT2;
@@ -616,8 +629,10 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   };
 }
 
-export function getPatternLayout(config: TextureConfig): PatternLayout {
-  const svgPatternModule = SVG_PATTERN_MODULES[config.pattern.type];
+export function getPatternLayout(
+  config: TextureConfig,
+  svgPatternModule: SvgPatternModule | null = getCachedSvgPatternModule(config.pattern.type),
+): PatternLayout {
   const baseLayout: {
     tiles: PatternTile[];
     totalWidth: number;
@@ -626,6 +641,8 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
   } =
     config.pattern.type === 'flemish_bond'
       ? getFlemishTiles(config)
+      : config.pattern.type === 'stack_bond'
+        ? getStackTiles(config)
       : config.pattern.type === 'stretcher_bond'
         ? getStretcherTiles(config)
         : config.pattern.type === 'herringbone'
@@ -633,12 +650,14 @@ export function getPatternLayout(config: TextureConfig): PatternLayout {
           : config.pattern.type === 'chevron'
             ? getChevronTiles(config)
             : config.pattern.type === 'staggered'
-              ? getStaggeredTiles(config)
-              : config.pattern.type === 'venzowood'
-                ? getVenzowoodTiles(config)
+                ? getStaggeredTiles(config)
+                : config.pattern.type === 'venzowood'
+                  ? getVenzowoodTiles(config)
                 : svgPatternModule && (svgPatternModule.tiles.length || svgPatternModule.strokes.length)
                   ? getSvgPatternTiles(config, svgPatternModule)
-                  : getStackTiles(config);
+                : hasSvgPatternModule(config.pattern.type)
+                  ? getFallbackSvgPatternLayout(config)
+                : getStackTiles(config);
 
   return {
     tiles: baseLayout.tiles,

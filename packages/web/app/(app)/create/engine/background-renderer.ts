@@ -2,16 +2,20 @@ import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { getTileRenderShape } from '../lib/handmade-edge';
 import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/material-assets';
 import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
+import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
 
-function getPreviewBounds(config: TextureConfig, canvasWidth: number, canvasHeight: number) {
+function getPreviewBounds(
+  layout: ReturnType<typeof getPatternLayout>,
+  canvasWidth: number,
+  canvasHeight: number,
+) {
   const panelWidth = 336;
   const outerPadding = 40;
   const availableX = panelWidth + outerPadding;
   const availableY = outerPadding;
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
-  const layout = getPatternLayout(config);
   const outputWidth = Math.max(1, layout.totalWidth);
   const outputHeight = Math.max(1, layout.totalHeight);
   const scale = Math.min(availableWidth / outputWidth, availableHeight / outputHeight);
@@ -227,6 +231,7 @@ export function renderBackground(
     materialImage?: CanvasImageSource | null;
     jointImage?: CanvasImageSource | null;
     tileBackground?: boolean;
+    svgPatternModule?: SvgPatternModule | null;
   },
 ) {
   const material = config.materials[0];
@@ -237,8 +242,8 @@ export function renderBackground(
     material.source,
     definition?.swatchColor ?? '#c8c8c8',
   );
-  const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
-  const layout = getPatternLayout(config);
+  const layout = getPatternLayout(config, options?.svgPatternModule ?? null);
+  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight);
   const scale = Math.min(
     bounds.width / Math.max(layout.totalWidth, 1),
     bounds.height / Math.max(layout.totalHeight, 1),
@@ -511,6 +516,7 @@ export function renderEmbossBackground(
     materialImage?: CanvasImageSource | null;
     tileBackground?: boolean;
     embossStrength?: number;
+    svgPatternModule?: SvgPatternModule | null;
   },
 ) {
   const material = config.materials[0];
@@ -521,8 +527,8 @@ export function renderEmbossBackground(
     material.source,
     definition?.swatchColor ?? '#c8c8c8',
   );
-  const bounds = getPreviewBounds(config, canvasWidth, canvasHeight);
-  const layout = getPatternLayout(config);
+  const layout = getPatternLayout(config, options?.svgPatternModule ?? null);
+  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight);
   const scale = Math.min(
     bounds.width / Math.max(layout.totalWidth, 1),
     bounds.height / Math.max(layout.totalHeight, 1),
