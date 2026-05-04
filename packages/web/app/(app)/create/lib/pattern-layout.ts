@@ -569,6 +569,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
 
   const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
   const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
+  const moduleOriginX = module.originX ?? 0;
+  const moduleOriginY = module.originY ?? 0;
   // Preserve the authored SVG module cell when repeating so seam gaps match the source SVG.
   const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
   const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
@@ -595,8 +597,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         tiles.push(
           buildTileFromPoints(
             tile.clipPath.map((point) => ({
-              x: offsetX + (tile.x + point.x) * scale,
-              y: offsetY + (tile.y + point.y) * scale,
+              x: offsetX + (tile.x - moduleOriginX + point.x) * scale,
+              y: offsetY + (tile.y - moduleOriginY + point.y) * scale,
             })),
           ),
         );
@@ -606,8 +608,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: true,
           points: tile.clipPath.map((point) => ({
-            x: offsetX + (tile.x + point.x) * scale,
-            y: offsetY + (tile.y + point.y) * scale,
+            x: offsetX + (tile.x - moduleOriginX + point.x) * scale,
+            y: offsetY + (tile.y - moduleOriginY + point.y) * scale,
           })),
         });
       }
@@ -616,8 +618,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
-            x: offsetX + point.x * scale,
-            y: offsetY + point.y * scale,
+            x: offsetX + (point.x - moduleOriginX) * scale,
+            y: offsetY + (point.y - moduleOriginY) * scale,
           })),
         });
       }

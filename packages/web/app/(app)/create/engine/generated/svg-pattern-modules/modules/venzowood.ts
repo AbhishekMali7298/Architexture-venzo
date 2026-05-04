@@ -10,6 +10,10 @@ const svgPatternModule: SvgPatternModule = {
   "viewBoxHeight": 30000,
   "referenceTileWidth": 9121.58795801,
   "referenceTileHeight": 9122.638286010002,
+  "originX": 2982.08,
+  "originY": 3021.5679573899997,
+  "repeatWidth": 24060.837820780005,
+  "repeatHeight": 24060.03208751,
   "tiles": [
     {
       "x": 14226.3,

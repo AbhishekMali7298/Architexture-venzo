@@ -210,7 +210,7 @@ describe('pattern layout', () => {
     expect(module.tiles.every((tile) => tile.clipPath.length === 4)).toBe(true);
   });
 
-  it('preserves the authored SVG seam gap for repeated Chequer Pattern modules', () => {
+  it('trims centered SVG artboard padding from repeated Chequer Pattern modules', () => {
     const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
     config.pattern = {
       ...config.pattern,
@@ -234,9 +234,9 @@ describe('pattern layout', () => {
       Math.min(...secondModuleTiles.map((tile) => tile.bounds.x)) -
       layout.totalWidth / config.pattern.columns;
 
-    expect(firstLeftGap).toBeGreaterThan(0);
-    expect(firstRightGap).toBeGreaterThan(0);
-    expect(secondLeftGap).toBeCloseTo(firstLeftGap, 2);
+    expect(firstLeftGap).toBeCloseTo(0, 2);
+    expect(firstRightGap).toBeCloseTo(0, 2);
+    expect(secondLeftGap).toBeCloseTo(0, 2);
   });
 
   it('preserves transformed rhombus geometry from SVG rectangles', () => {

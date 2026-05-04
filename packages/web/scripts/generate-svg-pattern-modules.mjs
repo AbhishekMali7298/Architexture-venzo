@@ -32,6 +32,42 @@ const MODULE_OVERRIDES = {
   },
 };
 
+function getContentBounds(tiles, strokes, viewBox) {
+  const bounds = {
+    minX: Number.POSITIVE_INFINITY,
+    minY: Number.POSITIVE_INFINITY,
+    maxX: Number.NEGATIVE_INFINITY,
+    maxY: Number.NEGATIVE_INFINITY,
+  };
+
+  for (const tile of tiles) {
+    bounds.minX = Math.min(bounds.minX, tile.x);
+    bounds.minY = Math.min(bounds.minY, tile.y);
+    bounds.maxX = Math.max(bounds.maxX, tile.x + tile.width);
+    bounds.maxY = Math.max(bounds.maxY, tile.y + tile.height);
+  }
+
+  for (const stroke of strokes) {
+    for (const point of stroke.points) {
+      bounds.minX = Math.min(bounds.minX, point.x);
+      bounds.minY = Math.min(bounds.minY, point.y);
+      bounds.maxX = Math.max(bounds.maxX, point.x);
+      bounds.maxY = Math.max(bounds.maxY, point.y);
+    }
+  }
+
+  if (!Number.isFinite(bounds.minX)) {
+    return {
+      minX: 0,
+      minY: 0,
+      maxX: viewBox.width,
+      maxY: viewBox.height,
+    };
+  }
+
+  return bounds;
+}
+
 function tokenizePathData(d) {
   return d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) ?? [];
 }
@@ -571,49 +607,34 @@ async function generate() {
       if (tile) tiles.push(tile);
     }
 
-    const strokeBounds =
-      strokes.length > 0
-        ? strokes.reduce(
-            (bounds, stroke) => {
-              for (const point of stroke.points) {
-                bounds.minX = Math.min(bounds.minX, point.x);
-                bounds.minY = Math.min(bounds.minY, point.y);
-                bounds.maxX = Math.max(bounds.maxX, point.x);
-                bounds.maxY = Math.max(bounds.maxY, point.y);
-              }
-              return bounds;
-            },
-            {
-              minX: Number.POSITIVE_INFINITY,
-              minY: Number.POSITIVE_INFINITY,
-              maxX: Number.NEGATIVE_INFINITY,
-              maxY: Number.NEGATIVE_INFINITY,
-            },
-          )
-        : null;
+    const contentBounds = getContentBounds(tiles, strokes, viewBox);
+    const contentWidth = Math.max(1, contentBounds.maxX - contentBounds.minX);
+    const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
     const override = MODULE_OVERRIDES[patternType];
     const fallbackReferenceWidth =
-      strokeBounds && Number.isFinite(strokeBounds.minX)
-        ? Math.max(1, strokeBounds.maxX - strokeBounds.minX)
-        : viewBox.width;
+      strokes.length > 0 ? contentWidth : viewBox.width;
     const fallbackReferenceHeight =
-      strokeBounds && Number.isFinite(strokeBounds.minY)
-        ? Math.max(1, strokeBounds.maxY - strokeBounds.minY)
-        : viewBox.height;
+      strokes.length > 0 ? contentHeight : viewBox.height;
     const referenceTileWidth =
       override?.referenceTileWidth ??
       (tiles.length > 0 ? median(tiles.map((tile) => tile.width)) : fallbackReferenceWidth);
     const referenceTileHeight =
       override?.referenceTileHeight ??
       (tiles.length > 0 ? median(tiles.map((tile) => tile.height)) : fallbackReferenceHeight);
+    const originX = override?.originX ?? contentBounds.minX;
+    const originY = override?.originY ?? contentBounds.minY;
+    const repeatWidth = override?.repeatWidth ?? contentWidth;
+    const repeatHeight = override?.repeatHeight ?? contentHeight;
 
     modules[patternType] = {
       viewBoxWidth: viewBox.width,
       viewBoxHeight: viewBox.height,
       referenceTileWidth,
       referenceTileHeight,
-      ...(override?.repeatWidth ? { repeatWidth: override.repeatWidth } : {}),
-      ...(override?.repeatHeight ? { repeatHeight: override.repeatHeight } : {}),
+      originX,
+      originY,
+      repeatWidth,
+      repeatHeight,
       tiles,
       strokes,
     };
@@ -650,6 +671,8 @@ export interface SvgPatternModule {
   viewBoxHeight: number;
   referenceTileWidth: number;
   referenceTileHeight: number;
+  originX?: number;
+  originY?: number;
   repeatWidth?: number;
   repeatHeight?: number;
   tiles: SvgPatternModuleTile[];

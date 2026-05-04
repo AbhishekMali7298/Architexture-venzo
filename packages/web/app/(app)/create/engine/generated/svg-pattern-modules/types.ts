@@ -21,6 +21,8 @@ export interface SvgPatternModule {
   viewBoxHeight: number;
   referenceTileWidth: number;
   referenceTileHeight: number;
+  originX?: number;
+  originY?: number;
   repeatWidth?: number;
   repeatHeight?: number;
   tiles: SvgPatternModuleTile[];
