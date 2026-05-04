@@ -141,8 +141,15 @@ export function drawEmbossStrokeEffect(
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   if (!strokes.length || normalizedStrength <= 0) return;
 
-  const embossOffset = Math.max(0.6, 1.8 * normalizedStrength);
-  const strokeWidth = Math.max(1, 1.1 * normalizedStrength);
+  // Stroke-only SVG patterns can get visually dense at smaller module heights.
+  // Scale the bevel/shadow effect with the on-screen stroke density so the
+  // emboss doesn't overpower narrow repeats.
+  const densityFactor = Math.max(0.2, Math.min(1, scale / 0.75));
+  const embossOffset = Math.max(0.18, 1.15 * normalizedStrength * densityFactor);
+  const strokeWidth = Math.max(0.35, 0.9 * normalizedStrength * densityFactor);
+  const highlightAlpha = Math.min(0.68, 0.68 * normalizedStrength * densityFactor);
+  const shadowAlpha = Math.min(0.18, 0.18 * normalizedStrength * densityFactor);
+  const baseAlpha = Math.min(0.16, 0.16 * normalizedStrength * densityFactor);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
     ctx.save();
@@ -173,9 +180,9 @@ export function drawEmbossStrokeEffect(
     ctx.restore();
   };
 
-  drawOffsetStroke(-embossOffset, -embossOffset, '#fff8ef', 0.75);
-  drawOffsetStroke(embossOffset, embossOffset, '#2f2416', 0.28);
-  drawOffsetStroke(0, 0, '#8d7453', 0.24);
+  drawOffsetStroke(-embossOffset, -embossOffset, '#fff8ef', highlightAlpha);
+  drawOffsetStroke(embossOffset, embossOffset, '#2f2416', shadowAlpha);
+  drawOffsetStroke(0, 0, '#8d7453', baseAlpha);
 }
 
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {
