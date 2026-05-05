@@ -153,8 +153,8 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   joints: {
     materialSource: { type: 'solid', color: '#FFFFFF' },
 
-    horizontalSize: 5,
-    verticalSize: 5,
+    horizontalSize: 30,
+    verticalSize: 30,
     linkedDimensions: true,
 
     adjustments: {
