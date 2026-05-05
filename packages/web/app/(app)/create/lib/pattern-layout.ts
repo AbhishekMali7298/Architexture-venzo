@@ -31,8 +31,41 @@ export interface PatternStroke {
 export interface PatternLayout {
   tiles: PatternTile[];
   strokes: PatternStroke[];
-  totalWidth: number;
-  totalHeight: number;
+  totalWidth: number; // Logical repeat interval
+  totalHeight: number; // Logical repeat interval
+  contentWidth: number; // Visual bounding box
+  contentHeight: number; // Visual bounding box
+}
+
+/**
+ * Calculate the visual bounding box of all tiles and strokes in a layout.
+ */
+function getLayoutContentMax(layout: {
+  tiles: ReadonlyArray<PatternTile>;
+  strokes?: ReadonlyArray<PatternStroke>;
+}) {
+  const tileMax = layout.tiles.reduce(
+    (bounds, tile) => ({
+      x: Math.max(bounds.x, tile.bounds.x + tile.bounds.width),
+      y: Math.max(bounds.y, tile.bounds.y + tile.bounds.height),
+    }),
+    { x: 0, y: 0 },
+  );
+
+  if (!layout.strokes?.length) {
+    return tileMax;
+  }
+
+  return layout.strokes.reduce(
+    (bounds, stroke) => {
+      for (const point of stroke.points) {
+        bounds.x = Math.max(bounds.x, point.x);
+        bounds.y = Math.max(bounds.y, point.y);
+      }
+      return bounds;
+    },
+    { ...tileMax },
+  );
 }
 
 function getFallbackSvgPatternLayout(config: TextureConfig): PatternLayout {
@@ -43,6 +76,8 @@ function getFallbackSvgPatternLayout(config: TextureConfig): PatternLayout {
     strokes: [],
     totalWidth: stackLayout.totalWidth,
     totalHeight: stackLayout.totalHeight,
+    contentWidth: stackLayout.totalWidth,
+    contentHeight: stackLayout.totalHeight,
   };
 }
 
@@ -626,26 +661,15 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     }
   }
 
-  let contentMaxX = 0;
-  let contentMaxY = 0;
-
-  for (const tile of tiles) {
-    contentMaxX = Math.max(contentMaxX, tile.bounds.x + tile.bounds.width);
-    contentMaxY = Math.max(contentMaxY, tile.bounds.y + tile.bounds.height);
-  }
-
-  for (const stroke of strokes) {
-    for (const point of stroke.points) {
-      contentMaxX = Math.max(contentMaxX, point.x);
-      contentMaxY = Math.max(contentMaxY, point.y);
-    }
-  }
+  const contentMax = getLayoutContentMax({ tiles, strokes });
 
   return {
     tiles,
     strokes,
-    totalWidth: Math.max(moduleWidth + Math.max(0, columns - 1) * stepX, contentMaxX),
-    totalHeight: Math.max(moduleHeight + Math.max(0, rows - 1) * stepY, contentMaxY),
+    totalWidth: columns * stepX,
+    totalHeight: rows * stepY,
+    contentWidth: contentMax.x,
+    contentHeight: contentMax.y,
   };
 }
 
@@ -679,10 +703,16 @@ export function getPatternLayout(
                   ? getFallbackSvgPatternLayout(config)
                 : getStackTiles(config);
 
+  const tiles = baseLayout.tiles;
+  const strokes = baseLayout.strokes ?? [];
+  const contentMax = getLayoutContentMax({ tiles, strokes });
+
   return {
-    tiles: baseLayout.tiles,
-    strokes: baseLayout.strokes ?? [],
+    tiles,
+    strokes,
     totalWidth: roundLayoutValue(baseLayout.totalWidth),
     totalHeight: roundLayoutValue(baseLayout.totalHeight),
+    contentWidth: roundLayoutValue(contentMax.x),
+    contentHeight: roundLayoutValue(contentMax.y),
   };
 }

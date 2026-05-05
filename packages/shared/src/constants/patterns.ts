@@ -91,8 +91,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/impress/venzowood_3.svg',
     defaults: { rows: 2, columns: 2, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
-      rows: { min: 1, max: 10 },
-      columns: { min: 1, max: 10 },
+      rows: { min: 1, max: 5 },
+      columns: { min: 1, max: 5 },
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 860,

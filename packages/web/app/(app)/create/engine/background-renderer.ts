@@ -16,11 +16,13 @@ function getPreviewBounds(
   const availableY = outerPadding;
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
-  const outputWidth = Math.max(1, layout.totalWidth);
-  const outputHeight = Math.max(1, layout.totalHeight);
-  const scale = Math.min(availableWidth / outputWidth, availableHeight / outputHeight);
-  const width = Math.max(1, outputWidth * scale);
-  const height = Math.max(1, outputHeight * scale);
+  
+  // Use visual content dimensions for scaling the preview so everything fits on screen.
+  const visualWidth = Math.max(1, layout.contentWidth);
+  const visualHeight = Math.max(1, layout.contentHeight);
+  const scale = Math.min(availableWidth / visualWidth, availableHeight / visualHeight);
+  const width = Math.max(1, visualWidth * scale);
+  const height = Math.max(1, visualHeight * scale);
 
   return {
     x: availableX + (availableWidth - width) / 2,
@@ -53,44 +55,12 @@ function shouldExtendBackgroundByModule(config: TextureConfig) {
   return config.pattern.type === 'venzowood_3';
 }
 
-function getLayoutContentMax(layout: {
-  tiles: ReadonlyArray<PatternTile>;
-  strokes?: ReadonlyArray<PatternStroke>;
-}) {
-  const tileMax = layout.tiles.reduce(
-    (bounds, tile) => ({
-      x: Math.max(bounds.x, tile.bounds.x + tile.bounds.width),
-      y: Math.max(bounds.y, tile.bounds.y + tile.bounds.height),
-    }),
-    { x: 0, y: 0 },
-  );
-
-  if (!layout.strokes?.length) {
-    return tileMax;
-  }
-
-  return layout.strokes.reduce(
-    (bounds, stroke) => {
-      for (const point of stroke.points) {
-        bounds.x = Math.max(bounds.x, point.x);
-        bounds.y = Math.max(bounds.y, point.y);
-      }
-      return bounds;
-    },
-    { ...tileMax },
-  );
-}
-
 function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof getPatternLayout>, scale: number) {
-  const contentMax = getLayoutContentMax(layout);
-  const currentTrailingX = layout.totalWidth - contentMax.x;
-  const currentTrailingY = layout.totalHeight - contentMax.y;
-  const repeatWidth = layout.totalWidth + (config.joints.verticalSize - currentTrailingX);
-  const repeatHeight = layout.totalHeight + (config.joints.horizontalSize - currentTrailingY);
-
+  // Use logical repeat dimensions from the layout engine.
+  // totalWidth/totalHeight already account for joints between modules.
   return {
-    width: Math.max(1, repeatWidth * scale),
-    height: Math.max(1, repeatHeight * scale),
+    width: Math.max(1, layout.totalWidth * scale),
+    height: Math.max(1, layout.totalHeight * scale),
   };
 }
 
@@ -162,11 +132,11 @@ export function drawEmbossStrokeEffect(
   const shadowAlpha = Math.min(0.5, 0.6 * normalizedStrength * densityFactor * intensity);
   const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * densityFactor * intensity);
 
-  const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
+  const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
     ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = strokeWidth;
+    ctx.lineWidth = customWidth ?? strokeWidth;
     ctx.strokeStyle = color;
     ctx.globalAlpha = alpha;
 
@@ -361,9 +331,8 @@ export function renderBackground(
   const frameRepeat = getFrameRepeatSize(config, layout, scale);
   
   // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
-  const contentMax = getLayoutContentMax(layout);
-  const contentWidth = contentMax.x * scale;
-  const contentHeight = contentMax.y * scale;
+  const contentWidth = layout.contentWidth * scale;
+  const contentHeight = layout.contentHeight * scale;
   const bleed = 20;
 
   const cacheCanvas = document.createElement('canvas');
@@ -599,9 +568,8 @@ export function renderEmbossBackground(
   const frameRepeat = getFrameRepeatSize(config, layout, scale);
   
   // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
-  const contentMax = getLayoutContentMax(layout);
-  const contentWidth = contentMax.x * scale;
-  const contentHeight = contentMax.y * scale;
+  const contentWidth = layout.contentWidth * scale;
+  const contentHeight = layout.contentHeight * scale;
   
   // Add a small bleed for shadows/strokes
   const bleed = 20; 
