@@ -195,7 +195,11 @@ function drawVenzowood4Holes(
   if (config.pattern.type !== 'venzowood_4') return;
   if (!layout.strokes.length || !layout.tiles.length) return;
 
-  const maxTileArea = Math.max(...layout.tiles.map((tile) => tile.width * tile.height), 0);
+  let maxTileArea = 0;
+  for (const tile of layout.tiles) {
+    const area = tile.width * tile.height;
+    if (area > maxTileArea) maxTileArea = area;
+  }
   if (maxTileArea <= 0) return;
 
   const holeCandidates = layout.strokes.filter((stroke) => {
@@ -211,12 +215,17 @@ function drawVenzowood4Holes(
       x: offsetX + point.x * scale,
       y: offsetY + point.y * scale,
     }));
-    const xs = points.map((point) => point.x);
-    const ys = points.map((point) => point.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    for (const p of points) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
 
     fillMaterialSurface(ctx, {
       x: minX,

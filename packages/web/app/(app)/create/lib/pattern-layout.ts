@@ -87,6 +87,23 @@ function degreesToRadians(angle: number) {
   return (angle * Math.PI) / 180;
 }
 
+function getPointsBounds(points: PatternPoint[]) {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i]!;
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+
+  return { minX, maxX, minY, maxY };
+}
+
 function roundLayoutValue(value: number) {
   return Math.round(value * 1000) / 1000;
 }
@@ -111,12 +128,8 @@ function buildTileFromAnchor(
     { x: anchorX + vx * height, y: anchorY + vy * height },
   ];
 
-  const xs = points.map((point) => point.x);
-  const ys = points.map((point) => point.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
+  const bounds = getPointsBounds(points);
+  const { minX, maxX, minY, maxY } = bounds;
 
   return {
     x: anchorX,
@@ -135,12 +148,8 @@ function buildTileFromAnchor(
 }
 
 function buildTileFromPoints(points: PatternPoint[]): PatternTile {
-  const xs = points.map((point) => point.x);
-  const ys = points.map((point) => point.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
+  const bounds = getPointsBounds(points);
+  const { minX, maxX, minY, maxY } = bounds;
 
   return {
     x: minX,

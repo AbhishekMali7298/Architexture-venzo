@@ -592,10 +592,18 @@ async function generate() {
           continue;
         }
 
-        const minX = Math.min(...finalPoints.map((point) => point.x));
-        const maxX = Math.max(...finalPoints.map((point) => point.x));
-        const minY = Math.min(...finalPoints.map((point) => point.y));
-        const maxY = Math.max(...finalPoints.map((point) => point.y));
+        let minX = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        for (const point of finalPoints) {
+          if (point.x < minX) minX = point.x;
+          if (point.x > maxX) maxX = point.x;
+          if (point.y < minY) minY = point.y;
+          if (point.y > maxY) maxY = point.y;
+        }
+
         const width = maxX - minX;
         const height = maxY - minY;
         if (width <= 0 || height <= 0) continue;

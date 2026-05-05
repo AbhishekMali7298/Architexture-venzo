@@ -11,6 +11,13 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
   'ripple_pattern',
   'weave_pattern',
   'grate_pattern',
+  'boho_pattern',
+  'chisel_pattern',
+  'fibra_pattern',
+  'matrix_pattern',
+  'mesh_pattern',
+  'raffia_pattern',
+  'weave_pattern_2',
 ];
 
 const VITA_COMPONENT_PATTERNS = new Set<PatternType>(['venzowood_4', 'venzowood_5']);

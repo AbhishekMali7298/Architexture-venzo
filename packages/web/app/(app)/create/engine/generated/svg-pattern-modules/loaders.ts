@@ -20,7 +20,14 @@ export const SVG_PATTERN_MODULE_TYPES = [
   "weave_pattern",
   "grate_pattern",
   "venzowood_4",
-  "venzowood_5"
+  "venzowood_5",
+  "boho_pattern",
+  "chisel_pattern",
+  "fibra_pattern",
+  "matrix_pattern",
+  "mesh_pattern",
+  "raffia_pattern",
+  "weave_pattern_2"
 ] as const;
 
 export const SVG_PATTERN_MODULE_LOADERS: Partial<Record<PatternType, SvgPatternModuleLoader>> = {
@@ -36,4 +43,11 @@ export const SVG_PATTERN_MODULE_LOADERS: Partial<Record<PatternType, SvgPatternM
   "grate_pattern": () => import('./modules/grate_pattern').then((mod) => mod.default),
   "venzowood_4": () => import('./modules/venzowood_4').then((mod) => mod.default),
   "venzowood_5": () => import('./modules/venzowood_5').then((mod) => mod.default),
+  "boho_pattern": () => import('./modules/boho_pattern').then((mod) => mod.default),
+  "chisel_pattern": () => import('./modules/chisel_pattern').then((mod) => mod.default),
+  "fibra_pattern": () => import('./modules/fibra_pattern').then((mod) => mod.default),
+  "matrix_pattern": () => import('./modules/matrix_pattern').then((mod) => mod.default),
+  "mesh_pattern": () => import('./modules/mesh_pattern').then((mod) => mod.default),
+  "raffia_pattern": () => import('./modules/raffia_pattern').then((mod) => mod.default),
+  "weave_pattern_2": () => import('./modules/weave_pattern_2').then((mod) => mod.default),
 };
