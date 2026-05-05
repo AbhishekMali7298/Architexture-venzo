@@ -94,7 +94,7 @@ function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof get
   };
 }
 
-function drawPatternStrokes(
+export function drawPatternStrokes(
   ctx: CanvasRenderingContext2D,
   offsetX: number,
   offsetY: number,
@@ -128,6 +128,13 @@ function drawPatternStrokes(
   }
 
   ctx.restore();
+}
+
+export function shouldDrawEmbossStrokeOutline(
+  tiles: ReadonlyArray<PatternTile>,
+  strokes: ReadonlyArray<PatternStroke>,
+) {
+  return tiles.length === 0 && strokes.length > 0;
 }
 
 export function drawEmbossStrokeEffect(
@@ -579,6 +586,9 @@ export function renderEmbossBackground(
 
     drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength);
     drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength);
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+      drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
+    }
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -616,6 +626,9 @@ export function renderEmbossBackground(
 
     drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength);
     drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, extendedLayout.strokes, embossStrength);
+    if (shouldDrawEmbossStrokeOutline(extendedLayout.tiles, extendedLayout.strokes)) {
+      drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
+    }
 
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
@@ -633,6 +646,9 @@ export function renderEmbossBackground(
       const offsetX = bounds.x + xIndex * frameRepeat.width;
       drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength);
       drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, embossStrength);
+      if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+        drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+      }
     }
   }
 

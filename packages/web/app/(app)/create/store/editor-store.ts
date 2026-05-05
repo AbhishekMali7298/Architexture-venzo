@@ -30,6 +30,31 @@ const PATTERN_JOINT_DEFAULTS: Record<
   PatternType,
   { horizontalSize: number; verticalSize: number; linkedDimensions: boolean }
 > = {
+  venzowood: {
+    horizontalSize: 30,
+    verticalSize: 30,
+    linkedDimensions: true,
+  },
+  venzowood_2: {
+    horizontalSize: 30,
+    verticalSize: 30,
+    linkedDimensions: true,
+  },
+  chequer_pattern: {
+    horizontalSize: 15,
+    verticalSize: 15,
+    linkedDimensions: true,
+  },
+  concave_pattern: {
+    horizontalSize: 3,
+    verticalSize: 3,
+    linkedDimensions: true,
+  },
+  convex_pattern: {
+    horizontalSize: 2,
+    verticalSize: 2,
+    linkedDimensions: true,
+  },
   venzowood_3: {
     horizontalSize: -30,
     verticalSize: -120,

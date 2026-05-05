@@ -23,6 +23,53 @@ function rgbToPdf(color: string) {
   return channels.map((channel) => (channel / 255).toFixed(4)).join(' ');
 }
 
+function buildStrokeMarkup(
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  layout: ReturnType<typeof getPatternLayout>,
+  shouldRenderEmboss: boolean,
+  normalizedStrength: number,
+) {
+  if (!layout.strokes.length) {
+    return '';
+  }
+
+  const densityFactor = Math.max(0.2, Math.min(1, scale / 0.75));
+  const embossOffset = Math.max(0.18, 1.15 * normalizedStrength * densityFactor);
+  const strokeWidth = Math.max(0.35, 0.9 * normalizedStrength * densityFactor);
+  const highlightAlpha = Math.min(0.68, 0.68 * normalizedStrength * densityFactor);
+  const shadowAlpha = Math.min(0.18, 0.18 * normalizedStrength * densityFactor);
+  const baseAlpha = Math.min(0.16, 0.16 * normalizedStrength * densityFactor);
+  const shouldDrawBaseOutline = layout.tiles.length === 0 && layout.strokes.length > 0;
+
+  return layout.strokes
+    .map((stroke, index) => {
+      const points = stroke.points
+        .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
+        .join(' ');
+
+      if (!points) return '';
+
+      const nodeName = stroke.closed ? 'polygon' : 'polyline';
+      const fillAttr = stroke.closed ? ' fill="none"' : '';
+      let markup = '';
+
+      if (shouldRenderEmboss && normalizedStrength > 0) {
+        markup += `<${nodeName} points="${points}" stroke="#fff8ef" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"${fillAttr} opacity="${highlightAlpha.toFixed(3)}" transform="translate(${-embossOffset}, ${-embossOffset})" />`;
+        markup += `<${nodeName} points="${points}" stroke="#2f2416" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"${fillAttr} opacity="${shadowAlpha.toFixed(3)}" transform="translate(${embossOffset}, ${embossOffset})" />`;
+        markup += `<${nodeName} points="${points}" stroke="#8d7453" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"${fillAttr} opacity="${baseAlpha.toFixed(3)}" />`;
+      }
+
+      if (shouldDrawBaseOutline) {
+        markup += `<${nodeName} points="${points}" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"${fillAttr} opacity="0.34" />`;
+      }
+
+      return markup;
+    })
+    .join('');
+}
+
 async function urlToDataUrl(url: string) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -130,12 +177,21 @@ export async function buildPreviewSvg(config: TextureConfig) {
       return markup;
     })
     .join('');
+  const strokeMarkup = buildStrokeMarkup(
+    offsetX,
+    offsetY,
+    scale,
+    layout,
+    shouldRenderEmboss,
+    normalizedStrength,
+  );
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
     defs.length ? `<defs>${defs.join('')}</defs>` : '',
     `<rect x="${offsetX}" y="${offsetY}" width="${drawWidth}" height="${drawHeight}" fill="${jointFill}" />`,
     tileMarkup,
+    strokeMarkup,
     '</svg>',
   ].join('');
 }

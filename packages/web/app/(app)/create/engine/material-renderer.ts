@@ -4,7 +4,12 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout } from '../lib/pattern-layout';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface } from './material-fill';
-import { drawEmbossEffect, drawEmbossStrokeEffect } from './background-renderer';
+import {
+  drawEmbossEffect,
+  drawEmbossStrokeEffect,
+  drawPatternStrokes,
+  shouldDrawEmbossStrokeOutline,
+} from './background-renderer';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 export function renderToCanvas(
@@ -93,6 +98,9 @@ export function renderToCanvas(
     const strength = (options?.embossStrength ?? 100) / 100;
     drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, strength);
     drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, strength);
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+      drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+    }
   }
 }
 

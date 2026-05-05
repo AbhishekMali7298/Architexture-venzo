@@ -69,6 +69,69 @@ describe('editor store', () => {
 
     expect(config.pattern.type).toBe('venzowood');
     expect(config.pattern.angle).toBe(0);
+    expect(config.joints.horizontalSize).toBe(30);
+    expect(config.joints.verticalSize).toBe(30);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
+  it('applies 30 mm linked joints for Venzowood 2', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('venzowood_2');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('venzowood_2');
+    expect(config.joints.horizontalSize).toBe(30);
+    expect(config.joints.verticalSize).toBe(30);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
+  it('applies 15 mm linked joints for chequer pattern', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('chequer_pattern');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('chequer_pattern');
+    expect(config.joints.horizontalSize).toBe(15);
+    expect(config.joints.verticalSize).toBe(15);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
+  it('applies 3 mm linked joints for concave pattern', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('concave_pattern');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('concave_pattern');
+    expect(config.joints.horizontalSize).toBe(3);
+    expect(config.joints.verticalSize).toBe(3);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
+  it('applies 2 mm linked joints for convex pattern', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('convex_pattern');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('convex_pattern');
+    expect(config.joints.horizontalSize).toBe(2);
+    expect(config.joints.verticalSize).toBe(2);
+    expect(config.joints.linkedDimensions).toBe(true);
   });
 
   it('keeps emboss mode enabled for impress SVG patterns', () => {
