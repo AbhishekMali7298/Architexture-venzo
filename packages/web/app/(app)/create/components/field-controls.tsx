@@ -36,7 +36,7 @@ export function NumberField({
   max,
   step,
   unit,
-  commitOnChange,
+  commitOnChange = true,
   onChange,
 }: {
   label: string;
@@ -70,7 +70,7 @@ export function NumberField({
             const nextDraft = event.target.value;
             setDraft(nextDraft);
 
-            if (!commitOnChange) {
+            if (commitOnChange === false) {
               return;
             }
 
