@@ -626,16 +626,20 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     }
   }
 
-  const contentMaxX = Math.max(
-    0,
-    ...tiles.map((tile) => tile.bounds.x + tile.bounds.width),
-    ...strokes.flatMap((stroke) => stroke.points.map((point) => point.x)),
-  );
-  const contentMaxY = Math.max(
-    0,
-    ...tiles.map((tile) => tile.bounds.y + tile.bounds.height),
-    ...strokes.flatMap((stroke) => stroke.points.map((point) => point.y)),
-  );
+  let contentMaxX = 0;
+  let contentMaxY = 0;
+
+  for (const tile of tiles) {
+    contentMaxX = Math.max(contentMaxX, tile.bounds.x + tile.bounds.width);
+    contentMaxY = Math.max(contentMaxY, tile.bounds.y + tile.bounds.height);
+  }
+
+  for (const stroke of strokes) {
+    for (const point of stroke.points) {
+      contentMaxX = Math.max(contentMaxX, point.x);
+      contentMaxY = Math.max(contentMaxY, point.y);
+    }
+  }
 
   return {
     tiles,

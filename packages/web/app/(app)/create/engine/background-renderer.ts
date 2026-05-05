@@ -156,11 +156,11 @@ export function drawEmbossStrokeEffect(
   // Scale the bevel/shadow effect with the on-screen stroke density so the
   // emboss doesn't overpower narrow repeats.
   const densityFactor = Math.max(0.4, Math.min(1.2, scale / 0.8));
-  const embossOffset = Math.max(0.3, 1.2 * normalizedStrength * densityFactor * depth);
-  const strokeWidth = Math.max(1.0, 3.8 * normalizedStrength * densityFactor * depth);
-  const highlightAlpha = Math.min(0.75, 0.8 * normalizedStrength * densityFactor * intensity);
-  const shadowAlpha = Math.min(0.45, 0.5 * normalizedStrength * densityFactor * intensity);
-  const baseAlpha = Math.min(0.25, 0.3 * normalizedStrength * densityFactor * intensity);
+  const embossOffset = Math.max(0.2, 1.2 * normalizedStrength * densityFactor * depth);
+  const strokeWidth = Math.max(0.8, 3.8 * normalizedStrength * densityFactor * depth);
+  const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * densityFactor * intensity);
+  const shadowAlpha = Math.min(0.5, 0.6 * normalizedStrength * densityFactor * intensity);
+  const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * densityFactor * intensity);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
     ctx.save();
@@ -356,67 +356,56 @@ export function renderBackground(
     };
   }
 
-  if (shouldExtendBackgroundByModule(config)) {
-    const repeatStep = getModuleRepeatStep(config);
-    const stepWidth = Math.max(1, repeatStep.x * scale);
-    const stepHeight = Math.max(1, repeatStep.y * scale);
-    const columnsBefore = Math.ceil(bounds.x / stepWidth) + 1;
-    const columnsAfter = Math.ceil((canvasWidth - bounds.x - frameWidth) / stepWidth) + 1;
-    const rowsBefore = Math.ceil(bounds.y / stepHeight) + 1;
-    const rowsAfter = Math.ceil((canvasHeight - bounds.y - frameHeight) / stepHeight) + 1;
-    const extendedConfig = cloneConfigWithPatternSize(
-      config,
-      config.pattern.rows + rowsBefore + rowsAfter,
-      config.pattern.columns + columnsBefore + columnsAfter,
-    );
-    const extendedLayout = getPatternLayout(extendedConfig);
-    const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
-    const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
+  // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const frameRepeat = getFrameRepeatSize(config, layout, scale);
+  
+  // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
+  const contentMax = getLayoutContentMax(layout);
+  const contentWidth = contentMax.x * scale;
+  const contentHeight = contentMax.y * scale;
+  const bleed = 20;
 
-    for (const [tileIndex, tile] of extendedLayout.tiles.entries()) {
+  const cacheCanvas = document.createElement('canvas');
+  cacheCanvas.width = Math.ceil((contentWidth + bleed * 2) * dpr);
+  cacheCanvas.height = Math.ceil((contentHeight + bleed * 2) * dpr);
+  const cacheCtx = cacheCanvas.getContext('2d');
+
+  if (cacheCtx) {
+    cacheCtx.scale(dpr, dpr);
+    cacheCtx.translate(bleed, bleed);
+
+    for (const [tileIndex, tile] of layout.tiles.entries()) {
       const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-      fillMaterialSurface(ctx, {
-        x: offsetX + shape.bounds.x * scale,
-        y: offsetY + shape.bounds.y * scale,
+      fillMaterialSurface(cacheCtx, {
+        x: shape.bounds.x * scale,
+        y: shape.bounds.y * scale,
         width: shape.bounds.width * scale,
         height: shape.bounds.height * scale,
         radius: 0,
         fallbackFill,
         image: options?.materialImage,
         clipPath: shape.points.map((point) => ({
-          x: offsetX + point.x * scale,
-          y: offsetY + point.y * scale,
+          x: point.x * scale,
+          y: point.y * scale,
         })),
-        imageDrawBox: {
-          x: offsetX + shape.bounds.x * scale,
-          y: offsetY + shape.bounds.y * scale,
-          width: shape.bounds.width * scale,
-          height: shape.bounds.height * scale,
-        },
+        imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
       });
     }
     drawVenzowood4Holes(
-      ctx,
+      cacheCtx,
       config,
-      offsetX,
-      offsetY,
+      0,
+      0,
       scale,
-      extendedLayout,
+      layout,
       jointFill,
       options?.jointImage,
       jointImageDrawBox,
     );
-    drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
-
-    return {
-      x: bounds.x,
-      y: bounds.y,
-      width: frameWidth,
-      height: frameHeight,
-    };
+    drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
   }
 
-  const frameRepeat = getFrameRepeatSize(config, layout, scale);
   const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
   const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
@@ -426,41 +415,13 @@ export function renderBackground(
     const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
-
-      for (const [tileIndex, tile] of layout.tiles.entries()) {
-        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-        fillMaterialSurface(ctx, {
-          x: offsetX + shape.bounds.x * scale,
-          y: offsetY + shape.bounds.y * scale,
-          width: shape.bounds.width * scale,
-          height: shape.bounds.height * scale,
-          radius: 0,
-          fallbackFill,
-          image: options?.materialImage,
-          clipPath: shape.points.map((point) => ({
-            x: offsetX + point.x * scale,
-            y: offsetY + point.y * scale,
-          })),
-          imageDrawBox: {
-            x: offsetX + shape.bounds.x * scale,
-            y: offsetY + shape.bounds.y * scale,
-            width: shape.bounds.width * scale,
-            height: shape.bounds.height * scale,
-          },
-        });
-      }
-      drawVenzowood4Holes(
-        ctx,
-        config,
-        offsetX,
-        offsetY,
-        scale,
-        layout,
-        jointFill,
-        options?.jointImage,
-        jointImageDrawBox,
+      ctx.drawImage(
+        cacheCanvas, 
+        offsetX - bleed, 
+        offsetY - bleed, 
+        (contentWidth + bleed * 2), 
+        (contentHeight + bleed * 2)
       );
-      drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
   }
 
@@ -471,6 +432,7 @@ export function renderBackground(
     height: frameHeight,
   };
 }
+
 
 export function drawEmbossEffect(
   ctx: CanvasRenderingContext2D,
@@ -491,8 +453,8 @@ export function drawEmbossEffect(
 
   // grooveWidth is kept stable across different pattern dimensions
   const grooveWidth =
-    Math.max(2.2, Math.min(8.0, 5.0 * scale * depth)) * (0.7 + clampedStrength * 0.3);
-  const bevelOffset = Math.max(1.2, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3);
+    Math.max(0.8, Math.min(8.0, 5.0 * scale * depth)) * (0.7 + clampedStrength * 0.3);
+  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
   const faceAlpha = 0.08 * clampedStrength * intensity;
   const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * intensity);
@@ -632,45 +594,41 @@ export function renderEmbossBackground(
     image: options?.materialImage,
   });
 
-  if (shouldExtendBackgroundByModule(config)) {
-    const repeatStep = getModuleRepeatStep(config);
-    const stepWidth = Math.max(1, repeatStep.x * scale);
-    const stepHeight = Math.max(1, repeatStep.y * scale);
-    const columnsBefore = Math.ceil(bounds.x / stepWidth) + 1;
-    const columnsAfter = Math.ceil((canvasWidth - bounds.x - frameWidth) / stepWidth) + 1;
-    const rowsBefore = Math.ceil(bounds.y / stepHeight) + 1;
-    const rowsAfter = Math.ceil((canvasHeight - bounds.y - frameHeight) / stepHeight) + 1;
-    const extendedConfig = cloneConfigWithPatternSize(
-      config,
-      config.pattern.rows + rowsBefore + rowsAfter,
-      config.pattern.columns + columnsBefore + columnsAfter,
-    );
-    const extendedLayout = getPatternLayout(extendedConfig);
-    const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
-    const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
+  // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const frameRepeat = getFrameRepeatSize(config, layout, scale);
+  
+  // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
+  const contentMax = getLayoutContentMax(layout);
+  const contentWidth = contentMax.x * scale;
+  const contentHeight = contentMax.y * scale;
+  
+  // Add a small bleed for shadows/strokes
+  const bleed = 20; 
+  
+  const cacheCanvas = document.createElement('canvas');
+  cacheCanvas.width = Math.ceil((contentWidth + bleed * 2) * dpr);
+  cacheCanvas.height = Math.ceil((contentHeight + bleed * 2) * dpr);
+  const cacheCtx = cacheCanvas.getContext('2d');
 
-    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength, {
+  if (cacheCtx) {
+    cacheCtx.scale(dpr, dpr);
+    cacheCtx.translate(bleed, bleed);
+    
+    // Draw only the emboss effects into the cache
+    drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
     });
-    drawEmbossStrokeEffect(
-      ctx,
-      offsetX,
-      offsetY,
-      scale,
-      extendedLayout.strokes,
-      embossStrength,
-      { intensity: embossIntensity, depth: embossDepth },
-    );
-    if (shouldDrawEmbossStrokeOutline(extendedLayout.tiles, extendedLayout.strokes)) {
-      drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
+    drawEmbossStrokeEffect(cacheCtx, 0, 0, scale, layout.strokes, embossStrength, {
+      intensity: embossIntensity,
+      depth: embossDepth,
+    });
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+      drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
     }
-
-    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
 
-  // Tile emboss lines across the canvas
-  const frameRepeat = getFrameRepeatSize(config, layout, scale);
   const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
   const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
@@ -680,17 +638,14 @@ export function renderEmbossBackground(
     const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
-      drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength, {
-        intensity: embossIntensity,
-        depth: embossDepth,
-      });
-      drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, embossStrength, {
-        intensity: embossIntensity,
-        depth: embossDepth,
-      });
-      if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
-        drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
-      }
+      // Offset by bleed because we translated the cacheCtx
+      ctx.drawImage(
+        cacheCanvas, 
+        offsetX - bleed, 
+        offsetY - bleed, 
+        (contentWidth + bleed * 2), 
+        (contentHeight + bleed * 2)
+      );
     }
   }
 
