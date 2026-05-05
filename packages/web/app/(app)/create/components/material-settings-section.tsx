@@ -44,6 +44,10 @@ export function MaterialSettingsSection({
   embossAvailable = true,
   onEmbossModeChange,
   onEmbossStrengthChange,
+  embossIntensity,
+  embossDepth,
+  onEmbossIntensityChange,
+  onEmbossDepthChange,
   isImpressPattern = false,
 }: {
   materialName: string;
@@ -74,6 +78,10 @@ export function MaterialSettingsSection({
 
   onEmbossModeChange: (value: boolean) => void;
   onEmbossStrengthChange: (value: number) => void;
+  embossIntensity: number;
+  embossDepth: number;
+  onEmbossIntensityChange: (value: number) => void;
+  onEmbossDepthChange: (value: number) => void;
   isImpressPattern?: boolean;
 }) {
 
@@ -110,15 +118,37 @@ export function MaterialSettingsSection({
         </button>
 
         {isImpressPattern ? (
-          <RangeField
-            label="Emboss Strength"
-            value={embossStrength}
-            min={0}
-            max={100}
-            step={5}
-            valueText={`${embossStrength}%`}
-            onChange={onEmbossStrengthChange}
-          />
+          <>
+            <RangeField
+              label="Emboss Strength"
+              value={embossStrength}
+              min={0}
+              max={100}
+              step={5}
+              valueText={`${embossStrength}%`}
+              onChange={onEmbossStrengthChange}
+            />
+            <div className={styles.gridTwo}>
+              <RangeField
+                label="Intensity"
+                value={embossIntensity}
+                min={0}
+                max={100}
+                step={5}
+                valueText={`${embossIntensity}%`}
+                onChange={onEmbossIntensityChange}
+              />
+              <RangeField
+                label="Depth"
+                value={embossDepth}
+                min={0}
+                max={100}
+                step={5}
+                valueText={`${embossDepth}%`}
+                onChange={onEmbossDepthChange}
+              />
+            </div>
+          </>
         ) : null}
 
         <div className={styles.gridTwo}>

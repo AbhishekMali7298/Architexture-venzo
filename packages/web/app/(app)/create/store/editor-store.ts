@@ -109,6 +109,8 @@ export interface EditorState {
   tileBackground: boolean;
   embossMode: boolean;
   embossStrength: number;
+  embossIntensity: number;
+  embossDepth: number;
 
   // History
   undoStack: HistoryEntry[];
@@ -164,6 +166,8 @@ export interface EditorState {
   setTileBackground: (show: boolean) => void;
   setEmbossMode: (value: boolean) => void;
   setEmbossStrength: (value: number) => void;
+  setEmbossIntensity: (value: number) => void;
+  setEmbossDepth: (value: number) => void;
 
   // History
   undo: () => void;
@@ -222,6 +226,8 @@ export const useEditorStore = create<EditorState>()(
     tileBackground: true,
     embossMode: isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type),
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
+    embossIntensity: 100,
+    embossDepth: 100,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -452,6 +458,8 @@ export const useEditorStore = create<EditorState>()(
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
         s.embossMode = isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
+        s.embossIntensity = 100;
+        s.embossDepth = 100;
         bumpRender(s);
       }),
 
@@ -491,6 +499,16 @@ export const useEditorStore = create<EditorState>()(
     setEmbossStrength: (value) =>
       set((s) => {
         s.embossStrength = clamp(Math.round(value), 0, 100);
+        bumpRender(s);
+      }),
+    setEmbossIntensity: (value) =>
+      set((s) => {
+        s.embossIntensity = clamp(Math.round(value), 0, 100);
+        bumpRender(s);
+      }),
+    setEmbossDepth: (value) =>
+      set((s) => {
+        s.embossDepth = clamp(Math.round(value), 0, 100);
         bumpRender(s);
       }),
 

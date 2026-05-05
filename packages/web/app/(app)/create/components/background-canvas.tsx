@@ -24,6 +24,8 @@ export function BackgroundCanvas() {
   const tileBackground = useEditorStore((s) => s.tileBackground);
   const embossMode = useEditorStore((s) => s.embossMode);
   const embossStrength = useEditorStore((s) => s.embossStrength);
+  const embossIntensity = useEditorStore((s) => s.embossIntensity);
+  const embossDepth = useEditorStore((s) => s.embossDepth);
   const svgPatternModule = useSvgPatternModule(config.pattern.type);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId
@@ -61,6 +63,8 @@ export function BackgroundCanvas() {
             materialImage,
             tileBackground,
             embossStrength,
+            embossIntensity,
+            embossDepth,
             svgPatternModule,
           })
         : renderBackground(ctx, config, w, h, {
@@ -92,6 +96,8 @@ export function BackgroundCanvas() {
     tileBackground,
     embossMode,
     embossStrength,
+    embossIntensity,
+    embossDepth,
     svgPatternModule,
   ]);
 

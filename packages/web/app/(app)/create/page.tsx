@@ -72,6 +72,10 @@ export default function CreatePage() {
   const setTileBackground = useEditorStore((state) => state.setTileBackground);
   const setEmbossMode = useEditorStore((state) => state.setEmbossMode);
   const setEmbossStrength = useEditorStore((state) => state.setEmbossStrength);
+  const embossIntensity = useEditorStore((state) => state.embossIntensity);
+  const embossDepth = useEditorStore((state) => state.embossDepth);
+  const setEmbossIntensity = useEditorStore((state) => state.setEmbossIntensity);
+  const setEmbossDepth = useEditorStore((state) => state.setEmbossDepth);
   const setUnits = useEditorStore((state) => state.setUnits);
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
@@ -254,8 +258,12 @@ export default function CreatePage() {
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}
+          embossIntensity={embossIntensity}
+          embossDepth={embossDepth}
           onEmbossModeChange={setEmbossMode}
           onEmbossStrengthChange={setEmbossStrength}
+          onEmbossIntensityChange={setEmbossIntensity}
+          onEmbossDepthChange={setEmbossDepth}
         />
       </CreateEditorShell>
 

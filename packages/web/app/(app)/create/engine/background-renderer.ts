@@ -144,19 +144,23 @@ export function drawEmbossStrokeEffect(
   scale: number,
   strokes: ReadonlyArray<PatternStroke>,
   strength = 1,
+  options?: { intensity?: number; depth?: number },
 ) {
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   if (!strokes.length || normalizedStrength <= 0) return;
 
+  const intensity = (options?.intensity ?? 100) / 100;
+  const depth = (options?.depth ?? 100) / 100;
+
   // Stroke-only SVG patterns can get visually dense at smaller module heights.
   // Scale the bevel/shadow effect with the on-screen stroke density so the
   // emboss doesn't overpower narrow repeats.
-  const densityFactor = Math.max(0.2, Math.min(1, scale / 0.75));
-  const embossOffset = Math.max(0.18, 1.15 * normalizedStrength * densityFactor);
-  const strokeWidth = Math.max(0.35, 0.9 * normalizedStrength * densityFactor);
-  const highlightAlpha = Math.min(0.68, 0.68 * normalizedStrength * densityFactor);
-  const shadowAlpha = Math.min(0.18, 0.18 * normalizedStrength * densityFactor);
-  const baseAlpha = Math.min(0.16, 0.16 * normalizedStrength * densityFactor);
+  const densityFactor = Math.max(0.4, Math.min(1.1, scale / 0.8));
+  const embossOffset = Math.max(0.22, 1.25 * normalizedStrength * densityFactor * depth);
+  const strokeWidth = Math.max(0.38, 1.0 * normalizedStrength * densityFactor * depth);
+  const highlightAlpha = Math.min(0.78, 0.78 * normalizedStrength * densityFactor * intensity);
+  const shadowAlpha = Math.min(0.38, 0.38 * normalizedStrength * densityFactor * intensity);
+  const baseAlpha = Math.min(0.22, 0.22 * normalizedStrength * densityFactor * intensity);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
     ctx.save();
@@ -470,19 +474,25 @@ export function drawEmbossEffect(
   scale: number,
   tiles: ReadonlyArray<PatternTile>,
   strength = 1,
+  options?: { intensity?: number; depth?: number },
 ) {
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   if (normalizedStrength <= 0) return;
+
+  const intensity = (options?.intensity ?? 100) / 100;
+  const depth = (options?.depth ?? 100) / 100;
+
   const clampedStrength = Math.sqrt(normalizedStrength);
 
-  // grooveWidth scales with tile density — wider when tiles are larger on screen
-  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.345);
-  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.2875);
-  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.5175);
-  const faceAlpha = 0.063 * clampedStrength;
-  const grooveAlpha = Math.min(0.322, 0.322 * clampedStrength);
-  const highlightAlpha = Math.min(0.414, 0.414 * clampedStrength);
-  const shadowAlpha = Math.min(0.207, 0.207 * clampedStrength);
+  // grooveWidth is kept stable across different pattern dimensions
+  const grooveWidth =
+    Math.max(2.2, Math.min(8.0, 5.0 * scale * depth)) * (0.7 + clampedStrength * 0.3);
+  const bevelOffset = Math.max(1.2, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
+  const faceAlpha = 0.08 * clampedStrength * intensity;
+  const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * intensity);
+  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
+  const shadowAlpha = Math.min(0.38, 0.38 * clampedStrength * intensity);
 
   ctx.save();
   ctx.lineCap = 'round';
@@ -548,6 +558,8 @@ export function renderEmbossBackground(
     materialImage?: CanvasImageSource | null;
     tileBackground?: boolean;
     embossStrength?: number;
+    embossIntensity?: number;
+    embossDepth?: number;
     svgPatternModule?: SvgPatternModule | null;
   },
 ) {
@@ -568,6 +580,8 @@ export function renderEmbossBackground(
   const frameWidth = layout.totalWidth * scale;
   const frameHeight = layout.totalHeight * scale;
   const embossStrength = (options?.embossStrength ?? 100) / 100;
+  const embossIntensity = options?.embossIntensity ?? 100;
+  const embossDepth = options?.embossDepth ?? 100;
 
   if (options?.tileBackground === false) {
     // Preview-only mode: fill preview area with material, emboss on top
@@ -584,8 +598,14 @@ export function renderEmbossBackground(
       image: options?.materialImage,
     });
 
-    drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength);
-    drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength);
+    drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength, {
+      intensity: embossIntensity,
+      depth: embossDepth,
+    });
+    drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength, {
+      intensity: embossIntensity,
+      depth: embossDepth,
+    });
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
       drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
     }
@@ -624,8 +644,19 @@ export function renderEmbossBackground(
     const offsetX = bounds.x - columnsBefore * repeatStep.x * scale;
     const offsetY = bounds.y - rowsBefore * repeatStep.y * scale;
 
-    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength);
-    drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, extendedLayout.strokes, embossStrength);
+    drawEmbossEffect(ctx, offsetX, offsetY, scale, extendedLayout.tiles, embossStrength, {
+      intensity: embossIntensity,
+      depth: embossDepth,
+    });
+    drawEmbossStrokeEffect(
+      ctx,
+      offsetX,
+      offsetY,
+      scale,
+      extendedLayout.strokes,
+      embossStrength,
+      { intensity: embossIntensity, depth: embossDepth },
+    );
     if (shouldDrawEmbossStrokeOutline(extendedLayout.tiles, extendedLayout.strokes)) {
       drawPatternStrokes(ctx, offsetX, offsetY, scale, extendedLayout.strokes);
     }
@@ -644,8 +675,14 @@ export function renderEmbossBackground(
     const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
-      drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength);
-      drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, embossStrength);
+      drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, embossStrength, {
+        intensity: embossIntensity,
+        depth: embossDepth,
+      });
+      drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, embossStrength, {
+        intensity: embossIntensity,
+        depth: embossDepth,
+      });
       if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
         drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
       }
