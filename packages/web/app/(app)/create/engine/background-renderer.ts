@@ -125,12 +125,11 @@ export function drawEmbossStrokeEffect(
   // Stroke-only SVG patterns can get visually dense at smaller module heights.
   // Scale the bevel/shadow effect with the on-screen stroke density so the
   // emboss doesn't overpower narrow repeats.
-  const densityFactor = Math.max(0.4, Math.min(1.2, scale / 0.8));
-  const embossOffset = Math.max(0.2, 1.2 * normalizedStrength * densityFactor * depth);
-  const strokeWidth = Math.max(0.8, 3.8 * normalizedStrength * densityFactor * depth);
-  const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * densityFactor * intensity);
-  const shadowAlpha = Math.min(0.5, 0.6 * normalizedStrength * densityFactor * intensity);
-  const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * densityFactor * intensity);
+  const embossOffset = Math.max(0.1, 0.5 * normalizedStrength * depth);
+  const strokeWidth = Math.max(0.4, 1.6 * normalizedStrength * depth);
+  const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * intensity);
+  const shadowAlpha = Math.min(0.5, 0.6 * normalizedStrength * intensity);
+  const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * intensity);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
     ctx.save();
@@ -420,9 +419,8 @@ export function drawEmbossEffect(
 
   const clampedStrength = Math.sqrt(normalizedStrength);
 
-  // grooveWidth is kept stable across different pattern dimensions
-  const grooveWidth =
-    Math.max(0.8, Math.min(8.0, 5.0 * scale * depth)) * (0.7 + clampedStrength * 0.3);
+  // grooveWidth is kept stable across different pattern dimensions (visual consistency)
+  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3);
   const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
   const faceAlpha = 0.08 * clampedStrength * intensity;
