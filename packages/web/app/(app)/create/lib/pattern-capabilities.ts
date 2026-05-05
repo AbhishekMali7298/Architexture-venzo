@@ -7,7 +7,6 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
   'chequer_pattern',
   'concave_pattern',
   'convex_pattern',
-  'grate_pattern',
   'rhombus_pattern',
   'ripple_pattern',
   'weave_pattern',
