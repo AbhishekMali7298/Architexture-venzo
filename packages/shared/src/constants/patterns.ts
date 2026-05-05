@@ -135,7 +135,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 100,
+      embossDepth: 10,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -162,7 +162,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 100,
+      embossDepth: 10,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -299,7 +299,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 100,
+      embossDepth: 10,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
