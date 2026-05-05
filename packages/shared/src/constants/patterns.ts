@@ -223,7 +223,14 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Fine vertical ripple module with repeated narrow grooves',
     previewPath: '',
     previewAssetPath: 'patterns/impress/ripple_pattern.svg',
-    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
+    defaults: {
+      rows: 1,
+      columns: 1,
+      angle: 0,
+      stretchers: 1,
+      weaves: 1,
+      embossDepth: 0,
+    },
     parameterRanges: {
       rows: { min: 1, max: 20 },
       columns: { min: 1, max: 20 },
