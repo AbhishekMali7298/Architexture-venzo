@@ -74,12 +74,18 @@ export function StackSettingsSection({
       </button>
 
       <div className={styles.gridTwo}>
-        <NumberField label="Rows" value={rows} min={1} max={50} onChange={onRowsChange} />
+        <NumberField
+          label="Rows"
+          value={rows}
+          min={1}
+          max={patternDef?.parameterRanges.rows.max ?? 10}
+          onChange={onRowsChange}
+        />
         <NumberField
           label="Columns"
           value={columns}
           min={isHerringbone ? 2 : 1}
-          max={50}
+          max={patternDef?.parameterRanges.columns.max ?? 10}
           onChange={handleColumnsChange}
         />
       </div>

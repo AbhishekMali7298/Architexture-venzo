@@ -69,7 +69,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function normalizePatternColumns(patternType: PatternType, columns: number) {
-  const safeColumns = Math.max(1, Math.min(20, Math.round(columns)));
+  const safeColumns = Math.max(1, Math.min(10, Math.round(columns)));
 
   if (patternType !== 'herringbone') {
     return safeColumns;
@@ -79,7 +79,7 @@ function normalizePatternColumns(patternType: PatternType, columns: number) {
     return 2;
   }
 
-  return safeColumns % 2 === 0 ? safeColumns : Math.min(20, safeColumns + 1);
+  return safeColumns % 2 === 0 ? safeColumns : Math.min(10, safeColumns + 1);
 }
 
 function applyPatternJointDefaults(config: TextureConfig, patternType: PatternType) {
@@ -258,7 +258,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Rows → ${rows}`);
         const definition = getPatternByType(s.config.pattern.type);
-        const max = definition?.parameterRanges?.rows?.max ?? 20;
+        const max = definition?.parameterRanges?.rows?.max ?? 10;
         s.config.pattern.rows = Math.max(1, Math.min(max, Math.round(rows)));
         bumpRender(s);
       }),
@@ -267,7 +267,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, `Columns → ${columns}`);
         const definition = getPatternByType(s.config.pattern.type);
-        const max = definition?.parameterRanges?.columns?.max ?? 20;
+        const max = definition?.parameterRanges?.columns?.max ?? 10;
         const targetColumns = Math.max(1, Math.min(max, Math.round(columns)));
         s.config.pattern.columns = normalizePatternColumns(s.config.pattern.type, targetColumns);
         bumpRender(s);
