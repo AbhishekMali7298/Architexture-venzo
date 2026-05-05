@@ -11,7 +11,7 @@ import type {
   MaterialAssetRef,
   MaterialDefinition,
 } from '@textura/shared';
-import { getDefaultPatternConfig, getMaterialById } from '@textura/shared';
+import { getDefaultPatternConfig, getMaterialById, getPatternByType } from '@textura/shared';
 import { isImpressPattern } from '../lib/pattern-capabilities';
 
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
@@ -245,6 +245,20 @@ export const useEditorStore = create<EditorState>()(
         };
         applyPatternJointDefaults(s.config, nextPattern.type);
         s.embossMode = isImpressPattern(type);
+
+        const definition = getPatternByType(type);
+        if (definition?.defaults) {
+          if (definition.defaults.embossStrength !== undefined) {
+            s.embossStrength = definition.defaults.embossStrength;
+          }
+          if (definition.defaults.embossIntensity !== undefined) {
+            s.embossIntensity = definition.defaults.embossIntensity;
+          }
+          if (definition.defaults.embossDepth !== undefined) {
+            s.embossDepth = definition.defaults.embossDepth;
+          }
+        }
+
         bumpRender(s);
       }),
 

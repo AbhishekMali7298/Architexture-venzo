@@ -19,6 +19,9 @@ export interface PatternDefinition {
     angle: number;
     stretchers: number;
     weaves: number;
+    embossStrength?: number;
+    embossIntensity?: number;
+    embossDepth?: number;
   };
   parameterRanges: {
     rows: { min: number; max: number };
@@ -126,7 +129,14 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Slim vertical slat module with concave channel spacing',
     previewPath: '',
     previewAssetPath: 'patterns/impress/concave_pattern.svg',
-    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
+    defaults: {
+      rows: 1,
+      columns: 1,
+      angle: 0,
+      stretchers: 1,
+      weaves: 1,
+      embossDepth: 10,
+    },
     parameterRanges: {
       rows: { min: 1, max: 20 },
       columns: { min: 1, max: 20 },
