@@ -11,10 +11,6 @@ import styles from './create-editor.module.css';
 // Implemented pattern types
 const PATTERN_GROUPS: Array<{ title: string; patternTypes: PatternType[] }> = [
   {
-    title: 'Testing Category',
-    patternTypes: ['stack_bond', 'stretcher_bond', 'flemish_bond', 'herringbone', 'chevron'],
-  },
-  {
     title: 'Impress',
     patternTypes: IMPRESS_PATTERN_TYPES,
   },

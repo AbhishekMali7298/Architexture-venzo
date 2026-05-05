@@ -27,7 +27,7 @@ const MAX_HISTORY = 50;
 const MIN_JOINT_SIZE = -500;
 const MAX_JOINT_SIZE = 500;
 const PATTERN_JOINT_DEFAULTS: Record<
-  PatternType,
+  string,
   { horizontalSize: number; verticalSize: number; linkedDimensions: boolean }
 > = {
   venzowood: {

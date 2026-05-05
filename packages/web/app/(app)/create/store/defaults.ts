@@ -9,8 +9,8 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   units: 'mm',
 
   pattern: {
-    type: 'stack_bond',
-    category: 'brick_bond',
+    type: 'venzowood',
+    category: 'geometric',
     orientation: 'horizontal',
     rows: 1,
     columns: 1,
