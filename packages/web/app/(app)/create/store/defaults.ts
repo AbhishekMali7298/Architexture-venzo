@@ -22,14 +22,14 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   materials: [
     {
       id: 'mat_1',
-      definitionId: 'graphite',
+      definitionId: 'flamed-beech',
       source: {
         type: 'image',
         asset: {
-          path: '/materials/graphite.jpg',
+          path: '/materials/FLAMED BEECH.jpg',
           mimeType: 'image/jpeg',
         },
-        fallbackColor: '#4a4a4a',
+        fallbackColor: '#b78658',
       },
       uploadWidth: null,
       width: 400,
