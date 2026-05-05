@@ -135,7 +135,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 20,
+      embossDepth: 10,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -156,7 +156,14 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Wide vertical slat module with convex channel spacing',
     previewPath: '',
     previewAssetPath: 'patterns/impress/convex_pattern.svg',
-    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
+    defaults: {
+      rows: 1,
+      columns: 1,
+      angle: 0,
+      stretchers: 1,
+      weaves: 1,
+      embossDepth: 10,
+    },
     parameterRanges: {
       rows: { min: 1, max: 20 },
       columns: { min: 1, max: 20 },
