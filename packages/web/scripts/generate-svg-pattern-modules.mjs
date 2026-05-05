@@ -170,7 +170,8 @@ function parsePathPoints(d) {
   let y = 0;
   let subpathStartX = 0;
   let subpathStartY = 0;
-  const points = [];
+  const subpaths = [];
+  let currentPoints = [];
   let isClosed = false;
   let lastCubicControlX = null;
   let lastCubicControlY = null;
@@ -197,6 +198,12 @@ function parsePathPoints(d) {
     const relative = command === lower;
 
     if (lower === 'm') {
+      if (currentPoints.length >= 2) {
+        subpaths.push({ points: currentPoints, isClosed });
+      }
+      currentPoints = [];
+      isClosed = false;
+
       const nx = readNumber();
       const ny = readNumber();
       if (nx === null || ny === null) break;
@@ -204,7 +211,7 @@ function parsePathPoints(d) {
       y = relative ? y + ny : ny;
       subpathStartX = x;
       subpathStartY = y;
-      points.push({ x, y });
+      currentPoints.push({ x, y });
       command = relative ? 'l' : 'L';
       lastCubicControlX = null;
       lastCubicControlY = null;
@@ -219,7 +226,7 @@ function parsePathPoints(d) {
       if (nx === null || ny === null) continue;
       x = relative ? x + nx : nx;
       y = relative ? y + ny : ny;
-      points.push({ x, y });
+      currentPoints.push({ x, y });
       lastCubicControlX = null;
       lastCubicControlY = null;
       lastQuadraticControlX = null;
@@ -231,7 +238,7 @@ function parsePathPoints(d) {
       const nx = readNumber();
       if (nx === null) continue;
       x = relative ? x + nx : nx;
-      points.push({ x, y });
+      currentPoints.push({ x, y });
       lastCubicControlX = null;
       lastCubicControlY = null;
       lastQuadraticControlX = null;
@@ -243,7 +250,7 @@ function parsePathPoints(d) {
       const ny = readNumber();
       if (ny === null) continue;
       y = relative ? y + ny : ny;
-      points.push({ x, y });
+      currentPoints.push({ x, y });
       lastCubicControlX = null;
       lastCubicControlY = null;
       lastQuadraticControlX = null;
@@ -264,7 +271,7 @@ function parsePathPoints(d) {
       const p2 = { x: relative ? x + x2 : x2, y: relative ? y + y2 : y2 };
       const p3 = { x: relative ? x + x3 : x3, y: relative ? y + y3 : y3 };
       for (let sample = 1; sample <= 24; sample++) {
-        points.push(cubicPoint(p0, p1, p2, p3, sample / 24));
+        currentPoints.push(cubicPoint(p0, p1, p2, p3, sample / 24));
       }
       x = p3.x;
       y = p3.y;
@@ -289,7 +296,7 @@ function parsePathPoints(d) {
       const p2 = { x: relative ? x + x2 : x2, y: relative ? y + y2 : y2 };
       const p3 = { x: relative ? x + x3 : x3, y: relative ? y + y3 : y3 };
       for (let sample = 1; sample <= 24; sample++) {
-        points.push(cubicPoint(p0, p1, p2, p3, sample / 24));
+        currentPoints.push(cubicPoint(p0, p1, p2, p3, sample / 24));
       }
       x = p3.x;
       y = p3.y;
@@ -310,7 +317,7 @@ function parsePathPoints(d) {
       const p1 = { x: relative ? x + x1 : x1, y: relative ? y + y1 : y1 };
       const p2 = { x: relative ? x + x2 : x2, y: relative ? y + y2 : y2 };
       for (let sample = 1; sample <= 16; sample++) {
-        points.push(quadraticPoint(p0, p1, p2, sample / 16));
+        currentPoints.push(quadraticPoint(p0, p1, p2, sample / 16));
       }
       x = p2.x;
       y = p2.y;
@@ -332,7 +339,7 @@ function parsePathPoints(d) {
       };
       const p2 = { x: relative ? x + x2 : x2, y: relative ? y + y2 : y2 };
       for (let sample = 1; sample <= 16; sample++) {
-        points.push(quadraticPoint(p0, p1, p2, sample / 16));
+        currentPoints.push(quadraticPoint(p0, p1, p2, sample / 16));
       }
       x = p2.x;
       y = p2.y;
@@ -354,7 +361,7 @@ function parsePathPoints(d) {
       if ([rx, ry, rotation, largeArcFlag, sweepFlag, nx, ny].some((value) => value === null)) continue;
       const targetX = relative ? x + nx : nx;
       const targetY = relative ? y + ny : ny;
-      points.push(...arcToPoints(x, y, rx, ry, rotation, largeArcFlag, sweepFlag, targetX, targetY));
+      currentPoints.push(...arcToPoints(x, y, rx, ry, rotation, largeArcFlag, sweepFlag, targetX, targetY));
       x = targetX;
       y = targetY;
       lastCubicControlX = null;
@@ -375,8 +382,11 @@ function parsePathPoints(d) {
     return null;
   }
 
-  if (points.length < 2) return null;
-  return { points, isClosed };
+  if (currentPoints.length >= 2) {
+    subpaths.push({ points: currentPoints, isClosed });
+  }
+
+  return subpaths;
 }
 
 function parseSvgViewBox(svg) {
@@ -553,32 +563,51 @@ async function generate() {
     for (const pathMatch of pathMatches) {
       const d = pathMatch[1];
       if (!d) continue;
-      const parsed = parsePathPoints(d);
-      if (!parsed) continue;
+      const parsedSubpaths = parsePathPoints(d);
+      if (!parsedSubpaths) continue;
 
-      if (!parsed.isClosed) {
-        strokes.push({
-          points: parsed.points.map((point) => ({ x: point.x - viewBox.minX, y: point.y - viewBox.minY })),
-          closed: false,
+      for (let i = 0; i < parsedSubpaths.length; i++) {
+        const parsed = parsedSubpaths[i];
+        let finalPoints = parsed.points;
+        let isClosed = parsed.isClosed;
+
+        // Specialized logic for grate_pattern: join subpaths into solid tiles
+        if (patternType === 'grate_pattern' && parsedSubpaths.length === 2 && i === 0) {
+          const nextParsed = parsedSubpaths[1];
+          // Join the two open subpaths into a single closed loop
+          finalPoints = [...parsed.points, ...[...nextParsed.points].reverse()];
+          isClosed = true;
+          // Skip the next subpath since we've merged it
+          i++;
+        }
+
+        if (!isClosed) {
+          strokes.push({
+            points: finalPoints.map((point) => ({
+              x: point.x - viewBox.minX,
+              y: point.y - viewBox.minY,
+            })),
+            closed: false,
+          });
+          continue;
+        }
+
+        const minX = Math.min(...finalPoints.map((point) => point.x));
+        const maxX = Math.max(...finalPoints.map((point) => point.x));
+        const minY = Math.min(...finalPoints.map((point) => point.y));
+        const maxY = Math.max(...finalPoints.map((point) => point.y));
+        const width = maxX - minX;
+        const height = maxY - minY;
+        if (width <= 0 || height <= 0) continue;
+
+        tiles.push({
+          x: minX - viewBox.minX,
+          y: minY - viewBox.minY,
+          width,
+          height,
+          clipPath: finalPoints.map((point) => ({ x: point.x - minX, y: point.y - minY })),
         });
-        continue;
       }
-
-      const minX = Math.min(...parsed.points.map((point) => point.x));
-      const maxX = Math.max(...parsed.points.map((point) => point.x));
-      const minY = Math.min(...parsed.points.map((point) => point.y));
-      const maxY = Math.max(...parsed.points.map((point) => point.y));
-      const width = maxX - minX;
-      const height = maxY - minY;
-      if (width <= 0 || height <= 0) continue;
-
-      tiles.push({
-        x: minX - viewBox.minX,
-        y: minY - viewBox.minY,
-        width,
-        height,
-        clipPath: parsed.points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
-      });
     }
 
     for (const circleMatch of circleMatches) {

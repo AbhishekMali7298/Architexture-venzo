@@ -155,12 +155,12 @@ export function drawEmbossStrokeEffect(
   // Stroke-only SVG patterns can get visually dense at smaller module heights.
   // Scale the bevel/shadow effect with the on-screen stroke density so the
   // emboss doesn't overpower narrow repeats.
-  const densityFactor = Math.max(0.4, Math.min(1.1, scale / 0.8));
-  const embossOffset = Math.max(0.22, 1.25 * normalizedStrength * densityFactor * depth);
-  const strokeWidth = Math.max(0.38, 1.0 * normalizedStrength * densityFactor * depth);
-  const highlightAlpha = Math.min(0.78, 0.78 * normalizedStrength * densityFactor * intensity);
-  const shadowAlpha = Math.min(0.38, 0.38 * normalizedStrength * densityFactor * intensity);
-  const baseAlpha = Math.min(0.22, 0.22 * normalizedStrength * densityFactor * intensity);
+  const densityFactor = Math.max(0.4, Math.min(1.2, scale / 0.8));
+  const embossOffset = Math.max(0.3, 1.2 * normalizedStrength * densityFactor * depth);
+  const strokeWidth = Math.max(1.0, 3.8 * normalizedStrength * densityFactor * depth);
+  const highlightAlpha = Math.min(0.75, 0.8 * normalizedStrength * densityFactor * intensity);
+  const shadowAlpha = Math.min(0.45, 0.5 * normalizedStrength * densityFactor * intensity);
+  const baseAlpha = Math.min(0.25, 0.3 * normalizedStrength * densityFactor * intensity);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number) => {
     ctx.save();
@@ -191,9 +191,14 @@ export function drawEmbossStrokeEffect(
     ctx.restore();
   };
 
-  drawOffsetStroke(-embossOffset, -embossOffset, '#fff8ef', highlightAlpha);
-  drawOffsetStroke(embossOffset, embossOffset, '#2f2416', shadowAlpha);
-  drawOffsetStroke(0, 0, '#8d7453', baseAlpha);
+  // Shadow layer
+  drawOffsetStroke(embossOffset, embossOffset, '#000000', shadowAlpha);
+  
+  // Highlight layer
+  drawOffsetStroke(-embossOffset, -embossOffset, '#ffffff', highlightAlpha);
+  
+  // Center face layer (slightly thinner to create bevel effect)
+  drawOffsetStroke(0, 0, '#ffffff', baseAlpha, strokeWidth * 0.7);
 }
 
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {

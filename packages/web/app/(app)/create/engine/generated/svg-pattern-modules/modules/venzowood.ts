@@ -242,7 +242,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 16806.23,
           "y": 3810.34
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 13232.23,
           "y": 3821.58
@@ -250,7 +255,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 14781.42,
           "y": 5370.77
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 15161.79,
           "y": 5747.360000000001
@@ -258,7 +268,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 24263.480000000003,
           "y": 14848.08
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 24639.9,
           "y": 15228.22
@@ -266,7 +281,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 26260.63,
           "y": 16848.78
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 26355.64,
           "y": 13152.07
@@ -274,7 +294,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 15158.64,
           "y": 24349.059999999998
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 14858.109999999999,
           "y": 24651.859999999997
@@ -282,7 +307,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 13251.019999999999,
           "y": 26266.249999999996
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 16801.809999999998,
           "y": 26288.799999999996
@@ -290,7 +320,12 @@ const svgPatternModule: SvgPatternModule = {
         {
           "x": 5701.369999999997,
           "y": 15188.359999999995
-        },
+        }
+      ],
+      "closed": false
+    },
+    {
+      "points": [
         {
           "x": 5406.459999999997,
           "y": 14893.449999999995

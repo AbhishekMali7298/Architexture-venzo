@@ -18,6 +18,7 @@ export const SVG_PATTERN_MODULE_TYPES = [
   "rhombus_pattern",
   "ripple_pattern",
   "weave_pattern",
+  "grate_pattern",
   "venzowood_4",
   "venzowood_5"
 ] as const;
@@ -32,6 +33,7 @@ export const SVG_PATTERN_MODULE_LOADERS: Partial<Record<PatternType, SvgPatternM
   "rhombus_pattern": () => import('./modules/rhombus_pattern').then((mod) => mod.default),
   "ripple_pattern": () => import('./modules/ripple_pattern').then((mod) => mod.default),
   "weave_pattern": () => import('./modules/weave_pattern').then((mod) => mod.default),
+  "grate_pattern": () => import('./modules/grate_pattern').then((mod) => mod.default),
   "venzowood_4": () => import('./modules/venzowood_4').then((mod) => mod.default),
   "venzowood_5": () => import('./modules/venzowood_5').then((mod) => mod.default),
 };

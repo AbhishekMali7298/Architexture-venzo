@@ -135,7 +135,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 10,
+      embossDepth: 100,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -162,7 +162,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 10,
+      embossDepth: 100,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },
@@ -281,6 +281,33 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     },
     defaultUnitWidth: 860,
     defaultUnitHeight: 860,
+  },
+  {
+    type: 'grate_pattern',
+    dimType: 'multi',
+    category: 'geometric',
+    rowColMode: 'module',
+    rowMultiple: 1,
+    columnMultiple: 1,
+    displayName: 'Grate',
+    description: 'Industrial grate module with repeating oval vent slots',
+    previewPath: '',
+    previewAssetPath: 'patterns/impress/grate_pattern.svg',
+    defaults: {
+      rows: 1,
+      columns: 1,
+      angle: 0,
+      stretchers: 1,
+      weaves: 1,
+      embossDepth: 100,
+    },
+    parameterRanges: {
+      rows: { min: 1, max: 20 },
+      columns: { min: 1, max: 20 },
+      angle: { min: 0, max: 0, step: 1 },
+    },
+    defaultUnitWidth: 339.51,
+    defaultUnitHeight: 1713.38,
   },
 ];
 
