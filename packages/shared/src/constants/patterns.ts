@@ -135,7 +135,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: 0,
       stretchers: 1,
       weaves: 1,
-      embossDepth: 10,
+      embossDepth: 20,
     },
     parameterRanges: {
       rows: { min: 1, max: 20 },

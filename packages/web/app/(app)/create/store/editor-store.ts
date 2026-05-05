@@ -227,7 +227,7 @@ export const useEditorStore = create<EditorState>()(
     embossMode: isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type),
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
     embossIntensity: 100,
-    embossDepth: 100,
+    embossDepth: 20,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -249,7 +249,7 @@ export const useEditorStore = create<EditorState>()(
         const definition = getPatternByType(type);
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
-        s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+        s.embossDepth = definition?.defaults?.embossDepth ?? 20;
 
         bumpRender(s);
       }),
