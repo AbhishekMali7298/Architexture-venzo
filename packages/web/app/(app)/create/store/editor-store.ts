@@ -247,17 +247,9 @@ export const useEditorStore = create<EditorState>()(
         s.embossMode = isImpressPattern(type);
 
         const definition = getPatternByType(type);
-        if (definition?.defaults) {
-          if (definition.defaults.embossStrength !== undefined) {
-            s.embossStrength = definition.defaults.embossStrength;
-          }
-          if (definition.defaults.embossIntensity !== undefined) {
-            s.embossIntensity = definition.defaults.embossIntensity;
-          }
-          if (definition.defaults.embossDepth !== undefined) {
-            s.embossDepth = definition.defaults.embossDepth;
-          }
-        }
+        s.embossStrength = definition?.defaults?.embossStrength ?? 100;
+        s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
+        s.embossDepth = definition?.defaults?.embossDepth ?? 100;
 
         bumpRender(s);
       }),
