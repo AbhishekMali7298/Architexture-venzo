@@ -652,6 +652,8 @@ export function getDefaultPatternConfig(type: PatternType): PatternConfig | unde
     category: def.category,
     orientation: 'horizontal',
     ...def.defaults,
+    rows: 1,
+    columns: 1,
   };
 }
 

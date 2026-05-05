@@ -3,17 +3,17 @@ import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 import { useEditorStore } from './editor-store';
 
 describe('editor store', () => {
-  it('enables embossed surface by default and after reset', () => {
+  it('restores the default emboss state and strength after reset', () => {
     const store = useEditorStore.getState();
 
-    expect(store.embossMode).toBe(true);
+    expect(store.embossMode).toBe(false);
     expect(store.embossStrength).toBe(100);
 
     store.setEmbossMode(false);
     store.setEmbossStrength(55);
     store.resetProject();
 
-    expect(useEditorStore.getState().embossMode).toBe(true);
+    expect(useEditorStore.getState().embossMode).toBe(false);
     expect(useEditorStore.getState().embossStrength).toBe(100);
   });
 
@@ -89,5 +89,20 @@ describe('editor store', () => {
     useEditorStore.getState().setPatternType('grate_pattern');
 
     expect(useEditorStore.getState().embossMode).toBe(true);
+  });
+
+  it('resets every selected pattern to one row and one column by default', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternRows(7);
+    useEditorStore.getState().setPatternColumns(5);
+    useEditorStore.getState().setPatternType('venzowood_3');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.rows).toBe(1);
+    expect(config.pattern.columns).toBe(1);
   });
 });
