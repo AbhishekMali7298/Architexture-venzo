@@ -30,6 +30,14 @@ const MODULE_OVERRIDES = {
     referenceTileWidth: 6369.43,
     referenceTileHeight: 17834.4,
   },
+  chisel_pattern: {
+    referenceTileWidth: 2000,
+    referenceTileHeight: 2000,
+    repeatWidth: 2000,
+    repeatHeight: 2000,
+    originX: 0,
+    originY: 0,
+  },
 };
 
 function getContentBounds(tiles, strokes, viewBox) {
@@ -591,17 +599,26 @@ async function generate() {
           });
           continue;
         }
-
         let minX = Number.POSITIVE_INFINITY;
         let maxX = Number.NEGATIVE_INFINITY;
         let minY = Number.POSITIVE_INFINITY;
         let maxY = Number.NEGATIVE_INFINITY;
 
         for (const point of finalPoints) {
-          if (point.x < minX) minX = point.x;
-          if (point.x > maxX) maxX = point.x;
-          if (point.y < minY) minY = point.y;
-          if (point.y > maxY) maxY = point.y;
+          minX = Math.min(minX, point.x);
+          maxX = Math.max(maxX, point.x);
+          minY = Math.min(minY, point.y);
+          maxY = Math.max(maxY, point.y);
+        }
+
+        // Filtering logic: skip paths entirely outside the viewBox
+        if (
+          maxX < viewBox.minX ||
+          minX > viewBox.minX + viewBox.width ||
+          maxY < viewBox.minY ||
+          minY > viewBox.minY + viewBox.height
+        ) {
+          continue;
         }
 
         const width = maxX - minX;

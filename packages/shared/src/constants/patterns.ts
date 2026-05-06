@@ -346,8 +346,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 10 },
       angle: { min: 0, max: 0, step: 1 },
     },
-    defaultUnitWidth: 17.84,
-    defaultUnitHeight: 51.62,
+    defaultUnitWidth: 50.0,
+    defaultUnitHeight: 50.0,
   },
   {
     type: 'fibra_pattern',
