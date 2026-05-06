@@ -6,14 +6,14 @@ describe('editor store', () => {
   it('restores the default emboss state and strength after reset', () => {
     const store = useEditorStore.getState();
 
-    expect(store.embossMode).toBe(false);
+    expect(store.embossMode).toBe(true);
     expect(store.embossStrength).toBe(100);
 
     store.setEmbossMode(false);
     store.setEmbossStrength(55);
     store.resetProject();
 
-    expect(useEditorStore.getState().embossMode).toBe(false);
+    expect(useEditorStore.getState().embossMode).toBe(true);
     expect(useEditorStore.getState().embossStrength).toBe(100);
   });
 
@@ -48,11 +48,11 @@ describe('editor store', () => {
       .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
 
     useEditorStore.getState().setPatternType('venzowood_3');
-    useEditorStore.getState().setPatternType('stack_bond');
+    useEditorStore.getState().setPatternType('rhombus_pattern');
 
     const { config } = useEditorStore.getState();
 
-    expect(config.pattern.type).toBe('stack_bond');
+    expect(config.pattern.type).toBe('rhombus_pattern');
     expect(config.joints.horizontalSize).toBe(5);
     expect(config.joints.verticalSize).toBe(5);
     expect(config.joints.linkedDimensions).toBe(true);
@@ -150,6 +150,16 @@ describe('editor store', () => {
       .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
 
     useEditorStore.getState().setPatternType('grate_pattern');
+
+    expect(useEditorStore.getState().embossMode).toBe(true);
+  });
+
+  it('keeps emboss mode enabled for vita component patterns', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('venzowood_4');
 
     expect(useEditorStore.getState().embossMode).toBe(true);
   });

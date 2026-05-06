@@ -32,5 +32,5 @@ export function isVitaComponentPattern(patternType: PatternType) {
 }
 
 export function supportsEmbossPattern(patternType: PatternType) {
-  return !isVitaComponentPattern(patternType);
+  return isImpressPattern(patternType) || isVitaComponentPattern(patternType);
 }

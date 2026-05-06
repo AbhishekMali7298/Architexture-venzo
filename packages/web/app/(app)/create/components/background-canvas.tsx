@@ -74,6 +74,7 @@ export function BackgroundCanvas() {
         const previewBounds = shouldRenderEmboss
           ? renderEmbossBackground(ctx, config, w, h, {
               materialImage,
+              jointImage,
               tileBackground,
               embossStrength,
               embossIntensity,

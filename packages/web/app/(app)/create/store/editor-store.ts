@@ -12,7 +12,7 @@ import type {
   MaterialDefinition,
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById, getPatternByType } from '@textura/shared';
-import { isImpressPattern } from '../lib/pattern-capabilities';
+import { isImpressPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
@@ -224,7 +224,7 @@ export const useEditorStore = create<EditorState>()(
     zoom: 1,
     showBorder: true,
     tileBackground: true,
-    embossMode: isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type),
+    embossMode: supportsEmbossPattern(DEFAULT_TEXTURE_CONFIG.pattern.type),
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
     embossIntensity: 100,
     embossDepth: 100,
@@ -244,7 +244,7 @@ export const useEditorStore = create<EditorState>()(
           ...nextPattern,
         };
         applyPatternJointDefaults(s.config, nextPattern.type);
-        s.embossMode = isImpressPattern(type);
+        s.embossMode = supportsEmbossPattern(type);
 
         const definition = getPatternByType(type);
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
@@ -459,7 +459,7 @@ export const useEditorStore = create<EditorState>()(
         }
 
         s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
-        s.embossMode = isImpressPattern(config.pattern.type);
+        s.embossMode = supportsEmbossPattern(config.pattern.type);
         bumpRender(s);
       }),
 
@@ -467,7 +467,7 @@ export const useEditorStore = create<EditorState>()(
       set((s) => {
         pushHistory(s, 'Reset project');
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
-        s.embossMode = isImpressPattern(DEFAULT_TEXTURE_CONFIG.pattern.type);
+        s.embossMode = supportsEmbossPattern(DEFAULT_TEXTURE_CONFIG.pattern.type);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
         s.embossIntensity = 100;
         s.embossDepth = 100;

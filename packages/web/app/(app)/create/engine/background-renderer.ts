@@ -4,6 +4,7 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
+import { isVitaComponentPattern } from '../lib/pattern-capabilities';
 
 function getPreviewBounds(
   layout: ReturnType<typeof getPatternLayout>,
@@ -114,17 +115,15 @@ export function drawEmbossStrokeEffect(
   scale: number,
   strokes: ReadonlyArray<PatternStroke>,
   strength = 1,
-  options?: { intensity?: number; depth?: number },
+  options?: { intensity?: number; depth?: number; reverse?: boolean },
 ) {
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   if (!strokes.length || normalizedStrength <= 0) return;
 
   const intensity = (options?.intensity ?? 100) / 100;
   const depth = (options?.depth ?? 100) / 100;
+  const reverse = options?.reverse ?? false;
 
-  // Stroke-only SVG patterns can get visually dense at smaller module heights.
-  // Scale the bevel/shadow effect with the on-screen stroke density so the
-  // emboss doesn't overpower narrow repeats.
   const embossOffset = Math.max(0.1, 0.5 * normalizedStrength * depth);
   const strokeWidth = Math.max(0.4, 1.6 * normalizedStrength * depth);
   const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * intensity);
@@ -161,10 +160,10 @@ export function drawEmbossStrokeEffect(
   };
 
   // Shadow layer
-  drawOffsetStroke(embossOffset, embossOffset, '#000000', shadowAlpha);
+  drawOffsetStroke(reverse ? -embossOffset : embossOffset, reverse ? -embossOffset : embossOffset, '#000000', shadowAlpha);
   
   // Highlight layer
-  drawOffsetStroke(-embossOffset, -embossOffset, '#ffffff', highlightAlpha);
+  drawOffsetStroke(reverse ? embossOffset : -embossOffset, reverse ? embossOffset : -embossOffset, '#ffffff', highlightAlpha);
   
   // Center face layer (slightly thinner to create bevel effect)
   drawOffsetStroke(0, 0, '#ffffff', baseAlpha, strokeWidth * 0.7);
@@ -418,13 +417,14 @@ export function drawEmbossEffect(
   scale: number,
   tiles: ReadonlyArray<PatternTile>,
   strength = 1,
-  options?: { intensity?: number; depth?: number },
+  options?: { intensity?: number; depth?: number; reverse?: boolean },
 ) {
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   if (normalizedStrength <= 0) return;
 
   const intensity = (options?.intensity ?? 100) / 100;
   const depth = (options?.depth ?? 100) / 100;
+  const reverse = options?.reverse ?? false;
 
   const clampedStrength = Math.sqrt(normalizedStrength);
 
@@ -447,25 +447,29 @@ export function drawEmbossEffect(
       y: offsetY + p.y * scale,
     }));
 
-    // 1. Slightly brighten the raised face (the interior of each cell is elevated)
+    // 1. Face shading
     tracePolygonPath(ctx, pts);
-    ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
+    if (reverse) {
+      // Recessed look: darken the face slightly
+      ctx.fillStyle = `rgba(0,0,0,${(faceAlpha * 0.5).toFixed(3)})`;
+    } else {
+      // Raised look: brighten the face slightly
+      ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
+    }
     ctx.fill();
 
-    // 2. Groove (dark pressed-in valley between cells — straddles the boundary)
+    // 2. Groove
     tracePolygonPath(ctx, pts);
     ctx.strokeStyle = `rgba(0,0,0,${grooveAlpha.toFixed(3)})`;
     ctx.lineWidth = grooveWidth * 0.5;
     ctx.stroke();
 
-    // 3. Top-left bevel HIGHLIGHT
-    // translate(+bevelOffset, +bevelOffset) shifts the path DOWN-RIGHT;
-    // clipped to the tile interior, only the TOP and LEFT strips remain visible.
+    // 3. Highlight Bevel
     ctx.save();
     tracePolygonPath(ctx, pts);
     ctx.clip();
     ctx.save();
-    ctx.translate(bevelOffset, bevelOffset);
+    ctx.translate(reverse ? -bevelOffset : bevelOffset, reverse ? -bevelOffset : bevelOffset);
     tracePolygonPath(ctx, pts);
     ctx.strokeStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
     ctx.lineWidth = bevelLineWidth;
@@ -473,14 +477,12 @@ export function drawEmbossEffect(
     ctx.restore();
     ctx.restore();
 
-    // 4. Bottom-right bevel SHADOW
-    // translate(-bevelOffset, -bevelOffset) shifts the path UP-LEFT;
-    // clipped to the tile interior, only the BOTTOM and RIGHT strips remain visible.
+    // 4. Shadow Bevel
     ctx.save();
     tracePolygonPath(ctx, pts);
     ctx.clip();
     ctx.save();
-    ctx.translate(-bevelOffset, -bevelOffset);
+    ctx.translate(reverse ? bevelOffset : -bevelOffset, reverse ? bevelOffset : -bevelOffset);
     tracePolygonPath(ctx, pts);
     ctx.strokeStyle = `rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
     ctx.lineWidth = bevelLineWidth;
@@ -499,6 +501,7 @@ export function renderEmbossBackground(
   canvasHeight: number,
   options?: {
     materialImage?: CanvasImageSource | null;
+    jointImage?: CanvasImageSource | null;
     tileBackground?: boolean;
     embossStrength?: number;
     embossIntensity?: number;
@@ -526,28 +529,71 @@ export function renderEmbossBackground(
   const embossIntensity = options?.embossIntensity ?? 100;
   const embossDepth = options?.embossDepth ?? 100;
 
+  const jointFill = getJointRenderableColor(
+    config.joints.materialSource,
+    undefined,
+    config.joints.adjustments,
+  );
+  const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
+
+  const isVita = isVitaComponentPattern(config.pattern.type);
+
   if (options?.tileBackground === false) {
-    // Preview-only mode: fill preview area with material, emboss on top
+    // Preview-only mode: fill preview area with background color
     ctx.fillStyle = '#eee7dc';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    fillMaterialSurface(ctx, {
-      x: bounds.x,
-      y: bounds.y,
-      width: frameWidth,
-      height: frameHeight,
-      radius: 0,
-      fallbackFill,
-      image: options?.materialImage,
-    });
+    // If it's a Vita pattern with tiles, fill background with joint material first
+    if (isVita && layout.tiles.length > 0) {
+      fillMaterialSurface(ctx, {
+        x: bounds.x,
+        y: bounds.y,
+        width: frameWidth,
+        height: frameHeight,
+        radius: 0,
+        fallbackFill: jointFill,
+        image: options?.jointImage,
+      });
+
+      // Then fill tiles with primary material
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        fillMaterialSurface(ctx, {
+          x: bounds.x + shape.bounds.x * scale,
+          y: bounds.y + shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+          radius: 0,
+          fallbackFill,
+          image: options?.materialImage,
+          clipPath: shape.points.map((point) => ({
+            x: bounds.x + point.x * scale,
+            y: bounds.y + point.y * scale,
+          })),
+        });
+      }
+    } else {
+      // Impress/Standard: fill whole area with continuous primary material
+      fillMaterialSurface(ctx, {
+        x: bounds.x,
+        y: bounds.y,
+        width: frameWidth,
+        height: frameHeight,
+        radius: 0,
+        fallbackFill,
+        image: options?.materialImage,
+      });
+    }
 
     drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
+      reverse: isVita,
     });
     drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
+      reverse: isVita,
     });
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
       drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
@@ -556,29 +602,43 @@ export function renderEmbossBackground(
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
   }
 
-  // Tiled background mode: fill entire canvas with continuous material
-  ctx.fillStyle = fallbackFill;
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  // Tiled background mode
+  // 1. Fill base layer
+  if (isVita) {
+    ctx.fillStyle = jointFill;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  fillMaterialSurface(ctx, {
-    x: 0,
-    y: 0,
-    width: canvasWidth,
-    height: canvasHeight,
-    radius: 0,
-    fallbackFill,
-    image: options?.materialImage,
-  });
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+      radius: 0,
+      fallbackFill: jointFill,
+      image: options?.jointImage,
+    });
+  } else {
+    ctx.fillStyle = fallbackFill;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+      radius: 0,
+      fallbackFill,
+      image: options?.materialImage,
+    });
+  }
 
   // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   const frameRepeat = getFrameRepeatSize(config, layout, scale);
   
-  // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
+  // Calculate actual content size
   const contentWidth = layout.contentWidth * scale;
   const contentHeight = layout.contentHeight * scale;
-  
-  // Add a small bleed for shadows/strokes
   const bleed = 20; 
   
   const cacheCanvas = document.createElement('canvas');
@@ -589,15 +649,63 @@ export function renderEmbossBackground(
   if (cacheCtx) {
     cacheCtx.scale(dpr, dpr);
     cacheCtx.translate(bleed, bleed);
+
+    // If we have tiles and it's a Vita pattern, draw tiles with material into the cache
+    if (isVita && layout.tiles.length > 0) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        fillMaterialSurface(cacheCtx, {
+          x: shape.bounds.x * scale,
+          y: shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+          radius: 0,
+          fallbackFill,
+          image: options?.materialImage,
+          clipPath: shape.points.map((point) => ({
+            x: point.x * scale,
+            y: point.y * scale,
+          })),
+          imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
+        });
+      }
+      
+      // Draw holes for Venzowood 4 if applicable
+      drawVenzowood4Holes(
+        cacheCtx,
+        config,
+        0,
+        0,
+        scale,
+        layout,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+      );
+    } else {
+      // Stroke-only: fill cache with material first
+      fillMaterialSurface(cacheCtx, {
+        x: -bleed,
+        y: -bleed,
+        width: contentWidth + bleed * 2,
+        height: contentHeight + bleed * 2,
+        radius: 0,
+        fallbackFill,
+        image: options?.materialImage,
+        imageDrawBox: { x: -bounds.x - bleed, y: -bounds.y - bleed, width: canvasWidth, height: canvasHeight },
+      });
+    }
     
     // Draw only the emboss effects into the cache
     drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
+      reverse: isVita,
     });
     drawEmbossStrokeEffect(cacheCtx, 0, 0, scale, layout.strokes, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
+      reverse: isVita,
     });
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
       drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
