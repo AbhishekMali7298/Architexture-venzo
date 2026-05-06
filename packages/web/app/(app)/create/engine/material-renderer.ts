@@ -60,6 +60,15 @@ export function renderToCanvas(
   const offsetX = (canvasWidth - drawWidth) / 2;
   const offsetY = (canvasHeight - drawHeight) / 2;
 
+  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
+  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const worldImageDrawBox = {
+    x: offsetX,
+    y: offsetY,
+    width: baseWidth,
+    height: baseHeight,
+  };
+
   fillMaterialSurface(ctx, {
     x: offsetX,
     y: offsetY,
@@ -68,6 +77,7 @@ export function renderToCanvas(
     radius: 0,
     fallbackFill: jointFill,
     image: options?.jointImage,
+    imageDrawBox: worldImageDrawBox,
   });
 
   for (const [tileIndex, tile] of layout.tiles.entries()) {
@@ -84,12 +94,7 @@ export function renderToCanvas(
         x: offsetX + point.x * scale,
         y: offsetY + point.y * scale,
       })),
-      imageDrawBox: {
-        x: offsetX + shape.bounds.x * scale,
-        y: offsetY + shape.bounds.y * scale,
-        width: shape.bounds.width * scale,
-        height: shape.bounds.height * scale,
-      },
+      imageDrawBox: worldImageDrawBox,
     });
   }
 

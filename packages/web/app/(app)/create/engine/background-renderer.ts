@@ -252,7 +252,12 @@ function drawVenzowood4Holes(
       fallbackFill: jointFill,
       image: jointImage,
       clipPath: points,
-      imageDrawBox: jointImageDrawBox,
+      imageDrawBox: embossOptions?.reverse === false ? jointImageDrawBox : {
+        x: offsetX,
+        y: offsetY,
+        width: (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale,
+        height: (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale,
+      },
     });
 
     if (normalizedStrength > 0) {
@@ -339,6 +344,15 @@ export function renderBackground(
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 
+  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
+  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const worldImageDrawBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: baseWidth,
+    height: baseHeight,
+  };
+
   if (isVita) {
     fillMaterialSurface(ctx, {
       x: 0,
@@ -348,6 +362,7 @@ export function renderBackground(
       radius: 0,
       fallbackFill: jointFill,
       image: options?.jointImage,
+      imageDrawBox: worldImageDrawBox,
     });
   } else {
     fillMaterialSurface(ctx, {
@@ -358,6 +373,7 @@ export function renderBackground(
       radius: 0,
       fallbackFill,
       image: options?.materialImage,
+      imageDrawBox: worldImageDrawBox,
     });
   }
 
@@ -379,12 +395,7 @@ export function renderBackground(
             x: bounds.x + point.x * scale,
             y: bounds.y + point.y * scale,
           })),
-          imageDrawBox: {
-            x: bounds.x + shape.bounds.x * scale,
-            y: bounds.y + shape.bounds.y * scale,
-            width: shape.bounds.width * scale,
-            height: shape.bounds.height * scale,
-          },
+          imageDrawBox: worldImageDrawBox,
         });
       }
       drawVenzowood4Holes(
@@ -438,29 +449,8 @@ export function renderBackground(
     cacheCtx.scale(dpr, dpr);
     cacheCtx.translate(bleed, bleed);
 
-    // If we have tiles and it's a Vita pattern, draw tiles with material into the cache
-    if (isVita && layout.tiles.length > 0) {
-      for (const [tileIndex, tile] of layout.tiles.entries()) {
-        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-        fillMaterialSurface(cacheCtx, {
-          x: shape.bounds.x * scale,
-          y: shape.bounds.y * scale,
-          width: shape.bounds.width * scale,
-          height: shape.bounds.height * scale,
-          radius: 0,
-          fallbackFill,
-          image: options?.materialImage,
-          clipPath: shape.points.map((point) => ({
-            x: point.x * scale,
-            y: point.y * scale,
-          })),
-          imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
-        });
-      }
-    }
-    
+    // Draw only strokes/holes into the cache (no materials)
     drawVenzowood4Holes(
-
       cacheCtx,
       config,
       0,
@@ -474,6 +464,13 @@ export function renderBackground(
     drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
   }
 
+  const patternBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: frameWidth,
+    height: frameHeight,
+  };
+
   const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
   const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
@@ -483,6 +480,28 @@ export function renderBackground(
     const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
+
+      // Draw material tiles directly to main ctx to ensure global material coordination
+      if (isVita && layout.tiles.length > 0) {
+        for (const [tileIndex, tile] of layout.tiles.entries()) {
+          const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+          fillMaterialSurface(ctx, {
+            x: offsetX + shape.bounds.x * scale,
+            y: offsetY + shape.bounds.y * scale,
+            width: shape.bounds.width * scale,
+            height: shape.bounds.height * scale,
+            radius: 0,
+            fallbackFill,
+            image: options?.materialImage,
+            clipPath: shape.points.map((point) => ({
+              x: offsetX + point.x * scale,
+              y: offsetY + point.y * scale,
+            })),
+            imageDrawBox: worldImageDrawBox,
+          });
+        }
+      }
+
       ctx.drawImage(
         cacheCanvas, 
         offsetX - bleed, 
@@ -662,6 +681,7 @@ export function renderEmbossBackground(
             x: bounds.x + point.x * scale,
             y: bounds.y + point.y * scale,
           })),
+          imageDrawBox: worldImageDrawBox,
         });
       }
 
@@ -714,6 +734,15 @@ export function renderEmbossBackground(
 
   // Tiled background mode
   // 1. Fill base layer
+  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
+  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const worldImageDrawBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: baseWidth,
+    height: baseHeight,
+  };
+
   if (isVita) {
     ctx.fillStyle = jointFill;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -726,6 +755,7 @@ export function renderEmbossBackground(
       radius: 0,
       fallbackFill: jointFill,
       image: options?.jointImage,
+      imageDrawBox: worldImageDrawBox,
     });
   } else {
     ctx.fillStyle = fallbackFill;
@@ -739,6 +769,7 @@ export function renderEmbossBackground(
       radius: 0,
       fallbackFill,
       image: options?.materialImage,
+      imageDrawBox: worldImageDrawBox,
     });
   }
 
@@ -760,46 +791,25 @@ export function renderEmbossBackground(
     cacheCtx.scale(dpr, dpr);
     cacheCtx.translate(bleed, bleed);
 
-    // If we have tiles and it's a Vita pattern, draw tiles with material into the cache
-    if (isVita && layout.tiles.length > 0) {
-      for (const [tileIndex, tile] of layout.tiles.entries()) {
-        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-        fillMaterialSurface(cacheCtx, {
-          x: shape.bounds.x * scale,
-          y: shape.bounds.y * scale,
-          width: shape.bounds.width * scale,
-          height: shape.bounds.height * scale,
-          radius: 0,
-          fallbackFill,
-          image: options?.materialImage,
-          clipPath: shape.points.map((point) => ({
-            x: point.x * scale,
-            y: point.y * scale,
-          })),
-          imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
-        });
-      }
-      
-      // Draw holes for Venzowood 4 if applicable
-      drawVenzowood4Holes(
-        cacheCtx,
-        config,
-        0,
-        0,
-        scale,
-        layout,
-        jointFill,
-        options?.jointImage,
-        jointImageDrawBox,
-        {
-          strength: embossStrength,
-          intensity: embossIntensity,
-          depth: embossDepth,
-          reverse: isVita,
-        },
-      );
-    }
-    
+    // Draw only strokes/holes into the cache (no materials)
+    drawVenzowood4Holes(
+      cacheCtx,
+      config,
+      0,
+      0,
+      scale,
+      layout,
+      jointFill,
+      options?.jointImage,
+      jointImageDrawBox,
+      {
+        strength: embossStrength,
+        intensity: embossIntensity,
+        depth: embossDepth,
+        reverse: isVita,
+      },
+    );
+
     // Draw only the emboss effects into the cache
     drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, embossStrength, {
       intensity: embossIntensity,
@@ -816,6 +826,13 @@ export function renderEmbossBackground(
     }
   }
 
+  const patternBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: frameWidth,
+    height: frameHeight,
+  };
+
   const tilesLeft = Math.ceil(bounds.x / frameRepeat.width) + 1;
   const tilesRight = Math.ceil((canvasWidth - bounds.x) / frameRepeat.width) + 1;
   const tilesAbove = Math.ceil(bounds.y / frameRepeat.height) + 1;
@@ -825,7 +842,28 @@ export function renderEmbossBackground(
     const offsetY = bounds.y + yIndex * frameRepeat.height;
     for (let xIndex = -tilesLeft; xIndex <= tilesRight; xIndex++) {
       const offsetX = bounds.x + xIndex * frameRepeat.width;
-      // Offset by bleed because we translated the cacheCtx
+
+      // Draw material tiles directly to main ctx to ensure global material coordination
+      if (isVita && layout.tiles.length > 0) {
+        for (const [tileIndex, tile] of layout.tiles.entries()) {
+          const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+          fillMaterialSurface(ctx, {
+            x: offsetX + shape.bounds.x * scale,
+            y: offsetY + shape.bounds.y * scale,
+            width: shape.bounds.width * scale,
+            height: shape.bounds.height * scale,
+            radius: 0,
+            fallbackFill,
+            image: options?.materialImage,
+            clipPath: shape.points.map((point) => ({
+              x: offsetX + point.x * scale,
+              y: offsetY + point.y * scale,
+            })),
+            imageDrawBox: worldImageDrawBox,
+          });
+        }
+      }
+
       ctx.drawImage(
         cacheCanvas, 
         offsetX - bleed, 
@@ -835,6 +873,9 @@ export function renderEmbossBackground(
       );
     }
   }
+
+
+
 
   return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
 }

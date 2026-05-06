@@ -91,10 +91,9 @@ function drawImageRepeatPattern(
     targetBox.height / Math.max(sourceHeight, 1),
   );
 
-  // Match the competitor-style texture behavior more closely:
-  // keep the image dense, avoid stretching one whole bitmap per tile,
-  // and let the texture repeat in shared/world space across adjacent tiles.
-  const patternScale = Math.min(1, coverScale);
+  // Match the competitor-style texture behavior:
+  // let the texture repeat in shared/world space across adjacent tiles.
+  const patternScale = coverScale;
   const pattern = ctx.createPattern(image, 'repeat');
   if (!pattern) {
     drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
@@ -105,7 +104,7 @@ function drawImageRepeatPattern(
     pattern.setTransform(new DOMMatrix([
       patternScale, 0,
       0, patternScale,
-      0, 0,
+      targetBox.x, targetBox.y,
     ]));
   }
 
