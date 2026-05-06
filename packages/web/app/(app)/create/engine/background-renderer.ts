@@ -10,6 +10,7 @@ function getPreviewBounds(
   layout: ReturnType<typeof getPatternLayout>,
   canvasWidth: number,
   canvasHeight: number,
+  frame?: { width: number; height: number } | null,
 ) {
   const panelWidth = 336;
   const outerPadding = 40;
@@ -17,10 +18,9 @@ function getPreviewBounds(
   const availableY = outerPadding;
   const availableWidth = Math.max(160, canvasWidth - availableX - outerPadding);
   const availableHeight = Math.max(160, canvasHeight - outerPadding * 2);
-  
-  // Use visual content dimensions for scaling the preview so everything fits on screen.
-  const visualWidth = Math.max(1, layout.contentWidth);
-  const visualHeight = Math.max(1, layout.contentHeight);
+
+  const visualWidth = Math.max(1, frame?.width ?? layout.contentWidth);
+  const visualHeight = Math.max(1, frame?.height ?? layout.contentHeight);
   const scale = Math.min(availableWidth / visualWidth, availableHeight / visualHeight);
   const width = Math.max(1, visualWidth * scale);
   const height = Math.max(1, visualHeight * scale);
@@ -63,6 +63,141 @@ function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof get
     width: Math.max(1, layout.totalWidth * scale),
     height: Math.max(1, layout.totalHeight * scale),
   };
+}
+
+function renderSheetPreview(
+  ctx: CanvasRenderingContext2D,
+  config: TextureConfig,
+  options: {
+    layout: ReturnType<typeof getPatternLayout>;
+    bounds: { x: number; y: number; width: number; height: number };
+    scale: number;
+    material: TextureConfig['materials'][number];
+    fallbackFill: string;
+    jointFill: string;
+    isVita: boolean;
+    materialImage?: CanvasImageSource | null;
+    jointImage?: CanvasImageSource | null;
+    emboss?: { strength: number; intensity: number; depth: number; reverse: boolean };
+  },
+) {
+  const {
+    layout,
+    bounds,
+    scale,
+    material,
+    fallbackFill,
+    jointFill,
+    isVita,
+    materialImage,
+    jointImage,
+    emboss,
+  } = options;
+  const repeatWidth = Math.max(1, layout.totalWidth * scale);
+  const repeatHeight = Math.max(1, layout.totalHeight * scale);
+  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
+  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const worldImageDrawBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: baseWidth,
+    height: baseHeight,
+  };
+  const jointImageDrawBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  };
+  const showJointBase = isVita || layout.tiles.length > 0;
+
+  fillMaterialSurface(ctx, {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    radius: 0,
+    fallbackFill: showJointBase ? jointFill : fallbackFill,
+    image: isVita ? jointImage : null,
+    imageDrawBox: worldImageDrawBox,
+  });
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+  ctx.clip();
+
+  const repeatColumns = Math.ceil(bounds.width / repeatWidth) + 2;
+  const repeatRows = Math.ceil(bounds.height / repeatHeight) + 2;
+
+  for (let row = -1; row < repeatRows; row++) {
+    const offsetY = bounds.y + row * repeatHeight;
+    for (let column = -1; column < repeatColumns; column++) {
+      const offsetX = bounds.x + column * repeatWidth;
+
+      if (layout.tiles.length > 0) {
+        for (const [tileIndex, tile] of layout.tiles.entries()) {
+          const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+          fillMaterialSurface(ctx, {
+            x: offsetX + shape.bounds.x * scale,
+            y: offsetY + shape.bounds.y * scale,
+            width: shape.bounds.width * scale,
+            height: shape.bounds.height * scale,
+            radius: 0,
+            fallbackFill,
+            image: materialImage,
+            clipPath: shape.points.map((point) => ({
+              x: offsetX + point.x * scale,
+              y: offsetY + point.y * scale,
+            })),
+            imageDrawBox: worldImageDrawBox,
+          });
+        }
+      }
+
+      if (config.pattern.type === 'venzowood_4') {
+        drawVenzowood4Holes(
+          ctx,
+          config,
+          offsetX,
+          offsetY,
+          scale,
+          layout,
+          jointFill,
+          jointImage,
+          jointImageDrawBox,
+          emboss
+            ? {
+                strength: emboss.strength,
+                intensity: emboss.intensity,
+                depth: emboss.depth,
+                reverse: emboss.reverse,
+              }
+            : undefined,
+        );
+      }
+
+      if (emboss) {
+        drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, emboss.strength, {
+          intensity: emboss.intensity,
+          depth: emboss.depth,
+          reverse: emboss.reverse,
+        });
+        drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, emboss.strength, {
+          intensity: emboss.intensity,
+          depth: emboss.depth,
+          reverse: emboss.reverse,
+        });
+        if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+          drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+        }
+      } else {
+        drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+      }
+    }
+  }
+
+  ctx.restore();
 }
 
 export function drawPatternStrokes(
@@ -314,6 +449,7 @@ export function renderBackground(
     jointImage?: CanvasImageSource | null;
     tileBackground?: boolean;
     svgPatternModule?: SvgPatternModule | null;
+    sheetPreview?: { width: number; height: number } | null;
   },
 ) {
   const material = config.materials[0];
@@ -325,13 +461,19 @@ export function renderBackground(
     definition?.swatchColor ?? '#c8c8c8',
   );
   const layout = getPatternLayout(config, options?.svgPatternModule ?? null);
-  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight);
-  const scale = Math.min(
-    bounds.width / Math.max(layout.totalWidth, 1),
-    bounds.height / Math.max(layout.totalHeight, 1),
-  );
-  const frameWidth = layout.totalWidth * scale;
-  const frameHeight = layout.totalHeight * scale;
+  const previewFrame = options?.sheetPreview ?? null;
+  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight, previewFrame);
+  const scale = previewFrame
+    ? Math.min(
+        bounds.width / Math.max(previewFrame.width, 1),
+        bounds.height / Math.max(previewFrame.height, 1),
+      )
+    : Math.min(
+        bounds.width / Math.max(layout.totalWidth, 1),
+        bounds.height / Math.max(layout.totalHeight, 1),
+      );
+  const frameWidth = previewFrame ? previewFrame.width * scale : layout.totalWidth * scale;
+  const frameHeight = previewFrame ? previewFrame.height * scale : layout.totalHeight * scale;
   const jointFill = getJointRenderableColor(
     config.joints.materialSource,
     undefined,
@@ -342,6 +484,27 @@ export function renderBackground(
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  if (previewFrame) {
+    renderSheetPreview(ctx, config, {
+      layout,
+      bounds,
+      scale,
+      material,
+      fallbackFill,
+      jointFill,
+      isVita,
+      materialImage: options?.materialImage,
+      jointImage: options?.jointImage,
+    });
+
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: frameWidth,
+      height: frameHeight,
+    };
+  }
 
 
   const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
@@ -618,6 +781,7 @@ export function renderEmbossBackground(
     embossIntensity?: number;
     embossDepth?: number;
     svgPatternModule?: SvgPatternModule | null;
+    sheetPreview?: { width: number; height: number } | null;
   },
 ) {
   const material = config.materials[0];
@@ -629,13 +793,19 @@ export function renderEmbossBackground(
     definition?.swatchColor ?? '#c8c8c8',
   );
   const layout = getPatternLayout(config, options?.svgPatternModule ?? null);
-  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight);
-  const scale = Math.min(
-    bounds.width / Math.max(layout.totalWidth, 1),
-    bounds.height / Math.max(layout.totalHeight, 1),
-  );
-  const frameWidth = layout.totalWidth * scale;
-  const frameHeight = layout.totalHeight * scale;
+  const previewFrame = options?.sheetPreview ?? null;
+  const bounds = getPreviewBounds(layout, canvasWidth, canvasHeight, previewFrame);
+  const scale = previewFrame
+    ? Math.min(
+        bounds.width / Math.max(previewFrame.width, 1),
+        bounds.height / Math.max(previewFrame.height, 1),
+      )
+    : Math.min(
+        bounds.width / Math.max(layout.totalWidth, 1),
+        bounds.height / Math.max(layout.totalHeight, 1),
+      );
+  const frameWidth = previewFrame ? previewFrame.width * scale : layout.totalWidth * scale;
+  const frameHeight = previewFrame ? previewFrame.height * scale : layout.totalHeight * scale;
   const embossStrength = (options?.embossStrength ?? 100) / 100;
   const embossIntensity = options?.embossIntensity ?? 100;
   const embossDepth = options?.embossDepth ?? 100;
@@ -648,6 +818,31 @@ export function renderEmbossBackground(
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
 
   const isVita = isVitaComponentPattern(config.pattern.type);
+
+  if (previewFrame) {
+    ctx.fillStyle = '#eee7dc';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    renderSheetPreview(ctx, config, {
+      layout,
+      bounds,
+      scale,
+      material,
+      fallbackFill,
+      jointFill,
+      isVita,
+      materialImage: options?.materialImage,
+      jointImage: options?.jointImage,
+      emboss: {
+        strength: embossStrength,
+        intensity: embossIntensity,
+        depth: embossDepth,
+        reverse: isVita,
+      },
+    });
+
+    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
+  }
 
   const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
   const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;

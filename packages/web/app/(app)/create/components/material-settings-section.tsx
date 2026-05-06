@@ -26,6 +26,8 @@ export function MaterialSettingsSection({
   jointMaterialThumbnailUrl,
   width,
   height,
+  widthLabel = 'Unit Width',
+  heightLabel = 'Unit Height',
   jointHorizontal,
   jointVertical,
   jointAdjustments,
@@ -59,6 +61,8 @@ export function MaterialSettingsSection({
   jointMaterialThumbnailUrl?: string | null;
   width: number;
   height: number;
+  widthLabel?: string;
+  heightLabel?: string;
   jointHorizontal: number;
   jointVertical: number;
   jointAdjustments: ImageAdjustments;
@@ -155,7 +159,7 @@ export function MaterialSettingsSection({
 
         <div className={styles.gridTwo}>
           <NumberField
-            label="Width"
+            label={widthLabel}
             value={width}
             min={1}
             max={5000}
@@ -163,7 +167,7 @@ export function MaterialSettingsSection({
             onChange={onWidthChange}
           />
           <NumberField
-            label="Height"
+            label={heightLabel}
             value={height}
             min={1}
             max={5000}

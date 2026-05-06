@@ -563,6 +563,67 @@
   cursor: pointer;
 }
 
+.primaryOutlineButtonCompact {
+  padding: 7px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryOutlineButtonCompact:hover,
+.primaryOutlineButton:hover {
+  border-color: rgba(0, 0, 0, 1);
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #faf8f4;
+}
+
+.summaryHeader {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.summaryLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.56);
+  text-transform: uppercase;
+}
+
+.summaryValue {
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
 .adjustmentsPanel {
   display: flex;
   flex-direction: column;

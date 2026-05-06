@@ -13,6 +13,7 @@ import type {
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById, getPatternByType } from '@textura/shared';
 import { isImpressPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
+import type { SheetPreviewPreset } from '../lib/production-metrics';
 
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
@@ -116,6 +117,9 @@ export interface EditorState {
   embossStrength: number;
   embossIntensity: number;
   embossDepth: number;
+  sheetPreviewPreset: SheetPreviewPreset;
+  customSheetWidth: number;
+  customSheetHeight: number;
 
   // History
   undoStack: HistoryEntry[];
@@ -173,6 +177,9 @@ export interface EditorState {
   setEmbossStrength: (value: number) => void;
   setEmbossIntensity: (value: number) => void;
   setEmbossDepth: (value: number) => void;
+  setSheetPreviewPreset: (preset: SheetPreviewPreset) => void;
+  setCustomSheetWidth: (value: number) => void;
+  setCustomSheetHeight: (value: number) => void;
 
   // History
   undo: () => void;
@@ -233,6 +240,9 @@ export const useEditorStore = create<EditorState>()(
     embossStrength: DEFAULT_EMBOSS_STRENGTH,
     embossIntensity: 100,
     embossDepth: 100,
+    sheetPreviewPreset: 'none',
+    customSheetWidth: 2440,
+    customSheetHeight: 1220,
     undoStack: [],
     redoStack: [],
     renderVersion: 0,
@@ -451,6 +461,8 @@ export const useEditorStore = create<EditorState>()(
         }
         s.config.joints.horizontalSize = roundMeasurement(s.config.joints.horizontalSize * factor);
         s.config.joints.verticalSize = roundMeasurement(s.config.joints.verticalSize * factor);
+        s.customSheetWidth = roundMeasurement(s.customSheetWidth * factor);
+        s.customSheetHeight = roundMeasurement(s.customSheetHeight * factor);
         bumpRender(s);
       }),
 
@@ -525,6 +537,21 @@ export const useEditorStore = create<EditorState>()(
     setEmbossDepth: (value) =>
       set((s) => {
         s.embossDepth = clamp(Math.round(value), 0, 100);
+        bumpRender(s);
+      }),
+    setSheetPreviewPreset: (preset) =>
+      set((s) => {
+        s.sheetPreviewPreset = preset;
+        bumpRender(s);
+      }),
+    setCustomSheetWidth: (value) =>
+      set((s) => {
+        s.customSheetWidth = Math.max(1, value);
+        bumpRender(s);
+      }),
+    setCustomSheetHeight: (value) =>
+      set((s) => {
+        s.customSheetHeight = Math.max(1, value);
         bumpRender(s);
       }),
 

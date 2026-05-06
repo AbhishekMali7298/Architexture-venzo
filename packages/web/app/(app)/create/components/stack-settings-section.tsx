@@ -102,7 +102,7 @@ export function StackSettingsSection({
         </div>
       )}
 
-      <div className={styles.hint}>{widthHint}</div>
+      <div className={styles.hint}>Current pattern size: {widthHint}</div>
     </SectionCard>
   );
 }

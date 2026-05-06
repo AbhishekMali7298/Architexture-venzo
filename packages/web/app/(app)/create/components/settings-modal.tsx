@@ -1,5 +1,7 @@
 'use client';
 
+import type { SheetPreviewPreset } from '../lib/production-metrics';
+import { NumberField } from './field-controls';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
@@ -7,19 +9,33 @@ export function SettingsModal({
   units,
   showBorder,
   tileBackground,
+  sheetPreviewPreset,
+  customSheetWidth,
+  customSheetHeight,
   onClose,
   onUnitsChange,
   onShowBorderChange,
   onTileBackgroundChange,
+  onSheetPreviewPresetChange,
+  onCustomSheetWidthChange,
+  onCustomSheetHeightChange,
 }: {
   units: 'mm' | 'inches';
   showBorder: boolean;
   tileBackground: boolean;
+  sheetPreviewPreset: SheetPreviewPreset;
+  customSheetWidth: number;
+  customSheetHeight: number;
   onClose: () => void;
   onUnitsChange: (units: 'mm' | 'inches') => void;
   onShowBorderChange: (checked: boolean) => void;
   onTileBackgroundChange: (checked: boolean) => void;
+  onSheetPreviewPresetChange: (preset: SheetPreviewPreset) => void;
+  onCustomSheetWidthChange: (value: number) => void;
+  onCustomSheetHeightChange: (value: number) => void;
 }) {
+  const unitSuffix = units === 'inches' ? 'in' : 'mm';
+
   return (
     <Modal onClose={onClose}>
       <div className={styles.settingsModalCard}>
@@ -94,6 +110,39 @@ export function SettingsModal({
               />
               <span>Show image border</span>
             </label>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Sheet Preview</span>
+              <select
+                className={styles.select}
+                value={sheetPreviewPreset}
+                onChange={(event) => onSheetPreviewPresetChange(event.target.value as SheetPreviewPreset)}
+              >
+                <option value="none">Pattern only</option>
+                <option value="8x4">8 × 4 ft sheet</option>
+                <option value="10x4">10 × 4 ft sheet</option>
+                <option value="custom">Custom sheet</option>
+              </select>
+            </label>
+            {sheetPreviewPreset === 'custom' ? (
+              <div className={styles.gridTwo}>
+                <NumberField
+                  label="Sheet Width"
+                  value={customSheetWidth}
+                  min={1}
+                  max={50000}
+                  unit={unitSuffix}
+                  onChange={onCustomSheetWidthChange}
+                />
+                <NumberField
+                  label="Sheet Height"
+                  value={customSheetHeight}
+                  min={1}
+                  max={50000}
+                  unit={unitSuffix}
+                  onChange={onCustomSheetHeightChange}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

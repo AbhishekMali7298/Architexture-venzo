@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   getMaterialById,
   getMaterialCategory,
@@ -14,6 +14,7 @@ import { JointMaterialModal } from './components/joint-material-modal';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
+import { ProductionPlanningSection } from './components/production-planning-section';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
@@ -25,6 +26,12 @@ import {
 } from './lib/material-assets';
 import { isImpressPattern, isVitaComponentPattern, supportsEmbossPattern } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
+import {
+  fitPatternToTargetSize,
+  formatMeasurement,
+  getSheetCoverageSummary,
+  getSheetDimensions,
+} from './lib/production-metrics';
 import {
   exportPreviewJpg,
   exportPreviewPdf,
@@ -46,6 +53,8 @@ function encodeConfig(config: TextureConfig) {
 function decodeConfig(encoded: string): TextureConfig {
   return JSON.parse(decodeURIComponent(atob(encoded))) as TextureConfig;
 }
+
+const MM_PER_INCH = 25.4;
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
@@ -77,6 +86,12 @@ export default function CreatePage() {
   const setEmbossIntensity = useEditorStore((state) => state.setEmbossIntensity);
   const setEmbossDepth = useEditorStore((state) => state.setEmbossDepth);
   const setUnits = useEditorStore((state) => state.setUnits);
+  const sheetPreviewPreset = useEditorStore((state) => state.sheetPreviewPreset);
+  const customSheetWidth = useEditorStore((state) => state.customSheetWidth);
+  const customSheetHeight = useEditorStore((state) => state.customSheetHeight);
+  const setSheetPreviewPreset = useEditorStore((state) => state.setSheetPreviewPreset);
+  const setCustomSheetWidth = useEditorStore((state) => state.setCustomSheetWidth);
+  const setCustomSheetHeight = useEditorStore((state) => state.setCustomSheetHeight);
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showPatternModal, setShowPatternModal] = useState(false);
@@ -84,6 +99,10 @@ export default function CreatePage() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [requestedWidth, setRequestedWidth] = useState(1000);
+  const [requestedHeight, setRequestedHeight] = useState(1000);
+  const [hasInitializedRequestedSize, setHasInitializedRequestedSize] = useState(false);
+  const previousUnitsRef = useRef(config.units);
 
   const material = config.materials[0]!;
   const svgPatternModule = useSvgPatternModule(config.pattern.type);
@@ -164,6 +183,57 @@ export default function CreatePage() {
   const currentPatternPreview =
     getPatternPreviewImageUrl(config.pattern.type) ?? '/patterns/stack_bond.svg';
   const embossAvailable = supportsEmbossPattern(config.pattern.type);
+  const sharedPatternSizeLabel =
+    currentPattern?.widthLabel && /size$/i.test(currentPattern.widthLabel)
+      ? currentPattern.widthLabel.replace(/size$/i, '').trim()
+      : null;
+  const widthLabel = currentPattern?.widthLabel
+    ? currentPattern.heightLabel
+      ? currentPattern.widthLabel
+      : sharedPatternSizeLabel
+        ? `${sharedPatternSizeLabel} Width`
+        : `${currentPattern.widthLabel} Width`
+    : 'Unit Width';
+  const heightLabel = currentPattern?.heightLabel
+    ? currentPattern.heightLabel
+    : sharedPatternSizeLabel
+      ? `${sharedPatternSizeLabel} Height`
+      : currentPattern?.widthLabel
+        ? `${currentPattern.widthLabel} Height`
+      : 'Unit Height';
+  const sheetPreview = getSheetDimensions(
+    config.units,
+    sheetPreviewPreset,
+    customSheetWidth,
+    customSheetHeight,
+  );
+  const sheetCoverage = sheetPreview
+    ? getSheetCoverageSummary(
+        patternLayout.totalWidth,
+        patternLayout.totalHeight,
+        sheetPreview.width,
+        sheetPreview.height,
+      )
+    : null;
+  const fittedResult = useMemo(
+    () => fitPatternToTargetSize(config, requestedWidth, requestedHeight, svgPatternModule),
+    [config, requestedWidth, requestedHeight, svgPatternModule],
+  );
+
+  useEffect(() => {
+    if (hasInitializedRequestedSize) return;
+    setRequestedWidth(Math.max(1, Math.round(patternLayout.totalWidth)));
+    setRequestedHeight(Math.max(1, Math.round(patternLayout.totalHeight)));
+    setHasInitializedRequestedSize(true);
+  }, [hasInitializedRequestedSize, patternLayout.totalHeight, patternLayout.totalWidth]);
+
+  useEffect(() => {
+    if (previousUnitsRef.current === config.units) return;
+    const factor = config.units === 'inches' ? 1 / MM_PER_INCH : MM_PER_INCH;
+    setRequestedWidth((value) => Math.max(1, Math.round(value * factor * 100) / 100));
+    setRequestedHeight((value) => Math.max(1, Math.round(value * factor * 100) / 100));
+    previousUnitsRef.current = config.units;
+  }, [config.units]);
 
   if (!isReady) {
     return null;
@@ -194,6 +264,16 @@ export default function CreatePage() {
     url.searchParams.delete('config');
     window.history.replaceState({}, '', url.toString());
   };
+
+  const handleFitPatternToRequestedSize = () => {
+    loadProjectConfig(fittedResult.config, {
+      label: `Fit pattern to ${Math.round(requestedWidth)} × ${Math.round(requestedHeight)}`,
+    });
+  };
+
+  const sheetCoverageText = sheetCoverage
+    ? `${sheetCoverage.fitAcross} across × ${sheetCoverage.fitDown} down on ${sheetPreview?.label}. Offcut: ${formatMeasurement(sheetCoverage.leftoverWidth, config.units)} by ${formatMeasurement(sheetCoverage.leftoverHeight, config.units)}.`
+    : null;
 
   return (
     <div className={styles.page}>
@@ -239,6 +319,8 @@ export default function CreatePage() {
           jointMaterialThumbnailUrl={jointMaterialThumbnailUrl}
           width={material.width}
           height={material.height}
+          widthLabel={widthLabel}
+          heightLabel={heightLabel}
           jointHorizontal={config.joints.horizontalSize}
           jointVertical={config.joints.verticalSize}
           jointAdjustments={config.joints.adjustments}
@@ -265,6 +347,31 @@ export default function CreatePage() {
           onEmbossStrengthChange={setEmbossStrength}
           onEmbossIntensityChange={setEmbossIntensity}
           onEmbossDepthChange={setEmbossDepth}
+        />
+
+        <ProductionPlanningSection
+          units={config.units}
+          requestedWidth={requestedWidth}
+          requestedHeight={requestedHeight}
+          onRequestedWidthChange={setRequestedWidth}
+          onRequestedHeightChange={setRequestedHeight}
+          onFitToRequestedSize={handleFitPatternToRequestedSize}
+          fittedWidth={formatMeasurement(fittedResult.actualWidth, config.units)}
+          fittedHeight={formatMeasurement(fittedResult.actualHeight, config.units)}
+          widthDelta={formatMeasurement(fittedResult.widthDelta, config.units)}
+          heightDelta={formatMeasurement(fittedResult.heightDelta, config.units)}
+          productionWidth={formatMeasurement(patternLayout.totalWidth, config.units)}
+          productionHeight={formatMeasurement(patternLayout.totalHeight, config.units)}
+          rows={config.pattern.rows}
+          columns={config.pattern.columns}
+          unitWidthLabel={widthLabel}
+          unitHeightLabel={heightLabel}
+          unitWidth={formatMeasurement(material.width, config.units)}
+          unitHeight={formatMeasurement(material.height, config.units)}
+          jointHorizontal={formatMeasurement(config.joints.horizontalSize, config.units)}
+          jointVertical={formatMeasurement(config.joints.verticalSize, config.units)}
+          sheetPreviewLabel={sheetPreview?.label ?? 'Pattern only'}
+          sheetCoverageText={sheetCoverageText}
         />
       </CreateEditorShell>
 
@@ -304,10 +411,16 @@ export default function CreatePage() {
           units={config.units}
           showBorder={showBorder}
           tileBackground={tileBackground}
+          sheetPreviewPreset={sheetPreviewPreset}
+          customSheetWidth={customSheetWidth}
+          customSheetHeight={customSheetHeight}
           onClose={() => setShowSettingsModal(false)}
           onUnitsChange={setUnits}
           onShowBorderChange={setShowBorder}
           onTileBackgroundChange={setTileBackground}
+          onSheetPreviewPresetChange={setSheetPreviewPreset}
+          onCustomSheetWidthChange={setCustomSheetWidth}
+          onCustomSheetHeightChange={setCustomSheetHeight}
         />
       ) : null}
 

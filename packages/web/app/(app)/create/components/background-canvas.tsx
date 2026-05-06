@@ -14,6 +14,7 @@ import {
 } from '../lib/material-assets';
 import { useMaterialImage } from '../lib/material-image-cache';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { getSheetDimensions } from '../lib/production-metrics';
 import { useSvgPatternModule } from '../lib/svg-pattern-module-cache';
 import styles from './create-editor.module.css';
 
@@ -28,6 +29,9 @@ export function BackgroundCanvas() {
   const embossStrength = useEditorStore((s) => s.embossStrength);
   const embossIntensity = useEditorStore((s) => s.embossIntensity);
   const embossDepth = useEditorStore((s) => s.embossDepth);
+  const sheetPreviewPreset = useEditorStore((s) => s.sheetPreviewPreset);
+  const customSheetWidth = useEditorStore((s) => s.customSheetWidth);
+  const customSheetHeight = useEditorStore((s) => s.customSheetHeight);
   const svgPatternModule = useSvgPatternModule(config.pattern.type);
   const primaryMaterial = config.materials[0]!;
   const selectedMaterial = primaryMaterial.definitionId
@@ -37,6 +41,12 @@ export function BackgroundCanvas() {
   const jointImageUrl = getMaterialSourceRenderableImageUrl(config.joints.materialSource);
   const materialImage = useMaterialImage(materialImageUrl);
   const jointImage = useMaterialImage(jointImageUrl);
+  const sheetPreview = getSheetDimensions(
+    config.units,
+    sheetPreviewPreset,
+    customSheetWidth,
+    customSheetHeight,
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -80,12 +90,14 @@ export function BackgroundCanvas() {
               embossIntensity,
               embossDepth,
               svgPatternModule,
+              sheetPreview,
             })
           : renderBackground(ctx, config, w, h, {
               materialImage,
               jointImage,
               tileBackground,
               svgPatternModule,
+              sheetPreview,
             });
         
         if (previewBounds && showBorder) {
@@ -120,6 +132,7 @@ export function BackgroundCanvas() {
     embossStrength,
     embossIntensity,
     embossDepth,
+    sheetPreview,
     svgPatternModule,
   ]);
 
