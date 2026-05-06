@@ -60,6 +60,11 @@ const PATTERN_JOINT_DEFAULTS: Record<
     verticalSize: -120,
     linkedDimensions: false,
   },
+  weave_pattern_2: {
+    horizontalSize: -45,
+    verticalSize: 5,
+    linkedDimensions: false,
+  },
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
