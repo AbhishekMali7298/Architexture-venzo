@@ -49,6 +49,7 @@ export function MaterialSettingsSection({
   onEmbossIntensityChange,
   onEmbossDepthChange,
   isImpressPattern = false,
+  isVitaPattern = false,
 }: {
   materialName: string;
   materialCategory: string;
@@ -83,6 +84,7 @@ export function MaterialSettingsSection({
   onEmbossIntensityChange: (value: number) => void;
   onEmbossDepthChange: (value: number) => void;
   isImpressPattern?: boolean;
+  isVitaPattern?: boolean;
 }) {
 
   const [showJointAdjustments, setShowJointAdjustments] = useState(false);
@@ -120,7 +122,7 @@ export function MaterialSettingsSection({
         {embossAvailable ? (
           <>
             <RangeField
-              label="Emboss Strength"
+              label={isVitaPattern ? 'Deboss Strength' : 'Emboss Strength'}
               value={embossStrength}
               min={0}
               max={100}
@@ -174,29 +176,31 @@ export function MaterialSettingsSection({
 
         <div className={styles.subsectionTitle}>Joints</div>
 
-            <button
-              className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
-              type="button"
-              onClick={onOpenJointMaterialPicker}
-            >
-              <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-                <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
-                  {jointMaterialName}
-                </span>
-                <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
-                  Joint material
-                </span>
+        {isVitaPattern && (
+          <button
+            className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
+            type="button"
+            onClick={onOpenJointMaterialPicker}
+          >
+            <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+              <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+                {jointMaterialName}
               </span>
-              <MaterialThumb
-                color="#FFFFFF"
-                src={jointMaterialThumbnailUrl}
-                alt={jointMaterialName}
-                size={36}
-                compact
-                shape="circle"
-                loading="eager"
-              />
-            </button>
+              <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+                Joint material
+              </span>
+            </span>
+            <MaterialThumb
+              color="#FFFFFF"
+              src={jointMaterialThumbnailUrl}
+              alt={jointMaterialName}
+              size={36}
+              compact
+              shape="circle"
+              loading="eager"
+            />
+          </button>
+        )}
 
             <div className={styles.jointDimensionRow}>
               <NumberField

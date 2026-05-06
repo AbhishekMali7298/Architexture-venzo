@@ -23,7 +23,7 @@ import {
   getMaterialThumbnailUrl,
   getPatternPreviewImageUrl,
 } from './lib/material-assets';
-import { isImpressPattern, supportsEmbossPattern } from './lib/pattern-capabilities';
+import { isImpressPattern, isVitaComponentPattern, supportsEmbossPattern } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   exportPreviewJpg,
@@ -255,6 +255,7 @@ export default function CreatePage() {
           onLinkedJointsChange={setLinkedDimensions}
 
           isImpressPattern={isImpressPattern(config.pattern.type)}
+          isVitaPattern={isVitaComponentPattern(config.pattern.type)}
           embossAvailable={embossAvailable}
           embossMode={embossMode}
           embossStrength={embossStrength}
