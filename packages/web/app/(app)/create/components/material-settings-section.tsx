@@ -174,29 +174,31 @@ export function MaterialSettingsSection({
 
         <div className={styles.subsectionTitle}>Joints</div>
 
-        <button
-          className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
-          type="button"
-          onClick={onOpenJointMaterialPicker}
-        >
-          <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-            <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
-              {jointMaterialName}
+        {!isImpressPattern && (
+          <button
+            className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
+            type="button"
+            onClick={onOpenJointMaterialPicker}
+          >
+            <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+              <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+                {jointMaterialName}
+              </span>
+              <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+                Joint material
+              </span>
             </span>
-            <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
-              Joint material
-            </span>
-          </span>
-          <MaterialThumb
-            color="#FFFFFF"
-            src={jointMaterialThumbnailUrl}
-            alt={jointMaterialName}
-            size={36}
-            compact
-            shape="circle"
-            loading="eager"
-          />
-        </button>
+            <MaterialThumb
+              color="#FFFFFF"
+              src={jointMaterialThumbnailUrl}
+              alt={jointMaterialName}
+              size={36}
+              compact
+              shape="circle"
+              loading="eager"
+            />
+          </button>
+        )}
 
         <div className={styles.jointDimensionRow}>
           <NumberField
