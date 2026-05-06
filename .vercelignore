@@ -1,0 +1,13 @@
+.git
+.turbo
+.pnpm-store
+.vercel
+node_modules
+packages/*/node_modules
+packages/web/.next
+packages/*/dist
+coverage
+*.log
+.DS_Store
+competitors website files
+Venzowood.webp
