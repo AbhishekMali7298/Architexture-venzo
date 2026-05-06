@@ -649,6 +649,15 @@ export function renderEmbossBackground(
 
   const isVita = isVitaComponentPattern(config.pattern.type);
 
+  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
+  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const worldImageDrawBox = {
+    x: bounds.x,
+    y: bounds.y,
+    width: baseWidth,
+    height: baseHeight,
+  };
+
   if (options?.tileBackground === false) {
     // Preview-only mode: fill preview area with background color
     ctx.fillStyle = '#eee7dc';
@@ -734,15 +743,6 @@ export function renderEmbossBackground(
 
   // Tiled background mode
   // 1. Fill base layer
-  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
-  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
-  const worldImageDrawBox = {
-    x: bounds.x,
-    y: bounds.y,
-    width: baseWidth,
-    height: baseHeight,
-  };
-
   if (isVita) {
     ctx.fillStyle = jointFill;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
