@@ -1,11 +1,97 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MATERIAL_CATEGORIES, MATERIAL_LIBRARY, type MaterialDefinition } from '@textura/shared';
 import { getMaterialThumbnailUrl } from '../lib/material-assets';
 import { Modal } from './modal-portal';
 import { MaterialThumb } from './material-thumb';
 import styles from './create-editor.module.css';
+
+function CategorySelector({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: { id: string; displayName: string }[];
+  onChange: (id: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedLabel =
+    value === 'all'
+      ? 'All categories'
+      : options.find((o) => o.id === value)?.displayName || value;
+
+  const filteredOptions = useMemo(() => {
+    return options.filter((o) => o.displayName.toLowerCase().includes(search.toLowerCase()));
+  }, [options, search]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className={styles.customSelectWrapper} ref={containerRef}>
+      <button
+        type="button"
+        className={styles.customSelectTrigger}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{selectedLabel}</span>
+        <span className={styles.chevron}>▼</span>
+      </button>
+
+      {isOpen && (
+        <div className={styles.customSelectMenu}>
+          <div className={styles.customSelectSearchWrap}>
+            <input
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- intended behavior for a custom dropdown search
+              autoFocus
+              className={styles.customSelectSearch}
+              placeholder="Search categories..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className={styles.customSelectList}>
+            <button
+              type="button"
+              className={`${styles.customSelectOption} ${value === 'all' ? styles.customSelectOptionActive : ''}`}
+              onClick={() => {
+                onChange('all');
+                setIsOpen(false);
+              }}
+            >
+              All categories
+            </button>
+            {filteredOptions.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`${styles.customSelectOption} ${value === opt.id ? styles.customSelectOptionActive : ''}`}
+                onClick={() => {
+                  onChange(opt.id);
+                  setIsOpen(false);
+                }}
+              >
+                {opt.displayName}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function MaterialPickerModal({
   currentMaterialId,
@@ -69,18 +155,11 @@ export function MaterialPickerModal({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
-            <select
-              className={styles.select}
+            <CategorySelector
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option value="all">All categories</option>
-              {MATERIAL_CATEGORIES.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.displayName}
-                </option>
-              ))}
-            </select>
+              options={MATERIAL_CATEGORIES}
+              onChange={setCategory}
+            />
           </div>
         </div>
 
