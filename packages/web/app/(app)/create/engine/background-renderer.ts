@@ -124,10 +124,10 @@ export function drawEmbossStrokeEffect(
   const depth = (options?.depth ?? 100) / 100;
   const reverse = options?.reverse ?? false;
 
-  const embossOffset = Math.max(0.1, 0.5 * normalizedStrength * depth);
-  const strokeWidth = Math.max(0.4, 1.6 * normalizedStrength * depth);
+  const embossOffset = Math.max(0.1, (reverse ? 0.8 : 0.5) * normalizedStrength * depth);
+  const strokeWidth = Math.max(0.4, (reverse ? 2.0 : 1.6) * normalizedStrength * depth);
   const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * intensity);
-  const shadowAlpha = Math.min(0.5, 0.6 * normalizedStrength * intensity);
+  const shadowAlpha = Math.min(reverse ? 0.65 : 0.5, (reverse ? 0.8 : 0.6) * normalizedStrength * intensity);
   const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * intensity);
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
@@ -190,6 +190,7 @@ function drawVenzowood4Holes(
   jointFill: string,
   jointImage?: CanvasImageSource | null,
   jointImageDrawBox?: { x: number; y: number; width: number; height: number },
+  embossOptions?: { strength?: number; intensity?: number; depth?: number; reverse?: boolean },
 ) {
   if (config.pattern.type !== 'venzowood_4') return;
   if (!layout.strokes.length || !layout.tiles.length) return;
@@ -209,6 +210,19 @@ function drawVenzowood4Holes(
 
   if (!holeCandidates.length) return;
 
+  const strength = embossOptions?.strength ?? 0;
+  const intensity = (embossOptions?.intensity ?? 100) / 100;
+  const depth = (embossOptions?.depth ?? 100) / 100;
+  const reverse = embossOptions?.reverse ?? false;
+
+  const normalizedStrength = Math.max(0, Math.min(1, strength));
+  const clampedStrength = Math.sqrt(normalizedStrength);
+  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
+  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
+  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
+  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * intensity);
+
   for (const hole of holeCandidates) {
     const points = hole.points.map((point) => ({
       x: offsetX + point.x * scale,
@@ -226,17 +240,62 @@ function drawVenzowood4Holes(
       if (p.y > maxY) maxY = p.y;
     }
 
+    const width = Math.max(1, maxX - minX);
+    const height = Math.max(1, maxY - minY);
+
     fillMaterialSurface(ctx, {
       x: minX,
       y: minY,
-      width: Math.max(1, maxX - minX),
-      height: Math.max(1, maxY - minY),
+      width,
+      height,
       radius: 0,
       fallbackFill: jointFill,
       image: jointImage,
       clipPath: points,
       imageDrawBox: jointImageDrawBox,
     });
+
+    if (normalizedStrength > 0) {
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // For a hole, the bevel is INVERTED relative to the surface.
+      // If surface has Shadow at Top-Left (Reverse/Deboss), Hole has Highlight at Top-Left.
+      // If surface has Highlight at Top-Left (Normal/Emboss), Hole has Shadow at Top-Left.
+
+      // 1. Hole Highlight Bevel
+      ctx.save();
+      tracePolygonPath(ctx, points);
+      ctx.clip();
+      ctx.save();
+      // Reverse? Use positive offset for highlight (Top-Left) : Use negative offset for highlight (Bottom-Right)
+      const hOffset = reverse ? bevelOffset : -bevelOffset;
+      ctx.translate(hOffset, hOffset);
+      tracePolygonPath(ctx, points);
+      ctx.strokeStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
+      ctx.lineWidth = bevelLineWidth;
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+
+      // 2. Hole Shadow Bevel
+      ctx.save();
+      tracePolygonPath(ctx, points);
+      ctx.clip();
+      ctx.save();
+      // Reverse? Use negative offset for shadow (Bottom-Right) : Use positive offset for shadow (Top-Left)
+      const sOffset = reverse ? -bevelOffset : bevelOffset;
+      ctx.translate(sOffset, sOffset);
+      tracePolygonPath(ctx, points);
+      ctx.strokeStyle = `rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
+      ctx.lineWidth = bevelLineWidth;
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+
+      ctx.restore();
+    }
   }
 }
 
@@ -429,13 +488,13 @@ export function drawEmbossEffect(
   const clampedStrength = Math.sqrt(normalizedStrength);
 
   // grooveWidth is kept stable across different pattern dimensions (visual consistency)
-  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3);
-  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3);
+  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
+  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.08 * clampedStrength * intensity;
+  const faceAlpha = 0.08 * clampedStrength * intensity * (reverse ? 2.5 : 1.0);
   const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * intensity);
   const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
-  const shadowAlpha = Math.min(0.38, 0.38 * clampedStrength * intensity);
+  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * intensity);
 
   ctx.save();
   ctx.lineCap = 'round';
@@ -572,6 +631,24 @@ export function renderEmbossBackground(
           })),
         });
       }
+
+      drawVenzowood4Holes(
+        ctx,
+        config,
+        bounds.x,
+        bounds.y,
+        scale,
+        layout,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+        {
+          strength: embossStrength,
+          intensity: embossIntensity,
+          depth: embossDepth,
+          reverse: isVita,
+        },
+      );
     } else {
       // Impress/Standard: fill whole area with continuous primary material
       fillMaterialSurface(ctx, {
@@ -681,6 +758,12 @@ export function renderEmbossBackground(
         jointFill,
         options?.jointImage,
         jointImageDrawBox,
+        {
+          strength: embossStrength,
+          intensity: embossIntensity,
+          depth: embossDepth,
+          reverse: isVita,
+        },
       );
     } else {
       // Stroke-only: fill cache with material first
