@@ -29,7 +29,12 @@ export function MaterialThumb({
   loading?: 'eager' | 'lazy';
 }) {
   return (
-    <div className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}>
+    <div
+      className={`${styles.thumbFrame} ${compact ? styles.thumbFrameCompact : ''}`}
+      style={{
+        borderRadius: shape === 'circle' ? '50%' : '6px',
+      }}
+    >
       {src ? (
         <div
           className={styles.thumbMedia}
