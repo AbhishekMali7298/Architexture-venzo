@@ -22,14 +22,14 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   materials: [
     {
       id: 'mat_1',
-      definitionId: 'flamed-beech',
+      definitionId: 'organic-steam-beech',
       source: {
         type: 'image',
         asset: {
-          path: '/materials/FLAMED BEECH.jpg',
+          path: '/materials/Organic/STEAM BEECH.jpg',
           mimeType: 'image/jpeg',
         },
-        fallbackColor: '#b78658',
+        fallbackColor: '#808080',
       },
       uploadWidth: null,
       width: 400,
