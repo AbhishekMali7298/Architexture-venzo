@@ -172,9 +172,7 @@ export function MaterialSettingsSection({
 
 
 
-        {!isImpressPattern && (
-          <>
-            <div className={styles.subsectionTitle}>Joints</div>
+        <div className={styles.subsectionTitle}>Joints</div>
 
             <button
               className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
@@ -255,16 +253,6 @@ export function MaterialSettingsSection({
                 onChange={onJointVerticalChange}
               />
             </div>
-          </>
-        )}
-
-
-
-
-
-
-
-
       </SectionCard>
 
 

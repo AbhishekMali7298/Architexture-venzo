@@ -333,56 +333,84 @@ export function renderBackground(
     config.joints.adjustments,
   );
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
+  const isVita = isVitaComponentPattern(config.pattern.type);
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  fillMaterialSurface(ctx, {
-    x: 0,
-    y: 0,
-    width: canvasWidth,
-    height: canvasHeight,
-    radius: 0,
-    fallbackFill: jointFill,
-    image: options?.jointImage,
-  });
+
+  if (isVita) {
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+      radius: 0,
+      fallbackFill: jointFill,
+      image: options?.jointImage,
+    });
+  } else {
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+      radius: 0,
+      fallbackFill,
+      image: options?.materialImage,
+    });
+  }
+
 
   if (options?.tileBackground === false) {
-    for (const [tileIndex, tile] of layout.tiles.entries()) {
-      const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+    if (isVita && layout.tiles.length > 0) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
 
-      fillMaterialSurface(ctx, {
-        x: bounds.x + shape.bounds.x * scale,
-        y: bounds.y + shape.bounds.y * scale,
-        width: shape.bounds.width * scale,
-        height: shape.bounds.height * scale,
-        radius: 0,
-        fallbackFill,
-        image: options?.materialImage,
-        clipPath: shape.points.map((point) => ({
-          x: bounds.x + point.x * scale,
-          y: bounds.y + point.y * scale,
-        })),
-        imageDrawBox: {
+        fillMaterialSurface(ctx, {
           x: bounds.x + shape.bounds.x * scale,
           y: bounds.y + shape.bounds.y * scale,
           width: shape.bounds.width * scale,
           height: shape.bounds.height * scale,
-        },
+          radius: 0,
+          fallbackFill,
+          image: options?.materialImage,
+          clipPath: shape.points.map((point) => ({
+            x: bounds.x + point.x * scale,
+            y: bounds.y + point.y * scale,
+          })),
+          imageDrawBox: {
+            x: bounds.x + shape.bounds.x * scale,
+            y: bounds.y + shape.bounds.y * scale,
+            width: shape.bounds.width * scale,
+            height: shape.bounds.height * scale,
+          },
+        });
+      }
+      drawVenzowood4Holes(
+        ctx,
+        config,
+        bounds.x,
+        bounds.y,
+        scale,
+        layout,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+      );
+    } else {
+      fillMaterialSurface(ctx, {
+        x: bounds.x,
+        y: bounds.y,
+        width: frameWidth,
+        height: frameHeight,
+        radius: 0,
+        fallbackFill,
+        image: options?.materialImage,
       });
     }
-    drawVenzowood4Holes(
-      ctx,
-      config,
-      bounds.x,
-      bounds.y,
-      scale,
-      layout,
-      jointFill,
-      options?.jointImage,
-      jointImageDrawBox,
-    );
     drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
+
 
     return {
       x: bounds.x,
@@ -410,24 +438,29 @@ export function renderBackground(
     cacheCtx.scale(dpr, dpr);
     cacheCtx.translate(bleed, bleed);
 
-    for (const [tileIndex, tile] of layout.tiles.entries()) {
-      const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-      fillMaterialSurface(cacheCtx, {
-        x: shape.bounds.x * scale,
-        y: shape.bounds.y * scale,
-        width: shape.bounds.width * scale,
-        height: shape.bounds.height * scale,
-        radius: 0,
-        fallbackFill,
-        image: options?.materialImage,
-        clipPath: shape.points.map((point) => ({
-          x: point.x * scale,
-          y: point.y * scale,
-        })),
-        imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
-      });
+    // If we have tiles and it's a Vita pattern, draw tiles with material into the cache
+    if (isVita && layout.tiles.length > 0) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        fillMaterialSurface(cacheCtx, {
+          x: shape.bounds.x * scale,
+          y: shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+          radius: 0,
+          fallbackFill,
+          image: options?.materialImage,
+          clipPath: shape.points.map((point) => ({
+            x: point.x * scale,
+            y: point.y * scale,
+          })),
+          imageDrawBox: { x: -bounds.x, y: -bounds.y, width: canvasWidth, height: canvasHeight }
+        });
+      }
     }
+    
     drawVenzowood4Holes(
+
       cacheCtx,
       config,
       0,
@@ -765,18 +798,6 @@ export function renderEmbossBackground(
           reverse: isVita,
         },
       );
-    } else {
-      // Stroke-only: fill cache with material first
-      fillMaterialSurface(cacheCtx, {
-        x: -bleed,
-        y: -bleed,
-        width: contentWidth + bleed * 2,
-        height: contentHeight + bleed * 2,
-        radius: 0,
-        fallbackFill,
-        image: options?.materialImage,
-        imageDrawBox: { x: -bounds.x - bleed, y: -bounds.y - bleed, width: canvasWidth, height: canvasHeight },
-      });
     }
     
     // Draw only the emboss effects into the cache
