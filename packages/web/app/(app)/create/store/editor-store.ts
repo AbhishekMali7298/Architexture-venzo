@@ -268,6 +268,14 @@ export const useEditorStore = create<EditorState>()(
         s.embossMode = supportsEmbossPattern(type);
 
         const definition = getPatternByType(type);
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (definition && mat) {
+          // Pattern-specific module previews like Concave/Convex/Ripple rely on
+          // their authored default unit sizes; carrying over the previous
+          // pattern's width/height can make them look artificially congested.
+          mat.width = definition.defaultUnitWidth;
+          mat.height = definition.defaultUnitHeight;
+        }
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
         s.embossDepth = definition?.defaults?.embossDepth ?? 100;
