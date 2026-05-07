@@ -12,6 +12,17 @@ import {
 } from './background-renderer';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 
+function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
+  if (config.pattern.type !== 'venzowood') {
+    return [{ x: 0, y: 0 }];
+  }
+
+  return [
+    { x: 0, y: 0 },
+    { x: repeatWidth / 2, y: repeatHeight / 2 },
+  ];
+}
+
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
@@ -80,6 +91,64 @@ export function renderToCanvas(
     imageDrawBox: worldImageDrawBox,
   });
 
+  const shouldRenderEmboss = options?.embossMode && supportsEmbossPattern(config.pattern.type);
+  const strength = (options?.embossStrength ?? 100) / 100;
+  const repeatPhases = getPatternRepeatPhases(config, drawWidth, drawHeight);
+
+  if (repeatPhases.length > 1) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(offsetX, offsetY, drawWidth, drawHeight);
+    ctx.clip();
+
+    for (const phase of repeatPhases) {
+      for (let row = -1; row <= 1; row++) {
+        const instanceOffsetY = offsetY + phase.y + row * drawHeight;
+        for (let column = -1; column <= 1; column++) {
+          const instanceOffsetX = offsetX + phase.x + column * drawWidth;
+
+          for (const [tileIndex, tile] of layout.tiles.entries()) {
+            const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+            fillMaterialSurface(ctx, {
+              x: instanceOffsetX + shape.bounds.x * scale,
+              y: instanceOffsetY + shape.bounds.y * scale,
+              width: shape.bounds.width * scale,
+              height: shape.bounds.height * scale,
+              radius: 0,
+              fallbackFill,
+              image: options?.materialImage,
+              clipPath: shape.points.map((point) => ({
+                x: instanceOffsetX + point.x * scale,
+                y: instanceOffsetY + point.y * scale,
+              })),
+              imageDrawBox: worldImageDrawBox,
+            });
+          }
+
+          if (shouldRenderEmboss) {
+            drawEmbossEffect(ctx, instanceOffsetX, instanceOffsetY, scale, layout.tiles, strength);
+            drawEmbossStrokeEffect(
+              ctx,
+              instanceOffsetX,
+              instanceOffsetY,
+              scale,
+              layout.strokes,
+              strength,
+            );
+            if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+              drawPatternStrokes(ctx, instanceOffsetX, instanceOffsetY, scale, layout.strokes);
+            }
+          } else {
+            drawPatternStrokes(ctx, instanceOffsetX, instanceOffsetY, scale, layout.strokes);
+          }
+        }
+      }
+    }
+
+    ctx.restore();
+    return;
+  }
+
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
     fillMaterialSurface(ctx, {
@@ -98,14 +167,14 @@ export function renderToCanvas(
     });
   }
 
-  const shouldRenderEmboss = options?.embossMode && supportsEmbossPattern(config.pattern.type);
   if (shouldRenderEmboss) {
-    const strength = (options?.embossStrength ?? 100) / 100;
     drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, strength);
     drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, strength);
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
       drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
+  } else {
+    drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
   }
 }
 
