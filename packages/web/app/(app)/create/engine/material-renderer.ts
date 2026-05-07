@@ -17,9 +17,12 @@ function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repe
     return [{ x: 0, y: 0 }];
   }
 
+  const moduleStepX = repeatWidth / Math.max(1, config.pattern.columns);
+  const moduleStepY = repeatHeight / Math.max(1, config.pattern.rows);
+
   return [
     { x: 0, y: 0 },
-    { x: repeatWidth / 2, y: repeatHeight / 2 },
+    { x: moduleStepX / 2, y: moduleStepY / 2 },
   ];
 }
 

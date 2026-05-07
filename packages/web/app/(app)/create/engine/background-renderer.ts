@@ -82,11 +82,14 @@ function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repe
     return [{ x: 0, y: 0 }];
   }
 
-  // Add an interleaved half-step Rhombus phase so the visual gaps between
-  // rows are populated by the neighboring repeat instead of staying empty.
+  const moduleStepX = repeatWidth / Math.max(1, config.pattern.columns);
+  const moduleStepY = repeatHeight / Math.max(1, config.pattern.rows);
+
+  // Interleave by half of a single module step, not half of the whole selected
+  // layout. That keeps odd/even row and column counts consistent.
   return [
     { x: 0, y: 0 },
-    { x: repeatWidth / 2, y: repeatHeight / 2 },
+    { x: moduleStepX / 2, y: moduleStepY / 2 },
   ];
 }
 
