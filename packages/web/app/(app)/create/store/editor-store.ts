@@ -78,8 +78,6 @@ const PATTERN_JOINT_DEFAULTS: Record<
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
-const DEFAULT_MODULE_WIDTH = 400;
-const DEFAULT_MODULE_HEIGHT = 100;
 const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; height: number }>> = {
   concave_pattern: {
     width: 500,
@@ -134,10 +132,12 @@ function applyPatternJointDefaults(config: TextureConfig, patternType: PatternTy
 }
 
 function getPatternModuleDefaults(patternType: PatternType) {
+  const patternDefinition = getPatternByType(patternType);
+
   return (
     SPECIAL_MODULE_DEFAULTS[patternType] ?? {
-      width: DEFAULT_MODULE_WIDTH,
-      height: DEFAULT_MODULE_HEIGHT,
+      width: patternDefinition?.defaultUnitWidth ?? DEFAULT_TEXTURE_CONFIG.materials[0]!.width,
+      height: patternDefinition?.defaultUnitHeight ?? DEFAULT_TEXTURE_CONFIG.materials[0]!.height,
     }
   );
 }
@@ -304,9 +304,9 @@ export const useEditorStore = create<EditorState>()(
         const definition = getPatternByType(type);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (definition && mat) {
-          // Keep pattern switching predictable for production planning.
-          // Most patterns start from 400 x 100 mm, while a few tall groove
-          // patterns intentionally start from a square 500 x 500 mm module.
+          // Use pattern-specific module defaults on selection so the initial
+          // preview matches the authored SVG/proportions instead of forcing
+          // a generic fallback size.
           const moduleDefaults = getPatternModuleDefaults(type);
           mat.width = moduleDefaults.width;
           mat.height = moduleDefaults.height;

@@ -1,4 +1,7 @@
-import type { TextureConfig } from '@textura/shared';
+import { getPatternByType, type TextureConfig } from '@textura/shared';
+
+const DEFAULT_PATTERN_TYPE = 'venzowood';
+const defaultPatternDefinition = getPatternByType(DEFAULT_PATTERN_TYPE);
 
 /**
  * Default texture configuration — used when creating a new project.
@@ -9,7 +12,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   units: 'mm',
 
   pattern: {
-    type: 'venzowood',
+    type: DEFAULT_PATTERN_TYPE,
     category: 'geometric',
     orientation: 'horizontal',
     rows: 1,
@@ -32,8 +35,8 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
         fallbackColor: '#808080',
       },
       uploadWidth: null,
-      width: 400,
-      height: 100,
+      width: defaultPatternDefinition?.defaultUnitWidth ?? 400,
+      height: defaultPatternDefinition?.defaultUnitHeight ?? 100,
       minWidth: 50,
       minHeight: 50,
 
