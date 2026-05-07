@@ -416,7 +416,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowColMode: 'module',
     rowMultiple: 1,
     columnMultiple: 1,
-    displayName: 'Weave Pattern 2',
+    displayName: 'Weave Pattern',
     description: 'Alternative weave pattern with balanced rhythm',
     previewPath: '',
     previewAssetPath: 'patterns/impress/weave  pattern.svg',
