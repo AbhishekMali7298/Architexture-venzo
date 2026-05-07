@@ -78,7 +78,7 @@ function getFrameRepeatSize(
 }
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
-  if (config.pattern.type !== 'venzowood') {
+  if (config.pattern.type !== 'venzowood' && config.pattern.type !== 'rhombus_pattern') {
     return [{ x: 0, y: 0 }];
   }
 
