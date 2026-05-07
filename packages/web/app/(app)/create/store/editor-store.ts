@@ -47,13 +47,18 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   concave_pattern: {
-    horizontalSize: 3,
-    verticalSize: 3,
+    horizontalSize: 0,
+    verticalSize: 0,
     linkedDimensions: true,
   },
   convex_pattern: {
-    horizontalSize: 2,
-    verticalSize: 2,
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
+  },
+  ripple_pattern: {
+    horizontalSize: 0,
+    verticalSize: 0,
     linkedDimensions: true,
   },
   venzowood_3: {

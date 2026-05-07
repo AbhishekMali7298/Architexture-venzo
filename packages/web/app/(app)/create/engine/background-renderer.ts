@@ -188,7 +188,7 @@ function renderSheetPreview(
           depth: emboss.depth,
           reverse: emboss.reverse,
         });
-        if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+        if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && (!emboss || emboss.strength <= 0)) {
           drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
         }
       } else {
@@ -215,7 +215,7 @@ export function drawPatternStrokes(
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.lineWidth = Math.max(1, 0.9 * densityFactor);
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.34)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)'; // Reduced opacity to avoid obscuring emboss
 
   for (const stroke of strokes) {
     const firstPoint = stroke.points[0];
@@ -266,12 +266,12 @@ export function drawEmbossStrokeEffect(
   const strengthFactor = 0.7 + clampedStrength * 0.3;
 
   const embossOffset = Math.max(
-    0.18,
-    (reverse ? 1.4 : 1.15) * strengthFactor * densityFactor * depth,
+    0.15,
+    (reverse ? 1.4 : 1.1) * strengthFactor * densityFactor * depth,
   );
   const strokeWidth = Math.max(
     0.45,
-    (reverse ? 1.2 : 0.95) * strengthFactor * densityFactor * depth,
+    (reverse ? 1.2 : 1.0) * strengthFactor * densityFactor * depth,
   );
   const highlightAlpha = Math.min(
     reverse ? 0.72 : 0.68,
@@ -330,9 +330,6 @@ export function drawEmbossStrokeEffect(
     '#fff8ef',
     highlightAlpha,
   );
-
-  // Center face layer (slightly thinner to create bevel effect)
-  drawOffsetStroke(0, 0, '#8d7453', baseAlpha, strokeWidth * 0.7);
 }
 
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {
@@ -965,7 +962,7 @@ export function renderEmbossBackground(
       depth: embossDepth,
       reverse: isVita,
     });
-    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && embossStrength <= 0) {
       drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
     }
 
@@ -1052,7 +1049,7 @@ export function renderEmbossBackground(
       depth: embossDepth,
       reverse: isVita,
     });
-    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && embossStrength <= 0) {
       drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
     }
   }
