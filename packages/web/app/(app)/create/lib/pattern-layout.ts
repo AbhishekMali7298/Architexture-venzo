@@ -578,9 +578,6 @@ function getVenzowoodTiles(config: TextureConfig) {
 function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const { columns, rows, tileWidth, tileHeight, jointHorizontal, jointVertical } =
     getDimensions(config);
-  const referenceWidth = Math.max(1, module.referenceTileWidth);
-  const referenceHeight = Math.max(1, module.referenceTileHeight);
-  const scale = Math.min(tileWidth / referenceWidth, tileHeight / referenceHeight);
   const contentBounds = {
     minX: Number.POSITIVE_INFINITY,
     minY: Number.POSITIVE_INFINITY,
@@ -618,10 +615,15 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   // Preserve the authored SVG module cell when repeating so seam gaps match the source SVG.
   const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
   const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
-  const moduleWidth = Math.max(authoredRepeatWidth, contentWidth) * scale;
-  const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scale;
-  const repeatWidth = authoredRepeatWidth * scale;
-  const repeatHeight = authoredRepeatHeight * scale;
+  // Module width/height should map to the full authored SVG repeat cell, not a tiny
+  // internal shape reference. This keeps preview, production size, and user-entered
+  // module dimensions aligned for dense SVG-driven patterns like Boho.
+  const scaleX = tileWidth / authoredRepeatWidth;
+  const scaleY = tileHeight / authoredRepeatHeight;
+  const moduleWidth = Math.max(authoredRepeatWidth, contentWidth) * scaleX;
+  const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scaleY;
+  const repeatWidth = authoredRepeatWidth * scaleX;
+  const repeatHeight = authoredRepeatHeight * scaleY;
   const stepX = repeatWidth + jointVertical;
   const stepY = repeatHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
@@ -641,8 +643,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         tiles.push(
           buildTileFromPoints(
             tile.clipPath.map((point) => ({
-              x: offsetX + (tile.x - moduleOriginX + point.x) * scale,
-              y: offsetY + (tile.y - moduleOriginY + point.y) * scale,
+              x: offsetX + (tile.x - moduleOriginX + point.x) * scaleX,
+              y: offsetY + (tile.y - moduleOriginY + point.y) * scaleY,
             })),
           ),
         );
@@ -652,8 +654,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: true,
           points: tile.clipPath.map((point) => ({
-            x: offsetX + (tile.x - moduleOriginX + point.x) * scale,
-            y: offsetY + (tile.y - moduleOriginY + point.y) * scale,
+            x: offsetX + (tile.x - moduleOriginX + point.x) * scaleX,
+            y: offsetY + (tile.y - moduleOriginY + point.y) * scaleY,
           })),
         });
       }
@@ -662,8 +664,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
-            x: offsetX + (point.x - moduleOriginX) * scale,
-            y: offsetY + (point.y - moduleOriginY) * scale,
+            x: offsetX + (point.x - moduleOriginX) * scaleX,
+            y: offsetY + (point.y - moduleOriginY) * scaleY,
           })),
         });
       }
@@ -696,21 +698,22 @@ export function getPatternLayout(
       ? getFlemishTiles(config)
       : config.pattern.type === 'stack_bond'
         ? getStackTiles(config)
-      : config.pattern.type === 'stretcher_bond'
-        ? getStretcherTiles(config)
-        : config.pattern.type === 'herringbone'
-          ? getHerringboneTiles(config)
-          : config.pattern.type === 'chevron'
-            ? getChevronTiles(config)
-            : config.pattern.type === 'staggered'
+        : config.pattern.type === 'stretcher_bond'
+          ? getStretcherTiles(config)
+          : config.pattern.type === 'herringbone'
+            ? getHerringboneTiles(config)
+            : config.pattern.type === 'chevron'
+              ? getChevronTiles(config)
+              : config.pattern.type === 'staggered'
                 ? getStaggeredTiles(config)
                 : config.pattern.type === 'venzowood'
                   ? getVenzowoodTiles(config)
-                : svgPatternModule && (svgPatternModule.tiles.length || svgPatternModule.strokes.length)
-                  ? getSvgPatternTiles(config, svgPatternModule)
-                : hasSvgPatternModule(config.pattern.type)
-                  ? getFallbackSvgPatternLayout(config)
-                : getStackTiles(config);
+                  : svgPatternModule &&
+                      (svgPatternModule.tiles.length || svgPatternModule.strokes.length)
+                    ? getSvgPatternTiles(config, svgPatternModule)
+                    : hasSvgPatternModule(config.pattern.type)
+                      ? getFallbackSvgPatternLayout(config)
+                      : getStackTiles(config);
 
   const tiles = baseLayout.tiles;
   const strokes = baseLayout.strokes ?? [];
