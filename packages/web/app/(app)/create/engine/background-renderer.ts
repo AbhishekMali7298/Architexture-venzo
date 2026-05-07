@@ -224,9 +224,11 @@ function renderSheetPreview(
   const repeatColumns = Math.ceil(bounds.width / repeatWidth) + 2;
   const repeatRows = Math.ceil(bounds.height / repeatHeight) + 2;
   const repeatPhases = getPatternRepeatPhases(config, repeatWidth, repeatHeight);
-  const overlayCache = !isVita
-    ? buildSheetPreviewOverlayCache(layout, scale, jointFill, emboss)
-    : null;
+  const geometryComplexity = layout.tiles.length + layout.strokes.length;
+  const overlayCache =
+    !isVita && geometryComplexity > 80
+      ? buildSheetPreviewOverlayCache(layout, scale, jointFill, emboss)
+      : null;
 
   for (const phase of repeatPhases) {
     for (let row = -1; row < repeatRows; row++) {
