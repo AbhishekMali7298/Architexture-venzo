@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { startTransition, useMemo, useState } from 'react';
 import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
 import { getPatternPreviewImageUrl } from '../lib/material-assets';
 import { IMPRESS_PATTERN_TYPES } from '../lib/pattern-capabilities';
@@ -59,7 +59,12 @@ export function PatternPickerModal({
             return true;
           }
 
-          const haystack = [pattern.displayName, pattern.description, pattern.type, pattern.category]
+          const haystack = [
+            pattern.displayName,
+            pattern.description,
+            pattern.type,
+            pattern.category,
+          ]
             .join(' ')
             .toLowerCase();
 
@@ -72,8 +77,12 @@ export function PatternPickerModal({
     if (hasSvgPatternModule(pattern.type)) {
       primeSvgPatternModule(pattern.type);
     }
-    onSelect(pattern);
     onClose();
+    requestAnimationFrame(() => {
+      startTransition(() => {
+        onSelect(pattern);
+      });
+    });
   };
 
   return (
@@ -126,7 +135,9 @@ export function PatternPickerModal({
                     onClick={() => handlePatternClick(pattern)}
                   >
                     <PatternPreview
-                      src={getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`}
+                      src={
+                        getPatternPreviewImageUrl(pattern.type) ?? `/patterns/${pattern.type}.svg`
+                      }
                       alt={pattern.displayName}
                     />
                     <span className={styles.patternOptionName}>{pattern.displayName}</span>

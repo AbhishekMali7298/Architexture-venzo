@@ -93,6 +93,73 @@ function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repe
   ];
 }
 
+function buildSheetPreviewOverlayCache(
+  layout: ReturnType<typeof getPatternLayout>,
+  scale: number,
+  jointFill: string,
+  emboss: { strength: number; intensity: number; depth: number; reverse: boolean } | undefined,
+) {
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const contentWidth = Math.max(layout.totalWidth, layout.contentWidth) * scale;
+  const contentHeight = Math.max(layout.totalHeight, layout.contentHeight) * scale;
+  const bleed = emboss ? 20 : 4;
+  const cacheCanvas = document.createElement('canvas');
+  cacheCanvas.width = Math.ceil((contentWidth + bleed * 2) * dpr);
+  cacheCanvas.height = Math.ceil((contentHeight + bleed * 2) * dpr);
+
+  const cacheCtx = cacheCanvas.getContext('2d');
+  if (!cacheCtx) {
+    return null;
+  }
+
+  cacheCtx.scale(dpr, dpr);
+  cacheCtx.translate(bleed, bleed);
+
+  if (layout.tiles.length > 0) {
+    cacheCtx.fillStyle = jointFill;
+    cacheCtx.fillRect(0, 0, contentWidth, contentHeight);
+
+    cacheCtx.save();
+    cacheCtx.globalCompositeOperation = 'destination-out';
+    for (const tile of layout.tiles) {
+      tracePolygonPath(
+        cacheCtx,
+        tile.points.map((point) => ({
+          x: point.x * scale,
+          y: point.y * scale,
+        })),
+      );
+      cacheCtx.fill();
+    }
+    cacheCtx.restore();
+  }
+
+  if (emboss) {
+    drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, emboss.strength, {
+      intensity: emboss.intensity,
+      depth: emboss.depth,
+      reverse: emboss.reverse,
+    });
+    drawEmbossStrokeEffect(cacheCtx, 0, 0, scale, layout.strokes, emboss.strength, {
+      intensity: emboss.intensity,
+      depth: emboss.depth,
+      reverse: emboss.reverse,
+    });
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+      drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
+    }
+  } else {
+    drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
+  }
+
+  return {
+    canvas: cacheCanvas,
+    bleed,
+    width: contentWidth,
+    height: contentHeight,
+  };
+}
+
 function renderSheetPreview(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
@@ -137,7 +204,6 @@ function renderSheetPreview(
     width: bounds.width,
     height: bounds.height,
   };
-  const showJointBase = isVita || layout.tiles.length > 0;
 
   fillMaterialSurface(ctx, {
     x: bounds.x,
@@ -145,8 +211,8 @@ function renderSheetPreview(
     width: bounds.width,
     height: bounds.height,
     radius: 0,
-    fallbackFill: showJointBase ? jointFill : fallbackFill,
-    image: isVita ? jointImage : null,
+    fallbackFill: isVita ? jointFill : fallbackFill,
+    image: isVita ? jointImage : materialImage,
     imageDrawBox: worldImageDrawBox,
   });
 
@@ -158,12 +224,26 @@ function renderSheetPreview(
   const repeatColumns = Math.ceil(bounds.width / repeatWidth) + 2;
   const repeatRows = Math.ceil(bounds.height / repeatHeight) + 2;
   const repeatPhases = getPatternRepeatPhases(config, repeatWidth, repeatHeight);
+  const overlayCache = !isVita
+    ? buildSheetPreviewOverlayCache(layout, scale, jointFill, emboss)
+    : null;
 
   for (const phase of repeatPhases) {
     for (let row = -1; row < repeatRows; row++) {
       const offsetY = bounds.y + phase.y + row * repeatHeight;
       for (let column = -1; column < repeatColumns; column++) {
         const offsetX = bounds.x + phase.x + column * repeatWidth;
+
+        if (overlayCache) {
+          ctx.drawImage(
+            overlayCache.canvas,
+            offsetX - overlayCache.bleed,
+            offsetY - overlayCache.bleed,
+            overlayCache.width + overlayCache.bleed * 2,
+            overlayCache.height + overlayCache.bleed * 2,
+          );
+          continue;
+        }
 
         if (layout.tiles.length > 0) {
           for (const [tileIndex, tile] of layout.tiles.entries()) {
