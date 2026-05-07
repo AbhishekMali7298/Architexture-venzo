@@ -289,7 +289,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     rowColMode: 'module',
     rowMultiple: 1,
     columnMultiple: 1,
-    displayName: 'Grate Pattern 2',
+    displayName: 'Grate Pattern',
     description: 'Industrial grate module with staggered mirrored vent channels',
     previewPath: '',
     previewAssetPath: 'patterns/impress/grate pattern 2.svg',
@@ -379,7 +379,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Matrix Pattern',
     description: 'Grid-based matrix design with repeating elements',
     previewPath: '',
-    previewAssetPath: 'patterns/impress/matrix pattern.svg',
+    previewAssetPath: 'patterns/impress/matrix pattern (1).svg',
     defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
     parameterRanges: {
       rows: { min: 1, max: 10 },

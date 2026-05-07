@@ -10,67 +10,11 @@ const svgPatternModule: SvgPatternModule = {
   "viewBoxHeight": 2000,
   "referenceTileWidth": 47.24,
   "referenceTileHeight": 47.24,
-  "originX": 0,
-  "originY": 0,
-  "repeatWidth": 2000,
-  "repeatHeight": 2000,
+  "originX": 9.280000000000014,
+  "originY": 13.54,
+  "repeatWidth": 1984.73,
+  "repeatHeight": 1977.39,
   "tiles": [
-    {
-      "x": 0,
-      "y": 0,
-      "width": 2000,
-      "height": 2000,
-      "clipPath": [
-        {
-          "x": 0,
-          "y": 0
-        },
-        {
-          "x": 2000,
-          "y": 0
-        },
-        {
-          "x": 2000,
-          "y": 2000
-        },
-        {
-          "x": 0,
-          "y": 2000
-        },
-        {
-          "x": 0,
-          "y": 0
-        }
-      ]
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "width": 2000,
-      "height": 2000,
-      "clipPath": [
-        {
-          "x": 0,
-          "y": 0
-        },
-        {
-          "x": 2000,
-          "y": 0
-        },
-        {
-          "x": 2000,
-          "y": 2000
-        },
-        {
-          "x": 0,
-          "y": 2000
-        },
-        {
-          "x": 0,
-          "y": 0
-        }
-      ]
-    },
     {
       "x": 24.2,
       "y": 170.39000000000004,
