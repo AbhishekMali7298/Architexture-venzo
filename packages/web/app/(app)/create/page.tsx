@@ -69,6 +69,7 @@ export default function CreatePage() {
   const setMaterialById = useEditorStore((state) => state.setMaterialById);
   const setMaterialWidth = useEditorStore((state) => state.setMaterialWidth);
   const setMaterialHeight = useEditorStore((state) => state.setMaterialHeight);
+  const setMaterialSize = useEditorStore((state) => state.setMaterialSize);
   const setJointHorizontalSize = useEditorStore((state) => state.setJointHorizontalSize);
   const setJointVerticalSize = useEditorStore((state) => state.setJointVerticalSize);
   const setJointMaterialAsset = useEditorStore((state) => state.setJointMaterialAsset);
@@ -224,6 +225,48 @@ export default function CreatePage() {
     [config, requestedWidth, requestedHeight, svgPatternModule],
   );
 
+  const authoredSvgAspectRatio = useMemo(() => {
+    if (!svgPatternModule) {
+      return null;
+    }
+
+    const repeatWidth = Math.max(1, svgPatternModule.repeatWidth ?? svgPatternModule.viewBoxWidth);
+    const repeatHeight = Math.max(
+      1,
+      svgPatternModule.repeatHeight ?? svgPatternModule.viewBoxHeight,
+    );
+
+    if (!Number.isFinite(repeatWidth) || !Number.isFinite(repeatHeight) || repeatHeight <= 0) {
+      return null;
+    }
+
+    return repeatWidth / repeatHeight;
+  }, [svgPatternModule]);
+
+  const handleMaterialWidthChange = (nextWidth: number) => {
+    if (authoredSvgAspectRatio) {
+      setMaterialSize(
+        nextWidth,
+        Math.max(1, Math.round((nextWidth / authoredSvgAspectRatio) * 1000) / 1000),
+      );
+      return;
+    }
+
+    setMaterialWidth(nextWidth);
+  };
+
+  const handleMaterialHeightChange = (nextHeight: number) => {
+    if (authoredSvgAspectRatio) {
+      setMaterialSize(
+        Math.max(1, Math.round(nextHeight * authoredSvgAspectRatio * 1000) / 1000),
+        nextHeight,
+      );
+      return;
+    }
+
+    setMaterialHeight(nextHeight);
+  };
+
   useEffect(() => {
     if (hasInitializedRequestedSize) return;
     setRequestedWidth(Math.max(1, Math.round(patternLayout.totalWidth)));
@@ -332,8 +375,8 @@ export default function CreatePage() {
           linkedJoints={config.joints.linkedDimensions}
           onOpenPicker={() => setShowMaterialModal(true)}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
-          onWidthChange={setMaterialWidth}
-          onHeightChange={setMaterialHeight}
+          onWidthChange={handleMaterialWidthChange}
+          onHeightChange={handleMaterialHeightChange}
           onJointHorizontalChange={setJointHorizontalSize}
           onJointVerticalChange={setJointVerticalSize}
           onJointAdjustmentChange={setJointAdjustment}

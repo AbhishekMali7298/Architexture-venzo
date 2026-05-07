@@ -185,6 +185,7 @@ export interface EditorState {
 
   setMaterialWidth: (width: number) => void;
   setMaterialHeight: (height: number) => void;
+  setMaterialSize: (width: number, height: number) => void;
   setMaterialMinWidth: (width: number) => void;
   setMaterialMinHeight: (height: number) => void;
 
@@ -396,6 +397,24 @@ export const useEditorStore = create<EditorState>()(
           mat.height = nextHeight;
           bumpRender(s);
         }
+      }),
+
+    setMaterialSize: (width, height) =>
+      set((s) => {
+        const mat = s.config.materials[s.activeMaterialIndex];
+        if (!mat) return;
+
+        const nextWidth = Math.max(1, width);
+        const nextHeight = Math.max(1, height);
+
+        if (mat.width === nextWidth && mat.height === nextHeight) {
+          return;
+        }
+
+        pushHistory(s, `Size → ${nextWidth} × ${nextHeight}`);
+        mat.width = nextWidth;
+        mat.height = nextHeight;
+        bumpRender(s);
       }),
 
     setMaterialMinWidth: (width) =>
