@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const svg = fs.readFileSync('packages/web/public/patterns/impress/chisel pattern.svg', 'utf8');
+const svg = fs.readFileSync('packages/web/public/patterns/impress/chisel pattern (1).svg', 'utf8');
 const pathMatches = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"[^>]*>/gi)];
 
 let inside = 0;
