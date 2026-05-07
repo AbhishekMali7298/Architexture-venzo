@@ -5,12 +5,11 @@ import { getPatternLayout } from '../lib/pattern-layout';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface } from './material-fill';
 import {
-  drawEmbossEffect,
-  drawEmbossStrokeEffect,
   drawPatternStrokes,
+  renderElevationEffect,
   shouldDrawEmbossStrokeOutline,
 } from './background-renderer';
-import { supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { isVitaComponentPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
 
 export function renderToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -23,6 +22,8 @@ export function renderToCanvas(
     backgroundFill?: string;
     embossMode?: boolean;
     embossStrength?: number;
+    embossIntensity?: number;
+    embossDepth?: number;
     svgPatternModule?: SvgPatternModule | null;
   },
 ): void {
@@ -43,6 +44,7 @@ export function renderToCanvas(
     undefined,
     config.joints.adjustments,
   );
+  const isVita = isVitaComponentPattern(config.pattern.type);
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -75,8 +77,8 @@ export function renderToCanvas(
     width: drawWidth,
     height: drawHeight,
     radius: 0,
-    fallbackFill: jointFill,
-    image: options?.jointImage,
+    fallbackFill: isVita ? jointFill : fallbackFill,
+    image: isVita ? options?.jointImage : options?.materialImage,
     imageDrawBox: worldImageDrawBox,
   });
 
@@ -101,9 +103,12 @@ export function renderToCanvas(
   const shouldRenderEmboss = options?.embossMode && supportsEmbossPattern(config.pattern.type);
   if (shouldRenderEmboss) {
     const strength = (options?.embossStrength ?? 100) / 100;
-    drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, strength);
-    drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, strength);
-    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
+    renderElevationEffect(ctx, offsetX, offsetY, scale, layout.tiles, layout.strokes, strength, {
+      intensity: options?.embossIntensity ?? 100,
+      depth: options?.embossDepth ?? 100,
+      reverse: isVita,
+    });
+    if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && strength <= 0) {
       drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
   }

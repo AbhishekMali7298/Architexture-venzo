@@ -73,6 +73,8 @@ async function renderExportCanvas(config: TextureConfig) {
     backgroundFill: '#ffffff',
     embossMode: useEditorStore.getState().embossMode,
     embossStrength: useEditorStore.getState().embossStrength,
+    embossIntensity: useEditorStore.getState().embossIntensity,
+    embossDepth: useEditorStore.getState().embossDepth,
     svgPatternModule,
   });
 

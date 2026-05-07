@@ -41,10 +41,18 @@ function cloneConfigWithPatternSize(config: TextureConfig, rows: number, columns
 }
 
 function getModuleRepeatStep(config: TextureConfig) {
-  const oneColumnLayout = getPatternLayout(cloneConfigWithPatternSize(config, config.pattern.rows, 1));
-  const twoColumnLayout = getPatternLayout(cloneConfigWithPatternSize(config, config.pattern.rows, 2));
-  const oneRowLayout = getPatternLayout(cloneConfigWithPatternSize(config, 1, config.pattern.columns));
-  const twoRowLayout = getPatternLayout(cloneConfigWithPatternSize(config, 2, config.pattern.columns));
+  const oneColumnLayout = getPatternLayout(
+    cloneConfigWithPatternSize(config, config.pattern.rows, 1),
+  );
+  const twoColumnLayout = getPatternLayout(
+    cloneConfigWithPatternSize(config, config.pattern.rows, 2),
+  );
+  const oneRowLayout = getPatternLayout(
+    cloneConfigWithPatternSize(config, 1, config.pattern.columns),
+  );
+  const twoRowLayout = getPatternLayout(
+    cloneConfigWithPatternSize(config, 2, config.pattern.columns),
+  );
 
   return {
     x: Math.max(1, twoColumnLayout.totalWidth - oneColumnLayout.totalWidth),
@@ -56,7 +64,11 @@ function shouldExtendBackgroundByModule(config: TextureConfig) {
   return config.pattern.type === 'venzowood_3';
 }
 
-function getFrameRepeatSize(config: TextureConfig, layout: ReturnType<typeof getPatternLayout>, scale: number) {
+function getFrameRepeatSize(
+  config: TextureConfig,
+  layout: ReturnType<typeof getPatternLayout>,
+  scale: number,
+) {
   // Use logical repeat dimensions from the layout engine.
   // totalWidth/totalHeight already account for joints between modules.
   return {
@@ -178,17 +190,24 @@ function renderSheetPreview(
       }
 
       if (emboss) {
-        drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, emboss.strength, {
-          intensity: emboss.intensity,
-          depth: emboss.depth,
-          reverse: emboss.reverse,
-        });
-        drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, emboss.strength, {
-          intensity: emboss.intensity,
-          depth: emboss.depth,
-          reverse: emboss.reverse,
-        });
-        if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && (!emboss || emboss.strength <= 0)) {
+        renderElevationEffect(
+          ctx,
+          offsetX,
+          offsetY,
+          scale,
+          layout.tiles,
+          layout.strokes,
+          emboss.strength,
+          {
+            intensity: emboss.intensity,
+            depth: emboss.depth,
+            reverse: emboss.reverse,
+          },
+        );
+        if (
+          shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) &&
+          (!emboss || emboss.strength <= 0)
+        ) {
           drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
         }
       } else {
@@ -245,6 +264,321 @@ export function shouldDrawEmbossStrokeOutline(
   return tiles.length === 0 && strokes.length > 0;
 }
 
+type ElevationOptions = {
+  intensity?: number;
+  depth?: number;
+  reverse?: boolean;
+};
+
+type ElevationMetrics = {
+  normalizedStrength: number;
+  offset: number;
+  blurRadius: number;
+  strokeWidth: number;
+  edgeWidth: number;
+  highlightAlpha: number;
+  shadowAlpha: number;
+  faceAlpha: number;
+  outerAlpha: number;
+  pad: number;
+  reverse: boolean;
+};
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function createOffscreenCanvas(width: number, height: number) {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.ceil(width));
+  canvas.height = Math.max(1, Math.ceil(height));
+  return canvas;
+}
+
+function getElevationBounds(
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  tiles: ReadonlyArray<PatternTile>,
+  strokes: ReadonlyArray<PatternStroke>,
+) {
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const tile of tiles) {
+    minX = Math.min(minX, offsetX + tile.bounds.x * scale);
+    minY = Math.min(minY, offsetY + tile.bounds.y * scale);
+    maxX = Math.max(maxX, offsetX + (tile.bounds.x + tile.bounds.width) * scale);
+    maxY = Math.max(maxY, offsetY + (tile.bounds.y + tile.bounds.height) * scale);
+  }
+
+  for (const stroke of strokes) {
+    for (const point of stroke.points) {
+      minX = Math.min(minX, offsetX + point.x * scale);
+      minY = Math.min(minY, offsetY + point.y * scale);
+      maxX = Math.max(maxX, offsetX + point.x * scale);
+      maxY = Math.max(maxY, offsetY + point.y * scale);
+    }
+  }
+
+  if (
+    !Number.isFinite(minX) ||
+    !Number.isFinite(minY) ||
+    !Number.isFinite(maxX) ||
+    !Number.isFinite(maxY)
+  ) {
+    return null;
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
+function getElevationMetrics(
+  scale: number,
+  strength = 1,
+  geometryCount: number,
+  options?: ElevationOptions,
+): ElevationMetrics {
+  const normalizedStrength = clamp(strength, 0, 1);
+  const intensity = clamp((options?.intensity ?? 100) / 100, 0, 1.25);
+  const depth = clamp((options?.depth ?? 100) / 100, 0, 1.25);
+  const reverse = options?.reverse ?? false;
+  const easedStrength = Math.sqrt(normalizedStrength);
+  const densityFactor = clamp(scale / 0.8, 0.45, 1.85);
+  const complexityFactor = clamp(1 / Math.sqrt(Math.max(1, geometryCount / 48)), 0.58, 1);
+  const scaleFactor = densityFactor * complexityFactor;
+
+  const offset = clamp((0.8 + depth * 1.45 + easedStrength * 0.45) * scaleFactor, 0.9, 5.5);
+  const blurRadius = clamp(offset * (0.65 + depth * 0.75), 0.8, 6.5);
+  const strokeWidth = clamp((0.95 + depth * 0.9 + easedStrength * 0.4) * scaleFactor, 1.05, 3.6);
+  const edgeWidth = clamp(strokeWidth * (1.35 + depth * 0.45), 1.4, 5.4);
+  const alphaFactor = easedStrength * (0.72 + intensity * 0.46);
+
+  return {
+    normalizedStrength,
+    offset,
+    blurRadius,
+    strokeWidth,
+    edgeWidth,
+    highlightAlpha: Math.min(reverse ? 0.28 : 0.78, (reverse ? 0.28 : 0.78) * alphaFactor),
+    shadowAlpha: Math.min(reverse ? 0.7 : 0.42, (reverse ? 0.7 : 0.42) * alphaFactor),
+    faceAlpha: Math.min(reverse ? 0.16 : 0.12, (reverse ? 0.16 : 0.12) * alphaFactor),
+    outerAlpha: Math.min(reverse ? 0.22 : 0.18, (reverse ? 0.22 : 0.18) * alphaFactor),
+    pad: Math.ceil(offset + blurRadius * 2 + edgeWidth * 2 + 4),
+    reverse,
+  };
+}
+
+function renderPatternMask(
+  ctx: CanvasRenderingContext2D,
+  originX: number,
+  originY: number,
+  scale: number,
+  tiles: ReadonlyArray<PatternTile>,
+  strokes: ReadonlyArray<PatternStroke>,
+  strokeWidth: number,
+) {
+  ctx.save();
+  ctx.fillStyle = '#000';
+  ctx.strokeStyle = '#000';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = strokeWidth;
+
+  for (const tile of tiles) {
+    tracePolygonPath(
+      ctx,
+      tile.points.map((point) => ({
+        x: originX + point.x * scale,
+        y: originY + point.y * scale,
+      })),
+    );
+    ctx.fill();
+  }
+
+  for (const stroke of strokes) {
+    const firstPoint = stroke.points[0];
+    if (!firstPoint) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(originX + firstPoint.x * scale, originY + firstPoint.y * scale);
+    for (const point of stroke.points.slice(1)) {
+      ctx.lineTo(originX + point.x * scale, originY + point.y * scale);
+    }
+
+    if (stroke.closed) {
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function buildDirectionalBand(
+  maskCanvas: HTMLCanvasElement,
+  deltaX: number,
+  deltaY: number,
+  mode: 'inner' | 'outer',
+) {
+  const bandCanvas = createOffscreenCanvas(maskCanvas.width, maskCanvas.height);
+  const bandCtx = bandCanvas.getContext('2d');
+  if (!bandCtx) return null;
+
+  if (mode === 'inner') {
+    bandCtx.drawImage(maskCanvas, 0, 0);
+    bandCtx.globalCompositeOperation = 'destination-out';
+    bandCtx.drawImage(maskCanvas, deltaX, deltaY);
+  } else {
+    bandCtx.drawImage(maskCanvas, deltaX, deltaY);
+    bandCtx.globalCompositeOperation = 'destination-out';
+    bandCtx.drawImage(maskCanvas, 0, 0);
+  }
+
+  return bandCanvas;
+}
+
+function tintMask(maskCanvas: HTMLCanvasElement, color: string) {
+  const tintedCanvas = createOffscreenCanvas(maskCanvas.width, maskCanvas.height);
+  const tintedCtx = tintedCanvas.getContext('2d');
+  if (!tintedCtx) return null;
+
+  tintedCtx.drawImage(maskCanvas, 0, 0);
+  tintedCtx.globalCompositeOperation = 'source-in';
+  tintedCtx.fillStyle = color;
+  tintedCtx.fillRect(0, 0, tintedCanvas.width, tintedCanvas.height);
+
+  return tintedCanvas;
+}
+
+function drawTintedMask(
+  ctx: CanvasRenderingContext2D,
+  maskCanvas: HTMLCanvasElement | null,
+  x: number,
+  y: number,
+  color: string,
+  alpha: number,
+  blurRadius = 0,
+) {
+  if (!maskCanvas || alpha <= 0) return;
+
+  const tintedMask = tintMask(maskCanvas, color);
+  if (!tintedMask) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  if (blurRadius > 0) {
+    ctx.filter = `blur(${blurRadius}px)`;
+  }
+  ctx.drawImage(tintedMask, x, y);
+  ctx.restore();
+}
+
+/**
+ * Builds a shared alpha mask from polygon tiles and stroke geometry, then derives
+ * highlight/shadow bands from directional offsets. This keeps material mapping intact
+ * because the effect is composited on top of the existing world-space material fill.
+ */
+export function renderElevationEffect(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  tiles: ReadonlyArray<PatternTile>,
+  strokes: ReadonlyArray<PatternStroke>,
+  strength = 1,
+  options?: ElevationOptions,
+) {
+  const geometryCount = tiles.length + strokes.length;
+  const metrics = getElevationMetrics(scale, strength, geometryCount, options);
+  if (metrics.normalizedStrength <= 0 || geometryCount === 0) return;
+
+  const bounds = getElevationBounds(offsetX, offsetY, scale, tiles, strokes);
+  if (!bounds) return;
+
+  const width = bounds.maxX - bounds.minX;
+  const height = bounds.maxY - bounds.minY;
+  const maskCanvas = createOffscreenCanvas(width + metrics.pad * 2, height + metrics.pad * 2);
+  const maskCtx = maskCanvas.getContext('2d');
+  if (!maskCtx) return;
+
+  renderPatternMask(
+    maskCtx,
+    metrics.pad - bounds.minX,
+    metrics.pad - bounds.minY,
+    scale,
+    tiles,
+    strokes,
+    metrics.strokeWidth,
+  );
+
+  const innerTopLeft = buildDirectionalBand(maskCanvas, metrics.offset, metrics.offset, 'inner');
+  const innerBottomRight = buildDirectionalBand(
+    maskCanvas,
+    -metrics.offset,
+    -metrics.offset,
+    'inner',
+  );
+  const outerTopLeft = buildDirectionalBand(maskCanvas, -metrics.offset, -metrics.offset, 'outer');
+  const outerBottomRight = buildDirectionalBand(
+    maskCanvas,
+    metrics.offset,
+    metrics.offset,
+    'outer',
+  );
+  const drawX = bounds.minX - metrics.pad;
+  const drawY = bounds.minY - metrics.pad;
+
+  drawTintedMask(
+    ctx,
+    maskCanvas,
+    drawX,
+    drawY,
+    metrics.reverse ? '#000000' : '#ffffff',
+    metrics.faceAlpha,
+  );
+
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? innerTopLeft : innerBottomRight,
+    drawX,
+    drawY,
+    '#2f2416',
+    metrics.shadowAlpha,
+  );
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? innerBottomRight : innerTopLeft,
+    drawX,
+    drawY,
+    '#fff8ef',
+    metrics.highlightAlpha,
+  );
+
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? outerTopLeft : outerBottomRight,
+    drawX,
+    drawY,
+    '#2f2416',
+    metrics.outerAlpha,
+    metrics.blurRadius,
+  );
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? outerBottomRight : outerTopLeft,
+    drawX,
+    drawY,
+    '#fff8ef',
+    metrics.outerAlpha * 0.85,
+    metrics.blurRadius * 0.8,
+  );
+}
+
 export function drawEmbossStrokeEffect(
   ctx: CanvasRenderingContext2D,
   offsetX: number,
@@ -254,84 +588,7 @@ export function drawEmbossStrokeEffect(
   strength = 1,
   options?: { intensity?: number; depth?: number; reverse?: boolean },
 ) {
-  const normalizedStrength = Math.max(0, Math.min(1, strength));
-  if (!strokes.length || normalizedStrength <= 0) return;
-
-  const intensity = (options?.intensity ?? 100) / 100;
-  const depth = (options?.depth ?? 100) / 100;
-  const reverse = options?.reverse ?? false;
-  const clampedStrength = Math.sqrt(normalizedStrength);
-  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
-  const strengthFactor = 0.7 + clampedStrength * 0.3;
-  
-  // Stabilized alpha factor to ensure visibility even in high-density patterns
-  const alphaFactor = (0.8 + densityFactor * 0.2) * clampedStrength * intensity;
-
-  const embossOffset = Math.max(
-    0.15 * densityFactor,
-    (reverse ? 1.4 : 1.1) * strengthFactor * densityFactor * depth,
-  );
-  const strokeWidth = Math.max(
-    0.45 * densityFactor,
-    (reverse ? 1.2 : 1.0) * strengthFactor * densityFactor * depth,
-  );
-  const highlightAlpha = Math.min(
-    reverse ? 0.82 : 0.78,
-    (reverse ? 0.82 : 0.78) * alphaFactor,
-  );
-  const shadowAlpha = Math.min(
-    reverse ? 0.45 : 0.35,
-    (reverse ? 0.45 : 0.35) * alphaFactor,
-  );
-  const baseAlpha = Math.min(
-    reverse ? 0.32 : 0.24,
-    (reverse ? 0.32 : 0.24) * alphaFactor,
-  );
-
-  const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = customWidth ?? strokeWidth;
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha;
-
-    for (const stroke of strokes) {
-      const firstPoint = stroke.points[0];
-      if (!firstPoint) continue;
-
-      ctx.beginPath();
-      ctx.moveTo(offsetX + firstPoint.x * scale + deltaX, offsetY + firstPoint.y * scale + deltaY);
-
-      for (const point of stroke.points.slice(1)) {
-        ctx.lineTo(offsetX + point.x * scale + deltaX, offsetY + point.y * scale + deltaY);
-      }
-
-      if (stroke.closed) {
-        ctx.closePath();
-      }
-
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  };
-
-  // Shadow layer
-  drawOffsetStroke(
-    reverse ? -embossOffset : embossOffset,
-    reverse ? -embossOffset : embossOffset,
-    '#2f2416',
-    shadowAlpha,
-  );
-
-  // Highlight layer
-  drawOffsetStroke(
-    reverse ? embossOffset : -embossOffset,
-    reverse ? embossOffset : -embossOffset,
-    '#fff8ef',
-    highlightAlpha,
-  );
+  renderElevationEffect(ctx, offsetX, offsetY, scale, [], strokes, strength, options);
 }
 
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {
@@ -387,7 +644,8 @@ function drawVenzowood4Holes(
   const alphaFactor = (0.8 + densityFactor * 0.2) * clampedStrength * intensity;
 
   const grooveWidth = 1.4 * depth * strengthFactor * densityFactor * (reverse ? 1.4 : 1.0);
-  const bevelOffset = Math.max(0.3 * densityFactor, grooveWidth * 0.72) * strengthFactor * (reverse ? 1.2 : 1.0);
+  const bevelOffset =
+    Math.max(0.3 * densityFactor, grooveWidth * 0.72) * strengthFactor * (reverse ? 1.2 : 1.0);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
   const highlightAlpha = Math.min(0.75, 0.75 * alphaFactor);
   const shadowAlpha = Math.min(reverse ? 0.65 : 0.45, (reverse ? 0.65 : 0.45) * alphaFactor);
@@ -421,12 +679,15 @@ function drawVenzowood4Holes(
       fallbackFill: jointFill,
       image: jointImage,
       clipPath: points,
-      imageDrawBox: embossOptions?.reverse === false ? jointImageDrawBox : {
-        x: offsetX,
-        y: offsetY,
-        width: (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale,
-        height: (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale,
-      },
+      imageDrawBox:
+        embossOptions?.reverse === false
+          ? jointImageDrawBox
+          : {
+              x: offsetX,
+              y: offsetY,
+              width: (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale,
+              height: (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale,
+            },
     });
 
     if (normalizedStrength > 0) {
@@ -540,7 +801,6 @@ export function renderBackground(
     };
   }
 
-
   const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
   const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
   const worldImageDrawBox = {
@@ -573,7 +833,6 @@ export function renderBackground(
       imageDrawBox: worldImageDrawBox,
     });
   }
-
 
   if (options?.tileBackground === false) {
     if (isVita && layout.tiles.length > 0) {
@@ -619,7 +878,6 @@ export function renderBackground(
     }
     drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
 
-
     return {
       x: bounds.x,
       y: bounds.y,
@@ -631,7 +889,7 @@ export function renderBackground(
   // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   const frameRepeat = getFrameRepeatSize(config, layout, scale);
-  
+
   // Calculate actual content size (some patterns like Venzowood 3 have overhanging elements)
   const contentWidth = layout.contentWidth * scale;
   const contentHeight = layout.contentHeight * scale;
@@ -700,11 +958,11 @@ export function renderBackground(
       }
 
       ctx.drawImage(
-        cacheCanvas, 
-        offsetX - bleed, 
-        offsetY - bleed, 
-        (contentWidth + bleed * 2), 
-        (contentHeight + bleed * 2)
+        cacheCanvas,
+        offsetX - bleed,
+        offsetY - bleed,
+        contentWidth + bleed * 2,
+        contentHeight + bleed * 2,
       );
     }
   }
@@ -717,7 +975,6 @@ export function renderBackground(
   };
 }
 
-
 export function drawEmbossEffect(
   ctx: CanvasRenderingContext2D,
   offsetX: number,
@@ -727,82 +984,7 @@ export function drawEmbossEffect(
   strength = 1,
   options?: { intensity?: number; depth?: number; reverse?: boolean },
 ) {
-  const normalizedStrength = Math.max(0, Math.min(1, strength));
-  if (normalizedStrength <= 0) return;
-
-  const intensity = (options?.intensity ?? 100) / 100;
-  const depth = (options?.depth ?? 100) / 100;
-  const reverse = options?.reverse ?? false;
-
-  const clampedStrength = Math.sqrt(normalizedStrength);
-  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
-  const strengthFactor = 0.7 + clampedStrength * 0.3;
-  const alphaFactor = (0.8 + densityFactor * 0.2) * clampedStrength * intensity;
-
-  // grooveWidth is kept stable across different pattern dimensions (visual consistency)
-  const grooveWidth = 1.4 * depth * strengthFactor * densityFactor * (reverse ? 1.4 : 1.0);
-  const bevelOffset = Math.max(0.3 * densityFactor, grooveWidth * 0.72) * strengthFactor * (reverse ? 1.2 : 1.0);
-  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.12 * alphaFactor * (reverse ? 2.5 : 1.0);
-  const grooveAlpha = Math.min(0.55, 0.55 * alphaFactor);
-  const highlightAlpha = Math.min(0.75, 0.75 * alphaFactor);
-  const shadowAlpha = Math.min(reverse ? 0.65 : 0.45, (reverse ? 0.65 : 0.45) * alphaFactor);
-
-  ctx.save();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  for (const tile of tiles) {
-    const pts = tile.points.map((p) => ({
-      x: offsetX + p.x * scale,
-      y: offsetY + p.y * scale,
-    }));
-
-    // 1. Face shading
-    tracePolygonPath(ctx, pts);
-    if (reverse) {
-      // Recessed look: darken the face slightly
-      ctx.fillStyle = `rgba(0,0,0,${(faceAlpha * 0.5).toFixed(3)})`;
-    } else {
-      // Raised look: brighten the face slightly
-      ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
-    }
-    ctx.fill();
-
-    // 2. Groove
-    tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = `rgba(0,0,0,${grooveAlpha.toFixed(3)})`;
-    ctx.lineWidth = grooveWidth * 0.5;
-    ctx.stroke();
-
-    // 3. Highlight Bevel
-    ctx.save();
-    tracePolygonPath(ctx, pts);
-    ctx.clip();
-    ctx.save();
-    ctx.translate(reverse ? -bevelOffset : bevelOffset, reverse ? -bevelOffset : bevelOffset);
-    tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
-    ctx.lineWidth = bevelLineWidth;
-    ctx.stroke();
-    ctx.restore();
-    ctx.restore();
-
-    // 4. Shadow Bevel
-    ctx.save();
-    tracePolygonPath(ctx, pts);
-    ctx.clip();
-    ctx.save();
-    ctx.translate(reverse ? bevelOffset : -bevelOffset, reverse ? bevelOffset : -bevelOffset);
-    tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = `rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
-    ctx.lineWidth = bevelLineWidth;
-    ctx.stroke();
-    ctx.restore();
-    ctx.restore();
-  }
-
-  ctx.restore();
+  renderElevationEffect(ctx, offsetX, offsetY, scale, tiles, [], strength, options);
 }
 
 export function renderEmbossBackground(
@@ -956,16 +1138,20 @@ export function renderEmbossBackground(
       });
     }
 
-    drawEmbossEffect(ctx, bounds.x, bounds.y, scale, layout.tiles, embossStrength, {
-      intensity: embossIntensity,
-      depth: embossDepth,
-      reverse: isVita,
-    });
-    drawEmbossStrokeEffect(ctx, bounds.x, bounds.y, scale, layout.strokes, embossStrength, {
-      intensity: embossIntensity,
-      depth: embossDepth,
-      reverse: isVita,
-    });
+    renderElevationEffect(
+      ctx,
+      bounds.x,
+      bounds.y,
+      scale,
+      layout.tiles,
+      layout.strokes,
+      embossStrength,
+      {
+        intensity: embossIntensity,
+        depth: embossDepth,
+        reverse: isVita,
+      },
+    );
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes) && embossStrength <= 0) {
       drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
     }
@@ -1008,12 +1194,12 @@ export function renderEmbossBackground(
   // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   const frameRepeat = getFrameRepeatSize(config, layout, scale);
-  
+
   // Calculate actual content size
   const contentWidth = layout.contentWidth * scale;
   const contentHeight = layout.contentHeight * scale;
-  const bleed = 20; 
-  
+  const bleed = 20;
+
   const cacheCanvas = document.createElement('canvas');
   cacheCanvas.width = Math.ceil((contentWidth + bleed * 2) * dpr);
   cacheCanvas.height = Math.ceil((contentHeight + bleed * 2) * dpr);
@@ -1043,12 +1229,7 @@ export function renderEmbossBackground(
     );
 
     // Draw only the emboss effects into the cache
-    drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, embossStrength, {
-      intensity: embossIntensity,
-      depth: embossDepth,
-      reverse: isVita,
-    });
-    drawEmbossStrokeEffect(cacheCtx, 0, 0, scale, layout.strokes, embossStrength, {
+    renderElevationEffect(cacheCtx, 0, 0, scale, layout.tiles, layout.strokes, embossStrength, {
       intensity: embossIntensity,
       depth: embossDepth,
       reverse: isVita,
@@ -1097,17 +1278,14 @@ export function renderEmbossBackground(
       }
 
       ctx.drawImage(
-        cacheCanvas, 
-        offsetX - bleed, 
-        offsetY - bleed, 
-        (contentWidth + bleed * 2), 
-        (contentHeight + bleed * 2)
+        cacheCanvas,
+        offsetX - bleed,
+        offsetY - bleed,
+        contentWidth + bleed * 2,
+        contentHeight + bleed * 2,
       );
     }
   }
-
-
-
 
   return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
 }
