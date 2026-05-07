@@ -93,6 +93,10 @@ const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; heig
     width: 500,
     height: 500,
   },
+  grate_pattern_2: {
+    width: 400,
+    height: 400,
+  },
 };
 
 function clamp(value: number, min: number, max: number) {
