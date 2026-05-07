@@ -28,7 +28,6 @@ import {
   isImpressPattern,
   isVitaComponentPattern,
   supportsEmbossPattern,
-  supportsJointControls,
 } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
@@ -331,7 +330,6 @@ export default function CreatePage() {
           jointAdjustments={config.joints.adjustments}
           units={config.units}
           linkedJoints={config.joints.linkedDimensions}
-          showJointControls={supportsJointControls(config.pattern.type)}
           onOpenPicker={() => setShowMaterialModal(true)}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onWidthChange={setMaterialWidth}

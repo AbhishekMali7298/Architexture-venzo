@@ -46,7 +46,6 @@ export function MaterialSettingsSection({
   onEmbossStrengthChange,
   embossIntensity,
   embossDepth,
-  showJointControls = true,
   onEmbossIntensityChange,
   onEmbossDepthChange,
   isImpressPattern = false,
@@ -84,7 +83,6 @@ export function MaterialSettingsSection({
   onEmbossStrengthChange: (value: number) => void;
   embossIntensity: number;
   embossDepth: number;
-  showJointControls?: boolean;
   onEmbossIntensityChange: (value: number) => void;
   onEmbossDepthChange: (value: number) => void;
   isImpressPattern?: boolean;
@@ -174,95 +172,89 @@ export function MaterialSettingsSection({
           />
         </div>
 
-        {isVitaPattern || showJointControls ? (
-          <>
-            <div className={styles.subsectionTitle}>Joints</div>
+        <div className={styles.subsectionTitle}>Joints</div>
 
-            {isVitaPattern && (
-              <button
-                className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
-                type="button"
-                onClick={onOpenJointMaterialPicker}
+        {isVitaPattern && (
+          <button
+            className={`${styles.selectionButton} ${styles.selectionButtonCompact}`}
+            type="button"
+            onClick={onOpenJointMaterialPicker}
+          >
+            <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
+              <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
+                {jointMaterialName}
+              </span>
+              <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
+                Joint material
+              </span>
+            </span>
+            <MaterialThumb
+              color="#FFFFFF"
+              src={jointMaterialThumbnailUrl}
+              alt={jointMaterialName}
+              size={36}
+              compact
+              shape="circle"
+              loading="eager"
+            />
+          </button>
+        )}
+
+        <div className={styles.jointDimensionRow}>
+          <NumberField
+            label="H Joint"
+            value={jointHorizontal}
+            min={-500}
+            max={500}
+            unit={unitLabel}
+            onChange={onJointHorizontalChange}
+          />
+          <button
+            className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
+            type="button"
+            onClick={() => onLinkedJointsChange(!linkedJoints)}
+            aria-label={linkedJoints ? 'Unlock joint sizes' : 'Link joint sizes'}
+            title={linkedJoints ? 'Click to unlink joints' : 'Click to link joints'}
+          >
+            {linkedJoints ? (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span className={`${styles.selectionText} ${styles.selectionTextCompact}`}>
-                  <span className={`${styles.selectionLabel} ${styles.selectionLabelCompact}`}>
-                    {jointMaterialName}
-                  </span>
-                  <span className={`${styles.selectionMeta} ${styles.selectionMetaCompact}`}>
-                    Joint material
-                  </span>
-                </span>
-                <MaterialThumb
-                  color="#FFFFFF"
-                  src={jointMaterialThumbnailUrl}
-                  alt={jointMaterialName}
-                  size={36}
-                  compact
-                  shape="circle"
-                  loading="eager"
-                />
-              </button>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            ) : (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+              </svg>
             )}
-
-            {showJointControls ? (
-              <div className={styles.jointDimensionRow}>
-                <NumberField
-                  label="H Joint"
-                  value={jointHorizontal}
-                  min={-500}
-                  max={500}
-                  unit={unitLabel}
-                  onChange={onJointHorizontalChange}
-                />
-                <button
-                  className={`${styles.jointLinkButton} ${linkedJoints ? styles.jointLinkButtonActive : ''}`}
-                  type="button"
-                  onClick={() => onLinkedJointsChange(!linkedJoints)}
-                  aria-label={linkedJoints ? 'Unlock joint sizes' : 'Link joint sizes'}
-                  title={linkedJoints ? 'Click to unlink joints' : 'Click to link joints'}
-                >
-                  {linkedJoints ? (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                    </svg>
-                  )}
-                </button>
-                <NumberField
-                  label="V Joint"
-                  value={jointVertical}
-                  min={-500}
-                  max={500}
-                  unit={unitLabel}
-                  onChange={onJointVerticalChange}
-                />
-              </div>
-            ) : null}
-          </>
-        ) : null}
+          </button>
+          <NumberField
+            label="V Joint"
+            value={jointVertical}
+            min={-500}
+            max={500}
+            unit={unitLabel}
+            onChange={onJointVerticalChange}
+          />
+        </div>
       </SectionCard>
 
       {showJointAdjustments ? (

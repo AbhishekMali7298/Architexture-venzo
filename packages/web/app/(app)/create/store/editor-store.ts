@@ -6,7 +6,6 @@ import type {
   TextureConfig,
   EditorTab,
   PatternType,
-
   ImageAdjustments,
   MaterialAssetRef,
   MaterialDefinition,
@@ -47,13 +46,18 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   concave_pattern: {
-    horizontalSize: 3,
-    verticalSize: 3,
+    horizontalSize: 0,
+    verticalSize: 0,
     linkedDimensions: true,
   },
   convex_pattern: {
-    horizontalSize: 2,
-    verticalSize: 2,
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
+  },
+  ripple_pattern: {
+    horizontalSize: 0,
+    verticalSize: 0,
     linkedDimensions: true,
   },
   venzowood_3: {
@@ -151,8 +155,6 @@ export interface EditorState {
   setMaterialMinWidth: (width: number) => void;
   setMaterialMinHeight: (height: number) => void;
 
-
-
   // Joints
 
   setJointMaterialAsset: (asset: MaterialAssetRef | null) => void;
@@ -226,7 +228,6 @@ function applyMaterialLibrarySelection(
   // User-edited sizing, tint, edges, joints, and other overrides stay intact.
   mat.definitionId = definition.id;
   mat.source = cloneMaterialSource(definition.source);
-
 }
 
 // ======= Store =======
@@ -333,8 +334,6 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-
-
     setMaterialWidth: (width) =>
       set((s) => {
         pushHistory(s, `Width → ${width}`);
@@ -377,13 +376,7 @@ export const useEditorStore = create<EditorState>()(
         bumpRender(s);
       }),
 
-
-
-
-
     // ===== Joint Actions =====
-
-
 
     setJointMaterialAsset: (asset) =>
       set((s) => {
@@ -425,8 +418,6 @@ export const useEditorStore = create<EditorState>()(
         }
         bumpRender(s);
       }),
-
-
 
     setJointAdjustment: (key, value) =>
       set((s) => {
