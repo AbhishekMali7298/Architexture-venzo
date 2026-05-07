@@ -8,7 +8,6 @@ import concavePatternModule from '../engine/generated/svg-pattern-modules/module
 import convexPatternModule from '../engine/generated/svg-pattern-modules/modules/convex_pattern';
 import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
 import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
-import weavePatternModule from '../engine/generated/svg-pattern-modules/modules/weave_pattern';
 import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
 import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
@@ -21,7 +20,6 @@ const SVG_TEST_MODULES: Record<string, SvgPatternModule> = {
   convex_pattern: convexPatternModule,
   rhombus_pattern: rhombusPatternModule,
   ripple_pattern: ripplePatternModule,
-  weave_pattern: weavePatternModule,
   venzowood_4: venzowood4Module,
   venzowood_5: venzowood5Module,
 };
@@ -86,7 +84,6 @@ describe('pattern layout', () => {
       'convex_pattern',
       'rhombus_pattern',
       'ripple_pattern',
-      'weave_pattern',
       'venzowood_4',
       'venzowood_5',
     ]) {
@@ -127,7 +124,9 @@ describe('pattern layout', () => {
     const moduleTileCount = layout.tiles.length / config.pattern.columns;
     const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
     const secondModuleTiles = layout.tiles.slice(moduleTileCount);
-    const firstMaxX = Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const firstMaxX = Math.max(
+      ...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width),
+    );
     const secondMinX = Math.min(...secondModuleTiles.map((tile) => tile.bounds.x));
 
     expect(secondMinX - firstMaxX).toBeLessThan(0);
@@ -135,7 +134,9 @@ describe('pattern layout', () => {
     const singleConfig = structuredClone(config);
     singleConfig.pattern.columns = 1;
     const singleLayout = getPatternLayout(singleConfig, venzowood3Module);
-    const singleMaxX = Math.max(...singleLayout.tiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const singleMaxX = Math.max(
+      ...singleLayout.tiles.map((tile) => tile.bounds.x + tile.bounds.width),
+    );
 
     expect(singleLayout.totalWidth).toBeCloseTo(singleMaxX, 2);
   });
@@ -156,7 +157,9 @@ describe('pattern layout', () => {
     const moduleTileCount = layout.tiles.length / config.pattern.columns;
     const firstModuleTiles = layout.tiles.slice(0, moduleTileCount);
     const secondModuleTiles = layout.tiles.slice(moduleTileCount);
-    const firstMaxX = Math.max(...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const firstMaxX = Math.max(
+      ...firstModuleTiles.map((tile) => tile.bounds.x + tile.bounds.width),
+    );
     const secondMinX = Math.min(...secondModuleTiles.map((tile) => tile.bounds.x));
 
     expect(secondMinX - firstMaxX).toBeLessThan(0);
