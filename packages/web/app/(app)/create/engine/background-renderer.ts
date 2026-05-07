@@ -272,14 +272,16 @@ type ElevationOptions = {
 
 type ElevationMetrics = {
   normalizedStrength: number;
-  offset: number;
-  blurRadius: number;
+  resolutionScale: number;
+  primaryOffset: number;
+  secondaryOffset: number;
+  outerOffset: number;
   strokeWidth: number;
-  edgeWidth: number;
   highlightAlpha: number;
   shadowAlpha: number;
   faceAlpha: number;
-  outerAlpha: number;
+  secondaryAlpha: number;
+  contactAlpha: number;
   pad: number;
   reverse: boolean;
 };
@@ -293,6 +295,13 @@ function createOffscreenCanvas(width: number, height: number) {
   canvas.width = Math.max(1, Math.ceil(width));
   canvas.height = Math.max(1, Math.ceil(height));
   return canvas;
+}
+
+function getContextPixelScale(ctx: CanvasRenderingContext2D) {
+  const transform = ctx.getTransform();
+  const scaleX = Math.hypot(transform.a, transform.b) || 1;
+  const scaleY = Math.hypot(transform.c, transform.d) || 1;
+  return Math.max(1, scaleX, scaleY);
 }
 
 function getElevationBounds(
@@ -336,6 +345,7 @@ function getElevationBounds(
 }
 
 function getElevationMetrics(
+  ctx: CanvasRenderingContext2D,
   scale: number,
   strength = 1,
   geometryCount: number,
@@ -345,28 +355,45 @@ function getElevationMetrics(
   const intensity = clamp((options?.intensity ?? 100) / 100, 0, 1.25);
   const depth = clamp((options?.depth ?? 100) / 100, 0, 1.25);
   const reverse = options?.reverse ?? false;
-  const easedStrength = Math.sqrt(normalizedStrength);
-  const densityFactor = clamp(scale / 0.8, 0.45, 1.85);
-  const complexityFactor = clamp(1 / Math.sqrt(Math.max(1, geometryCount / 48)), 0.58, 1);
-  const scaleFactor = densityFactor * complexityFactor;
-
-  const offset = clamp((0.8 + depth * 1.45 + easedStrength * 0.45) * scaleFactor, 0.9, 5.5);
-  const blurRadius = clamp(offset * (0.65 + depth * 0.75), 0.8, 6.5);
-  const strokeWidth = clamp((0.95 + depth * 0.9 + easedStrength * 0.4) * scaleFactor, 1.05, 3.6);
-  const edgeWidth = clamp(strokeWidth * (1.35 + depth * 0.45), 1.4, 5.4);
-  const alphaFactor = easedStrength * (0.72 + intensity * 0.46);
+  const reliefStrength = Math.pow(normalizedStrength, 0.72);
+  const densityFactor = clamp(scale / 0.9, 0.32, 1.7);
+  const complexityFactor = clamp(1 / Math.sqrt(Math.max(1, geometryCount / 56)), 0.42, 1);
+  const detailFactor = densityFactor * complexityFactor;
+  const shapeReliefBoost = clamp(1.2 - complexityFactor * 0.28, 0.92, 1.16);
+  const pixelScale = getContextPixelScale(ctx);
+  const oversampleBase = geometryCount > 180 ? 2.8 : geometryCount > 72 ? 2.35 : 1.9;
+  const smallScaleBoost = scale < 0.7 ? 1.2 : 1;
+  const resolutionScale = clamp(pixelScale * oversampleBase * smallScaleBoost, 2, 6);
+  const primaryOffset = clamp(
+    (0.42 + depth * 0.86 + reliefStrength * 0.3) * detailFactor * shapeReliefBoost,
+    0.42,
+    2.35,
+  );
+  const secondaryOffset = clamp(primaryOffset * 0.64, 0.22, 1.28);
+  const outerOffset = clamp(primaryOffset * 1.08, 0.34, 2.1);
+  const strokeWidth = clamp(
+    (0.58 + depth * 0.24 + intensity * 0.16 + reliefStrength * 0.08) *
+      densityFactor *
+      clamp(complexityFactor * 1.14, 0.7, 1.08),
+    0.7,
+    2.15,
+  );
+  const alphaFactor = reliefStrength * (0.82 + intensity * 0.58 + depth * 0.26);
 
   return {
     normalizedStrength,
-    offset,
-    blurRadius,
+    resolutionScale,
+    primaryOffset,
+    secondaryOffset,
+    outerOffset,
     strokeWidth,
-    edgeWidth,
-    highlightAlpha: Math.min(reverse ? 0.28 : 0.78, (reverse ? 0.28 : 0.78) * alphaFactor),
-    shadowAlpha: Math.min(reverse ? 0.7 : 0.42, (reverse ? 0.7 : 0.42) * alphaFactor),
-    faceAlpha: Math.min(reverse ? 0.16 : 0.12, (reverse ? 0.16 : 0.12) * alphaFactor),
-    outerAlpha: Math.min(reverse ? 0.22 : 0.18, (reverse ? 0.22 : 0.18) * alphaFactor),
-    pad: Math.ceil(offset + blurRadius * 2 + edgeWidth * 2 + 4),
+    // Bias the renderer toward stronger relief while keeping edge bands tight.
+    highlightAlpha: Math.min(reverse ? 0.28 : 0.82, (reverse ? 0.28 : 0.82) * alphaFactor),
+    shadowAlpha: Math.min(reverse ? 0.72 : 0.48, (reverse ? 0.72 : 0.48) * alphaFactor),
+    faceAlpha: Math.min(reverse ? 0.08 : 0.065, (reverse ? 0.08 : 0.065) * alphaFactor),
+    secondaryAlpha: Math.min(reverse ? 0.38 : 0.5, (reverse ? 0.38 : 0.5) * alphaFactor),
+    contactAlpha: Math.min(reverse ? 0.18 : 0.14, (reverse ? 0.18 : 0.14) * alphaFactor),
+    pad: Math.ceil((outerOffset + primaryOffset + strokeWidth * 2 + 3) * resolutionScale),
     reverse,
   };
 }
@@ -381,6 +408,7 @@ function renderPatternMask(
   strokeWidth: number,
 ) {
   ctx.save();
+  ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = '#000';
   ctx.strokeStyle = '#000';
   ctx.lineCap = 'round';
@@ -428,6 +456,7 @@ function buildDirectionalBand(
   const bandCanvas = createOffscreenCanvas(maskCanvas.width, maskCanvas.height);
   const bandCtx = bandCanvas.getContext('2d');
   if (!bandCtx) return null;
+  bandCtx.imageSmoothingEnabled = false;
 
   if (mode === 'inner') {
     bandCtx.drawImage(maskCanvas, 0, 0);
@@ -460,9 +489,10 @@ function drawTintedMask(
   maskCanvas: HTMLCanvasElement | null,
   x: number,
   y: number,
+  width: number,
+  height: number,
   color: string,
   alpha: number,
-  blurRadius = 0,
 ) {
   if (!maskCanvas || alpha <= 0) return;
 
@@ -471,17 +501,14 @@ function drawTintedMask(
 
   ctx.save();
   ctx.globalAlpha = alpha;
-  if (blurRadius > 0) {
-    ctx.filter = `blur(${blurRadius}px)`;
-  }
-  ctx.drawImage(tintedMask, x, y);
+  ctx.drawImage(tintedMask, x, y, width, height);
   ctx.restore();
 }
 
 /**
- * Builds a shared alpha mask from polygon tiles and stroke geometry, then derives
- * highlight/shadow bands from directional offsets. This keeps material mapping intact
- * because the effect is composited on top of the existing world-space material fill.
+ * Builds a high-resolution geometry mask, then extracts narrow directional edge bands
+ * from that mask. The result stays sharp because it avoids blur-driven bevel styling
+ * and preserves tiny SVG details through oversampled mask rendering.
  */
 export function renderElevationEffect(
   ctx: CanvasRenderingContext2D,
@@ -494,7 +521,7 @@ export function renderElevationEffect(
   options?: ElevationOptions,
 ) {
   const geometryCount = tiles.length + strokes.length;
-  const metrics = getElevationMetrics(scale, strength, geometryCount, options);
+  const metrics = getElevationMetrics(ctx, scale, strength, geometryCount, options);
   if (metrics.normalizedStrength <= 0 || geometryCount === 0) return;
 
   const bounds = getElevationBounds(offsetX, offsetY, scale, tiles, strokes);
@@ -502,42 +529,53 @@ export function renderElevationEffect(
 
   const width = bounds.maxX - bounds.minX;
   const height = bounds.maxY - bounds.minY;
-  const maskCanvas = createOffscreenCanvas(width + metrics.pad * 2, height + metrics.pad * 2);
+  const logicalMaskWidth = width + (metrics.pad * 2) / metrics.resolutionScale;
+  const logicalMaskHeight = height + (metrics.pad * 2) / metrics.resolutionScale;
+  const logicalPad = metrics.pad / metrics.resolutionScale;
+  const maskCanvas = createOffscreenCanvas(
+    logicalMaskWidth * metrics.resolutionScale,
+    logicalMaskHeight * metrics.resolutionScale,
+  );
   const maskCtx = maskCanvas.getContext('2d');
   if (!maskCtx) return;
+  maskCtx.setTransform(metrics.resolutionScale, 0, 0, metrics.resolutionScale, 0, 0);
+  maskCtx.imageSmoothingEnabled = false;
 
   renderPatternMask(
     maskCtx,
-    metrics.pad - bounds.minX,
-    metrics.pad - bounds.minY,
+    logicalPad - bounds.minX,
+    logicalPad - bounds.minY,
     scale,
     tiles,
     strokes,
     metrics.strokeWidth,
   );
 
-  const innerTopLeft = buildDirectionalBand(maskCanvas, metrics.offset, metrics.offset, 'inner');
-  const innerBottomRight = buildDirectionalBand(
+  const primaryDelta = Math.max(1, Math.round(metrics.primaryOffset * metrics.resolutionScale));
+  const secondaryDelta = Math.max(1, Math.round(metrics.secondaryOffset * metrics.resolutionScale));
+  const outerDelta = Math.max(1, Math.round(metrics.outerOffset * metrics.resolutionScale));
+
+  const innerTopLeft = buildDirectionalBand(maskCanvas, primaryDelta, primaryDelta, 'inner');
+  const innerBottomRight = buildDirectionalBand(maskCanvas, -primaryDelta, -primaryDelta, 'inner');
+  const microTopLeft = buildDirectionalBand(maskCanvas, secondaryDelta, secondaryDelta, 'inner');
+  const microBottomRight = buildDirectionalBand(
     maskCanvas,
-    -metrics.offset,
-    -metrics.offset,
+    -secondaryDelta,
+    -secondaryDelta,
     'inner',
   );
-  const outerTopLeft = buildDirectionalBand(maskCanvas, -metrics.offset, -metrics.offset, 'outer');
-  const outerBottomRight = buildDirectionalBand(
-    maskCanvas,
-    metrics.offset,
-    metrics.offset,
-    'outer',
-  );
-  const drawX = bounds.minX - metrics.pad;
-  const drawY = bounds.minY - metrics.pad;
+  const outerTopLeft = buildDirectionalBand(maskCanvas, -outerDelta, -outerDelta, 'outer');
+  const outerBottomRight = buildDirectionalBand(maskCanvas, outerDelta, outerDelta, 'outer');
+  const drawX = bounds.minX - logicalPad;
+  const drawY = bounds.minY - logicalPad;
 
   drawTintedMask(
     ctx,
     maskCanvas,
     drawX,
     drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
     metrics.reverse ? '#000000' : '#ffffff',
     metrics.faceAlpha,
   );
@@ -547,6 +585,8 @@ export function renderElevationEffect(
     metrics.reverse ? innerTopLeft : innerBottomRight,
     drawX,
     drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
     '#2f2416',
     metrics.shadowAlpha,
   );
@@ -555,8 +595,31 @@ export function renderElevationEffect(
     metrics.reverse ? innerBottomRight : innerTopLeft,
     drawX,
     drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
     '#fff8ef',
     metrics.highlightAlpha,
+  );
+
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? microTopLeft : microBottomRight,
+    drawX,
+    drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
+    '#2f2416',
+    metrics.secondaryAlpha,
+  );
+  drawTintedMask(
+    ctx,
+    metrics.reverse ? microBottomRight : microTopLeft,
+    drawX,
+    drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
+    '#fff8ef',
+    metrics.secondaryAlpha,
   );
 
   drawTintedMask(
@@ -564,18 +627,20 @@ export function renderElevationEffect(
     metrics.reverse ? outerTopLeft : outerBottomRight,
     drawX,
     drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
     '#2f2416',
-    metrics.outerAlpha,
-    metrics.blurRadius,
+    metrics.contactAlpha,
   );
   drawTintedMask(
     ctx,
     metrics.reverse ? outerBottomRight : outerTopLeft,
     drawX,
     drawY,
+    logicalMaskWidth,
+    logicalMaskHeight,
     '#fff8ef',
-    metrics.outerAlpha * 0.85,
-    metrics.blurRadius * 0.8,
+    metrics.contactAlpha * 0.78,
   );
 }
 
