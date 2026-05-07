@@ -261,25 +261,29 @@ export function drawEmbossStrokeEffect(
   const depth = (options?.depth ?? 100) / 100;
   const reverse = options?.reverse ?? false;
   const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
+
+  const clampedStrength = Math.sqrt(normalizedStrength);
+  const strengthFactor = 0.7 + clampedStrength * 0.3;
+
   const embossOffset = Math.max(
     0.18,
-    (reverse ? 1.4 : 1.15) * normalizedStrength * densityFactor * depth,
+    (reverse ? 1.4 : 1.15) * strengthFactor * densityFactor * depth,
   );
   const strokeWidth = Math.max(
     0.45,
-    (reverse ? 1.2 : 0.95) * normalizedStrength * densityFactor * depth,
+    (reverse ? 1.2 : 0.95) * strengthFactor * densityFactor * depth,
   );
   const highlightAlpha = Math.min(
     reverse ? 0.72 : 0.68,
-    (reverse ? 0.72 : 0.68) * normalizedStrength * densityFactor * intensity,
+    (reverse ? 0.72 : 0.68) * clampedStrength * densityFactor * intensity,
   );
   const shadowAlpha = Math.min(
     reverse ? 0.32 : 0.22,
-    (reverse ? 0.32 : 0.22) * normalizedStrength * densityFactor * intensity,
+    (reverse ? 0.32 : 0.22) * clampedStrength * densityFactor * intensity,
   );
   const baseAlpha = Math.min(
     reverse ? 0.24 : 0.18,
-    (reverse ? 0.24 : 0.18) * normalizedStrength * densityFactor * intensity,
+    (reverse ? 0.24 : 0.18) * clampedStrength * densityFactor * intensity,
   );
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
@@ -379,11 +383,14 @@ function drawVenzowood4Holes(
 
   const normalizedStrength = Math.max(0, Math.min(1, strength));
   const clampedStrength = Math.sqrt(normalizedStrength);
-  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
-  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
+  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
+  const strengthFactor = 0.7 + clampedStrength * 0.3;
+
+  const grooveWidth = 1.4 * depth * strengthFactor * densityFactor * (reverse ? 1.4 : 1.0);
+  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * strengthFactor * (reverse ? 1.2 : 1.0);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
-  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * intensity);
+  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * densityFactor * intensity);
+  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * densityFactor * intensity);
 
   for (const hole of holeCandidates) {
     const points = hole.points.map((point) => ({
@@ -728,15 +735,17 @@ export function drawEmbossEffect(
   const reverse = options?.reverse ?? false;
 
   const clampedStrength = Math.sqrt(normalizedStrength);
+  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
+  const strengthFactor = 0.7 + clampedStrength * 0.3;
 
   // grooveWidth is kept stable across different pattern dimensions (visual consistency)
-  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
-  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
+  const grooveWidth = 1.4 * depth * strengthFactor * densityFactor * (reverse ? 1.4 : 1.0);
+  const bevelOffset = Math.max(0.4, grooveWidth * 0.72) * strengthFactor * (reverse ? 1.2 : 1.0);
   const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.08 * clampedStrength * intensity * (reverse ? 2.5 : 1.0);
-  const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * intensity);
-  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
-  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * intensity);
+  const faceAlpha = 0.08 * clampedStrength * densityFactor * intensity * (reverse ? 2.5 : 1.0);
+  const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * densityFactor * intensity);
+  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * densityFactor * intensity);
+  const shadowAlpha = Math.min(reverse ? 0.58 : 0.38, (reverse ? 0.6 : 0.38) * clampedStrength * densityFactor * intensity);
 
   ctx.save();
   ctx.lineCap = 'round';
