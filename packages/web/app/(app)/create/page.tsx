@@ -24,7 +24,12 @@ import {
   getMaterialThumbnailUrl,
   getPatternPreviewImageUrl,
 } from './lib/material-assets';
-import { isImpressPattern, isVitaComponentPattern, supportsEmbossPattern } from './lib/pattern-capabilities';
+import {
+  isImpressPattern,
+  isVitaComponentPattern,
+  supportsEmbossPattern,
+  supportsJointControls,
+} from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
   fitPatternToTargetSize,
@@ -200,7 +205,7 @@ export default function CreatePage() {
       ? `${sharedPatternSizeLabel} Height`
       : currentPattern?.widthLabel
         ? `${currentPattern.widthLabel} Height`
-      : 'Unit Height';
+        : 'Unit Height';
   const sheetPreview = getSheetDimensions(
     config.units,
     sheetPreviewPreset,
@@ -326,7 +331,7 @@ export default function CreatePage() {
           jointAdjustments={config.joints.adjustments}
           units={config.units}
           linkedJoints={config.joints.linkedDimensions}
-
+          showJointControls={supportsJointControls(config.pattern.type)}
           onOpenPicker={() => setShowMaterialModal(true)}
           onOpenJointMaterialPicker={() => setShowJointMaterialModal(true)}
           onWidthChange={setMaterialWidth}
@@ -335,7 +340,6 @@ export default function CreatePage() {
           onJointVerticalChange={setJointVerticalSize}
           onJointAdjustmentChange={setJointAdjustment}
           onLinkedJointsChange={setLinkedDimensions}
-
           isImpressPattern={isImpressPattern(config.pattern.type)}
           isVitaPattern={isVitaComponentPattern(config.pattern.type)}
           embossAvailable={embossAvailable}

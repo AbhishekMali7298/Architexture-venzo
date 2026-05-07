@@ -22,6 +22,11 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
 
 const VITA_COMPONENT_PATTERNS = new Set<PatternType>(['venzowood_4', 'venzowood_5']);
 const IMPRESS_PATTERN_SET = new Set<PatternType>(IMPRESS_PATTERN_TYPES);
+const JOINT_CONTROL_HIDDEN_PATTERNS = new Set<PatternType>([
+  'concave_pattern',
+  'convex_pattern',
+  'ripple_pattern',
+]);
 
 export function isImpressPattern(patternType: PatternType) {
   return IMPRESS_PATTERN_SET.has(patternType);
@@ -33,4 +38,8 @@ export function isVitaComponentPattern(patternType: PatternType) {
 
 export function supportsEmbossPattern(patternType: PatternType) {
   return isImpressPattern(patternType) || isVitaComponentPattern(patternType);
+}
+
+export function supportsJointControls(patternType: PatternType) {
+  return !JOINT_CONTROL_HIDDEN_PATTERNS.has(patternType);
 }
