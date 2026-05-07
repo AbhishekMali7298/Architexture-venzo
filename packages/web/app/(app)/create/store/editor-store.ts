@@ -80,6 +80,20 @@ const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
 const DEFAULT_MODULE_WIDTH = 400;
 const DEFAULT_MODULE_HEIGHT = 100;
+const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; height: number }>> = {
+  concave_pattern: {
+    width: 500,
+    height: 500,
+  },
+  convex_pattern: {
+    width: 500,
+    height: 500,
+  },
+  ripple_pattern: {
+    width: 500,
+    height: 500,
+  },
+};
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -109,6 +123,15 @@ function applyPatternJointDefaults(config: TextureConfig, patternType: PatternTy
   config.joints.horizontalSize = jointDefaults.horizontalSize;
   config.joints.verticalSize = jointDefaults.verticalSize;
   config.joints.linkedDimensions = jointDefaults.linkedDimensions;
+}
+
+function getPatternModuleDefaults(patternType: PatternType) {
+  return (
+    SPECIAL_MODULE_DEFAULTS[patternType] ?? {
+      width: DEFAULT_MODULE_WIDTH,
+      height: DEFAULT_MODULE_HEIGHT,
+    }
+  );
 }
 
 // ======= Store Interface =======
@@ -272,10 +295,12 @@ export const useEditorStore = create<EditorState>()(
         const definition = getPatternByType(type);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (definition && mat) {
-          // Keep pattern switching predictable for production planning:
-          // every pattern starts from the same 400 x 100 mm module size.
-          mat.width = DEFAULT_MODULE_WIDTH;
-          mat.height = DEFAULT_MODULE_HEIGHT;
+          // Keep pattern switching predictable for production planning.
+          // Most patterns start from 400 x 100 mm, while a few tall groove
+          // patterns intentionally start from a square 500 x 500 mm module.
+          const moduleDefaults = getPatternModuleDefaults(type);
+          mat.width = moduleDefaults.width;
+          mat.height = moduleDefaults.height;
         }
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
