@@ -6,7 +6,6 @@ import venzowood3Module from '../engine/generated/svg-pattern-modules/modules/ve
 import chequerPatternModule from '../engine/generated/svg-pattern-modules/modules/chequer_pattern';
 import concavePatternModule from '../engine/generated/svg-pattern-modules/modules/concave_pattern';
 import convexPatternModule from '../engine/generated/svg-pattern-modules/modules/convex_pattern';
-import gratePatternModule from '../engine/generated/svg-pattern-modules/modules/grate_pattern';
 import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
 import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
 import weavePatternModule from '../engine/generated/svg-pattern-modules/modules/weave_pattern';
@@ -20,7 +19,6 @@ const SVG_TEST_MODULES: Record<string, SvgPatternModule> = {
   chequer_pattern: chequerPatternModule,
   concave_pattern: concavePatternModule,
   convex_pattern: convexPatternModule,
-  grate_pattern: gratePatternModule,
   rhombus_pattern: rhombusPatternModule,
   ripple_pattern: ripplePatternModule,
   weave_pattern: weavePatternModule,
@@ -111,24 +109,6 @@ describe('pattern layout', () => {
         true,
       );
     }
-  });
-
-  it('builds stroke-based SVG variants without falling back to stack tiles', () => {
-    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
-    config.pattern = {
-      ...config.pattern,
-      type: 'grate_pattern',
-      category: 'geometric',
-      rows: 1,
-      columns: 1,
-    };
-
-    const layout = getPatternLayout(config, gratePatternModule);
-
-    expect(layout.tiles).toHaveLength(0);
-    expect(layout.strokes.length).toBeGreaterThan(0);
-    expect(layout.totalWidth).toBeGreaterThan(0);
-    expect(layout.totalHeight).toBeGreaterThan(0);
   });
 
   it('keeps the full Venzowood 3 module visible while closing repeat seams', () => {

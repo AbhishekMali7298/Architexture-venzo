@@ -10,8 +10,6 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
   'rhombus_pattern',
   'ripple_pattern',
   'weave_pattern',
-  'grate_pattern',
-  'grate_pattern_1',
   'grate_pattern_2',
   'boho_pattern',
   'chisel_pattern',

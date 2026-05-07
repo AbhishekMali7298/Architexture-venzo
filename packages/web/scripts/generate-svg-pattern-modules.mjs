@@ -581,11 +581,7 @@ async function generate() {
 
         // Specialized logic for grate-based patterns: join twin open subpaths into solid tiles
         if (
-          (
-            patternType === 'grate_pattern' ||
-            patternType === 'grate_pattern_1' ||
-            patternType === 'grate_pattern_2'
-          ) &&
+          patternType === 'grate_pattern_2' &&
           parsedSubpaths.length === 2 &&
           i === 0
         ) {
