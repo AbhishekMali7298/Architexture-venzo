@@ -14,7 +14,7 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
     orientation: 'horizontal',
     rows: 1,
     columns: 1,
-    angle: 0,
+    angle: 45,
     stretchers: 1,
     weaves: 1,
   },
@@ -50,9 +50,6 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
         saturation: 0,
         invertColors: false,
       },
-
-
-
 
       profile: null,
       finish: null,
