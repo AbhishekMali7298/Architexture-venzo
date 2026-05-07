@@ -97,6 +97,10 @@ const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; heig
     width: 400,
     height: 400,
   },
+  boho_pattern: {
+    width: 1500,
+    height: 1500,
+  },
 };
 
 function clamp(value: number, min: number, max: number) {
