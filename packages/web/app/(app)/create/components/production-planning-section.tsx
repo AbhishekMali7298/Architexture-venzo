@@ -57,7 +57,11 @@ export function ProductionPlanningSection({
       <SectionCard
         title="Client Size"
         action={
-          <button className={styles.primaryOutlineButtonCompact} type="button" onClick={onFitToRequestedSize}>
+          <button
+            className={styles.primaryOutlineButtonCompact}
+            type="button"
+            onClick={onFitToRequestedSize}
+          >
             Fit Pattern
           </button>
         }
@@ -69,6 +73,7 @@ export function ProductionPlanningSection({
             min={1}
             max={50000}
             unit={unitSuffix}
+            commitOnChange={false}
             onChange={onRequestedWidthChange}
           />
           <NumberField
@@ -77,6 +82,7 @@ export function ProductionPlanningSection({
             min={1}
             max={50000}
             unit={unitSuffix}
+            commitOnChange={false}
             onChange={onRequestedHeightChange}
           />
         </div>
@@ -115,7 +121,9 @@ export function ProductionPlanningSection({
           </div>
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Rows × Columns</span>
-            <strong className={styles.summaryValue}>{rows} × {columns}</strong>
+            <strong className={styles.summaryValue}>
+              {rows} × {columns}
+            </strong>
           </div>
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Sheet Preview</span>

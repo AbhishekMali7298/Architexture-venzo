@@ -89,14 +89,18 @@ export function NumberField({
             if (draft.trim() === '') {
               const fallback = clampValue(Number.isFinite(value) ? value : 0, min, max);
               setDraft(String(fallback));
-              onChange(fallback);
+              if (fallback !== value) {
+                onChange(fallback);
+              }
               return;
             }
 
             const parsed = Number.parseFloat(draft);
             const nextValue = clampValue(Number.isFinite(parsed) ? parsed : value, min, max);
             setDraft(String(nextValue));
-            onChange(nextValue);
+            if (nextValue !== value) {
+              onChange(nextValue);
+            }
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {

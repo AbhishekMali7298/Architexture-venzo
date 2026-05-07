@@ -160,6 +160,7 @@ export function MaterialSettingsSection({
             min={1}
             max={5000}
             unit={unitLabel}
+            commitOnChange={false}
             onChange={onWidthChange}
           />
           <NumberField
@@ -168,6 +169,7 @@ export function MaterialSettingsSection({
             min={1}
             max={5000}
             unit={unitLabel}
+            commitOnChange={false}
             onChange={onHeightChange}
           />
         </div>

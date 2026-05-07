@@ -78,6 +78,8 @@ const PATTERN_JOINT_DEFAULTS: Record<
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
+const DEFAULT_MODULE_WIDTH = 400;
+const DEFAULT_MODULE_HEIGHT = 100;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -270,11 +272,10 @@ export const useEditorStore = create<EditorState>()(
         const definition = getPatternByType(type);
         const mat = s.config.materials[s.activeMaterialIndex];
         if (definition && mat) {
-          // Pattern-specific module previews like Concave/Convex/Ripple rely on
-          // their authored default unit sizes; carrying over the previous
-          // pattern's width/height can make them look artificially congested.
-          mat.width = definition.defaultUnitWidth;
-          mat.height = definition.defaultUnitHeight;
+          // Keep pattern switching predictable for production planning:
+          // every pattern starts from the same 400 x 100 mm module size.
+          mat.width = DEFAULT_MODULE_WIDTH;
+          mat.height = DEFAULT_MODULE_HEIGHT;
         }
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
@@ -344,22 +345,24 @@ export const useEditorStore = create<EditorState>()(
 
     setMaterialWidth: (width) =>
       set((s) => {
-        pushHistory(s, `Width → ${width}`);
         const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.width = Math.max(1, width);
+        const nextWidth = Math.max(1, width);
+        if (mat && mat.width !== nextWidth) {
+          pushHistory(s, `Width → ${nextWidth}`);
+          mat.width = nextWidth;
+          bumpRender(s);
         }
-        bumpRender(s);
       }),
 
     setMaterialHeight: (height) =>
       set((s) => {
-        pushHistory(s, `Height → ${height}`);
         const mat = s.config.materials[s.activeMaterialIndex];
-        if (mat) {
-          mat.height = Math.max(1, height);
+        const nextHeight = Math.max(1, height);
+        if (mat && mat.height !== nextHeight) {
+          pushHistory(s, `Height → ${nextHeight}`);
+          mat.height = nextHeight;
+          bumpRender(s);
         }
-        bumpRender(s);
       }),
 
     setMaterialMinWidth: (width) =>
