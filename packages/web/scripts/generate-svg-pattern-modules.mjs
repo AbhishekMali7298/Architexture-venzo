@@ -579,8 +579,16 @@ async function generate() {
         let finalPoints = parsed.points;
         let isClosed = parsed.isClosed;
 
-        // Specialized logic for grate_pattern: join subpaths into solid tiles
-        if (patternType === 'grate_pattern' && parsedSubpaths.length === 2 && i === 0) {
+        // Specialized logic for grate-based patterns: join twin open subpaths into solid tiles
+        if (
+          (
+            patternType === 'grate_pattern' ||
+            patternType === 'grate_pattern_1' ||
+            patternType === 'grate_pattern_2'
+          ) &&
+          parsedSubpaths.length === 2 &&
+          i === 0
+        ) {
           const nextParsed = parsedSubpaths[1];
           // Join the two open subpaths into a single closed loop
           finalPoints = [...parsed.points, ...[...nextParsed.points].reverse()];

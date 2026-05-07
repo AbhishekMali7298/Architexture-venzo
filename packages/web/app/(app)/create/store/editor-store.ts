@@ -66,6 +66,11 @@ const PATTERN_JOINT_DEFAULTS: Record<
     verticalSize: 5,
     linkedDimensions: false,
   },
+  grate_pattern_2: {
+    horizontalSize: -35,
+    verticalSize: -10,
+    linkedDimensions: false,
+  },
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
