@@ -209,10 +209,12 @@ export function drawPatternStrokes(
 ) {
   if (!strokes.length) return;
 
+  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
+
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = Math.max(1, 0.9 * densityFactor);
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.34)';
 
   for (const stroke of strokes) {
@@ -258,12 +260,27 @@ export function drawEmbossStrokeEffect(
   const intensity = (options?.intensity ?? 100) / 100;
   const depth = (options?.depth ?? 100) / 100;
   const reverse = options?.reverse ?? false;
-
-  const embossOffset = Math.max(0.1, (reverse ? 0.8 : 0.5) * normalizedStrength * depth);
-  const strokeWidth = Math.max(0.4, (reverse ? 2.0 : 1.6) * normalizedStrength * depth);
-  const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * intensity);
-  const shadowAlpha = Math.min(reverse ? 0.65 : 0.5, (reverse ? 0.8 : 0.6) * normalizedStrength * intensity);
-  const baseAlpha = Math.min(0.3, 0.4 * normalizedStrength * intensity);
+  const densityFactor = Math.max(0.2, Math.min(1.6, scale / 0.75));
+  const embossOffset = Math.max(
+    0.18,
+    (reverse ? 1.4 : 1.15) * normalizedStrength * densityFactor * depth,
+  );
+  const strokeWidth = Math.max(
+    0.45,
+    (reverse ? 1.2 : 0.95) * normalizedStrength * densityFactor * depth,
+  );
+  const highlightAlpha = Math.min(
+    reverse ? 0.72 : 0.68,
+    (reverse ? 0.72 : 0.68) * normalizedStrength * densityFactor * intensity,
+  );
+  const shadowAlpha = Math.min(
+    reverse ? 0.32 : 0.22,
+    (reverse ? 0.32 : 0.22) * normalizedStrength * densityFactor * intensity,
+  );
+  const baseAlpha = Math.min(
+    reverse ? 0.24 : 0.18,
+    (reverse ? 0.24 : 0.18) * normalizedStrength * densityFactor * intensity,
+  );
 
   const drawOffsetStroke = (deltaX: number, deltaY: number, color: string, alpha: number, customWidth?: number) => {
     ctx.save();
@@ -295,13 +312,23 @@ export function drawEmbossStrokeEffect(
   };
 
   // Shadow layer
-  drawOffsetStroke(reverse ? -embossOffset : embossOffset, reverse ? -embossOffset : embossOffset, '#000000', shadowAlpha);
-  
+  drawOffsetStroke(
+    reverse ? -embossOffset : embossOffset,
+    reverse ? -embossOffset : embossOffset,
+    '#2f2416',
+    shadowAlpha,
+  );
+
   // Highlight layer
-  drawOffsetStroke(reverse ? embossOffset : -embossOffset, reverse ? embossOffset : -embossOffset, '#ffffff', highlightAlpha);
-  
+  drawOffsetStroke(
+    reverse ? embossOffset : -embossOffset,
+    reverse ? embossOffset : -embossOffset,
+    '#fff8ef',
+    highlightAlpha,
+  );
+
   // Center face layer (slightly thinner to create bevel effect)
-  drawOffsetStroke(0, 0, '#ffffff', baseAlpha, strokeWidth * 0.7);
+  drawOffsetStroke(0, 0, '#8d7453', baseAlpha, strokeWidth * 0.7);
 }
 
 function polygonArea(points: ReadonlyArray<{ x: number; y: number }>) {

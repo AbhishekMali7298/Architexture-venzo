@@ -128,7 +128,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Concave Pattern',
     description: 'Slim vertical slat module with concave channel spacing',
     previewPath: '',
-    previewAssetPath: 'patterns/impress/concave_pattern.svg',
+    previewAssetPath: 'patterns/impress/Concave pattern 1.svg',
     defaults: {
       rows: 1,
       columns: 1,
@@ -155,7 +155,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Convex Pattern',
     description: 'Wide vertical slat module with convex channel spacing',
     previewPath: '',
-    previewAssetPath: 'patterns/impress/convex_pattern.svg',
+    previewAssetPath: 'patterns/impress/convex pattern 1.svg',
     defaults: {
       rows: 1,
       columns: 1,
@@ -202,7 +202,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     displayName: 'Ripple Pattern',
     description: 'Fine vertical ripple module with repeated narrow grooves',
     previewPath: '',
-    previewAssetPath: 'patterns/impress/ripple_pattern.svg',
+    previewAssetPath: 'patterns/impress/Ripple pattern 1.svg',
     defaults: {
       rows: 1,
       columns: 1,
