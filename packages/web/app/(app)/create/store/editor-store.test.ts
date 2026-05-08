@@ -27,7 +27,7 @@ describe('editor store', () => {
     expect(useEditorStore.getState().embossStrength).toBe(0);
   });
 
-  it('applies the aligned Venzowood 3 joint defaults when selected', () => {
+  it('uses the authored Venzowood 3 module repeat without extra joint overlap', () => {
     useEditorStore
       .getState()
       .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
@@ -37,9 +37,9 @@ describe('editor store', () => {
     const { config } = useEditorStore.getState();
 
     expect(config.pattern.type).toBe('venzowood_3');
-    expect(config.joints.horizontalSize).toBe(-30);
-    expect(config.joints.verticalSize).toBe(-120);
-    expect(config.joints.linkedDimensions).toBe(false);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
+    expect(config.joints.linkedDimensions).toBe(true);
   });
 
   it('resets other patterns to standard linked 5 mm joints', () => {

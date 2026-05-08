@@ -66,9 +66,9 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   venzowood_3: {
-    horizontalSize: -20,
-    verticalSize: -80,
-    linkedDimensions: false,
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
   },
   weave_pattern_2: {
     horizontalSize: -45,
@@ -296,14 +296,15 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
   } else if (type === 'venzowood_3') {
-    // Venzowood 3 stays at its designed scale and requires negative joints for seamlessness
+    // Venzowood 3's SVG module already contains its interlocking repeat cell.
+    // Keep joints at zero so zooming/scaling does not overdrive the overlap.
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width;
     mat.height = moduleDefaults.height;
     s.embossDepth = 100;
-    s.config.joints.horizontalSize = -20;
-    s.config.joints.verticalSize = -80;
-    s.config.joints.linkedDimensions = false;
+    s.config.joints.horizontalSize = 0;
+    s.config.joints.verticalSize = 0;
+    s.config.joints.linkedDimensions = true;
   }
 }
 

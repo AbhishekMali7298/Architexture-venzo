@@ -108,7 +108,7 @@ describe('pattern layout', () => {
     }
   });
 
-  it('keeps the full Venzowood 3 module visible while closing repeat seams', () => {
+  it('uses an intrinsic Venzowood 3 repeat overlap even with zero joints', () => {
     const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
     config.pattern = {
       ...config.pattern,
@@ -138,7 +138,9 @@ describe('pattern layout', () => {
       ...singleLayout.tiles.map((tile) => tile.bounds.x + tile.bounds.width),
     );
 
-    expect(singleLayout.totalWidth).toBeCloseTo(singleMaxX, 2);
+    expect(singleLayout.totalWidth).toBeLessThan(singleMaxX);
+    expect(singleLayout.totalWidth).toBeCloseTo(530, 2);
+    expect(singleLayout.totalHeight).toBeCloseTo(590, 2);
   });
 
   it('supports negative joint values as overlap between repeated modules', () => {

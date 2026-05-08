@@ -624,6 +624,13 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scaleY;
   const repeatWidth = authoredRepeatWidth * scaleX;
   const repeatHeight = authoredRepeatHeight * scaleY;
+  const intrinsicRepeatAdjustment =
+    config.pattern.type === 'venzowood_3'
+      ? {
+          x: tileWidth * (-80 / 610),
+          y: tileHeight * (-20 / 610),
+        }
+      : { x: 0, y: 0 };
 
   // Composite patterns need internal joints to match external ones.
   const isSlatPattern = ['concave_pattern', 'convex_pattern', 'ripple_pattern'].includes(
@@ -631,8 +638,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   );
   const isChequer = config.pattern.type === 'chequer_pattern';
 
-  const stepX = repeatWidth + jointVertical;
-  const stepY = repeatHeight + jointHorizontal;
+  const stepX = repeatWidth + intrinsicRepeatAdjustment.x + jointVertical;
+  const stepY = repeatHeight + intrinsicRepeatAdjustment.y + jointHorizontal;
   const tiles: PatternTile[] = [];
   const strokes: PatternStroke[] = [];
   const fillTiles =
