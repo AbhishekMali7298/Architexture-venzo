@@ -3,6 +3,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/material-renderer';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
+import { buildPreviewDxf } from './dxf-export';
 import {
   getMaterialRenderableColor,
   getMaterialRenderableImageUrl,
@@ -111,6 +112,13 @@ export async function exportPreviewSvg(config: TextureConfig) {
   const svg = await buildPreviewSvg(config);
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
   downloadUrl(url, 'textura-preview.svg');
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+export async function exportPreviewDxf(config: TextureConfig) {
+  const dxf = await buildPreviewDxf(config);
+  const url = URL.createObjectURL(new Blob([dxf], { type: 'application/dxf' }));
+  downloadUrl(url, 'textura-preview.dxf');
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 

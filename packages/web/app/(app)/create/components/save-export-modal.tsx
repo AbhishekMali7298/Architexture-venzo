@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
 
-export type ExportFormat = 'png' | 'svg' | 'jpg' | 'pdf';
+export type ExportFormat = 'png' | 'svg' | 'jpg' | 'pdf' | 'dxf';
 
 export function SaveExportModal({
   onClose,
@@ -38,7 +38,7 @@ export function SaveExportModal({
           <div className={styles.modalSection}>
             <div className={styles.modalSectionTitle}>Export Format</div>
             <div className={styles.exportFormatGrid}>
-              {(['png', 'svg', 'jpg', 'pdf'] as ExportFormat[]).map((option) => (
+              {(['png', 'svg', 'jpg', 'pdf', 'dxf'] as ExportFormat[]).map((option) => (
                 <button
                   key={option}
                   type="button"

@@ -41,6 +41,7 @@ import {
   exportPreviewPdf,
   exportPreviewPng,
   exportPreviewSvg,
+  exportPreviewDxf,
 } from './lib/project-export';
 import {
   clearProjectFromStorage,
@@ -350,6 +351,7 @@ export default function CreatePage() {
     if (format === 'svg') await exportPreviewSvg(config);
     if (format === 'jpg') await exportPreviewJpg(config);
     if (format === 'pdf') await exportPreviewPdf(config);
+    if (format === 'dxf') await exportPreviewDxf(config);
     setShowSaveModal(false);
   };
 
