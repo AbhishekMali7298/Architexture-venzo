@@ -168,4 +168,17 @@ describe('editor store', () => {
     expect(config.pattern.rows).toBe(1);
     expect(config.pattern.columns).toBe(1);
   });
+
+  it('allows venzowood repeats beyond ten columns', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('venzowood');
+    useEditorStore.getState().setPatternColumns(12);
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.columns).toBe(12);
+  });
 });

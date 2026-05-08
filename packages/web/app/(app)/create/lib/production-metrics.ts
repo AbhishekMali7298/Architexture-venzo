@@ -2,7 +2,7 @@ import { getPatternByType, type TextureConfig } from '@textura/shared';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { getPatternLayout } from './pattern-layout';
 
-export type SheetPreviewPreset = 'none' | '8x4' | '10x4' | 'custom';
+export type SheetPreviewPreset = 'none' | '4x8' | '4x10' | 'custom';
 
 const MM_PER_INCH = 25.4;
 
@@ -93,13 +93,13 @@ export function getSheetDimensions(
     };
   }
 
-  const baseInches = preset === '10x4' ? { width: 120, height: 48 } : { width: 96, height: 48 };
+  const baseInches = preset === '4x10' ? { width: 48, height: 120 } : { width: 48, height: 96 };
   const factor = units === 'mm' ? MM_PER_INCH : 1;
 
   return {
     width: baseInches.width * factor,
     height: baseInches.height * factor,
-    label: preset === '10x4' ? '10 × 4 ft Sheet' : '8 × 4 ft Sheet',
+    label: preset === '4x10' ? '4 × 10 ft Sheet' : '4 × 8 ft Sheet',
   };
 }
 

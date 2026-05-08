@@ -108,6 +108,8 @@ export default function CreatePage() {
   const [requestedHeight, setRequestedHeight] = useState(1000);
   const [hasInitializedRequestedSize, setHasInitializedRequestedSize] = useState(false);
   const previousUnitsRef = useRef(config.units);
+  const previousSheetPreviewPresetRef = useRef(sheetPreviewPreset);
+  const previousPatternTypeRef = useRef(config.pattern.type);
 
   const material = config.materials[0]!;
   const svgPatternModule = useSvgPatternModule(config.pattern.type);
@@ -206,6 +208,9 @@ export default function CreatePage() {
       : currentPattern?.widthLabel
         ? `${currentPattern.widthLabel} Height`
         : 'Unit Height';
+  const defaultPatternWidth = Math.max(1, currentPattern?.defaultUnitWidth ?? material.width);
+  const defaultPatternHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
+  const patternZoom = Math.max(0.25, Math.min(2, material.width / defaultPatternWidth));
   const sheetPreview = getSheetDimensions(
     config.units,
     sheetPreviewPreset,
@@ -282,6 +287,47 @@ export default function CreatePage() {
     previousUnitsRef.current = config.units;
   }, [config.units]);
 
+  useEffect(() => {
+    const presetChanged = previousSheetPreviewPresetRef.current !== sheetPreviewPreset;
+    const patternChanged = previousPatternTypeRef.current !== config.pattern.type;
+
+    previousSheetPreviewPresetRef.current = sheetPreviewPreset;
+    previousPatternTypeRef.current = config.pattern.type;
+
+    if (!presetChanged && !patternChanged) {
+      return;
+    }
+
+    if (sheetPreviewPreset !== '4x8' && sheetPreviewPreset !== '4x10') {
+      return;
+    }
+
+    if (!sheetPreview) {
+      return;
+    }
+
+    const targetRepeatHeight = sheetPreview.height / 4;
+    const currentRepeatHeight = Math.max(1, patternLayout.totalHeight);
+    const scale = targetRepeatHeight / currentRepeatHeight;
+
+    if (!Number.isFinite(scale) || scale <= 0) {
+      return;
+    }
+
+    setMaterialSize(
+      Math.max(1, Math.round(material.width * scale * 1000) / 1000),
+      Math.max(1, Math.round(material.height * scale * 1000) / 1000),
+    );
+  }, [
+    config.pattern.type,
+    material.height,
+    material.width,
+    patternLayout.totalHeight,
+    setMaterialSize,
+    sheetPreview,
+    sheetPreviewPreset,
+  ]);
+
   if (!isReady) {
     return null;
   }
@@ -316,6 +362,14 @@ export default function CreatePage() {
     loadProjectConfig(fittedResult.config, {
       label: `Fit pattern to ${Math.round(requestedWidth)} × ${Math.round(requestedHeight)}`,
     });
+  };
+
+  const handlePatternZoomChange = (nextZoom: number) => {
+    const clampedZoom = Math.max(0.25, Math.min(2, nextZoom));
+    setMaterialSize(
+      Math.max(1, Math.round(defaultPatternWidth * clampedZoom * 1000) / 1000),
+      Math.max(1, Math.round(defaultPatternHeight * clampedZoom * 1000) / 1000),
+    );
   };
 
   const sheetCoverageText = sheetCoverage
@@ -417,6 +471,9 @@ export default function CreatePage() {
           jointVertical={formatMeasurement(config.joints.verticalSize, config.units)}
           sheetPreviewLabel={sheetPreview?.label ?? 'Pattern only'}
           sheetCoverageText={sheetCoverageText}
+          zoom={patternZoom}
+          onZoomChange={handlePatternZoomChange}
+          isImpressPattern={isImpressPattern(config.pattern.type)}
         />
       </CreateEditorShell>
 

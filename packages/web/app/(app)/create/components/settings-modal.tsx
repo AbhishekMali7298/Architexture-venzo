@@ -118,8 +118,8 @@ export function SettingsModal({
                 onChange={(event) => onSheetPreviewPresetChange(event.target.value as SheetPreviewPreset)}
               >
                 <option value="none">Pattern only</option>
-                <option value="8x4">8 × 4 ft sheet</option>
-                <option value="10x4">10 × 4 ft sheet</option>
+                <option value="4x8">4 × 8 ft sheet</option>
+                <option value="4x10">4 × 10 ft sheet</option>
                 <option value="custom">Custom sheet</option>
               </select>
             </label>

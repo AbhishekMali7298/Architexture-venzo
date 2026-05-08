@@ -153,26 +153,28 @@ export function MaterialSettingsSection({
           </>
         ) : null}
 
-        <div className={styles.gridTwo}>
-          <NumberField
-            label={widthLabel}
-            value={width}
-            min={1}
-            max={5000}
-            unit={unitLabel}
-            commitOnChange={false}
-            onChange={onWidthChange}
-          />
-          <NumberField
-            label={heightLabel}
-            value={height}
-            min={1}
-            max={5000}
-            unit={unitLabel}
-            commitOnChange={false}
-            onChange={onHeightChange}
-          />
-        </div>
+        {isImpressPattern ? null : (
+          <div className={styles.gridTwo}>
+            <NumberField
+              label={widthLabel}
+              value={width}
+              min={1}
+              max={5000}
+              unit={unitLabel}
+              commitOnChange={false}
+              onChange={onWidthChange}
+            />
+            <NumberField
+              label={heightLabel}
+              value={height}
+              min={1}
+              max={5000}
+              unit={unitLabel}
+              commitOnChange={false}
+              onChange={onHeightChange}
+            />
+          </div>
+        )}
 
         <div className={styles.subsectionTitle}>Joints</div>
 
