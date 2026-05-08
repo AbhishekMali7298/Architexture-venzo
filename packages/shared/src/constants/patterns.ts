@@ -53,8 +53,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 100 },
       angle: { min: 0, max: 45, step: 1 },
     },
-    defaultUnitWidth: 860,
-    defaultUnitHeight: 860,
+    defaultUnitWidth: 215,
+    defaultUnitHeight: 215,
   },
   {
     type: 'venzowood_2',
@@ -74,8 +74,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 10 },
       angle: { min: 0, max: 0, step: 1 },
     },
-    defaultUnitWidth: 860,
-    defaultUnitHeight: 860,
+    defaultUnitWidth: 610,
+    defaultUnitHeight: 610,
   },
   {
     type: 'venzowood_3',
@@ -95,8 +95,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 5 },
       angle: { min: 0, max: 0, step: 1 },
     },
-    defaultUnitWidth: 860,
-    defaultUnitHeight: 860,
+    defaultUnitWidth: 610,
+    defaultUnitHeight: 610,
   },
   {
     type: 'chequer_pattern',
@@ -143,7 +143,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 118.11,
-    defaultUnitHeight: 1968.5,
+    defaultUnitHeight: 610,
   },
   {
     type: 'convex_pattern',
@@ -170,7 +170,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 196.85,
-    defaultUnitHeight: 1968.5,
+    defaultUnitHeight: 610,
   },
   {
     type: 'rhombus_pattern',
@@ -217,7 +217,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 39.37,
-    defaultUnitHeight: 2000,
+    defaultUnitHeight: 610,
   },
   {
     type: 'venzowood_4',
@@ -239,7 +239,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 350,
-    defaultUnitHeight: 980,
+    defaultUnitHeight: 610,
   },
   {
     type: 'venzowood_5',
@@ -259,8 +259,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 10 },
       angle: { min: 0, max: 0, step: 1 },
     },
-    defaultUnitWidth: 860,
-    defaultUnitHeight: 860,
+    defaultUnitWidth: 610,
+    defaultUnitHeight: 610,
   },
   {
     type: 'grate_pattern_2',

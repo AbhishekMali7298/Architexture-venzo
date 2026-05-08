@@ -159,8 +159,8 @@ export function ProductionPlanningSection({
           <RangeField
             label="Pattern Zoom"
             value={Math.round(zoom * 100)}
-            min={25}
-            max={200}
+            min={10}
+            max={100}
             step={5}
             valueText={`${Math.round(zoom * 100)}%`}
             onChange={(value) => onZoomChange(value / 100)}

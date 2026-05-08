@@ -96,8 +96,8 @@ const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; heig
     height: 400,
   },
   boho_pattern: {
-    width: 1500,
-    height: 1500,
+    width: 610,
+    height: 610,
   },
 };
 

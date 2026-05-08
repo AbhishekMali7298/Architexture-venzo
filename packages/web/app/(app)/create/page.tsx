@@ -210,7 +210,7 @@ export default function CreatePage() {
         : 'Unit Height';
   const defaultPatternWidth = Math.max(1, currentPattern?.defaultUnitWidth ?? material.width);
   const defaultPatternHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
-  const patternZoom = Math.max(0.25, Math.min(2, material.width / defaultPatternWidth));
+  const patternZoom = Math.max(0.1, Math.min(1, material.width / defaultPatternWidth));
   const sheetPreview = getSheetDimensions(
     config.units,
     sheetPreviewPreset,
@@ -365,7 +365,7 @@ export default function CreatePage() {
   };
 
   const handlePatternZoomChange = (nextZoom: number) => {
-    const clampedZoom = Math.max(0.25, Math.min(2, nextZoom));
+    const clampedZoom = Math.max(0.1, Math.min(1, nextZoom));
     setMaterialSize(
       Math.max(1, Math.round(defaultPatternWidth * clampedZoom * 1000) / 1000),
       Math.max(1, Math.round(defaultPatternHeight * clampedZoom * 1000) / 1000),
