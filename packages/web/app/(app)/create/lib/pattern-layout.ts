@@ -624,6 +624,13 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scaleY;
   const repeatWidth = authoredRepeatWidth * scaleX;
   const repeatHeight = authoredRepeatHeight * scaleY;
+
+  // Composite patterns need internal joints to match external ones.
+  const isSlatPattern = ['concave_pattern', 'convex_pattern', 'ripple_pattern'].includes(
+    config.pattern.type,
+  );
+  const isChequer = config.pattern.type === 'chequer_pattern';
+
   const stepX = repeatWidth + jointVertical;
   const stepY = repeatHeight + jointHorizontal;
   const tiles: PatternTile[] = [];
@@ -640,11 +647,24 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
       const offsetY = row * stepY;
 
       for (const tile of fillTiles) {
+        let internalOffsetX = (tile.x - moduleOriginX) * scaleX;
+        let internalOffsetY = (tile.y - moduleOriginY) * scaleY;
+
+        if (isChequer) {
+          // Chequer is a 2x2 grid. Shift right/bottom tiles by joint amount.
+          if (tile.x > authoredRepeatWidth * 0.4) internalOffsetX += jointVertical;
+          if (tile.y > authoredRepeatHeight * 0.4) internalOffsetY += jointHorizontal;
+        } else if (isSlatPattern) {
+          // Slats are arranged horizontally. Shift each slat by (index * joint).
+          const slatIndex = module.tiles.indexOf(tile);
+          if (slatIndex > 0) internalOffsetX += slatIndex * jointVertical;
+        }
+
         tiles.push(
           buildTileFromPoints(
             tile.clipPath.map((point) => ({
-              x: offsetX + (tile.x - moduleOriginX + point.x) * scaleX,
-              y: offsetY + (tile.y - moduleOriginY + point.y) * scaleY,
+              x: offsetX + internalOffsetX + point.x * scaleX,
+              y: offsetY + internalOffsetY + point.y * scaleY,
             })),
           ),
         );
@@ -672,15 +692,15 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     }
   }
 
-  const contentMax = getLayoutContentMax({ tiles, strokes });
+  // If we added internal joints, we need to expand the total width/height
+  const extraWidth = isChequer ? jointVertical : isSlatPattern ? (module.tiles.length - 1) * jointVertical : 0;
+  const extraHeight = isChequer ? jointHorizontal : 0;
 
   return {
     tiles,
     strokes,
-    totalWidth: columns * stepX,
-    totalHeight: rows * stepY,
-    contentWidth: contentMax.x,
-    contentHeight: contentMax.y,
+    totalWidth: columns * stepX + extraWidth,
+    totalHeight: rows * stepY + extraHeight,
   };
 }
 
