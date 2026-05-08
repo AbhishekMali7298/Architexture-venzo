@@ -89,7 +89,7 @@ export function renderToCanvas(
     width: drawWidth,
     height: drawHeight,
     radius: 0,
-    fallbackFill: options?.materialImage ? undefined : jointFill,
+    fallbackFill: jointFill,
     image: options?.materialImage ?? options?.jointImage,
     imageDrawBox: worldImageDrawBox,
   });
