@@ -307,7 +307,9 @@ export default function CreatePage() {
     }
 
     const isRhombus =
-      config.pattern.type === 'venzowood' || config.pattern.type === 'rhombus_pattern';
+      config.pattern.type === 'venzowood' ||
+      config.pattern.type === 'venzowood_2' ||
+      config.pattern.type === 'rhombus_pattern';
     const targetRepeatHeight = isRhombus
       ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
         0.1 *

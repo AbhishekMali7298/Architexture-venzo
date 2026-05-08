@@ -272,17 +272,21 @@ function applyMaterialLibrarySelection(
 function applySpecialRhombusDefaults(s: EditorState) {
   const type = s.config.pattern.type;
   const preset = s.sheetPreviewPreset;
-  const isRhombus = type === 'venzowood' || type === 'rhombus_pattern';
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
-  if (isRhombus && isLargeSheet) {
+  if (!isLargeSheet) return;
+
+  const isVenzowood1 = type === 'venzowood' || type === 'rhombus_pattern';
+  const isVenzowood2 = type === 'venzowood_2';
+
+  if (isVenzowood1 || isVenzowood2) {
     const mat = s.config.materials[s.activeMaterialIndex];
     if (mat) {
       const moduleDefaults = getPatternModuleDefaults(type);
       mat.width = moduleDefaults.width * 0.1;
       mat.height = moduleDefaults.height * 0.1;
     }
-    s.embossDepth = 25;
+    s.embossDepth = isVenzowood2 ? 15 : 25;
     s.config.joints.horizontalSize = 0;
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
