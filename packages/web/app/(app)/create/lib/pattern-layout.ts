@@ -542,7 +542,7 @@ function getVenzowoodTiles(config: TextureConfig) {
   const moduleBounds = getBoundsFromShapes(moduleShapes);
   const moduleBoundsWidth = moduleBounds.maxX - moduleBounds.minX;
   const moduleBoundsHeight = moduleBounds.maxY - moduleBounds.minY;
-  const moduleSize = Math.max(tileWidth * 3, tileHeight * 3, 1);
+  const moduleSize = Math.max(tileWidth, tileHeight, 1);
   const scale = moduleSize / Math.max(moduleBoundsWidth, moduleBoundsHeight, 1);
   const moduleWidth = moduleBoundsWidth * scale;
   const moduleHeight = moduleBoundsHeight * scale;
