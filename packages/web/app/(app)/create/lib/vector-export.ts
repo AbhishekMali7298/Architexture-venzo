@@ -6,7 +6,7 @@ import { getMaterialRenderableColor, getMaterialRenderableImageUrl } from './mat
 import { getPatternLayout } from './pattern-layout';
 import { loadSvgPatternModule } from './svg-pattern-module-cache';
 import { useEditorStore } from '../store/editor-store';
-import { supportsEmbossPattern } from './pattern-capabilities';
+import { supportsEmbossPattern, isVitaComponentPattern } from './pattern-capabilities';
 
 function escapeXml(value: string) {
   return value
@@ -124,67 +124,116 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const embossStrength = useEditorStore.getState().embossStrength;
   const shouldRenderEmboss = embossMode && supportsEmbossPattern(config.pattern.type);
 
+  const embossIntensity = useEditorStore.getState().embossIntensity / 100;
+  const embossDepth = useEditorStore.getState().embossDepth / 100;
   const normalizedStrength = Math.max(0, Math.min(1, embossStrength / 100));
+  const isVita = isVitaComponentPattern(config.pattern.type);
+  const reverse = isVita;
+
   const clampedStrength = Math.sqrt(normalizedStrength);
-  const grooveWidth = Math.max(2, Math.min(8, scale * 6)) * (0.7 + clampedStrength * 0.345);
-  const bevelOffset = Math.max(1, grooveWidth * 0.72) * (0.75 + clampedStrength * 0.2875);
-  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.5175);
-  const faceAlpha = 0.063 * clampedStrength;
-  const grooveAlpha = Math.min(0.322, 0.322 * clampedStrength);
-  const highlightAlpha = Math.min(0.414, 0.414 * clampedStrength);
-  const shadowAlpha = Math.min(0.207, 0.207 * clampedStrength);
-  
+  const grooveWidth =
+    1.4 * embossDepth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0) * scale;
+  const bevelOffset =
+    Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
+  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
+
+  const faceAlpha = 0.08 * clampedStrength * embossIntensity * (reverse ? 2.5 : 1.0);
+  const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * embossIntensity);
+  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * embossIntensity);
+  const shadowAlpha = Math.min(
+    reverse ? 0.58 : 0.38,
+    (reverse ? 0.6 : 0.38) * clampedStrength * embossIntensity,
+  );
+
+  const matW = material.width * scale;
+  const matH = material.height * scale;
+
   if (embeddedMaterial) {
-    defs.push(`<symbol id="material-symbol" viewBox="0 0 100 100" preserveAspectRatio="none"><image href="${embeddedMaterial}" x="0" y="0" width="100" height="100" preserveAspectRatio="none" /></symbol>`);
+    defs.push(
+      `<pattern id="material-pattern" x="${offsetX}" y="${offsetY}" width="${matW}" height="${matH}" patternUnits="userSpaceOnUse">`,
+    );
+    defs.push(
+      `<image href="${embeddedMaterial}" x="0" y="0" width="${matW}" height="${matH}" preserveAspectRatio="none" />`,
+    );
+    defs.push(`</pattern>`);
   }
 
-  const tileMarkup = layout.tiles
+  // Create a symbolized module to keep file size small when repeating many times
+  const moduleTilesMarkup = layout.tiles
     .map((tile, index) => {
       const shape = getTileRenderShape(tile, material, config.seed, index);
       const points = shape.points
-        .map((point) => `${offsetX + point.x * scale},${offsetY + point.y * scale}`)
+        .map((point) => `${point.x * scale},${point.y * scale}`)
         .join(' ');
-      const x = offsetX + shape.bounds.x * scale;
-      const y = offsetY + shape.bounds.y * scale;
-      const w = shape.bounds.width * scale;
-      const h = shape.bounds.height * scale;
 
       let markup = '';
-      if (embeddedMaterial) {
-        const clipId = `tile-clip-${index}`;
-        defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
-        markup += `<use href="#material-symbol" x="${x}" y="${y}" width="${w}" height="${h}" clip-path="url(#${clipId})" />`;
-      } else {
-        markup += `<polygon points="${points}" fill="${fallbackFill}" />`;
-      }
+      const fill = embeddedMaterial ? 'url(#material-pattern)' : fallbackFill;
+      markup += `<polygon points="${points}" fill="${fill}" />`;
 
       if (shouldRenderEmboss && normalizedStrength > 0) {
-        // 1. Face (brighten)
-        markup += `<polygon points="${points}" fill="white" opacity="${faceAlpha.toFixed(3)}" />`;
+        // 1. Face (brighten/darken)
+        const faceColor = reverse ? 'black' : 'white';
+        const adjustedFaceAlpha = reverse ? faceAlpha * 0.5 : faceAlpha;
+        markup += `<polygon points="${points}" fill="${faceColor}" opacity="${adjustedFaceAlpha.toFixed(3)}" />`;
 
         // 2. Groove
         markup += `<polygon points="${points}" stroke="black" stroke-width="${grooveWidth * 0.5}" fill="none" opacity="${grooveAlpha.toFixed(3)}" />`;
 
         // 3. Highlight
-        const clipBevelId = `tile-bevel-clip-${index}`;
-        defs.push(`<clipPath id="${clipBevelId}"><polygon points="${points}" /></clipPath>`);
-        markup += `<polygon points="${points}" stroke="white" stroke-width="${bevelLineWidth}" fill="none" opacity="${highlightAlpha.toFixed(3)}" transform="translate(${bevelOffset}, ${bevelOffset})" clip-path="url(#${clipBevelId})" />`;
+        const clipId = `clip-highlight-${index}`;
+        defs.push(`<clipPath id="${clipId}"><polygon points="${points}" /></clipPath>`);
+        const hx = reverse ? -bevelOffset : bevelOffset;
+        const hy = reverse ? -bevelOffset : bevelOffset;
+        markup += `<polygon points="${points}" stroke="white" stroke-width="${bevelLineWidth}" fill="none" opacity="${highlightAlpha.toFixed(3)}" transform="translate(${hx}, ${hy})" clip-path="url(#${clipId})" />`;
 
         // 4. Shadow
-        markup += `<polygon points="${points}" stroke="black" stroke-width="${bevelLineWidth}" fill="none" opacity="${shadowAlpha.toFixed(3)}" transform="translate(${-bevelOffset}, ${-bevelOffset})" clip-path="url(#${clipBevelId})" />`;
+        const sx = reverse ? bevelOffset : -bevelOffset;
+        const sy = reverse ? bevelOffset : -bevelOffset;
+        markup += `<polygon points="${points}" stroke="black" stroke-width="${bevelLineWidth}" fill="none" opacity="${shadowAlpha.toFixed(3)}" transform="translate(${sx}, ${sy})" clip-path="url(#${clipId})" />`;
       }
 
       return markup;
     })
     .join('');
+
   const strokeMarkup = buildStrokeMarkup(
-    offsetX,
-    offsetY,
+    0,
+    0,
     scale,
     layout,
     shouldRenderEmboss,
     normalizedStrength,
   );
+
+  defs.push(`<symbol id="pattern-module" viewBox="0 0 ${drawWidth} ${drawHeight}">`);
+  defs.push(moduleTilesMarkup);
+  defs.push(strokeMarkup);
+  defs.push(`</symbol>`);
+
+  // Fill the sheet with the repeating module
+  const sheetMarkup: string[] = [];
+  const repeatW = layout.totalWidth * scale;
+  const repeatH = layout.totalHeight * scale;
+
+  // Calculate grid to fill the whole output area
+  const startX = offsetX % repeatW - repeatW;
+  const startY = offsetY % repeatH - repeatH;
+  const endX = width + repeatW;
+  const endY = height + repeatH;
+
+  for (let y = startY; y < endY; y += repeatH) {
+    for (let x = startX; x < endX; x += repeatW) {
+      sheetMarkup.push(`<use href="#pattern-module" x="${x}" y="${y}" width="${drawWidth}" height="${drawHeight}" />`);
+    }
+  }
+
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    defs.length ? `<defs>${defs.join('')}</defs>` : '',
+    `<rect x="0" y="0" width="${width}" height="${height}" fill="#eee7dc" />`,
+    sheetMarkup.join(''),
+    '</svg>',
+  ].join('');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
