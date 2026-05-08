@@ -148,9 +148,18 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const matW = material.width * scale;
   const matH = material.height * scale;
 
+  const preset = useEditorStore.getState().sheetPreviewPreset;
+  const isPatternOnly = preset === 'none';
+
+  // If pattern only, the SVG should match the pattern dimensions exactly
+  const svgWidth = isPatternOnly ? layout.totalWidth * scale : width;
+  const svgHeight = isPatternOnly ? layout.totalHeight * scale : height;
+  const svgOffsetX = isPatternOnly ? 0 : offsetX;
+  const svgOffsetY = isPatternOnly ? 0 : offsetY;
+
   if (embeddedMaterial) {
     defs.push(
-      `<pattern id="material-pattern" x="${offsetX}" y="${offsetY}" width="${matW}" height="${matH}" patternUnits="userSpaceOnUse">`,
+      `<pattern id="material-pattern" x="${svgOffsetX}" y="${svgOffsetY}" width="${matW}" height="${matH}" patternUnits="userSpaceOnUse">`,
     );
     defs.push(
       `<image href="${embeddedMaterial}" x="0" y="0" width="${matW}" height="${matH}" preserveAspectRatio="none" />`,
@@ -210,37 +219,32 @@ export async function buildPreviewSvg(config: TextureConfig) {
   defs.push(strokeMarkup);
   defs.push(`</symbol>`);
 
-  // Fill the sheet with the repeating module
+  // Fill the sheet with the repeating module or just show the single module
   const sheetMarkup: string[] = [];
   const repeatW = layout.totalWidth * scale;
   const repeatH = layout.totalHeight * scale;
 
-  // Calculate grid to fill the whole output area
-  const startX = offsetX % repeatW - repeatW;
-  const startY = offsetY % repeatH - repeatH;
-  const endX = width + repeatW;
-  const endY = height + repeatH;
+  if (isPatternOnly) {
+    sheetMarkup.push(`<use href="#pattern-module" x="0" y="0" width="${drawWidth}" height="${drawHeight}" />`);
+  } else {
+    // Fill the sheet grid
+    const startX = svgOffsetX % repeatW - repeatW;
+    const startY = svgOffsetY % repeatH - repeatH;
+    const endX = svgWidth + repeatW;
+    const endY = svgHeight + repeatH;
 
-  for (let y = startY; y < endY; y += repeatH) {
-    for (let x = startX; x < endX; x += repeatW) {
-      sheetMarkup.push(`<use href="#pattern-module" x="${x}" y="${y}" width="${drawWidth}" height="${drawHeight}" />`);
+    for (let y = startY; y < endY; y += repeatH) {
+      for (let x = startX; x < endX; x += repeatW) {
+        sheetMarkup.push(`<use href="#pattern-module" x="${x}" y="${y}" width="${drawWidth}" height="${drawHeight}" />`);
+      }
     }
   }
 
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`,
     defs.length ? `<defs>${defs.join('')}</defs>` : '',
-    `<rect x="0" y="0" width="${width}" height="${height}" fill="#eee7dc" />`,
+    `<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="${embeddedMaterial ? 'url(#material-pattern)' : '#ffffff'}" />`,
     sheetMarkup.join(''),
-    '</svg>',
-  ].join('');
-
-  return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    defs.length ? `<defs>${defs.join('')}</defs>` : '',
-    `<rect x="${offsetX}" y="${offsetY}" width="${drawWidth}" height="${drawHeight}" fill="${jointFill}" />`,
-    tileMarkup,
-    strokeMarkup,
     '</svg>',
   ].join('');
 }
