@@ -3,7 +3,7 @@
 import { getMaterialById, type TextureConfig } from '@textura/shared';
 import { renderToCanvas } from '../engine/material-renderer';
 import { buildPreviewSvg, buildVectorPdf } from './vector-export';
-import { buildPreviewDxf } from './dxf-export';
+import { buildPreviewDxf, type PreviewDxfRasterInfo } from './dxf-export';
 import {
   getMaterialRenderableColor,
   getMaterialRenderableImageUrl,
@@ -50,6 +50,38 @@ async function resolveJointMaterialImage(config: TextureConfig): Promise<HTMLIma
 
   try {
     return await loadMaterialImage(imageUrl);
+  } catch {
+    return null;
+  }
+}
+
+async function resolveDxfRasterInfo(config: TextureConfig): Promise<{
+  rasterInfo: PreviewDxfRasterInfo;
+  blob: Blob;
+} | null> {
+  const material = config.materials[0];
+  if (!material) return null;
+
+  const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
+  const imageUrl = getMaterialRenderableImageUrl(material, definition);
+  if (!imageUrl) return null;
+
+  try {
+    const [image, response] = await Promise.all([loadMaterialImage(imageUrl), fetch(imageUrl)]);
+    if (!response.ok) {
+      return null;
+    }
+
+    const blob = await response.blob();
+    const extension = getBlobExtension(blob.type, imageUrl);
+    return {
+      rasterInfo: {
+        fileName: `textura-preview-material.${extension}`,
+        pixelWidth: image.naturalWidth || image.width,
+        pixelHeight: image.naturalHeight || image.height,
+      },
+      blob,
+    };
   } catch {
     return null;
   }
@@ -116,10 +148,27 @@ export async function exportPreviewSvg(config: TextureConfig) {
 }
 
 export async function exportPreviewDxf(config: TextureConfig) {
-  const dxf = await buildPreviewDxf(config);
+  const rasterAsset = await resolveDxfRasterInfo(config);
+  const dxf = await buildPreviewDxf(config, rasterAsset?.rasterInfo);
+
+  if (rasterAsset) {
+    const imageUrl = URL.createObjectURL(rasterAsset.blob);
+    downloadUrl(imageUrl, rasterAsset.rasterInfo.fileName);
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 0);
+  }
+
   const url = URL.createObjectURL(new Blob([dxf], { type: 'application/dxf' }));
   downloadUrl(url, 'textura-preview.dxf');
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function getBlobExtension(contentType: string, imageUrl: string) {
+  if (contentType === 'image/jpeg') return 'jpg';
+  if (contentType === 'image/png') return 'png';
+  if (contentType === 'image/webp') return 'webp';
+
+  const match = imageUrl.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/);
+  return match?.[1]?.toLowerCase() || 'png';
 }
 
 function concatBytes(parts: Uint8Array[]) {
