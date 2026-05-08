@@ -6,7 +6,8 @@ import { loadSvgPatternModule } from './svg-pattern-module-cache';
 
 /**
  * Basic DXF exporter for architectural patterns.
- * Generates an R12/R14 compatible DXF file with layers for tiles and strokes.
+ * Generates an ASCII DXF file with layers for tiles and strokes.
+ * Uses classic POLYLINE/VERTEX entities for broad CAD compatibility.
  */
 export async function buildPreviewDxf(config: TextureConfig): Promise<string> {
   const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
@@ -16,7 +17,7 @@ export async function buildPreviewDxf(config: TextureConfig): Promise<string> {
     '0', 'SECTION',
     '2', 'HEADER',
     '9', '$ACADVER',
-    '1', 'AC1012', // AutoCAD R13/R14
+    '1', 'AC1009', // AutoCAD R12 ASCII DXF
     '0', 'ENDSEC',
   ];
 
@@ -44,38 +45,14 @@ export async function buildPreviewDxf(config: TextureConfig): Promise<string> {
 
   const entities: string[] = ['0', 'SECTION', '2', 'ENTITIES'];
 
-  // 1. Export Tiles as Polylines
+  // 1. Export Tiles as polylines.
   for (const tile of layout.tiles) {
-    entities.push(
-      '0', 'LWPOLYLINE',
-      '8', 'TILES',
-      '90', tile.points.length.toString(),
-      '70', '1', // Closed
-    );
-    for (const point of tile.points) {
-      entities.push(
-        '10', point.x.toFixed(4),
-        '20', point.y.toFixed(4),
-      );
-    }
+    appendPolylineEntity(entities, 'TILES', tile.points, true);
   }
 
-  // 2. Export Strokes as Polylines
+  // 2. Export Strokes as polylines.
   for (const stroke of layout.strokes) {
-    if (stroke.points.length < 2) continue;
-    
-    entities.push(
-      '0', 'LWPOLYLINE',
-      '8', 'STROKES',
-      '90', stroke.points.length.toString(),
-      '70', stroke.closed ? '1' : '0',
-    );
-    for (const point of stroke.points) {
-      entities.push(
-        '10', point.x.toFixed(4),
-        '20', point.y.toFixed(4),
-      );
-    }
+    appendPolylineEntity(entities, 'STROKES', stroke.points, stroke.closed);
   }
 
   entities.push('0', 'ENDSEC');
@@ -83,4 +60,61 @@ export async function buildPreviewDxf(config: TextureConfig): Promise<string> {
   const footer = ['0', 'EOF'];
 
   return [...header, ...tables, ...entities, ...footer].join('\n');
+}
+
+function appendPolylineEntity(
+  target: string[],
+  layer: 'TILES' | 'STROKES',
+  points: Array<{ x: number; y: number }>,
+  closed: boolean,
+) {
+  const sanitizedPoints = sanitizePolylinePoints(points, closed);
+  if (sanitizedPoints.length < 2) {
+    return;
+  }
+
+  target.push(
+    '0', 'POLYLINE',
+    '8', layer,
+    '66', '1',
+    '70', closed ? '1' : '0',
+    '10', '0.0000',
+    '20', '0.0000',
+    '30', '0.0000',
+  );
+
+  for (const point of sanitizedPoints) {
+    target.push(
+      '0', 'VERTEX',
+      '8', layer,
+      '10', point.x.toFixed(4),
+      '20', point.y.toFixed(4),
+      '30', '0.0000',
+    );
+  }
+
+  target.push(
+    '0', 'SEQEND',
+    '8', layer,
+  );
+}
+
+function sanitizePolylinePoints(
+  points: Array<{ x: number; y: number }>,
+  closed: boolean,
+) {
+  const filtered = points.filter(
+    (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+  );
+
+  if (!closed || filtered.length < 2) {
+    return filtered;
+  }
+
+  const first = filtered[0]!;
+  const last = filtered[filtered.length - 1]!;
+  const closesExplicitly =
+    Math.abs(first.x - last.x) < 0.0001 && Math.abs(first.y - last.y) < 0.0001;
+
+  return closesExplicitly ? filtered.slice(0, -1) : filtered;
 }
