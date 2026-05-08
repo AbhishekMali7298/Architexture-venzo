@@ -126,7 +126,7 @@ export function MaterialSettingsSection({
               value={embossStrength}
               min={0}
               max={100}
-              step={5}
+              step={1}
               valueText={`${embossStrength}%`}
               onChange={onEmbossStrengthChange}
             />
@@ -136,7 +136,7 @@ export function MaterialSettingsSection({
                 value={embossIntensity}
                 min={0}
                 max={100}
-                step={5}
+                step={1}
                 valueText={`${embossIntensity}%`}
                 onChange={onEmbossIntensityChange}
               />
@@ -145,7 +145,7 @@ export function MaterialSettingsSection({
                 value={embossDepth}
                 min={0}
                 max={100}
-                step={5}
+                step={1}
                 valueText={`${embossDepth}%`}
                 onChange={onEmbossDepthChange}
               />

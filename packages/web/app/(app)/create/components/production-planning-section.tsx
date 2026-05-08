@@ -161,7 +161,7 @@ export function ProductionPlanningSection({
             value={Math.round(zoom * 100)}
             min={10}
             max={100}
-            step={5}
+            step={1}
             valueText={`${Math.round(zoom * 100)}%`}
             onChange={(value) => onZoomChange(value / 100)}
           />

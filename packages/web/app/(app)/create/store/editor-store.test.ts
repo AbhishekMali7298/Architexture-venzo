@@ -53,8 +53,8 @@ describe('editor store', () => {
     const { config } = useEditorStore.getState();
 
     expect(config.pattern.type).toBe('rhombus_pattern');
-    expect(config.joints.horizontalSize).toBe(5);
-    expect(config.joints.verticalSize).toBe(5);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
@@ -69,8 +69,8 @@ describe('editor store', () => {
 
     expect(config.pattern.type).toBe('venzowood');
     expect(config.pattern.angle).toBe(0);
-    expect(config.joints.horizontalSize).toBe(30);
-    expect(config.joints.verticalSize).toBe(30);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
@@ -114,8 +114,8 @@ describe('editor store', () => {
     const { config } = useEditorStore.getState();
 
     expect(config.pattern.type).toBe('concave_pattern');
-    expect(config.joints.horizontalSize).toBe(3);
-    expect(config.joints.verticalSize).toBe(3);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
@@ -129,8 +129,8 @@ describe('editor store', () => {
     const { config } = useEditorStore.getState();
 
     expect(config.pattern.type).toBe('convex_pattern');
-    expect(config.joints.horizontalSize).toBe(2);
-    expect(config.joints.verticalSize).toBe(2);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
     expect(config.joints.linkedDimensions).toBe(true);
   });
 

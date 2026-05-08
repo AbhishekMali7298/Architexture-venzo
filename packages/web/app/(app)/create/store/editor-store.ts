@@ -31,8 +31,13 @@ const PATTERN_JOINT_DEFAULTS: Record<
   { horizontalSize: number; verticalSize: number; linkedDimensions: boolean }
 > = {
   venzowood: {
-    horizontalSize: 30,
-    verticalSize: 30,
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
+  },
+  rhombus_pattern: {
+    horizontalSize: 0,
+    verticalSize: 0,
     linkedDimensions: true,
   },
   venzowood_2: {
@@ -264,6 +269,26 @@ function applyMaterialLibrarySelection(
   mat.source = cloneMaterialSource(definition.source);
 }
 
+function applySpecialRhombusDefaults(s: EditorState) {
+  const type = s.config.pattern.type;
+  const preset = s.sheetPreviewPreset;
+  const isRhombus = type === 'venzowood' || type === 'rhombus_pattern';
+  const isLargeSheet = preset === '4x8' || preset === '4x10';
+
+  if (isRhombus && isLargeSheet) {
+    const mat = s.config.materials[s.activeMaterialIndex];
+    if (mat) {
+      const moduleDefaults = getPatternModuleDefaults(type);
+      mat.width = moduleDefaults.width * 0.1;
+      mat.height = moduleDefaults.height * 0.1;
+    }
+    s.embossDepth = 25;
+    s.config.joints.horizontalSize = 0;
+    s.config.joints.verticalSize = 0;
+    s.config.joints.linkedDimensions = true;
+  }
+}
+
 // ======= Store =======
 
 export const useEditorStore = create<EditorState>()(
@@ -314,6 +339,8 @@ export const useEditorStore = create<EditorState>()(
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
         s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+
+        applySpecialRhombusDefaults(s);
 
         bumpRender(s);
       }),
@@ -605,6 +632,7 @@ export const useEditorStore = create<EditorState>()(
     setSheetPreviewPreset: (preset) =>
       set((s) => {
         s.sheetPreviewPreset = preset;
+        applySpecialRhombusDefaults(s);
         bumpRender(s);
       }),
     setCustomSheetWidth: (value) =>

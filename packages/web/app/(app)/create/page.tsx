@@ -306,7 +306,14 @@ export default function CreatePage() {
       return;
     }
 
-    const targetRepeatHeight = sheetPreview.height / 4;
+    const isRhombus =
+      config.pattern.type === 'venzowood' || config.pattern.type === 'rhombus_pattern';
+    const targetRepeatHeight = isRhombus
+      ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
+        0.1 *
+        config.pattern.rows
+      : sheetPreview.height / 4;
+
     const currentRepeatHeight = Math.max(1, patternLayout.totalHeight);
     const scale = targetRepeatHeight / currentRepeatHeight;
 

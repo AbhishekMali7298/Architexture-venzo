@@ -115,24 +115,7 @@ function buildSheetPreviewOverlayCache(
   cacheCtx.scale(dpr, dpr);
   cacheCtx.translate(bleed, bleed);
 
-  if (layout.tiles.length > 0) {
-    cacheCtx.fillStyle = jointFill;
-    cacheCtx.fillRect(0, 0, contentWidth, contentHeight);
 
-    cacheCtx.save();
-    cacheCtx.globalCompositeOperation = 'destination-out';
-    for (const tile of layout.tiles) {
-      tracePolygonPath(
-        cacheCtx,
-        tile.points.map((point) => ({
-          x: point.x * scale,
-          y: point.y * scale,
-        })),
-      );
-      cacheCtx.fill();
-    }
-    cacheCtx.restore();
-  }
 
   if (emboss) {
     drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, emboss.strength, {
@@ -224,9 +207,10 @@ function renderSheetPreview(
   const repeatColumns = Math.ceil(bounds.width / repeatWidth) + 2;
   const repeatRows = Math.ceil(bounds.height / repeatHeight) + 2;
   const repeatPhases = getPatternRepeatPhases(config, repeatWidth, repeatHeight);
+  const totalRepeats = repeatColumns * repeatRows;
   const geometryComplexity = layout.tiles.length + layout.strokes.length;
   const overlayCache =
-    !isVita && geometryComplexity > 80
+    !isVita && (geometryComplexity > 20 || totalRepeats > 10)
       ? buildSheetPreviewOverlayCache(layout, scale, jointFill, emboss)
       : null;
 
