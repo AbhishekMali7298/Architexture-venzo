@@ -8,17 +8,17 @@ import type { SvgPatternModule } from '../types';
 const svgPatternModule: SvgPatternModule = {
   "viewBoxWidth": 2000,
   "viewBoxHeight": 2000,
-  "referenceTileWidth": 196.85,
+  "referenceTileWidth": 78.74,
   "referenceTileHeight": 1968.5,
-  "originX": 74.05,
-  "originY": 13.24,
-  "repeatWidth": 1851.8899999999999,
-  "repeatHeight": 1973.51,
+  "originX": 74.8,
+  "originY": 15.75,
+  "repeatWidth": 1850.4,
+  "repeatHeight": 1968.5,
   "tiles": [
     {
-      "x": 74.05,
-      "y": 13.24,
-      "width": 196.85,
+      "x": 74.8,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -26,11 +26,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -40,9 +40,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 310.65,
-      "y": 18.25,
-      "width": 196.85,
+      "x": 251.97,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -50,11 +50,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -64,9 +64,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 546.87,
-      "y": 13.24,
-      "width": 196.85,
+      "x": 429.13,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -74,11 +74,35 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
+          "y": 1968.5
+        },
+        {
+          "x": 0,
+          "y": 1968.5
+        }
+      ]
+    },
+    {
+      "x": 606.3,
+      "y": 15.75,
+      "width": 78.74,
+      "height": 1968.5,
+      "clipPath": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 78.74,
+          "y": 0
+        },
+        {
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -89,8 +113,8 @@ const svgPatternModule: SvgPatternModule = {
     },
     {
       "x": 783.46,
-      "y": 18.25,
-      "width": 196.85,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -98,11 +122,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -112,9 +136,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1019.68,
-      "y": 13.24,
-      "width": 196.85,
+      "x": 960.63,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -122,11 +146,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -136,9 +160,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1256.28,
-      "y": 18.25,
-      "width": 196.85,
+      "x": 1137.79,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -146,11 +170,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -160,9 +184,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1492.5,
-      "y": 13.24,
-      "width": 196.85,
+      "x": 1314.96,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -170,11 +194,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 1968.5
         },
         {
@@ -184,9 +208,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1729.09,
-      "y": 18.25,
-      "width": 196.85,
+      "x": 1492.13,
+      "y": 15.75,
+      "width": 78.74,
       "height": 1968.5,
       "clipPath": [
         {
@@ -194,11 +218,59 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 78.74,
+          "y": 1968.5
+        },
+        {
+          "x": 0,
+          "y": 1968.5
+        }
+      ]
+    },
+    {
+      "x": 1669.29,
+      "y": 15.75,
+      "width": 78.74,
+      "height": 1968.5,
+      "clipPath": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 78.74,
+          "y": 0
+        },
+        {
+          "x": 78.74,
+          "y": 1968.5
+        },
+        {
+          "x": 0,
+          "y": 1968.5
+        }
+      ]
+    },
+    {
+      "x": 1846.46,
+      "y": 15.75,
+      "width": 78.74,
+      "height": 1968.5,
+      "clipPath": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 78.74,
+          "y": 0
+        },
+        {
+          "x": 78.74,
           "y": 1968.5
         },
         {

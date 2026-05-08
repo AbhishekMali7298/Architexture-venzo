@@ -19,7 +19,30 @@ export const IMPRESS_PATTERN_TYPES: PatternType[] = [
   'weave_pattern_2',
 ];
 
-const VITA_COMPONENT_PATTERNS = new Set<PatternType>(['venzowood_4', 'venzowood_5']);
+export const VITA_COMPONENT_PATTERN_TYPES: PatternType[] = [
+  'venzowood_4',
+  'venzowood_5',
+  'vita_pattern_3',
+  'vita_pattern_4',
+  'vita_pattern_5',
+  'vita_pattern_6',
+  'vita_pattern_7',
+  'vita_pattern_8',
+  'vita_pattern_9',
+  'vita_pattern_10',
+  'vita_pattern_11',
+  'vita_pattern_12',
+  'vita_pattern_13',
+  'vita_pattern_14',
+  'vita_pattern_15',
+  'vita_pattern_16',
+  'vita_pattern_17',
+  'vita_pattern_18',
+  'vita_pattern_20',
+  'vita_pattern_21',
+];
+
+const VITA_COMPONENT_PATTERNS = new Set<PatternType>(VITA_COMPONENT_PATTERN_TYPES);
 const IMPRESS_PATTERN_SET = new Set<PatternType>(IMPRESS_PATTERN_TYPES);
 
 export function isImpressPattern(patternType: PatternType) {

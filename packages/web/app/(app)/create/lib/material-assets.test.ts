@@ -30,7 +30,7 @@ describe('material asset color helpers', () => {
       invertColors: false,
     });
 
-    expect(base).toBe('#FFFFFF');
+    expect(base).toBe('#E8E6E0');
     expect(adjusted).not.toBe(base);
   });
 
@@ -48,9 +48,11 @@ describe('material asset color helpers', () => {
   });
 
   it('resolves pattern preview SVGs from the selected pattern', () => {
-    expect(getPatternPreviewImageUrl('venzowood')).toBe('/patterns/venzowood.svg');
-    expect(getPatternPreviewImageUrl('chequer_pattern')).toBe('/patterns/chequer_pattern.svg');
-    expect(getPatternPreviewImageUrl('venzowood_4')).toBe('/patterns/venzowood_4.svg');
-    expect(getPatternPreviewImageUrl('venzowood_5')).toBe('/patterns/venzowood_5.svg');
+    expect(getPatternPreviewImageUrl('venzowood')).toBe('/patterns/impress/venzowood.svg');
+    expect(getPatternPreviewImageUrl('chequer_pattern')).toBe('/patterns/impress/chequer_pattern.svg');
+    expect(getPatternPreviewImageUrl('venzowood_4')).toBe('/patterns/vita-components/venzowood_4.svg');
+    expect(getPatternPreviewImageUrl('venzowood_5')).toBe('/patterns/vita-components/venzowood_5.svg');
+    expect(getPatternPreviewImageUrl('vita_pattern_3')).toBe('/patterns/vita-components/pattern 3.svg');
+    expect(getPatternPreviewImageUrl('vita_pattern_21')).toBe('/patterns/vita-components/pattern 21.svg');
   });
 });

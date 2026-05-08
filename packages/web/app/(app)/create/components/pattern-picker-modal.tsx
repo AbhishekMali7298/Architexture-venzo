@@ -3,7 +3,7 @@
 import { startTransition, useMemo, useState } from 'react';
 import { PATTERN_CATALOG, type PatternDefinition, type PatternType } from '@textura/shared';
 import { getPatternPreviewImageUrl } from '../lib/material-assets';
-import { IMPRESS_PATTERN_TYPES } from '../lib/pattern-capabilities';
+import { IMPRESS_PATTERN_TYPES, VITA_COMPONENT_PATTERN_TYPES } from '../lib/pattern-capabilities';
 import { hasSvgPatternModule, primeSvgPatternModule } from '../lib/svg-pattern-module-cache';
 import { Modal } from './modal-portal';
 import styles from './create-editor.module.css';
@@ -16,7 +16,7 @@ const PATTERN_GROUPS: Array<{ title: string; patternTypes: PatternType[] }> = [
   },
   {
     title: 'Vita Components',
-    patternTypes: ['venzowood_4', 'venzowood_5'],
+    patternTypes: VITA_COMPONENT_PATTERN_TYPES,
   },
 ];
 

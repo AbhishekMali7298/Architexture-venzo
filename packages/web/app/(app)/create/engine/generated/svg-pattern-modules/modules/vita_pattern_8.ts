@@ -8,17 +8,17 @@ import type { SvgPatternModule } from '../types';
 const svgPatternModule: SvgPatternModule = {
   "viewBoxWidth": 2000,
   "viewBoxHeight": 2000,
-  "referenceTileWidth": 196.85,
+  "referenceTileWidth": 393.7,
   "referenceTileHeight": 393.7,
-  "originX": 773.62,
-  "originY": 576.24,
-  "repeatWidth": 452.7599999999999,
-  "repeatHeight": 847.51,
+  "originX": 566.93,
+  "originY": 566.93,
+  "repeatWidth": 866.14,
+  "repeatHeight": 866.14,
   "tiles": [
     {
-      "x": 773.62,
-      "y": 576.24,
-      "width": 196.85,
+      "x": 566.93,
+      "y": 566.93,
+      "width": 393.7,
       "height": 393.7,
       "clipPath": [
         {
@@ -26,11 +26,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 393.7
         },
         {
@@ -40,9 +40,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1029.53,
-      "y": 577.29,
-      "width": 196.85,
+      "x": 1039.37,
+      "y": 566.93,
+      "width": 393.7,
       "height": 393.7,
       "clipPath": [
         {
@@ -50,11 +50,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 393.7
         },
         {
@@ -64,9 +64,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 773.62,
-      "y": 1029,
-      "width": 196.85,
+      "x": 566.93,
+      "y": 1039.37,
+      "width": 393.7,
       "height": 393.7,
       "clipPath": [
         {
@@ -74,11 +74,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 393.7
         },
         {
@@ -88,9 +88,9 @@ const svgPatternModule: SvgPatternModule = {
       ]
     },
     {
-      "x": 1029.53,
-      "y": 1030.05,
-      "width": 196.85,
+      "x": 1039.37,
+      "y": 1039.37,
+      "width": 393.7,
       "height": 393.7,
       "clipPath": [
         {
@@ -98,11 +98,11 @@ const svgPatternModule: SvgPatternModule = {
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 0
         },
         {
-          "x": 196.85,
+          "x": 393.7,
           "y": 393.7
         },
         {
