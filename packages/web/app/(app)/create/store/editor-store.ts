@@ -66,8 +66,8 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   venzowood_3: {
-    horizontalSize: -30,
-    verticalSize: -120,
+    horizontalSize: -20,
+    verticalSize: -80,
     linkedDimensions: false,
   },
   weave_pattern_2: {
@@ -269,27 +269,41 @@ function applyMaterialLibrarySelection(
   mat.source = cloneMaterialSource(definition.source);
 }
 
-function applySpecialRhombusDefaults(s: EditorState) {
+function applyPatternSheetDefaults(s: EditorState) {
   const type = s.config.pattern.type;
   const preset = s.sheetPreviewPreset;
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
   if (!isLargeSheet) return;
 
-  const isVenzowood1 = type === 'venzowood' || type === 'rhombus_pattern';
-  const isVenzowood2 = type === 'venzowood_2';
+  const mat = s.config.materials[s.activeMaterialIndex];
+  if (!mat) return;
 
-  if (isVenzowood1 || isVenzowood2) {
-    const mat = s.config.materials[s.activeMaterialIndex];
-    if (mat) {
-      const moduleDefaults = getPatternModuleDefaults(type);
-      mat.width = moduleDefaults.width * 0.1;
-      mat.height = moduleDefaults.height * 0.1;
-    }
-    s.embossDepth = isVenzowood2 ? 15 : 25;
+  if (type === 'venzowood' || type === 'rhombus_pattern') {
+    const moduleDefaults = getPatternModuleDefaults(type);
+    mat.width = moduleDefaults.width * 0.1;
+    mat.height = moduleDefaults.height * 0.1;
+    s.embossDepth = 25;
     s.config.joints.horizontalSize = 0;
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
+  } else if (type === 'venzowood_2') {
+    const moduleDefaults = getPatternModuleDefaults(type);
+    mat.width = moduleDefaults.width * 0.1;
+    mat.height = moduleDefaults.height * 0.1;
+    s.embossDepth = 15;
+    s.config.joints.horizontalSize = 0;
+    s.config.joints.verticalSize = 0;
+    s.config.joints.linkedDimensions = true;
+  } else if (type === 'venzowood_3') {
+    // Venzowood 3 stays at its designed scale and requires negative joints for seamlessness
+    const moduleDefaults = getPatternModuleDefaults(type);
+    mat.width = moduleDefaults.width;
+    mat.height = moduleDefaults.height;
+    s.embossDepth = 100;
+    s.config.joints.horizontalSize = -20;
+    s.config.joints.verticalSize = -80;
+    s.config.joints.linkedDimensions = false;
   }
 }
 
@@ -344,7 +358,7 @@ export const useEditorStore = create<EditorState>()(
         s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
         s.embossDepth = definition?.defaults?.embossDepth ?? 100;
 
-        applySpecialRhombusDefaults(s);
+        applyPatternSheetDefaults(s);
 
         bumpRender(s);
       }),
@@ -636,7 +650,7 @@ export const useEditorStore = create<EditorState>()(
     setSheetPreviewPreset: (preset) =>
       set((s) => {
         s.sheetPreviewPreset = preset;
-        applySpecialRhombusDefaults(s);
+        applyPatternSheetDefaults(s);
         bumpRender(s);
       }),
     setCustomSheetWidth: (value) =>
