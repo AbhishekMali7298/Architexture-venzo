@@ -211,7 +211,36 @@ export default function CreatePage() {
         : 'Unit Height';
   const defaultPatternWidth = Math.max(1, currentPattern?.defaultUnitWidth ?? material.width);
   const defaultPatternHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
-  const patternZoom = Math.max(0.1, Math.min(1, material.width / defaultPatternWidth));
+  const moduleDrivenDefaultSize = useMemo(() => {
+    if (
+      !isVitaComponentPattern(config.pattern.type) ||
+      !svgPatternModule?.referenceTileWidth ||
+      !svgPatternModule.referenceTileHeight
+    ) {
+      return null;
+    }
+
+    const baseHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
+    return {
+      width: Math.max(
+        1,
+        Math.round(
+          ((baseHeight * svgPatternModule.referenceTileWidth) /
+            Math.max(1, svgPatternModule.referenceTileHeight)) *
+            1000,
+        ) / 1000,
+      ),
+      height: baseHeight,
+    };
+  }, [
+    config.pattern.type,
+    currentPattern?.defaultUnitHeight,
+    material.height,
+    svgPatternModule,
+  ]);
+  const resolvedDefaultPatternWidth = moduleDrivenDefaultSize?.width ?? defaultPatternWidth;
+  const resolvedDefaultPatternHeight = moduleDrivenDefaultSize?.height ?? defaultPatternHeight;
+  const patternZoom = Math.max(0.1, Math.min(1, material.width / resolvedDefaultPatternWidth));
   const sheetPreview = getSheetDimensions(
     config.units,
     sheetPreviewPreset,
@@ -287,6 +316,36 @@ export default function CreatePage() {
     setRequestedHeight((value) => Math.max(1, Math.round(value * factor * 100) / 100));
     previousUnitsRef.current = config.units;
   }, [config.units]);
+
+  useEffect(() => {
+    if (!moduleDrivenDefaultSize || !currentPattern) {
+      return;
+    }
+
+    const legacyWidth = Math.max(1, currentPattern.defaultUnitWidth ?? material.width);
+    const legacyHeight = Math.max(1, currentPattern.defaultUnitHeight ?? material.height);
+    const isStillUsingLegacyDefaults =
+      Math.abs(material.width - legacyWidth) < 0.01 && Math.abs(material.height - legacyHeight) < 0.01;
+
+    if (!isStillUsingLegacyDefaults) {
+      return;
+    }
+
+    if (
+      Math.abs(material.width - moduleDrivenDefaultSize.width) < 0.01 &&
+      Math.abs(material.height - moduleDrivenDefaultSize.height) < 0.01
+    ) {
+      return;
+    }
+
+    setMaterialSize(moduleDrivenDefaultSize.width, moduleDrivenDefaultSize.height);
+  }, [
+    currentPattern,
+    material.height,
+    material.width,
+    moduleDrivenDefaultSize,
+    setMaterialSize,
+  ]);
 
   useEffect(() => {
     const presetChanged = previousSheetPreviewPresetRef.current !== sheetPreviewPreset;
@@ -378,8 +437,8 @@ export default function CreatePage() {
   const handlePatternZoomChange = (nextZoom: number) => {
     const clampedZoom = Math.max(0.1, Math.min(1, nextZoom));
     setMaterialSize(
-      Math.max(1, Math.round(defaultPatternWidth * clampedZoom * 1000) / 1000),
-      Math.max(1, Math.round(defaultPatternHeight * clampedZoom * 1000) / 1000),
+      Math.max(1, Math.round(resolvedDefaultPatternWidth * clampedZoom * 1000) / 1000),
+      Math.max(1, Math.round(resolvedDefaultPatternHeight * clampedZoom * 1000) / 1000),
     );
   };
 

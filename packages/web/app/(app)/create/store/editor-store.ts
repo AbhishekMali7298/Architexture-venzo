@@ -11,8 +11,9 @@ import type {
   MaterialDefinition,
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById, getPatternByType } from '@textura/shared';
-import { isImpressPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { isImpressPattern, isVitaComponentPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
 import type { SheetPreviewPreset } from '../lib/production-metrics';
+import { getCachedSvgPatternModule } from '../lib/svg-pattern-module-cache';
 
 import { DEFAULT_TEXTURE_CONFIG } from './defaults';
 
@@ -138,6 +139,23 @@ function applyPatternJointDefaults(config: TextureConfig, patternType: PatternTy
 
 function getPatternModuleDefaults(patternType: PatternType) {
   const patternDefinition = getPatternByType(patternType);
+  const cachedModule = getCachedSvgPatternModule(patternType);
+
+  if (
+    isVitaComponentPattern(patternType) &&
+    cachedModule?.referenceTileWidth &&
+    cachedModule.referenceTileHeight
+  ) {
+    const baseHeight =
+      patternDefinition?.defaultUnitHeight ?? DEFAULT_TEXTURE_CONFIG.materials[0]!.height;
+    const width =
+      (baseHeight * cachedModule.referenceTileWidth) / Math.max(1, cachedModule.referenceTileHeight);
+
+    return {
+      width: roundMeasurement(width),
+      height: baseHeight,
+    };
+  }
 
   return (
     SPECIAL_MODULE_DEFAULTS[patternType] ?? {
