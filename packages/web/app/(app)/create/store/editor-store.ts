@@ -368,6 +368,34 @@ export const useEditorStore = create<EditorState>()(
 
     setPatternType: (type) =>
       set((s) => {
+        // --- Preserve previous state before applying pattern defaults ---
+        const previousEffects = {
+          embossStrength: s.embossStrength,
+          embossIntensity: s.embossIntensity,
+          embossDepth: s.embossDepth,
+        };
+        const previousJoints = {
+          horizontalSize: s.config.joints.horizontalSize,
+          verticalSize: s.config.joints.verticalSize,
+          linkedDimensions: s.config.joints.linkedDimensions,
+        };
+        const prevPatternType = s.config.pattern.type;
+        const isLargeSheet = s.sheetPreviewPreset === '4x8' || s.sheetPreviewPreset === '4x10';
+
+        let prevExpectedHJoint = PATTERN_JOINT_DEFAULTS[prevPatternType]?.horizontalSize ?? DEFAULT_JOINT_SIZE;
+        let prevExpectedVJoint = PATTERN_JOINT_DEFAULTS[prevPatternType]?.verticalSize ?? DEFAULT_JOINT_SIZE;
+
+        if (isLargeSheet && (prevPatternType === 'venzowood' || prevPatternType === 'rhombus_pattern' || prevPatternType === 'venzowood_2' || prevPatternType === 'venzowood_3')) {
+          prevExpectedHJoint = 0;
+          prevExpectedVJoint = 0;
+        }
+
+        const userEditedJoints = previousJoints.horizontalSize !== prevExpectedHJoint || previousJoints.verticalSize !== prevExpectedVJoint;
+
+        console.log('[Pattern Select] before effects', previousEffects);
+        console.log('[Pattern Select] selected pattern preset', type);
+        // --------------------------------------------------------------
+
         const nextPattern = getDefaultPatternConfig(type);
         if (!nextPattern) return;
         pushHistory(s, `Pattern → ${nextPattern.type}`);
@@ -393,6 +421,24 @@ export const useEditorStore = create<EditorState>()(
         s.embossDepth = definition?.defaults?.embossDepth ?? 100;
 
         applyPatternSheetDefaults(s);
+
+        // --- Restore user adjustments ---
+        s.embossStrength = previousEffects.embossStrength;
+        s.embossIntensity = previousEffects.embossIntensity;
+        s.embossDepth = previousEffects.embossDepth;
+
+        if (userEditedJoints) {
+          s.config.joints.horizontalSize = previousJoints.horizontalSize;
+          s.config.joints.verticalSize = previousJoints.verticalSize;
+          s.config.joints.linkedDimensions = previousJoints.linkedDimensions;
+        }
+
+        console.log('[Pattern Select] after effects', {
+          embossStrength: s.embossStrength,
+          embossIntensity: s.embossIntensity,
+          embossDepth: s.embossDepth,
+        });
+        // --------------------------------
 
         bumpRender(s);
       }),
