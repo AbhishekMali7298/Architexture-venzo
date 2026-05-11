@@ -544,6 +544,7 @@ export default function CreatePage() {
           zoom={patternZoom}
           onZoomChange={handlePatternZoomChange}
           isImpressPattern={isImpressPattern(config.pattern.type)}
+          isVitaPattern={isVitaComponentPattern(config.pattern.type)}
         />
       </CreateEditorShell>
 

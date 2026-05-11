@@ -29,6 +29,7 @@ export function ProductionPlanningSection({
   zoom,
   onZoomChange,
   isImpressPattern = false,
+  isVitaPattern = false,
 }: {
   units: 'mm' | 'inches';
   requestedWidth: number;
@@ -55,13 +56,14 @@ export function ProductionPlanningSection({
   zoom: number;
   onZoomChange: (value: number) => void;
   isImpressPattern?: boolean;
+  isVitaPattern?: boolean;
 }) {
   const unitSuffix = units === 'inches' ? 'in' : 'mm';
   const showSheetZoom = sheetPreviewLabel !== 'Pattern only';
 
   return (
     <>
-      {isImpressPattern ? null : (
+      {isImpressPattern || isVitaPattern ? null : (
         <SectionCard
           title="Client Size"
           action={
