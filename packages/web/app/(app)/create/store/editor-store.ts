@@ -97,7 +97,13 @@ const PATTERN_JOINT_DEFAULTS: Record<
     verticalSize: 0,
     linkedDimensions: true,
   },
+  vita_pattern_6: {
+    horizontalSize: 15,
+    verticalSize: 15,
+    linkedDimensions: true,
+  },
 };
+
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
 const ROUGH_CONCRETE_ASSET = {
