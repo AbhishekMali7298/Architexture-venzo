@@ -348,6 +348,17 @@ export default function CreatePage() {
   ]);
 
   useEffect(() => {
+    if (!authoredSvgAspectRatio) return;
+
+    const currentRatio = material.width / Math.max(1, material.height);
+    if (Math.abs(currentRatio - authoredSvgAspectRatio) > 0.005) {
+      const correctWidth = Math.max(1, Math.round(material.height * authoredSvgAspectRatio * 1000) / 1000);
+      setMaterialSize(correctWidth, material.height);
+    }
+  }, [authoredSvgAspectRatio, material.width, material.height, setMaterialSize]);
+
+
+  useEffect(() => {
     const presetChanged = previousSheetPreviewPresetRef.current !== sheetPreviewPreset;
     const patternChanged = previousPatternTypeRef.current !== config.pattern.type;
 
