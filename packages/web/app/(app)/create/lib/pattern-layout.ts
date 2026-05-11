@@ -612,34 +612,59 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const contentHeight = Math.max(1, contentBounds.maxY - contentBounds.minY);
   const moduleOriginX = module.originX ?? 0;
   const moduleOriginY = module.originY ?? 0;
-  // Preserve the authored SVG module cell when repeating so seam gaps match the source SVG.
+
+  const layoutMode = ['fibra_pattern', 'weave_pattern_2', 'grate_pattern_2'].includes(config.pattern.type) 
+    ? 'viewbox-uniform-repeat' 
+    : 'preserve-existing';
+
+  let scaleX: number;
+  let scaleY: number;
+  let moduleWidth: number;
+  let moduleHeight: number;
+  let repeatWidth: number;
+  let repeatHeight: number;
+  let stepX: number;
+  let stepY: number;
+  let extraWidth = 0;
+  let extraHeight = 0;
+
   const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
   const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
-  // Module width/height should map to the full authored SVG repeat cell, not a tiny
-  // internal shape reference. This keeps preview, production size, and user-entered
-  // module dimensions aligned for dense SVG-driven patterns like Boho.
-  const scaleX = tileWidth / authoredRepeatWidth;
-  const scaleY = tileHeight / authoredRepeatHeight;
-  const moduleWidth = Math.max(authoredRepeatWidth, contentWidth) * scaleX;
-  const moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scaleY;
-  const repeatWidth = authoredRepeatWidth * scaleX;
-  const repeatHeight = authoredRepeatHeight * scaleY;
-  const intrinsicRepeatAdjustment =
-    config.pattern.type === 'venzowood_3'
-      ? {
-          x: tileWidth * (-80 / 610),
-          y: tileHeight * (-20 / 610),
-        }
-      : { x: 0, y: 0 };
 
-  // Composite patterns need internal joints to match external ones.
+  if (layoutMode === 'viewbox-uniform-repeat') {
+    const scale = tileWidth / authoredRepeatWidth;
+    scaleX = scale;
+    scaleY = scale;
+    
+    repeatWidth = authoredRepeatWidth * scale;
+    repeatHeight = authoredRepeatHeight * scale;
+    
+    // UI H Joint -> X spacing, UI V Joint -> Y spacing
+    stepX = repeatWidth + config.joints.horizontalSize;
+    stepY = repeatHeight + config.joints.verticalSize;
+  } else {
+    // Legacy preserve-existing mode
+    scaleX = tileWidth / authoredRepeatWidth;
+    scaleY = tileHeight / authoredRepeatHeight;
+    moduleWidth = Math.max(authoredRepeatWidth, contentWidth) * scaleX;
+    moduleHeight = Math.max(authoredRepeatHeight, contentHeight) * scaleY;
+    repeatWidth = authoredRepeatWidth * scaleX;
+    repeatHeight = authoredRepeatHeight * scaleY;
+
+    const intrinsicRepeatAdjustment =
+      config.pattern.type === 'venzowood_3'
+        ? { x: tileWidth * (-80 / 610), y: tileHeight * (-20 / 610) }
+        : { x: 0, y: 0 };
+
+    stepX = repeatWidth + intrinsicRepeatAdjustment.x + jointVertical;
+    stepY = repeatHeight + intrinsicRepeatAdjustment.y + jointHorizontal;
+  }
+
   const isSlatPattern = ['concave_pattern', 'convex_pattern', 'ripple_pattern'].includes(
     config.pattern.type,
   );
   const isChequer = config.pattern.type === 'chequer_pattern';
 
-  const stepX = repeatWidth + intrinsicRepeatAdjustment.x + jointVertical;
-  const stepY = repeatHeight + intrinsicRepeatAdjustment.y + jointHorizontal;
   const tiles: PatternTile[] = [];
   const strokes: PatternStroke[] = [];
   const fillTiles =
@@ -657,14 +682,14 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         let internalOffsetX = (tile.x - moduleOriginX) * scaleX;
         let internalOffsetY = (tile.y - moduleOriginY) * scaleY;
 
-        if (isChequer) {
-          // Chequer is a 2x2 grid. Shift right/bottom tiles by joint amount.
-          if (tile.x > authoredRepeatWidth * 0.4) internalOffsetX += jointVertical;
-          if (tile.y > authoredRepeatHeight * 0.4) internalOffsetY += jointHorizontal;
-        } else if (isSlatPattern) {
-          // Slats are arranged horizontally. Shift each slat by (index * joint).
-          const slatIndex = module.tiles.indexOf(tile);
-          if (slatIndex > 0) internalOffsetX += slatIndex * jointVertical;
+        if (layoutMode === 'preserve-existing') {
+          if (isChequer) {
+            if (tile.x > authoredRepeatWidth * 0.4) internalOffsetX += jointVertical;
+            if (tile.y > authoredRepeatHeight * 0.4) internalOffsetY += jointHorizontal;
+          } else if (isSlatPattern) {
+            const slatIndex = module.tiles.indexOf(tile);
+            if (slatIndex > 0) internalOffsetX += slatIndex * jointVertical;
+          }
         }
 
         tiles.push(
@@ -699,9 +724,10 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     }
   }
 
-  // If we added internal joints, we need to expand the total width/height
-  const extraWidth = isChequer ? jointVertical : isSlatPattern ? (module.tiles.length - 1) * jointVertical : 0;
-  const extraHeight = isChequer ? jointHorizontal : 0;
+  if (layoutMode === 'preserve-existing') {
+    extraWidth = isChequer ? jointVertical : isSlatPattern ? (module.tiles.length - 1) * jointVertical : 0;
+    extraHeight = isChequer ? jointHorizontal : 0;
+  }
 
   return {
     tiles,
