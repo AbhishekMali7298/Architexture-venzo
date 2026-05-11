@@ -7,10 +7,11 @@ import { fillMaterialSurface } from './material-fill';
 import {
   drawEmbossEffect,
   drawEmbossStrokeEffect,
+  fillClosedPatternStrokes,
   drawPatternStrokes,
   shouldDrawEmbossStrokeOutline,
 } from './background-renderer';
-import { supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { supportsEmbossPattern, usesSwappedVitaMaterialMapping } from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
   if (config.pattern.type !== 'venzowood' && config.pattern.type !== 'rhombus_pattern') {
@@ -57,6 +58,7 @@ export function renderToCanvas(
     undefined,
     config.joints.adjustments,
   );
+  const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -82,7 +84,6 @@ export function renderToCanvas(
     width: baseWidth,
     height: baseHeight,
   };
-
   fillMaterialSurface(ctx, {
     x: offsetX,
     y: offsetY,
@@ -90,7 +91,7 @@ export function renderToCanvas(
     height: drawHeight,
     radius: 0,
     fallbackFill: jointFill,
-    image: options?.materialImage ?? options?.jointImage,
+    image: options?.jointImage ?? options?.materialImage,
     imageDrawBox: worldImageDrawBox,
   });
 
@@ -108,7 +109,15 @@ export function renderToCanvas(
       for (let row = -1; row <= 1; row++) {
         const instanceOffsetY = offsetY + phase.y + row * drawHeight;
         for (let column = -1; column <= 1; column++) {
-          const instanceOffsetX = offsetX + phase.x + column * drawWidth;
+        const instanceOffsetX = offsetX + phase.x + column * drawWidth;
+
+          if (useSwappedVitaMapping) {
+            fillClosedPatternStrokes(ctx, instanceOffsetX, instanceOffsetY, scale, layout.strokes, {
+              fallbackFill,
+              image: options?.materialImage,
+              imageDrawBox: worldImageDrawBox,
+            });
+          }
 
           for (const [tileIndex, tile] of layout.tiles.entries()) {
             const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
@@ -118,8 +127,8 @@ export function renderToCanvas(
               width: shape.bounds.width * scale,
               height: shape.bounds.height * scale,
               radius: 0,
-              fallbackFill,
-              image: options?.materialImage,
+              fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+              image: useSwappedVitaMapping ? options?.jointImage : options?.materialImage,
               clipPath: shape.points.map((point) => ({
                 x: instanceOffsetX + point.x * scale,
                 y: instanceOffsetY + point.y * scale,
@@ -152,6 +161,14 @@ export function renderToCanvas(
     return;
   }
 
+  if (useSwappedVitaMapping) {
+    fillClosedPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes, {
+      fallbackFill,
+      image: options?.materialImage,
+      imageDrawBox: worldImageDrawBox,
+    });
+  }
+
   for (const [tileIndex, tile] of layout.tiles.entries()) {
     const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
     fillMaterialSurface(ctx, {
@@ -160,8 +177,8 @@ export function renderToCanvas(
       width: shape.bounds.width * scale,
       height: shape.bounds.height * scale,
       radius: 0,
-      fallbackFill,
-      image: options?.materialImage,
+      fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+      image: useSwappedVitaMapping ? options?.jointImage : options?.materialImage,
       clipPath: shape.points.map((point) => ({
         x: offsetX + point.x * scale,
         y: offsetY + point.y * scale,

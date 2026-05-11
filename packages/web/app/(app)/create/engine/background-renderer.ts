@@ -4,7 +4,7 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
-import { isVitaComponentPattern } from '../lib/pattern-capabilities';
+import { isVitaComponentPattern, usesSwappedVitaMaterialMapping } from '../lib/pattern-capabilities';
 
 function getPreviewBounds(
   layout: ReturnType<typeof getPatternLayout>,
@@ -187,7 +187,7 @@ function renderSheetPreview(
     width: bounds.width,
     height: bounds.height,
   };
-
+  const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
   const useJointAsBackground = isVita && layout.tiles.length > 0;
 
   fillMaterialSurface(ctx, {
@@ -235,6 +235,14 @@ function renderSheetPreview(
         }
 
         if (layout.tiles.length > 0) {
+          if (useSwappedVitaMapping) {
+            fillClosedPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes, {
+              fallbackFill,
+              image: materialImage,
+              imageDrawBox: worldImageDrawBox,
+            });
+          }
+
           for (const [tileIndex, tile] of layout.tiles.entries()) {
             const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
             fillMaterialSurface(ctx, {
@@ -243,8 +251,8 @@ function renderSheetPreview(
               width: shape.bounds.width * scale,
               height: shape.bounds.height * scale,
               radius: 0,
-              fallbackFill,
-              image: materialImage,
+              fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+              image: useSwappedVitaMapping ? jointImage : materialImage,
               clipPath: shape.points.map((point) => ({
                 x: offsetX + point.x * scale,
                 y: offsetY + point.y * scale,
@@ -350,6 +358,47 @@ export function drawPatternStrokes(
   }
 
   ctx.restore();
+}
+
+export function fillClosedPatternStrokes(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  strokes: ReadonlyArray<PatternStroke>,
+  options: {
+    fallbackFill: string;
+    image?: CanvasImageSource | null;
+    imageDrawBox?: { x: number; y: number; width: number; height: number };
+  },
+) {
+  for (const stroke of strokes) {
+    if (!stroke.closed || stroke.points.length < 3) continue;
+
+    const scaledPoints = stroke.points.map((point) => ({
+      x: offsetX + point.x * scale,
+      y: offsetY + point.y * scale,
+    }));
+
+    const xs = scaledPoints.map((point) => point.x);
+    const ys = scaledPoints.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+
+    fillMaterialSurface(ctx, {
+      x: minX,
+      y: minY,
+      width: Math.max(1, maxX - minX),
+      height: Math.max(1, maxY - minY),
+      radius: 0,
+      fallbackFill: options.fallbackFill,
+      image: options.image,
+      clipPath: scaledPoints,
+      imageDrawBox: options.imageDrawBox,
+    });
+  }
 }
 
 export function shouldDrawEmbossStrokeOutline(
@@ -623,6 +672,7 @@ export function renderBackground(
   );
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
   const isVita = isVitaComponentPattern(config.pattern.type);
+  const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -656,7 +706,6 @@ export function renderBackground(
     width: baseWidth,
     height: baseHeight,
   };
-
   if (isVita) {
     fillMaterialSurface(ctx, {
       x: 0,
@@ -683,6 +732,14 @@ export function renderBackground(
 
   if (options?.tileBackground === false) {
     if (isVita && layout.tiles.length > 0) {
+      if (useSwappedVitaMapping) {
+        fillClosedPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes, {
+          fallbackFill,
+          image: options?.materialImage,
+          imageDrawBox: worldImageDrawBox,
+        });
+      }
+
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
 
@@ -692,8 +749,8 @@ export function renderBackground(
           width: shape.bounds.width * scale,
           height: shape.bounds.height * scale,
           radius: 0,
-          fallbackFill,
-          image: options?.materialImage,
+          fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+          image: useSwappedVitaMapping ? options?.jointImage : options?.materialImage,
           clipPath: shape.points.map((point) => ({
             x: bounds.x + point.x * scale,
             y: bounds.y + point.y * scale,
@@ -963,6 +1020,7 @@ export function renderEmbossBackground(
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
 
   const isVita = isVitaComponentPattern(config.pattern.type);
+  const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
 
   if (previewFrame) {
     ctx.fillStyle = '#eee7dc';
@@ -997,7 +1055,6 @@ export function renderEmbossBackground(
     width: baseWidth,
     height: baseHeight,
   };
-
   if (options?.tileBackground === false) {
     // Preview-only mode: fill preview area with background color
     ctx.fillStyle = '#eee7dc';
@@ -1015,7 +1072,16 @@ export function renderEmbossBackground(
         image: options?.jointImage,
       });
 
-      // Then fill tiles with primary material
+      // Vita Pattern 3 intentionally inverts the usual Vita mapping so the inset faces use the
+      // joint source while the surrounding frame/grid uses the main material source.
+      if (useSwappedVitaMapping) {
+        fillClosedPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes, {
+          fallbackFill,
+          image: options?.materialImage,
+          imageDrawBox: worldImageDrawBox,
+        });
+      }
+
       for (const [tileIndex, tile] of layout.tiles.entries()) {
         const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
         fillMaterialSurface(ctx, {
@@ -1024,8 +1090,8 @@ export function renderEmbossBackground(
           width: shape.bounds.width * scale,
           height: shape.bounds.height * scale,
           radius: 0,
-          fallbackFill,
-          image: options?.materialImage,
+          fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+          image: useSwappedVitaMapping ? options?.jointImage : options?.materialImage,
           clipPath: shape.points.map((point) => ({
             x: bounds.x + point.x * scale,
             y: bounds.y + point.y * scale,
@@ -1207,6 +1273,14 @@ export function renderEmbossBackground(
 
         // Draw material tiles directly to main ctx to ensure global material coordination
         if (isVita && layout.tiles.length > 0) {
+          if (useSwappedVitaMapping) {
+            fillClosedPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes, {
+              fallbackFill,
+              image: options?.materialImage,
+              imageDrawBox: worldImageDrawBox,
+            });
+          }
+
           for (const [tileIndex, tile] of layout.tiles.entries()) {
             const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
             fillMaterialSurface(ctx, {
@@ -1215,8 +1289,8 @@ export function renderEmbossBackground(
               width: shape.bounds.width * scale,
               height: shape.bounds.height * scale,
               radius: 0,
-              fallbackFill,
-              image: options?.materialImage,
+              fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+              image: useSwappedVitaMapping ? options?.jointImage : options?.materialImage,
               clipPath: shape.points.map((point) => ({
                 x: offsetX + point.x * scale,
                 y: offsetY + point.y * scale,
@@ -1307,5 +1381,3 @@ export function drawVitaStrokeJoints(
     });
   }
 }
-
-

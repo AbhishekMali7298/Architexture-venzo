@@ -8,6 +8,7 @@ import concavePatternModule from '../engine/generated/svg-pattern-modules/module
 import convexPatternModule from '../engine/generated/svg-pattern-modules/modules/convex_pattern';
 import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
 import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
+import vitaPattern3Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_3';
 import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
 import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
@@ -179,6 +180,25 @@ describe('pattern layout', () => {
 
     expect(module.tiles).toHaveLength(3);
     expect(module.tiles.filter((tile) => tile.clipPath.length > 4)).toHaveLength(2);
+  });
+
+  it('maps only Vita Pattern 3 center faces to the material layer', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'vita_pattern_3',
+      category: 'geometric',
+      rows: 1,
+      columns: 1,
+    };
+
+    const layout = getPatternLayout(config, vitaPattern3Module);
+
+    expect(vitaPattern3Module.tiles).toHaveLength(8);
+    expect(layout.tiles).toHaveLength(4);
+    expect(layout.strokes.filter((stroke) => stroke.closed)).toHaveLength(4);
+    expect(layout.tiles.every((tile) => tile.bounds.width < 700)).toBe(true);
+    expect(layout.tiles.every((tile) => tile.bounds.height < 700)).toBe(true);
   });
 
   it('builds Venzowood 5 from closed SVG paths', () => {

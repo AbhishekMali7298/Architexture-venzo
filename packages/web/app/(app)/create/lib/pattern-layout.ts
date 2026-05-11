@@ -727,14 +727,37 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     config.pattern.type,
   );
   const isChequer = config.pattern.type === 'chequer_pattern';
+  const isVitaPattern3 = config.pattern.type === 'vita_pattern_3';
 
   const tiles: PatternTile[] = [];
   const strokes: PatternStroke[] = [];
   const fillTiles =
     config.pattern.type === 'venzowood_4'
       ? module.tiles.filter((tile) => tile.height >= contentHeight * 0.8)
-      : module.tiles;
-  const outlineTiles = config.pattern.type === 'venzowood_4' ? module.tiles : [];
+      : isVitaPattern3
+        ? module.tiles.filter((tile, index, allTiles) =>
+            allTiles.some((candidate, candidateIndex) => {
+              if (candidateIndex === index) return false;
+              // Vita Pattern 3 is a mixed-material module. Each unit is authored as:
+              // 1. a larger closed rectangle for the surrounding frame/bevel ring
+              // 2. a smaller inset square for the flat center face
+              // Only the inset square should receive the main material image. The surrounding
+              // rectangle stays in the joint/frame bucket so the joint texture shows through.
+              return (
+                tile.x >= candidate.x &&
+                tile.y >= candidate.y &&
+                tile.x + tile.width <= candidate.x + candidate.width &&
+                tile.y + tile.height <= candidate.y + candidate.height
+              );
+            }),
+          )
+        : module.tiles;
+  const outlineTiles =
+    config.pattern.type === 'venzowood_4'
+      ? module.tiles
+      : isVitaPattern3
+        ? module.tiles.filter((tile) => !fillTiles.includes(tile))
+        : [];
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {

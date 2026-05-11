@@ -53,6 +53,10 @@ export function isVitaComponentPattern(patternType: PatternType) {
   return VITA_COMPONENT_PATTERNS.has(patternType);
 }
 
+export function usesSwappedVitaMaterialMapping(patternType: PatternType) {
+  return patternType === 'vita_pattern_3';
+}
+
 export function supportsEmbossPattern(patternType: PatternType) {
   return isImpressPattern(patternType) || isVitaComponentPattern(patternType);
 }
