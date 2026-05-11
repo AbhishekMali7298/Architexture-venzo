@@ -91,6 +91,11 @@ const PATTERN_JOINT_DEFAULTS: Record<
     verticalSize: 0,
     linkedDimensions: true,
   },
+  fibra_pattern: {
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
+  },
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
