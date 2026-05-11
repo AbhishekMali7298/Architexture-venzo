@@ -42,10 +42,11 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   venzowood_2: {
-    horizontalSize: 30,
-    verticalSize: 30,
+    horizontalSize: 5,
+    verticalSize: 5,
     linkedDimensions: true,
   },
+
   chequer_pattern: {
     horizontalSize: 15,
     verticalSize: 15,
@@ -99,6 +100,11 @@ const PATTERN_JOINT_DEFAULTS: Record<
 };
 const DEFAULT_JOINT_SIZE = 5;
 const DEFAULT_EMBOSS_STRENGTH = 100;
+const ROUGH_CONCRETE_ASSET = {
+  path: '/Joints-Patterns/Rough-Concrete.jpg',
+  mimeType: 'image/jpeg',
+};
+
 const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; height: number }>> = {
   concave_pattern: {
     width: 500,
@@ -154,7 +160,16 @@ function applyPatternJointDefaults(config: TextureConfig, patternType: PatternTy
   config.joints.horizontalSize = jointDefaults.horizontalSize;
   config.joints.verticalSize = jointDefaults.verticalSize;
   config.joints.linkedDimensions = jointDefaults.linkedDimensions;
+
+  if (isVita) {
+    config.joints.materialSource = {
+      type: 'image',
+      asset: ROUGH_CONCRETE_ASSET,
+      fallbackColor: '#808080',
+    };
+  }
 }
+
 
 
 function getPatternModuleDefaults(patternType: PatternType) {
