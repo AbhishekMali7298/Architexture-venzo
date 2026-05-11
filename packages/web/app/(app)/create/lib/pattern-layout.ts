@@ -631,6 +631,10 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
   const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
 
+  const patternDef = getPatternByType(config.pattern.type);
+  const compensationX = patternDef?.repeatCompensation?.x ?? 0;
+  const compensationY = patternDef?.repeatCompensation?.y ?? 0;
+
   if (layoutMode === 'viewbox-uniform-repeat') {
     const scale = tileWidth / authoredRepeatWidth;
     scaleX = scale;
@@ -639,9 +643,29 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
     repeatWidth = authoredRepeatWidth * scale;
     repeatHeight = authoredRepeatHeight * scale;
     
-    // UI H Joint -> X spacing, UI V Joint -> Y spacing
-    stepX = repeatWidth + config.joints.horizontalSize;
-    stepY = repeatHeight + config.joints.verticalSize;
+    const userHJoint = config.joints.horizontalSize;
+    const userVJoint = config.joints.verticalSize;
+    const effectiveHJoint = userHJoint + compensationX;
+    const effectiveVJoint = userVJoint + compensationY;
+    
+    stepX = repeatWidth + effectiveHJoint;
+    stepY = repeatHeight + effectiveVJoint;
+
+    if (config.pattern.type === 'weave_pattern_2' || compensationX !== 0 || compensationY !== 0) {
+      console.table({
+        patternName: config.pattern.type,
+        userHJoint,
+        userVJoint,
+        compensationX,
+        compensationY,
+        effectiveHJoint,
+        effectiveVJoint,
+        patternWidth: repeatWidth,
+        patternHeight: repeatHeight,
+        stepX,
+        stepY
+      });
+    }
   } else {
     // Legacy preserve-existing mode
     scaleX = tileWidth / authoredRepeatWidth;
@@ -656,8 +680,29 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         ? { x: tileWidth * (-80 / 610), y: tileHeight * (-20 / 610) }
         : { x: 0, y: 0 };
 
-    stepX = repeatWidth + intrinsicRepeatAdjustment.x + jointVertical;
-    stepY = repeatHeight + intrinsicRepeatAdjustment.y + jointHorizontal;
+    const userHJoint = jointVertical;
+    const userVJoint = jointHorizontal;
+    const effectiveHJoint = userHJoint + compensationX;
+    const effectiveVJoint = userVJoint + compensationY;
+
+    stepX = repeatWidth + intrinsicRepeatAdjustment.x + effectiveHJoint;
+    stepY = repeatHeight + intrinsicRepeatAdjustment.y + effectiveVJoint;
+
+    if (compensationX !== 0 || compensationY !== 0) {
+      console.table({
+        patternName: config.pattern.type,
+        userHJoint,
+        userVJoint,
+        compensationX,
+        compensationY,
+        effectiveHJoint,
+        effectiveVJoint,
+        patternWidth: repeatWidth,
+        patternHeight: repeatHeight,
+        stepX,
+        stepY
+      });
+    }
   }
 
   const isSlatPattern = ['concave_pattern', 'convex_pattern', 'ripple_pattern'].includes(

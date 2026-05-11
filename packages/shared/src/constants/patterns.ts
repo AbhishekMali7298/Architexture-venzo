@@ -32,6 +32,10 @@ export interface PatternDefinition {
   };
   defaultUnitWidth: number;
   defaultUnitHeight: number;
+  repeatCompensation?: {
+    x?: number;
+    y?: number;
+  };
 }
 
 const EXTRA_VITA_COMPONENT_PATTERNS: PatternDefinition[] = [
@@ -459,6 +463,10 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     },
     defaultUnitWidth: 60.06,
     defaultUnitHeight: 330.31,
+    repeatCompensation: {
+      x: 0,
+      y: -70,
+    },
   },
   ...EXTRA_VITA_COMPONENT_PATTERNS,
 ];
