@@ -72,9 +72,9 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   weave_pattern_2: {
-    horizontalSize: -45,
+    horizontalSize: 5,
     verticalSize: 5,
-    linkedDimensions: false,
+    linkedDimensions: true,
   },
   grate_pattern_2: {
     horizontalSize: -35,
