@@ -63,42 +63,30 @@ function drawImageCover(
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
 
-function drawImageRepeatPattern(
+export function createMaterialPattern(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
   imageDrawBox?: { x: number; y: number; width: number; height: number },
 ) {
   const sourceWidth =
     image instanceof HTMLImageElement ? image.naturalWidth :
     image instanceof HTMLCanvasElement ? image.width :
     image instanceof ImageBitmap ? image.width :
-    image instanceof HTMLVideoElement ? image.videoWidth :
-    width;
+    image instanceof HTMLVideoElement ? image.videoWidth : 1000;
   const sourceHeight =
     image instanceof HTMLImageElement ? image.naturalHeight :
     image instanceof HTMLCanvasElement ? image.height :
     image instanceof ImageBitmap ? image.height :
-    image instanceof HTMLVideoElement ? image.videoHeight :
-    height;
+    image instanceof HTMLVideoElement ? image.videoHeight : 1000;
 
-  const targetBox = imageDrawBox ?? { x, y, width, height };
-  const coverScale = Math.max(
+  const targetBox = imageDrawBox ?? { x: 0, y: 0, width: 1000, height: 1000 };
+  const patternScale = Math.max(
     targetBox.width / Math.max(sourceWidth, 1),
     targetBox.height / Math.max(sourceHeight, 1),
   );
 
-  // Match the competitor-style texture behavior:
-  // let the texture repeat in shared/world space across adjacent tiles.
-  const patternScale = coverScale;
   const pattern = ctx.createPattern(image, 'repeat');
-  if (!pattern) {
-    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
-    return;
-  }
+  if (!pattern) return null;
 
   if (typeof pattern.setTransform === 'function') {
     pattern.setTransform(new DOMMatrix([
@@ -108,9 +96,28 @@ function drawImageRepeatPattern(
     ]));
   }
 
+  return pattern;
+}
+
+function drawImageRepeatPattern(
+  ctx: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  imageDrawBox?: { x: number; y: number; width: number; height: number },
+) {
+  const pattern = createMaterialPattern(ctx, image, imageDrawBox);
+  if (!pattern) {
+    drawImageCover(ctx, image, x, y, width, height, imageDrawBox);
+    return;
+  }
+
   ctx.fillStyle = pattern;
   ctx.fillRect(x, y, width, height);
 }
+
 
 export function fillMaterialSurface(
   ctx: CanvasRenderingContext2D,
@@ -124,18 +131,61 @@ export function fillMaterialSurface(
     image?: CanvasImageSource | null;
     clipPath?: ReadonlyArray<{ x: number; y: number }>;
     imageDrawBox?: { x: number; y: number; width: number; height: number };
+    isStroke?: boolean;
+    strokeWidth?: number;
+    isClosed?: boolean;
   },
 ) {
-  const { x, y, width, height, radius, fallbackFill, image, clipPath, imageDrawBox } = options;
+  const {
+    x,
+    y,
+    width,
+    height,
+    radius,
+    fallbackFill,
+    image,
+    clipPath,
+    imageDrawBox,
+    isStroke,
+    strokeWidth,
+    isClosed,
+  } = options;
 
   if (clipPath?.length) {
-    tracePolygonPath(ctx, clipPath);
+    if (isStroke) {
+      ctx.beginPath();
+      ctx.moveTo(clipPath[0]!.x, clipPath[0]!.y);
+      for (let index = 1; index < clipPath.length; index++) {
+        ctx.lineTo(clipPath[index]!.x, clipPath[index]!.y);
+      }
+      if (isClosed) ctx.closePath();
+    } else {
+      tracePolygonPath(ctx, clipPath);
+    }
   } else if (radius > 0) {
     traceRoundedRectPath(ctx, x, y, width, height, radius);
   } else {
     ctx.beginPath();
     ctx.rect(x, y, width, height);
     ctx.closePath();
+  }
+
+  if (isStroke) {
+    ctx.lineWidth = strokeWidth || 1;
+    if (image) {
+      const pattern = createMaterialPattern(ctx, image, imageDrawBox);
+      if (pattern) {
+        ctx.strokeStyle = pattern;
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = fallbackFill;
+        ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle = fallbackFill;
+      ctx.stroke();
+    }
+    return;
   }
 
   ctx.save();
@@ -150,3 +200,4 @@ export function fillMaterialSurface(
 
   ctx.restore();
 }
+

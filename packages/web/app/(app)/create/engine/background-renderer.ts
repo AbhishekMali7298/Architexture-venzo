@@ -188,16 +188,19 @@ function renderSheetPreview(
     height: bounds.height,
   };
 
+  const useJointAsBackground = isVita && layout.tiles.length > 0;
+
   fillMaterialSurface(ctx, {
     x: bounds.x,
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
     radius: 0,
-    fallbackFill: isVita ? jointFill : fallbackFill,
-    image: isVita ? jointImage : materialImage,
+    fallbackFill: useJointAsBackground ? jointFill : fallbackFill,
+    image: useJointAsBackground ? jointImage : materialImage,
     imageDrawBox: worldImageDrawBox,
   });
+
 
   ctx.save();
   ctx.beginPath();
@@ -284,6 +287,21 @@ function renderSheetPreview(
             depth: emboss.depth,
             reverse: emboss.reverse,
           });
+
+          // For engraved Vita patterns (no tiles), fill the strokes with joint material
+          if (isVita && layout.tiles.length === 0) {
+            drawVitaStrokeJoints(
+              ctx,
+              offsetX,
+              offsetY,
+              scale,
+              layout.strokes,
+              jointFill,
+              jointImage,
+              jointImageDrawBox,
+              emboss?.depth ?? 100
+            );
+          }
           if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
             drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
           }
@@ -293,6 +311,7 @@ function renderSheetPreview(
       }
     }
   }
+
 
   ctx.restore();
 }
@@ -1064,7 +1083,9 @@ export function renderEmbossBackground(
 
   // Tiled background mode
   // 1. Fill base layer
-  if (isVita) {
+  const useJointAsBackground = isVita && layout.tiles.length > 0;
+
+  if (useJointAsBackground) {
     ctx.fillStyle = jointFill;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -1093,6 +1114,7 @@ export function renderEmbossBackground(
       imageDrawBox: worldImageDrawBox,
     });
   }
+
 
   // PERFORMANCE OPTIMIZATION: Cache a single module to an offscreen canvas
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
@@ -1142,9 +1164,26 @@ export function renderEmbossBackground(
       depth: embossDepth,
       reverse: isVita,
     });
+
+    // For engraved Vita patterns, fill strokes with joint material in the cache
+    if (isVita && layout.tiles.length === 0) {
+      drawVitaStrokeJoints(
+        cacheCtx,
+        0,
+        0,
+        scale,
+        layout.strokes,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+        embossDepth
+      );
+    }
+
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
       drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
     }
+
   }
 
   const patternBox = {
@@ -1230,3 +1269,43 @@ export function drawPreviewBorder(
   ctx.stroke();
   ctx.restore();
 }
+
+export function drawVitaStrokeJoints(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  strokes: ReadonlyArray<PatternStroke>,
+  fallbackFill: string,
+  image?: CanvasImageSource | null,
+  imageDrawBox?: { x: number; y: number; width: number; height: number },
+  depth = 100
+) {
+  if (!strokes.length) return;
+
+  const normalizedDepth = depth / 100;
+  // Visual width of the joint line, proportional to depth
+  const strokeWidth = 3.5 * normalizedDepth * scale;
+
+  for (const stroke of strokes) {
+    fillMaterialSurface(ctx, {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      radius: 0,
+      fallbackFill,
+      image,
+      imageDrawBox,
+      isStroke: true,
+      strokeWidth,
+      isClosed: stroke.closed,
+      clipPath: stroke.points.map((p) => ({
+        x: offsetX + p.x * scale,
+        y: offsetY + p.y * scale,
+      })),
+    });
+  }
+}
+
+
