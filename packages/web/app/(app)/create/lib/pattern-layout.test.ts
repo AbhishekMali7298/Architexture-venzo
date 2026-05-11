@@ -9,6 +9,7 @@ import convexPatternModule from '../engine/generated/svg-pattern-modules/modules
 import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
 import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
 import vitaPattern3Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_3';
+import vitaPattern13Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_13';
 import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
 import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
@@ -199,6 +200,33 @@ describe('pattern layout', () => {
     expect(layout.strokes.filter((stroke) => stroke.closed)).toHaveLength(4);
     expect(layout.tiles.every((tile) => tile.bounds.width < 700)).toBe(true);
     expect(layout.tiles.every((tile) => tile.bounds.height < 700)).toBe(true);
+  });
+
+  it('adds a wraparound vertical seam for every Vita Pattern 13 column repeat', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'vita_pattern_13',
+      category: 'geometric',
+      rows: 1,
+      columns: 1,
+    };
+
+    const layout = getPatternLayout(config, vitaPattern13Module);
+    const verticalSeams = layout.strokes.filter((stroke) => {
+      const start = stroke.points[0];
+      const end = stroke.points[stroke.points.length - 1];
+      return start && end && Math.abs(start.x - end.x) < 0.001;
+    });
+    const seamXs = verticalSeams
+      .map((stroke) => stroke.points[0]!.x)
+      .sort((left, right) => left - right);
+
+    expect(seamXs).toHaveLength(4);
+    expect(seamXs[0]).toBeCloseTo(0, 3);
+    expect(seamXs[1]).toBeGreaterThan(layout.totalWidth * 0.2);
+    expect(seamXs[2]).toBeGreaterThan(layout.totalWidth * 0.45);
+    expect(seamXs[3]).toBeGreaterThan(layout.totalWidth * 0.7);
   });
 
   it('builds Venzowood 5 from closed SVG paths', () => {

@@ -108,6 +108,115 @@ function roundLayoutValue(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
+function buildVitaPattern13VerticalSeamStrokes(
+  strokes: ReadonlyArray<PatternStroke>,
+  repeatWidth: number,
+  repeatStepHeight: number,
+) {
+  if (strokes.length < 2) {
+    return [] as PatternStroke[];
+  }
+
+  type SeamAnchor = { x: number; y: number };
+  const anchors: SeamAnchor[] = [];
+  const repeatHeight = Math.max(1, repeatStepHeight);
+  const gapThreshold = Math.max(8, repeatWidth * 0.018);
+  const yThreshold = Math.max(2, repeatHeight * 0.01);
+  const rowBuckets = new Map<number, { starts: PatternPoint[]; ends: PatternPoint[] }>();
+
+  for (const stroke of strokes) {
+    const start = stroke.points[0];
+    const end = stroke.points[stroke.points.length - 1];
+    if (!start || !end) continue;
+
+    const bucketKey = Math.round(((start.y + end.y) * 0.5) / yThreshold);
+    const bucket = rowBuckets.get(bucketKey) ?? { starts: [], ends: [] };
+    bucket.starts.push(start);
+    bucket.ends.push(end);
+    rowBuckets.set(bucketKey, bucket);
+  }
+
+  for (const bucket of rowBuckets.values()) {
+    const starts = [...bucket.starts].sort((left, right) => left.x - right.x);
+    const ends = [...bucket.ends].sort((left, right) => left.x - right.x);
+    const wrappedStarts = starts
+      .map((point, index) => ({
+        point,
+        x: point.x + (index === 0 ? repeatWidth : 0),
+      }))
+      .sort((left, right) => left.x - right.x);
+    let endIndex = 0;
+
+    for (const { point: start, x: startX } of wrappedStarts) {
+      while (endIndex < ends.length && ends[endIndex]!.x < startX - gapThreshold) {
+        endIndex++;
+      }
+
+      const candidates = [ends[endIndex - 1], ends[endIndex], ends[endIndex + 1]].filter(
+        (point): point is PatternPoint => !!point,
+      );
+
+      let bestEnd: PatternPoint | null = null;
+      let bestGap = Infinity;
+
+      for (const candidate of candidates) {
+        const gap = startX - candidate.x;
+        if (gap < -0.001 || gap > gapThreshold) continue;
+        if (Math.abs(candidate.y - start.y) > yThreshold) continue;
+        if (gap < bestGap) {
+          bestGap = gap;
+          bestEnd = candidate;
+        }
+      }
+
+      if (!bestEnd) continue;
+
+      anchors.push({
+        x: ((bestEnd.x + startX) * 0.5) % repeatWidth,
+        y: (bestEnd.y + start.y) * 0.5,
+      });
+    }
+  }
+
+  if (anchors.length < 2) {
+    return [] as PatternStroke[];
+  }
+
+  const xGroupThreshold = Math.max(6, repeatWidth * 0.01);
+  const groups: SeamAnchor[][] = [];
+
+  for (const anchor of anchors) {
+    const group = groups.find(
+      (candidate) => Math.abs(candidate[0]!.x - anchor.x) <= xGroupThreshold,
+    );
+    if (group) {
+      group.push(anchor);
+    } else {
+      groups.push([anchor]);
+    }
+  }
+
+  const seamStrokes: PatternStroke[] = [];
+
+  for (const group of groups) {
+    group.sort((left, right) => left.y - right.y);
+    const first = group[0];
+    if (!first) continue;
+
+    // Repeat one seam segment per module instance. This avoids the odd/even
+    // skipping that can happen when we try to infer row-to-row links globally.
+    seamStrokes.push({
+      closed: false,
+      points: [
+        { x: first.x, y: first.y },
+        { x: first.x, y: first.y + repeatStepHeight },
+      ],
+    });
+  }
+
+  return seamStrokes;
+}
+
 function buildTileFromAnchor(
   anchorX: number,
   anchorY: number,
@@ -758,15 +867,18 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
       : isVitaPattern3
         ? module.tiles.filter((tile) => !fillTiles.includes(tile))
         : [];
+  const artworkOffsetX = patternDef?.artworkOffsetX ?? 0;
+  const artworkOffsetY = patternDef?.artworkOffsetY ?? 0;
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const offsetX = column * stepX;
       const offsetY = row * stepY;
+      const scaledModuleStrokes: PatternStroke[] = [];
 
       for (const tile of fillTiles) {
-        let internalOffsetX = (tile.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0)) * scaleX;
-        let internalOffsetY = (tile.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0)) * scaleY;
+        let internalOffsetX = (tile.x - moduleOriginX + artworkOffsetX) * scaleX;
+        let internalOffsetY = (tile.y - moduleOriginY + artworkOffsetY) * scaleY;
 
         if (layoutMode === 'preserve-existing') {
           if (isChequer) {
@@ -792,20 +904,34 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: true,
           points: tile.clipPath.map((point) => ({
-            x: offsetX + (tile.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0) + point.x) * scaleX,
-            y: offsetY + (tile.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0) + point.y) * scaleY,
+            x: offsetX + (tile.x - moduleOriginX + artworkOffsetX + point.x) * scaleX,
+            y: offsetY + (tile.y - moduleOriginY + artworkOffsetY + point.y) * scaleY,
           })),
         });
       }
 
       for (const stroke of module.strokes) {
-        strokes.push({
+        const scaledStroke = {
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
-            x: offsetX + (point.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0)) * scaleX,
-            y: offsetY + (point.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0)) * scaleY,
+            x: offsetX + (point.x - moduleOriginX + artworkOffsetX) * scaleX,
+            y: offsetY + (point.y - moduleOriginY + artworkOffsetY) * scaleY,
           })),
-        });
+        };
+        strokes.push(scaledStroke);
+        if (config.pattern.type === 'vita_pattern_13') {
+          scaledModuleStrokes.push(scaledStroke);
+        }
+      }
+
+      if (config.pattern.type === 'vita_pattern_13') {
+        strokes.push(
+          ...buildVitaPattern13VerticalSeamStrokes(
+            scaledModuleStrokes,
+            authoredRepeatWidth * scaleX,
+            stepY,
+          ),
+        );
       }
     }
   }
