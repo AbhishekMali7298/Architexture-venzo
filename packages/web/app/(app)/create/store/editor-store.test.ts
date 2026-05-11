@@ -119,6 +119,21 @@ describe('editor store', () => {
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
+  it('applies 10 mm linked joints for Vita Pattern 7 by default', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('vita_pattern_7');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('vita_pattern_7');
+    expect(config.joints.horizontalSize).toBe(10);
+    expect(config.joints.verticalSize).toBe(10);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
   it('applies 3 mm linked joints for concave pattern', () => {
     useEditorStore
       .getState()
