@@ -77,9 +77,9 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: true,
   },
   grate_pattern_2: {
-    horizontalSize: -35,
-    verticalSize: -10,
-    linkedDimensions: false,
+    horizontalSize: 0,
+    verticalSize: 0,
+    linkedDimensions: true,
   },
   chisel_pattern: {
     horizontalSize: 0,

@@ -36,6 +36,13 @@ export interface PatternDefinition {
     x?: number;
     y?: number;
   };
+  repeatWidth?: number;
+  repeatHeight?: number;
+  baseRepeatStepX?: number;
+  baseRepeatStepY?: number;
+  artworkOffsetX?: number;
+  artworkOffsetY?: number;
+  allowNegativeOverlap?: boolean;
 }
 
 const EXTRA_VITA_COMPONENT_PATTERNS: PatternDefinition[] = [
@@ -316,6 +323,15 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     },
     defaultUnitWidth: 51.57,
     defaultUnitHeight: 149.17,
+    repeatWidth: 400,
+    repeatHeight: 400,
+    baseRepeatStepX: 400,
+    baseRepeatStepY: 400,
+    allowNegativeOverlap: true,
+    repeatCompensation: {
+      x: -75,
+      y: 500,
+    },
   },
   {
     type: 'boho_pattern',

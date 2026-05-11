@@ -628,42 +628,60 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   let extraWidth = 0;
   let extraHeight = 0;
 
-  const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
-  const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
-
   const patternDef = getPatternByType(config.pattern.type);
   const compensationX = patternDef?.repeatCompensation?.x ?? 0;
   const compensationY = patternDef?.repeatCompensation?.y ?? 0;
+
+  const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
+  const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
 
   if (layoutMode === 'viewbox-uniform-repeat') {
     const scale = tileWidth / authoredRepeatWidth;
     scaleX = scale;
     scaleY = scale;
     
-    repeatWidth = authoredRepeatWidth * scale;
-    repeatHeight = authoredRepeatHeight * scale;
+    const artworkDrawWidth = authoredRepeatWidth * scale;
+    const artworkDrawHeight = authoredRepeatHeight * scale;
+    
+    const baseRepeatStepX = patternDef?.baseRepeatStepX ?? patternDef?.repeatWidth ?? artworkDrawWidth;
+    const baseRepeatStepY = patternDef?.baseRepeatStepY ?? patternDef?.repeatHeight ?? artworkDrawHeight;
     
     const userHJoint = config.joints.horizontalSize;
     const userVJoint = config.joints.verticalSize;
     const effectiveHJoint = userHJoint + compensationX;
     const effectiveVJoint = userVJoint + compensationY;
     
-    stepX = repeatWidth + effectiveHJoint;
-    stepY = repeatHeight + effectiveVJoint;
+    const effectiveStepX = baseRepeatStepX + effectiveHJoint;
+    const effectiveStepY = baseRepeatStepY + effectiveVJoint;
 
-    if (config.pattern.type === 'weave_pattern_2' || compensationX !== 0 || compensationY !== 0) {
+    const allowOverlap = patternDef?.allowNegativeOverlap ?? true;
+    
+    stepX = allowOverlap || effectiveHJoint < 0
+      ? effectiveStepX
+      : Math.max(effectiveStepX, baseRepeatStepX);
+      
+    stepY = allowOverlap || effectiveVJoint < 0
+      ? effectiveStepY
+      : Math.max(effectiveStepY, baseRepeatStepY);
+
+    if (config.pattern.type === 'grate_pattern_2' || config.pattern.type === 'weave_pattern_2' || compensationX !== 0 || compensationY !== 0) {
       console.table({
         patternName: config.pattern.type,
+        layoutMode,
+        moduleWidth: tileWidth,
+        moduleHeight: tileHeight,
+        selectedWidth: columns * stepX,
+        selectedHeight: rows * stepY,
+        baseRepeatStepX,
+        baseRepeatStepY,
         userHJoint,
         userVJoint,
-        compensationX,
-        compensationY,
-        effectiveHJoint,
-        effectiveVJoint,
-        patternWidth: repeatWidth,
-        patternHeight: repeatHeight,
-        stepX,
-        stepY
+        effectiveStepX,
+        effectiveStepY,
+        artworkDrawWidth,
+        artworkDrawHeight,
+        artworkOffsetX: patternDef?.artworkOffsetX ?? 0,
+        artworkOffsetY: patternDef?.artworkOffsetY ?? 0,
       });
     }
   } else {
@@ -724,8 +742,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
       const offsetY = row * stepY;
 
       for (const tile of fillTiles) {
-        let internalOffsetX = (tile.x - moduleOriginX) * scaleX;
-        let internalOffsetY = (tile.y - moduleOriginY) * scaleY;
+        let internalOffsetX = (tile.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0)) * scaleX;
+        let internalOffsetY = (tile.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0)) * scaleY;
 
         if (layoutMode === 'preserve-existing') {
           if (isChequer) {
@@ -751,8 +769,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: true,
           points: tile.clipPath.map((point) => ({
-            x: offsetX + (tile.x - moduleOriginX + point.x) * scaleX,
-            y: offsetY + (tile.y - moduleOriginY + point.y) * scaleY,
+            x: offsetX + (tile.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0) + point.x) * scaleX,
+            y: offsetY + (tile.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0) + point.y) * scaleY,
           })),
         });
       }
@@ -761,8 +779,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push({
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
-            x: offsetX + (point.x - moduleOriginX) * scaleX,
-            y: offsetY + (point.y - moduleOriginY) * scaleY,
+            x: offsetX + (point.x - moduleOriginX + (patternDef?.artworkOffsetX ?? 0)) * scaleX,
+            y: offsetY + (point.y - moduleOriginY + (patternDef?.artworkOffsetY ?? 0)) * scaleY,
           })),
         });
       }
