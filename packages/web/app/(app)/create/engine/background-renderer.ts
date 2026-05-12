@@ -947,16 +947,16 @@ export function drawEmbossEffect(
   const clampedStrength = Math.sqrt(normalizedStrength);
 
   // grooveWidth is kept stable across different pattern dimensions (visual consistency)
-  const grooveWidth = 1.4 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
+  const grooveWidth = 1.6 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.6 : 1.0);
   const bevelOffset =
-    Math.max(0.4, grooveWidth * 0.72) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.2 : 1.0);
-  const bevelLineWidth = grooveWidth * (0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.08 * clampedStrength * intensity * (reverse ? 2.5 : 1.0);
-  const grooveAlpha = Math.min(0.42, 0.42 * clampedStrength * intensity);
-  const highlightAlpha = Math.min(0.62, 0.62 * clampedStrength * intensity);
+    Math.max(0.6, grooveWidth * 0.75) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
+  const bevelLineWidth = grooveWidth * (reverse ? 1.2 : 0.85 + clampedStrength * 0.45);
+  const faceAlpha = 0.12 * clampedStrength * intensity * (reverse ? 2.8 : 1.0);
+  const grooveAlpha = Math.min(0.48, 0.48 * clampedStrength * intensity);
+  const highlightAlpha = Math.min(reverse ? 0.45 : 0.62, 0.62 * clampedStrength * intensity);
   const shadowAlpha = Math.min(
-    reverse ? 0.58 : 0.38,
-    (reverse ? 0.6 : 0.38) * clampedStrength * intensity,
+    reverse ? 0.72 : 0.38,
+    (reverse ? 0.85 : 0.38) * clampedStrength * intensity,
   );
 
   ctx.save();
@@ -970,6 +970,7 @@ export function drawEmbossEffect(
     }));
 
     // 1. Face shading
+    ctx.save();
     tracePolygonPath(ctx, pts);
     if (reverse) {
       // Recessed look: darken the face slightly
@@ -979,8 +980,24 @@ export function drawEmbossEffect(
       ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
     }
     ctx.fill();
+    ctx.restore();
 
-    // 2. Groove
+    // 2. Ambient Shadow (recessed only)
+    if (reverse) {
+      ctx.save();
+      tracePolygonPath(ctx, pts);
+      ctx.clip();
+      ctx.save();
+      ctx.translate(bevelOffset * 0.5, bevelOffset * 0.5);
+      tracePolygonPath(ctx, pts);
+      ctx.strokeStyle = `rgba(0,0,0,${(shadowAlpha * 0.4).toFixed(3)})`;
+      ctx.lineWidth = bevelLineWidth * 1.8;
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // 3. Groove
     tracePolygonPath(ctx, pts);
     ctx.strokeStyle = `rgba(0,0,0,${grooveAlpha.toFixed(3)})`;
     ctx.lineWidth = grooveWidth * 0.5;
