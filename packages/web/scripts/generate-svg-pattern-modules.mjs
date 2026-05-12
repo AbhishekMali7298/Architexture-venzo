@@ -550,6 +550,43 @@ function median(values) {
   return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
+function createOpenPathTile(points, viewBox) {
+  if (points.length < 3) return null;
+
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const point of points) {
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  }
+
+  if (
+    maxX < viewBox.minX ||
+    minX > viewBox.minX + viewBox.width ||
+    maxY < viewBox.minY ||
+    minY > viewBox.minY + viewBox.height
+  ) {
+    return null;
+  }
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+  if (width <= 0 || height <= 0) return null;
+
+  return {
+    x: minX - viewBox.minX,
+    y: minY - viewBox.minY,
+    width,
+    height,
+    clipPath: points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
+  };
+}
+
 async function generate() {
   const modules = {};
   const diagnostics = [];
@@ -594,6 +631,11 @@ async function generate() {
         }
 
         if (!isClosed) {
+          if (patternType === 'vita_pattern_10' && finalPoints.length >= 4) {
+            const tile = createOpenPathTile(finalPoints, viewBox);
+            if (tile) tiles.push(tile);
+          }
+
           strokes.push({
             points: finalPoints.map((point) => ({
               x: point.x - viewBox.minX,
