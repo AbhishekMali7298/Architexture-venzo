@@ -11,6 +11,7 @@ import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules
 import vitaPattern3Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_3';
 import vitaPattern9Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_9';
 import vitaPattern13Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_13';
+import vitaPattern21Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_21';
 import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
 import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
@@ -222,6 +223,30 @@ describe('pattern layout', () => {
     expect(tileWidths[0]).toBeLessThan(tileWidths[1]);
     expect(Math.abs(tileWidths[1] - tileWidths[2])).toBeLessThan(0.1);
     expect(tileWidths[2] / tileWidths[0]).toBeGreaterThan(2);
+  });
+
+  it('keeps Vita Pattern 21 capsules distributed across the full authored module', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'vita_pattern_21',
+      category: 'geometric',
+      rows: 1,
+      columns: 1,
+    };
+
+    const layout = getPatternLayout(config, vitaPattern21Module);
+    const minX = Math.min(...layout.tiles.map((tile) => tile.bounds.x));
+    const maxX = Math.max(...layout.tiles.map((tile) => tile.bounds.x + tile.bounds.width));
+    const minY = Math.min(...layout.tiles.map((tile) => tile.bounds.y));
+    const maxY = Math.max(...layout.tiles.map((tile) => tile.bounds.y + tile.bounds.height));
+
+    expect(vitaPattern21Module.tiles.length).toBeGreaterThan(100);
+    expect(layout.tiles.length).toBe(vitaPattern21Module.tiles.length);
+    expect(minX).toBeLessThan(5);
+    expect(minY).toBeLessThan(5);
+    expect(maxX).toBeGreaterThan(layout.totalWidth * 0.95);
+    expect(maxY).toBeGreaterThan(layout.totalHeight * 0.95);
   });
 
   it('adds a wraparound vertical seam for every Vita Pattern 13 column repeat', () => {

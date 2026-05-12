@@ -382,8 +382,15 @@ function parsePathPoints(d) {
     if (lower === 'z') {
       x = subpathStartX;
       y = subpathStartY;
-      isClosed = true;
-      index += 1;
+      if (currentPoints.length >= 2) {
+        subpaths.push({ points: currentPoints, isClosed: true });
+      }
+      currentPoints = [];
+      isClosed = false;
+      lastCubicControlX = null;
+      lastCubicControlY = null;
+      lastQuadraticControlX = null;
+      lastQuadraticControlY = null;
       continue;
     }
 
