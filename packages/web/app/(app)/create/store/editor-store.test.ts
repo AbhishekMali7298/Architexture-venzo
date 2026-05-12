@@ -134,6 +134,21 @@ describe('editor store', () => {
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
+  it('applies 30 mm linked joints for Vita Pattern 9 by default', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('vita_pattern_9');
+
+    const { config } = useEditorStore.getState();
+
+    expect(config.pattern.type).toBe('vita_pattern_9');
+    expect(config.joints.horizontalSize).toBe(30);
+    expect(config.joints.verticalSize).toBe(30);
+    expect(config.joints.linkedDimensions).toBe(true);
+  });
+
   it('applies 40 mm linked joints for Vita Pattern 10 by default', () => {
     useEditorStore
       .getState()
