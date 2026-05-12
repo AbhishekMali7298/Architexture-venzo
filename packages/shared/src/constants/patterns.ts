@@ -90,8 +90,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/impress/venzowood.svg',
     defaults: { rows: 3, columns: 3, angle: 45, stretchers: 1, weaves: 1, embossDepth: 25 },
     parameterRanges: {
-      rows: { min: 1, max: 100 },
-      columns: { min: 1, max: 100 },
+      rows: { min: 1, max: 10 },
+      columns: { min: 1, max: 10 },
       angle: { min: 0, max: 45, step: 1 },
     },
     defaultUnitWidth: 610,
@@ -226,8 +226,8 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     previewAssetPath: 'patterns/impress/rhombus_pattern.svg',
     defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1, embossDepth: 25 },
     parameterRanges: {
-      rows: { min: 1, max: 100 },
-      columns: { min: 1, max: 100 },
+      rows: { min: 1, max: 10 },
+      columns: { min: 1, max: 10 },
       angle: { min: 0, max: 0, step: 1 },
     },
     defaultUnitWidth: 610,
