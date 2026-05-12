@@ -172,7 +172,7 @@ function buildVitaPattern13VerticalSeamStrokes(
       if (!bestEnd) continue;
 
       anchors.push({
-        x: ((bestEnd.x + startX) * 0.5) % repeatWidth,
+        x: (bestEnd.x + startX) * 0.5,
         y: (bestEnd.y + start.y) * 0.5,
       });
     }
@@ -722,7 +722,7 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const moduleOriginX = module.originX ?? 0;
   const moduleOriginY = module.originY ?? 0;
 
-  const layoutMode = ['fibra_pattern', 'weave_pattern_2', 'grate_pattern_2'].includes(config.pattern.type) 
+  const layoutMode = ['fibra_pattern', 'weave_pattern_2', 'grate_pattern_2', 'vita_pattern_13'].includes(config.pattern.type) 
     ? 'viewbox-uniform-repeat' 
     : 'preserve-existing';
 
@@ -928,7 +928,7 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         strokes.push(
           ...buildVitaPattern13VerticalSeamStrokes(
             scaledModuleStrokes,
-            authoredRepeatWidth * scaleX,
+            stepX,
             stepY,
           ),
         );
