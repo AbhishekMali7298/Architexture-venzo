@@ -20,8 +20,13 @@ function createTestConfig(type: string, hJoint: number, vJoint: number): Texture
     name: 'test',
     pattern: {
       type: type as any,
+      category: 'geometric',
+      orientation: 'horizontal',
       rows: 2,
       columns: 2,
+      angle: 0,
+      stretchers: 1,
+      weaves: 1,
     },
     joints: {
       horizontalSize: hJoint,
