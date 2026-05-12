@@ -884,6 +884,13 @@ export const SVG_PATTERN_MODULE_TYPES = ${JSON.stringify(Object.keys(modules), n
 export const SVG_PATTERN_MODULE_LOADERS: Partial<Record<PatternType, SvgPatternModuleLoader>> = {
 ${loaderEntries}
 };
+
+export async function getSvgPatternModule(patternType: PatternType): Promise<SvgPatternModule | null> {
+  const loader = SVG_PATTERN_MODULE_LOADERS[patternType];
+  if (!loader) return null;
+  return loader();
+}
+
 `;
   await fs.writeFile(path.join(OUTPUT_DIR, 'loaders.ts'), loadersContent, 'utf8');
 

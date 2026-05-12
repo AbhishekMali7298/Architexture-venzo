@@ -85,3 +85,10 @@ export const SVG_PATTERN_MODULE_LOADERS: Partial<Record<PatternType, SvgPatternM
   "raffia_pattern": () => import('./modules/raffia_pattern').then((mod) => mod.default),
   "weave_pattern_2": () => import('./modules/weave_pattern_2').then((mod) => mod.default),
 };
+
+export async function getSvgPatternModule(patternType: PatternType): Promise<SvgPatternModule | null> {
+  const loader = SVG_PATTERN_MODULE_LOADERS[patternType];
+  if (!loader) return null;
+  return loader();
+}
+
