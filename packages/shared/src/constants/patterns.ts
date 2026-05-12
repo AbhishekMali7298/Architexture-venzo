@@ -59,7 +59,13 @@ const EXTRA_VITA_COMPONENT_PATTERNS: PatternDefinition[] = [
   description: `Vita Components pattern ${patternNumber}`,
   previewPath: '',
   previewAssetPath: `patterns/vita-components/pattern ${patternNumber}.svg`,
-  defaults: { rows: 2, columns: 2, angle: 0, stretchers: 1, weaves: 1 },
+  defaults: {
+    rows: 2,
+    columns: 2,
+    angle: 0,
+    stretchers: 1,
+    weaves: 1,
+  },
   parameterRanges: {
     rows: { min: 1, max: 10 },
     columns: { min: 1, max: 10 },
