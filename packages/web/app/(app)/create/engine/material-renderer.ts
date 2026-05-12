@@ -11,7 +11,11 @@ import {
   drawPatternStrokes,
   shouldDrawEmbossStrokeOutline,
 } from './background-renderer';
-import { supportsEmbossPattern, usesSwappedVitaMaterialMapping } from '../lib/pattern-capabilities';
+import {
+  supportsEmbossPattern,
+  usesMaterialBackgroundVitaPattern,
+  usesSwappedVitaMaterialMapping,
+} from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
   if (config.pattern.type !== 'venzowood' && config.pattern.type !== 'rhombus_pattern') {
@@ -59,6 +63,7 @@ export function renderToCanvas(
     config.joints.adjustments,
   );
   const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
+  const useMaterialBackground = usesMaterialBackgroundVitaPattern(config.pattern.type);
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -90,8 +95,8 @@ export function renderToCanvas(
     width: drawWidth,
     height: drawHeight,
     radius: 0,
-    fallbackFill: jointFill,
-    image: options?.jointImage ?? options?.materialImage,
+    fallbackFill: useMaterialBackground ? fallbackFill : jointFill,
+    image: useMaterialBackground ? options?.materialImage : (options?.jointImage ?? options?.materialImage),
     imageDrawBox: worldImageDrawBox,
   });
 

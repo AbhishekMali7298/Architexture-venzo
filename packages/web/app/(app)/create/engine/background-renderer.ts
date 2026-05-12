@@ -4,7 +4,11 @@ import { getJointRenderableColor, getMaterialRenderableColor } from '../lib/mate
 import { getPatternLayout, type PatternStroke, type PatternTile } from '../lib/pattern-layout';
 import type { SvgPatternModule } from '../engine/generated/svg-pattern-modules/types';
 import { fillMaterialSurface, tracePolygonPath } from './material-fill';
-import { isVitaComponentPattern, usesSwappedVitaMaterialMapping } from '../lib/pattern-capabilities';
+import {
+  isVitaComponentPattern,
+  usesMaterialBackgroundVitaPattern,
+  usesSwappedVitaMaterialMapping,
+} from '../lib/pattern-capabilities';
 
 function getPreviewBounds(
   layout: ReturnType<typeof getPatternLayout>,
@@ -188,7 +192,8 @@ function renderSheetPreview(
     height: bounds.height,
   };
   const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
-  const useJointAsBackground = isVita && layout.tiles.length > 0;
+  const useMaterialBackground = usesMaterialBackgroundVitaPattern(config.pattern.type);
+  const useJointAsBackground = isVita && layout.tiles.length > 0 && !useMaterialBackground;
 
   fillMaterialSurface(ctx, {
     x: bounds.x,
@@ -281,6 +286,17 @@ function renderSheetPreview(
                   reverse: emboss.reverse,
                 }
               : undefined,
+          );
+        }
+
+        if (useMaterialBackground && layout.strokes.length > 0) {
+          drawMaterialBackgroundVitaGrooves(
+            ctx,
+            offsetX,
+            offsetY,
+            scale,
+            layout.strokes,
+            emboss?.depth ?? 100,
           );
         }
 
@@ -673,6 +689,7 @@ export function renderBackground(
   const jointImageDrawBox = { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
   const isVita = isVitaComponentPattern(config.pattern.type);
   const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
+  const useMaterialBackground = usesMaterialBackgroundVitaPattern(config.pattern.type);
 
   ctx.fillStyle = '#eee7dc';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -713,8 +730,8 @@ export function renderBackground(
       width: canvasWidth,
       height: canvasHeight,
       radius: 0,
-      fallbackFill: jointFill,
-      image: options?.jointImage,
+      fallbackFill: useMaterialBackground ? fallbackFill : jointFill,
+      image: useMaterialBackground ? options?.materialImage : options?.jointImage,
       imageDrawBox: worldImageDrawBox,
     });
   } else {
@@ -769,6 +786,9 @@ export function renderBackground(
         options?.jointImage,
         jointImageDrawBox,
       );
+      if (useMaterialBackground && layout.strokes.length > 0) {
+        drawMaterialBackgroundVitaGrooves(ctx, bounds.x, bounds.y, scale, layout.strokes, 100);
+      }
     } else {
       fillMaterialSurface(ctx, {
         x: bounds.x,
@@ -821,6 +841,9 @@ export function renderBackground(
       jointImageDrawBox,
     );
     drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
+    if (useMaterialBackground && layout.strokes.length > 0) {
+      drawMaterialBackgroundVitaGrooves(cacheCtx, 0, 0, scale, layout.strokes, 100);
+    }
   }
 
   const patternBox = {
@@ -1021,6 +1044,7 @@ export function renderEmbossBackground(
 
   const isVita = isVitaComponentPattern(config.pattern.type);
   const useSwappedVitaMapping = usesSwappedVitaMaterialMapping(config.pattern.type);
+  const useMaterialBackground = usesMaterialBackgroundVitaPattern(config.pattern.type);
 
   if (previewFrame) {
     ctx.fillStyle = '#eee7dc';
@@ -1068,8 +1092,8 @@ export function renderEmbossBackground(
         width: frameWidth,
         height: frameHeight,
         radius: 0,
-        fallbackFill: jointFill,
-        image: options?.jointImage,
+        fallbackFill: useMaterialBackground ? fallbackFill : jointFill,
+        image: useMaterialBackground ? options?.materialImage : options?.jointImage,
       });
 
       // Vita Pattern 3 intentionally inverts the usual Vita mapping so the inset faces use the
@@ -1117,6 +1141,16 @@ export function renderEmbossBackground(
           reverse: isVita,
         },
       );
+      if (useMaterialBackground && layout.strokes.length > 0) {
+        drawMaterialBackgroundVitaGrooves(
+          ctx,
+          bounds.x,
+          bounds.y,
+          scale,
+          layout.strokes,
+          embossDepth,
+        );
+      }
     } else {
       // Impress/Standard: fill whole area with continuous primary material
       fillMaterialSurface(ctx, {
@@ -1149,7 +1183,7 @@ export function renderEmbossBackground(
 
   // Tiled background mode
   // 1. Fill base layer
-  const useJointAsBackground = isVita && layout.tiles.length > 0;
+  const useJointAsBackground = isVita && layout.tiles.length > 0 && !useMaterialBackground;
 
   if (useJointAsBackground) {
     ctx.fillStyle = jointFill;
@@ -1230,6 +1264,9 @@ export function renderEmbossBackground(
       depth: embossDepth,
       reverse: isVita,
     });
+    if (useMaterialBackground && layout.strokes.length > 0) {
+      drawMaterialBackgroundVitaGrooves(cacheCtx, 0, 0, scale, layout.strokes, embossDepth);
+    }
 
     // For engraved Vita patterns, fill strokes with joint material in the cache
     if (isVita && layout.tiles.length === 0) {
@@ -1380,4 +1417,25 @@ export function drawVitaStrokeJoints(
       })),
     });
   }
+}
+
+function drawMaterialBackgroundVitaGrooves(
+  ctx: CanvasRenderingContext2D,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  strokes: ReadonlyArray<PatternStroke>,
+  depth = 100,
+) {
+  drawVitaStrokeJoints(
+    ctx,
+    offsetX,
+    offsetY,
+    scale,
+    strokes,
+    'rgba(0, 0, 0, 0.22)',
+    undefined,
+    undefined,
+    Math.max(60, depth),
+  );
 }
