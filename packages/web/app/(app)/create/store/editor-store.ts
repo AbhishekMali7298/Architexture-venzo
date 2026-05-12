@@ -139,8 +139,8 @@ const PATTERN_JOINT_DEFAULTS: Record<
   },
   weave_pattern_2: {
     horizontalSize: 5,
-    verticalSize: 5,
-    linkedDimensions: true,
+    verticalSize: 0,
+    linkedDimensions: false,
   },
   grate_pattern_2: {
     horizontalSize: 0,
