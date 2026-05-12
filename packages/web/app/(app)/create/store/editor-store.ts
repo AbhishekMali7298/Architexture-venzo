@@ -92,6 +92,16 @@ const PATTERN_JOINT_DEFAULTS: Record<
     verticalSize: 40,
     linkedDimensions: true,
   },
+  vita_pattern_11: {
+    horizontalSize: 30,
+    verticalSize: 30,
+    linkedDimensions: true,
+  },
+  vita_pattern_12: {
+    horizontalSize: 200,
+    verticalSize: 200,
+    linkedDimensions: true,
+  },
   vita_pattern_14: {
     horizontalSize: 10,
     verticalSize: 10,
