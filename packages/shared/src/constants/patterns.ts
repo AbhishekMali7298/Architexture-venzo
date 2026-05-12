@@ -487,7 +487,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     defaultUnitHeight: 330.31,
     repeatCompensation: {
       x: 0,
-      y: -70,
+      y: 0,
     },
   },
   ...EXTRA_VITA_COMPONENT_PATTERNS,
