@@ -946,18 +946,29 @@ export function drawEmbossEffect(
 
   const clampedStrength = Math.sqrt(normalizedStrength);
 
-  // grooveWidth is kept stable across different pattern dimensions (visual consistency)
-  const grooveWidth = 1.6 * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.6 : 1.0);
+  // Scale-aware depth logic: Adjust effect dimensions based on the current canvas scale.
+  // Using a higher reference scale and a dampened curve to prevent "bloating" at large views.
+  const referenceScale = 0.75; 
+  const scaleFactor = scale / referenceScale;
+  
+  // Adaptive scale with a safety cap to ensure the effect stays architectural at any zoom.
+  const adaptiveScale = Math.min(1.8, Math.pow(scaleFactor, 0.7));
+
+  const grooveWidth = 1.35 * adaptiveScale * depth * (0.7 + clampedStrength * 0.3) * (reverse ? 1.3 : 1.0);
   const bevelOffset =
-    Math.max(0.6, grooveWidth * 0.75) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.4 : 1.0);
-  const bevelLineWidth = grooveWidth * (reverse ? 1.2 : 0.85 + clampedStrength * 0.45);
-  const faceAlpha = 0.12 * clampedStrength * intensity * (reverse ? 2.8 : 1.0);
-  const grooveAlpha = Math.min(0.48, 0.48 * clampedStrength * intensity);
-  const highlightAlpha = Math.min(reverse ? 0.45 : 0.62, 0.62 * clampedStrength * intensity);
+    Math.max(0.4 * adaptiveScale, grooveWidth * 0.7) * (0.7 + clampedStrength * 0.3) * (reverse ? 1.15 : 1.0);
+  const bevelLineWidth = grooveWidth * (reverse ? 1.1 : 0.8 + clampedStrength * 0.4);
+  
+  // Soften the effect slightly as things get smaller to avoid visual noise
+  const densityAlphaCorrection = Math.min(1.0, 0.55 + scaleFactor * 0.45);
+  
+  const faceAlpha = 0.12 * clampedStrength * intensity * (reverse ? 2.8 : 1.0) * densityAlphaCorrection;
+  const grooveAlpha = Math.min(0.48, 0.48 * clampedStrength * intensity) * densityAlphaCorrection;
+  const highlightAlpha = Math.min(reverse ? 0.45 : 0.62, 0.62 * clampedStrength * intensity) * densityAlphaCorrection;
   const shadowAlpha = Math.min(
     reverse ? 0.72 : 0.38,
     (reverse ? 0.85 : 0.38) * clampedStrength * intensity,
-  );
+  ) * densityAlphaCorrection;
 
   ctx.save();
   ctx.lineCap = 'round';
@@ -972,51 +983,55 @@ export function drawEmbossEffect(
     // 1. Face shading
     ctx.save();
     tracePolygonPath(ctx, pts);
-    if (reverse) {
-      // Recessed look: darken the face slightly
-      ctx.fillStyle = `rgba(0,0,0,${(faceAlpha * 0.5).toFixed(3)})`;
-    } else {
-      // Raised look: brighten the face slightly
+    if (!reverse) {
+      // Raised look: brighten the face slightly (standard for emboss)
       ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
+      ctx.fill();
     }
-    ctx.fill();
+    // Note: In deboss (reverse), we now use NO global overlay to keep the wood grain perfectly clear.
     ctx.restore();
 
-    // 2. Ambient Shadow (recessed only)
+    // 2. Ambient & Inner Wall Shadow (recessed only)
     if (reverse) {
-      ctx.save();
-      tracePolygonPath(ctx, pts);
-      ctx.clip();
-      ctx.save();
-      ctx.translate(bevelOffset * 0.5, bevelOffset * 0.5);
-      tracePolygonPath(ctx, pts);
-      ctx.strokeStyle = `rgba(0,0,0,${(shadowAlpha * 0.4).toFixed(3)})`;
-      ctx.lineWidth = bevelLineWidth * 1.8;
-      ctx.stroke();
-      ctx.restore();
-      ctx.restore();
+      // Layered inner shadows for soft depth at the EDGES only
+      for (let i = 1; i <= 3; i++) {
+        ctx.save();
+        tracePolygonPath(ctx, pts);
+        ctx.clip();
+        ctx.save();
+        // Shift shadow into the top-left inner corner
+        const layerOffset = bevelOffset * 0.3 * i;
+        ctx.translate(layerOffset, layerOffset);
+        tracePolygonPath(ctx, pts);
+        ctx.strokeStyle = `rgba(0,0,0,${(shadowAlpha * (0.35 / i)).toFixed(3)})`;
+        ctx.lineWidth = bevelLineWidth * (1.0 + i * 0.5);
+        ctx.stroke();
+        ctx.restore();
+        ctx.restore();
+      }
     }
 
-    // 3. Groove
+    // 3. Groove/Outline (Subtle defining line)
     tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = `rgba(0,0,0,${grooveAlpha.toFixed(3)})`;
+    ctx.strokeStyle = `rgba(0,0,0,${(reverse ? grooveAlpha * 0.8 : grooveAlpha).toFixed(3)})`;
     ctx.lineWidth = grooveWidth * 0.5;
     ctx.stroke();
 
-    // 3. Highlight Bevel
+    // 4. Highlight Bevel (Light hitting the inner bottom-right wall in deboss)
     ctx.save();
     tracePolygonPath(ctx, pts);
     ctx.clip();
     ctx.save();
+    // In deboss, the highlight is on the bottom-right inner wall (facing top-left light)
     ctx.translate(reverse ? -bevelOffset : bevelOffset, reverse ? -bevelOffset : bevelOffset);
     tracePolygonPath(ctx, pts);
-    ctx.strokeStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
+    ctx.strokeStyle = `rgba(255,255,255,${(reverse ? highlightAlpha * 0.8 : highlightAlpha).toFixed(3)})`;
     ctx.lineWidth = bevelLineWidth;
     ctx.stroke();
     ctx.restore();
     ctx.restore();
 
-    // 4. Shadow Bevel
+    // 5. Shadow Bevel (Top-left inner wall shadow in deboss, or bottom-right outer shadow in emboss)
     ctx.save();
     tracePolygonPath(ctx, pts);
     ctx.clip();
