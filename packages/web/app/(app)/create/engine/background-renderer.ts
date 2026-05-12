@@ -988,14 +988,20 @@ export function drawEmbossEffect(
       y: offsetY + p.y * scale,
     }));
 
-    // 1. Face shading (only for raised emboss)
+    // 1. Face shading
+    ctx.save();
+    tracePolygonPath(ctx, pts);
     if (!reverse) {
-      ctx.save();
-      tracePolygonPath(ctx, pts);
+      // Raised look: brighten the face slightly (standard for emboss)
       ctx.fillStyle = `rgba(255,255,255,${faceAlpha.toFixed(3)})`;
       ctx.fill();
-      ctx.restore();
+    } else {
+      // Recessed look: darken the face very slightly to simulate ambient occlusion/depth
+      // This makes carved panels and circles look significantly more "sunken"
+      ctx.fillStyle = `rgba(0,0,0,${(faceAlpha * 0.18).toFixed(3)})`;
+      ctx.fill();
     }
+    ctx.restore();
 
     // 2. Ambient & Deep Inner Shadow (Deboss/Carved)
     if (reverse) {
