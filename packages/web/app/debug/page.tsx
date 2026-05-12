@@ -16,8 +16,9 @@ const PATTERNS_TO_TEST = [
 
 function createTestConfig(type: string, hJoint: number, vJoint: number): TextureConfig {
   return {
-    id: 'test',
-    name: 'test',
+    version: 1,
+    seed: 0,
+    units: 'mm',
     pattern: {
       type: type as any,
       category: 'geometric',
@@ -85,9 +86,6 @@ function createTestConfig(type: string, hJoint: number, vJoint: number): Texture
       widthPx: 1000,
       heightPx: 1000,
     },
-    version: 1,
-    units: 'mm',
-    seed: 0,
     hatch: null,
     surfaceProfile: null,
     surfaceFinish: null,
