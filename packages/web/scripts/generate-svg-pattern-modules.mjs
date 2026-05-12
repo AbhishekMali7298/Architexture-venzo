@@ -683,7 +683,7 @@ async function generate() {
         }
 
         if (!isClosed) {
-          if (patternType === 'vita_pattern_10' && finalPoints.length >= 4) {
+          if (['vita_pattern_10', 'vita_pattern_20'].includes(patternType) && finalPoints.length >= 4) {
             const tile = createOpenPathTile(finalPoints, viewBox);
             if (tile) tiles.push(tile);
           }

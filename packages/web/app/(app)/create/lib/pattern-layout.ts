@@ -860,28 +860,10 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
               );
             }),
           )
-        : config.pattern.type === 'vita_pattern_20'
-          ? [
-              ...module.tiles,
-              ...module.strokes
-                .filter((s) => s.points.length === 4)
-                .map((s) => ({
-                  x: Math.min(...s.points.map((p) => p.x)),
-                  y: Math.min(...s.points.map((p) => p.y)),
-                  width:
-                    Math.max(...s.points.map((p) => p.x)) - Math.min(...s.points.map((p) => p.x)),
-                  height:
-                    Math.max(...s.points.map((p) => p.y)) - Math.min(...s.points.map((p) => p.y)),
-                  clipPath: [...s.points, s.points[0]],
-                })),
-            ]
-          : module.tiles;
+        : module.tiles;
 
+  const moduleStrokes = module.strokes;
 
-  const moduleStrokes =
-    config.pattern.type === 'vita_pattern_20'
-      ? module.strokes.filter((s) => s.points.length !== 4)
-      : module.strokes;
   const outlineTiles =
     config.pattern.type === 'venzowood_4'
       ? module.tiles
@@ -931,7 +913,7 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
         });
       }
 
-      for (const stroke of module.strokes) {
+      for (const stroke of moduleStrokes) {
         const scaledStroke = {
           closed: stroke.closed,
           points: stroke.points.map((point) => ({
