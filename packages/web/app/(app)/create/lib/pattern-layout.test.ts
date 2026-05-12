@@ -9,6 +9,7 @@ import convexPatternModule from '../engine/generated/svg-pattern-modules/modules
 import rhombusPatternModule from '../engine/generated/svg-pattern-modules/modules/rhombus_pattern';
 import ripplePatternModule from '../engine/generated/svg-pattern-modules/modules/ripple_pattern';
 import vitaPattern3Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_3';
+import vitaPattern9Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_9';
 import vitaPattern13Module from '../engine/generated/svg-pattern-modules/modules/vita_pattern_13';
 import venzowood4Module from '../engine/generated/svg-pattern-modules/modules/venzowood_4';
 import venzowood5Module from '../engine/generated/svg-pattern-modules/modules/venzowood_5';
@@ -200,6 +201,27 @@ describe('pattern layout', () => {
     expect(layout.strokes.filter((stroke) => stroke.closed)).toHaveLength(4);
     expect(layout.tiles.every((tile) => tile.bounds.width < 700)).toBe(true);
     expect(layout.tiles.every((tile) => tile.bounds.height < 700)).toBe(true);
+  });
+
+  it('maps Vita Pattern 9 inlay bars and center strip to the material layer', () => {
+    const config = structuredClone(DEFAULT_TEXTURE_CONFIG);
+    config.pattern = {
+      ...config.pattern,
+      type: 'vita_pattern_9',
+      category: 'geometric',
+      rows: 1,
+      columns: 1,
+    };
+
+    const layout = getPatternLayout(config, vitaPattern9Module);
+    const tileWidths = layout.tiles.map((tile) => tile.bounds.width).sort((a, b) => a - b);
+
+    expect(vitaPattern9Module.tiles).toHaveLength(3);
+    expect(layout.tiles).toHaveLength(3);
+    expect(layout.strokes.length).toBeGreaterThan(0);
+    expect(tileWidths[0]).toBeLessThan(tileWidths[1]);
+    expect(Math.abs(tileWidths[1] - tileWidths[2])).toBeLessThan(0.1);
+    expect(tileWidths[2] / tileWidths[0]).toBeGreaterThan(2);
   });
 
   it('adds a wraparound vertical seam for every Vita Pattern 13 column repeat', () => {

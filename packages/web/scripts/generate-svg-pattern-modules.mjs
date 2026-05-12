@@ -587,6 +587,51 @@ function createOpenPathTile(points, viewBox) {
   };
 }
 
+function createNormalizedTile(points) {
+  if (points.length < 3) return null;
+
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const point of points) {
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  }
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+  if (width <= 0 || height <= 0) return null;
+
+  return {
+    x: minX,
+    y: minY,
+    width,
+    height,
+    clipPath: points.map((point) => ({ x: point.x - minX, y: point.y - minY })),
+  };
+}
+
+function createTileFromPairedStrokes(left, right) {
+  const leftStart = left.points[0];
+  const leftEnd = left.points[left.points.length - 1];
+  const rightStart = right.points[0];
+  const rightEnd = right.points[right.points.length - 1];
+  if (!leftStart || !leftEnd || !rightStart || !rightEnd) return null;
+
+  const leftDirection = leftEnd.y - leftStart.y;
+  const rightDirection = rightEnd.y - rightStart.y;
+  const rightPoints =
+    Math.sign(leftDirection || 1) === Math.sign(rightDirection || 1)
+      ? [...right.points].reverse()
+      : right.points;
+
+  return createNormalizedTile([...left.points, ...rightPoints]);
+}
+
 async function generate() {
   const modules = {};
   const diagnostics = [];
@@ -705,6 +750,39 @@ async function generate() {
     for (const rectMatch of rectMatches) {
       const tile = rectToTile(rectMatch[0], viewBox);
       if (tile) tiles.push(tile);
+    }
+
+    if (patternType === 'vita_pattern_9' && tiles.length === 0 && strokes.length > 0) {
+      const verticalStrokes = [...strokes].sort((a, b) => {
+        const ax = Math.min(...a.points.map((point) => point.x));
+        const bx = Math.min(...b.points.map((point) => point.x));
+        return ax - bx;
+      });
+      const curvedStrokes = verticalStrokes.filter((stroke) => stroke.points.length > 2);
+      const straightStrokes = verticalStrokes.filter((stroke) => stroke.points.length === 2);
+
+      for (let index = 0; index + 1 < curvedStrokes.length; index += 2) {
+        const left = curvedStrokes[index];
+        const right = curvedStrokes[index + 1];
+        if (!left || !right) continue;
+
+        const tile = createTileFromPairedStrokes(left, right);
+        if (tile) tiles.push(tile);
+      }
+
+      for (let index = 0; index + 1 < straightStrokes.length; index++) {
+        const left = straightStrokes[index];
+        const right = straightStrokes[index + 1];
+        if (!left || !right) continue;
+
+        const leftX = left.points[0]?.x;
+        const rightX = right.points[0]?.x;
+        if (leftX === undefined || rightX === undefined) continue;
+        if (rightX - leftX > viewBox.width * 0.08) continue;
+
+        const tile = createTileFromPairedStrokes(left, right);
+        if (tile) tiles.push(tile);
+      }
     }
 
     const contentBounds = getContentBounds(tiles, strokes, viewBox);
