@@ -296,6 +296,9 @@ function renderSheetPreview(
             offsetY,
             scale,
             layout.strokes,
+            jointFill,
+            jointImage,
+            jointImageDrawBox,
             emboss?.depth ?? 100,
           );
         }
@@ -440,8 +443,8 @@ export function drawEmbossStrokeEffect(
   const depth = (options?.depth ?? 100) / 100;
   const reverse = options?.reverse ?? false;
 
-  const embossOffset = Math.max(0.1, (reverse ? 0.8 : 0.5) * normalizedStrength * depth);
-  const strokeWidth = Math.max(0.4, (reverse ? 2.0 : 1.6) * normalizedStrength * depth);
+  const embossOffset = Math.max(0.1, (reverse ? 1.4 : 0.5) * normalizedStrength * depth);
+  const strokeWidth = Math.max(0.4, (reverse ? 2.4 : 1.6) * normalizedStrength * depth);
   const highlightAlpha = Math.min(0.85, 0.9 * normalizedStrength * intensity);
   const shadowAlpha = Math.min(
     reverse ? 0.65 : 0.5,
@@ -787,7 +790,17 @@ export function renderBackground(
         jointImageDrawBox,
       );
       if (useMaterialBackground && layout.strokes.length > 0) {
-        drawMaterialBackgroundVitaGrooves(ctx, bounds.x, bounds.y, scale, layout.strokes, 100);
+        drawMaterialBackgroundVitaGrooves(
+          ctx,
+          bounds.x,
+          bounds.y,
+          scale,
+          layout.strokes,
+          jointFill,
+          options?.jointImage,
+          jointImageDrawBox,
+          100,
+        );
       }
     } else {
       fillMaterialSurface(ctx, {
@@ -842,7 +855,17 @@ export function renderBackground(
     );
     drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
     if (useMaterialBackground && layout.strokes.length > 0) {
-      drawMaterialBackgroundVitaGrooves(cacheCtx, 0, 0, scale, layout.strokes, 100);
+      drawMaterialBackgroundVitaGrooves(
+        cacheCtx,
+        0,
+        0,
+        scale,
+        layout.strokes,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+        100,
+      );
     }
   }
 
@@ -1148,6 +1171,9 @@ export function renderEmbossBackground(
           bounds.y,
           scale,
           layout.strokes,
+          jointFill,
+          options?.jointImage,
+          jointImageDrawBox,
           embossDepth,
         );
       }
@@ -1265,7 +1291,17 @@ export function renderEmbossBackground(
       reverse: isVita,
     });
     if (useMaterialBackground && layout.strokes.length > 0) {
-      drawMaterialBackgroundVitaGrooves(cacheCtx, 0, 0, scale, layout.strokes, embossDepth);
+      drawMaterialBackgroundVitaGrooves(
+        cacheCtx,
+        0,
+        0,
+        scale,
+        layout.strokes,
+        jointFill,
+        options?.jointImage,
+        jointImageDrawBox,
+        embossDepth,
+      );
     }
 
     // For engraved Vita patterns, fill strokes with joint material in the cache
@@ -1425,6 +1461,9 @@ function drawMaterialBackgroundVitaGrooves(
   offsetY: number,
   scale: number,
   strokes: ReadonlyArray<PatternStroke>,
+  fallbackFill: string,
+  image?: CanvasImageSource | null,
+  imageDrawBox?: { x: number; y: number; width: number; height: number },
   depth = 100,
 ) {
   drawVitaStrokeJoints(
@@ -1433,9 +1472,9 @@ function drawMaterialBackgroundVitaGrooves(
     offsetY,
     scale,
     strokes,
-    'rgba(0, 0, 0, 0.22)',
-    undefined,
-    undefined,
+    fallbackFill,
+    image,
+    imageDrawBox,
     Math.max(60, depth),
   );
 }
