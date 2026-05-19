@@ -461,6 +461,42 @@ function parseNumericAttribute(element, name) {
   return Number.isNaN(value) ? null : value;
 }
 
+function parsePointListAttribute(element) {
+  const match = element.match(/\spoints="([^"]+)"/i);
+  if (!match) return null;
+
+  const values = match[1]
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+
+  if (!values.length || values.length % 2 !== 0 || values.some((value) => Number.isNaN(value))) {
+    return null;
+  }
+
+  const points = [];
+  for (let index = 0; index < values.length; index += 2) {
+    points.push({ x: values[index], y: values[index + 1] });
+  }
+
+  return points;
+}
+
+function isStrokeOnlyElement(element) {
+  return (
+    /\sfill="none"/i.test(element) ||
+    /\sstyle="[^"]*\bfill\s*:\s*none\b/i.test(element) ||
+    /\sclass="[^"]*\bfil0\b/i.test(element)
+  );
+}
+
+function normalizePointsForViewBox(points, viewBox) {
+  return points.map((point) => ({
+    x: point.x - viewBox.minX,
+    y: point.y - viewBox.minY,
+  }));
+}
+
 function roundedRectClipPath(width, height, rxInput, ryInput, samples = 8) {
   let rx = rxInput ?? ryInput ?? 0;
   let ry = ryInput ?? rxInput ?? 0;
@@ -654,6 +690,9 @@ async function generate() {
     const circleMatches = [...svg.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\sr="([^"]+)"[^>]*>/gi)];
     const ellipseMatches = [...svg.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"[^>]*>/gi)];
     const rectMatches = [...svg.matchAll(/<rect\b[^>]*>/gi)];
+    const polygonMatches = [...svg.matchAll(/<polygon\b[^>]*>/gi)];
+    const polylineMatches = [...svg.matchAll(/<polyline\b[^>]*>/gi)];
+    const lineMatches = [...svg.matchAll(/<line\b[^>]*>/gi)];
     const tiles = [];
     const strokes = [];
 
@@ -689,10 +728,7 @@ async function generate() {
           }
 
           strokes.push({
-            points: finalPoints.map((point) => ({
-              x: point.x - viewBox.minX,
-              y: point.y - viewBox.minY,
-            })),
+            points: normalizePointsForViewBox(finalPoints, viewBox),
             closed: false,
           });
           continue;
@@ -757,6 +793,51 @@ async function generate() {
     for (const rectMatch of rectMatches) {
       const tile = rectToTile(rectMatch[0], viewBox);
       if (tile) tiles.push(tile);
+    }
+
+    for (const polygonMatch of polygonMatches) {
+      const points = parsePointListAttribute(polygonMatch[0]);
+      if (!points || points.length < 3) continue;
+
+      if (isStrokeOnlyElement(polygonMatch[0])) {
+        strokes.push({
+          points: normalizePointsForViewBox(points, viewBox),
+          closed: true,
+        });
+        continue;
+      }
+
+      const tile = createNormalizedTile(points);
+      if (tile) tiles.push(tile);
+    }
+
+    for (const polylineMatch of polylineMatches) {
+      const points = parsePointListAttribute(polylineMatch[0]);
+      if (!points || points.length < 2) continue;
+
+      strokes.push({
+        points: normalizePointsForViewBox(points, viewBox),
+        closed: false,
+      });
+    }
+
+    for (const lineMatch of lineMatches) {
+      const x1 = parseNumericAttribute(lineMatch[0], 'x1');
+      const y1 = parseNumericAttribute(lineMatch[0], 'y1');
+      const x2 = parseNumericAttribute(lineMatch[0], 'x2');
+      const y2 = parseNumericAttribute(lineMatch[0], 'y2');
+      if ([x1, y1, x2, y2].some((value) => value === null)) continue;
+
+      strokes.push({
+        points: normalizePointsForViewBox(
+          [
+            { x: x1, y: y1 },
+            { x: x2, y: y2 },
+          ],
+          viewBox,
+        ),
+        closed: false,
+      });
     }
 
     if (patternType === 'vita_pattern_9' && tiles.length === 0 && strokes.length > 0) {

@@ -54,5 +54,6 @@ describe('material asset color helpers', () => {
     expect(getPatternPreviewImageUrl('venzowood_5')).toBe('/patterns/vita-components/venzowood_5.svg');
     expect(getPatternPreviewImageUrl('vita_pattern_3')).toBe('/patterns/vita-components/pattern 3.svg');
     expect(getPatternPreviewImageUrl('vita_pattern_21')).toBe('/patterns/vita-components/pattern 21.svg');
+    expect(getPatternPreviewImageUrl('vita_pattern_42')).toBe('/patterns/vita-components/42.svg');
   });
 });
