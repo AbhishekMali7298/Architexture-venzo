@@ -344,13 +344,11 @@ export default function CreatePage() {
       return;
     }
 
-    const isRhombus =
-      config.pattern.type === 'venzowood' ||
-      config.pattern.type === 'venzowood_2' ||
-      config.pattern.type === 'rhombus_pattern';
-    const targetRepeatHeight = isRhombus
+    const isImpress = isImpressPattern(config.pattern.type);
+    const scaleFactor = config.pattern.type === 'venzowood_3' ? 0.25 : 0.1;
+    const targetRepeatHeight = isImpress
       ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
-        0.1 *
+        scaleFactor *
         config.pattern.rows
       : sheetPreview.height / 4;
 

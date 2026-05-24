@@ -192,6 +192,10 @@ const SPECIAL_MODULE_DEFAULTS: Partial<Record<PatternType, { width: number; heig
     width: 400,
     height: 400,
   },
+  venzowood_3: {
+    width: 610,
+    height: 610,
+  },
   boho_pattern: {
     width: 610,
     height: 610,
@@ -422,9 +426,9 @@ function applyPatternSheetDefaults(s: EditorState) {
     // Venzowood 3's SVG module already contains its interlocking repeat cell.
     // Keep joints at zero so zooming/scaling does not overdrive the overlap.
     const moduleDefaults = getPatternModuleDefaults(type);
-    mat.width = moduleDefaults.width;
-    mat.height = moduleDefaults.height;
-    s.embossDepth = 100;
+    mat.width = moduleDefaults.width * 0.25;
+    mat.height = moduleDefaults.height * 0.25;
+    s.embossDepth = 60;
     s.config.joints.horizontalSize = 0;
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
