@@ -19,7 +19,19 @@ import {
 } from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
-  return [{ x: 0, y: 0 }];
+  if (config.pattern.type !== 'venzowood') {
+    return [{ x: 0, y: 0 }];
+  }
+
+  const moduleStepX = repeatWidth / Math.max(1, config.pattern.columns);
+  const moduleStepY = repeatHeight / Math.max(1, config.pattern.rows);
+
+  // Interleave by half of a single module step, not half of the whole selected
+  // layout. That keeps odd/even row and column counts consistent.
+  return [
+    { x: 0, y: 0 },
+    { x: moduleStepX / 2, y: moduleStepY / 2 },
+  ];
 }
 
 export function renderToCanvas(
