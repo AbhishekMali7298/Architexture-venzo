@@ -19,17 +19,7 @@ import {
 } from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
-  if (config.pattern.type !== 'venzowood') {
-    return [{ x: 0, y: 0 }];
-  }
-
-  const moduleStepX = repeatWidth / Math.max(1, config.pattern.columns);
-  const moduleStepY = repeatHeight / Math.max(1, config.pattern.rows);
-
-  return [
-    { x: 0, y: 0 },
-    { x: moduleStepX / 2, y: moduleStepY / 2 },
-  ];
+  return [{ x: 0, y: 0 }];
 }
 
 export function renderToCanvas(

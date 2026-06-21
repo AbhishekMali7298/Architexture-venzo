@@ -589,16 +589,7 @@ const VENZOWOOD_MODULE_SHAPES: ReadonlyArray<ReadonlyArray<readonly [number, num
     [16854.56, 25249.72],
   ],
 ];
-const VENZOWOOD_MODULE_STROKES: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
-  [[3766.49, 16849.61], [16806.23, 3810.34]],
-  [[13232.23, 3821.58], [14781.42, 5370.77]],
-  [[15161.79, 5747.36], [24263.48, 14848.08]],
-  [[24639.9, 15228.22], [26260.63, 16848.78]],
-  [[26355.64, 13152.07], [15158.64, 24349.06]],
-  [[14858.11, 24651.86], [13251.02, 26266.25]],
-  [[16801.81, 26288.8], [5701.37, 15188.36]],
-  [[5406.46, 14893.45], [3780.53, 13267.52]],
-];
+const VENZOWOOD_MODULE_STROKES: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [];
 const VENZOWOOD_MODULE_BOUNDS = VENZOWOOD_MODULE_SHAPES.flat().reduce(
   (bounds, [x, y]) => ({
     minX: Math.min(bounds.minX, x),
