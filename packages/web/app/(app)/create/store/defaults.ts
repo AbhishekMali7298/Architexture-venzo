@@ -25,11 +25,11 @@ export const DEFAULT_TEXTURE_CONFIG: TextureConfig = {
   materials: [
     {
       id: 'mat_1',
-      definitionId: 'organic-steam-beech',
+      definitionId: 'organic-anigrey-figured',
       source: {
         type: 'image',
         asset: {
-          path: '/materials/Organic/STEAM BEECH.jpg',
+          path: '/materials/Organic/ANIGREY FIGURED.jpg',
           mimeType: 'image/jpeg',
         },
         fallbackColor: '#808080',
