@@ -61,10 +61,12 @@ export function BackgroundCanvas() {
     if (!canvas) return;
 
     let timeoutId: NodeJS.Timeout;
+    let pendingTimeoutId: NodeJS.Timeout;
 
     const render = () => {
       // Show pending state only for longer renders (>150ms) to avoid flickering
-      const pendingTimeoutId = setTimeout(() => setIsPending(true), 150);
+      clearTimeout(pendingTimeoutId);
+      pendingTimeoutId = setTimeout(() => setIsPending(true), 150);
 
       // Execute render in the next event loop tick to allow UI to breathe
       timeoutId = setTimeout(() => {
@@ -136,6 +138,7 @@ export function BackgroundCanvas() {
     return () => {
       window.removeEventListener('resize', render);
       clearTimeout(timeoutId);
+      clearTimeout(pendingTimeoutId);
     };
   }, [
     config,

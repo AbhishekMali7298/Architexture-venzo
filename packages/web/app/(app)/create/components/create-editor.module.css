@@ -1398,7 +1398,7 @@
 }
 .loadingOverlay {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   right: 24px;
   z-index: 50;
   display: flex;
