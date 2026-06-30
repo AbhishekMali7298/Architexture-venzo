@@ -15,6 +15,7 @@ import {
   supportsEmbossPattern,
   usesMaterialBackgroundVitaPattern,
   usesSwappedVitaMaterialMapping,
+  isVitaComponentPattern,
 } from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
@@ -42,6 +43,8 @@ export function renderToCanvas(
     backgroundFill?: string;
     embossMode?: boolean;
     embossStrength?: number;
+    embossIntensity?: number;
+    embossDepth?: number;
     svgPatternModule?: SvgPatternModule | null;
   },
 ): void {
@@ -143,7 +146,12 @@ export function renderToCanvas(
           }
 
           if (shouldRenderEmboss) {
-            drawEmbossEffect(ctx, instanceOffsetX, instanceOffsetY, scale, layout.tiles, strength);
+            const embossOptions = {
+              intensity: options?.embossIntensity,
+              depth: options?.embossDepth,
+              reverse: isVitaComponentPattern(config.pattern.type),
+            };
+            drawEmbossEffect(ctx, instanceOffsetX, instanceOffsetY, scale, layout.tiles, strength, embossOptions);
             drawEmbossStrokeEffect(
               ctx,
               instanceOffsetX,
@@ -151,6 +159,7 @@ export function renderToCanvas(
               scale,
               layout.strokes,
               strength,
+              embossOptions
             );
             if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
               drawPatternStrokes(ctx, instanceOffsetX, instanceOffsetY, scale, layout.strokes);

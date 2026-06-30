@@ -146,6 +146,8 @@ async function renderExportCanvas(
       backgroundFill: '#ffffff',
       embossMode: useEditorStore.getState().embossMode,
       embossStrength: useEditorStore.getState().embossStrength,
+      embossIntensity: useEditorStore.getState().embossIntensity,
+      embossDepth: useEditorStore.getState().embossDepth,
       svgPatternModule,
     });
   }
@@ -154,15 +156,14 @@ async function renderExportCanvas(
     const logoImg = await loadMaterialImage('/Venzowood.webp');
     if (logoImg) {
       ctx.save();
-      ctx.globalAlpha = 0.07; // Light placeholder
       
-      // Rotate for diagonal watermark
+      // Rotate for diagonal watermark across the whole image
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate(-Math.PI / 6);
       ctx.translate(-canvas.width / 2, -canvas.height / 2);
       
-      const tileWidth = 400;
-      const tileHeight = 300;
+      const tileWidth = 600;
+      const tileHeight = 400;
       const cols = Math.ceil(canvas.width / tileWidth) * 2 + 2;
       const rows = Math.ceil(canvas.height / tileHeight) * 2 + 2;
       
@@ -174,12 +175,24 @@ async function renderExportCanvas(
           ctx.save();
           ctx.translate(x, y);
           
-          const logoSize = 64;
-          ctx.drawImage(logoImg, -logoSize / 2, -logoSize / 2 - 20, logoSize, logoSize);
+          const logoSize = 80;
           
-          ctx.font = 'bold 32px sans-serif';
+          // Draw logo
+          ctx.globalAlpha = 0.25;
+          ctx.drawImage(logoImg, -logoSize / 2, -logoSize / 2 - 25, logoSize, logoSize);
+          
+          // Draw text
+          ctx.globalAlpha = 0.35;
+          ctx.font = 'bold 36px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
+          
+          // Outline
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.fillText('VENZOWOOD', 0, logoSize / 2 - 10 + 2);
+          ctx.fillText('VENZOWOOD', 0, logoSize / 2 - 10 - 2);
+          
+          // Main text
           ctx.fillStyle = '#000000';
           ctx.fillText('VENZOWOOD', 0, logoSize / 2 - 10);
           
