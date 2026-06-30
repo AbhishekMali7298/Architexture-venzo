@@ -14,7 +14,7 @@ import { JointMaterialModal } from './components/joint-material-modal';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
-
+import { PreviewSettingsSection } from './components/preview-settings-section';
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
@@ -478,6 +478,16 @@ export default function CreatePage() {
           onEmbossStrengthChange={setEmbossStrength}
           onEmbossIntensityChange={setEmbossIntensity}
           onEmbossDepthChange={setEmbossDepth}
+        />
+
+        <PreviewSettingsSection
+          sheetPreviewPreset={sheetPreviewPreset}
+          customSheetWidth={customSheetWidth}
+          customSheetHeight={customSheetHeight}
+          unitSuffix={config.units === 'inches' ? 'in' : 'mm'}
+          onSheetPreviewPresetChange={setSheetPreviewPreset}
+          onCustomSheetWidthChange={setCustomSheetWidth}
+          onCustomSheetHeightChange={setCustomSheetHeight}
         />
 
       </CreateEditorShell>
