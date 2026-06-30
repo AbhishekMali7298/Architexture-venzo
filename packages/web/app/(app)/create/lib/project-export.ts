@@ -150,6 +150,48 @@ async function renderExportCanvas(
     });
   }
 
+  try {
+    const logoImg = await loadMaterialImage('/Venzowood.webp');
+    if (logoImg) {
+      ctx.save();
+      ctx.globalAlpha = 0.07; // Light placeholder
+      
+      // Rotate for diagonal watermark
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 6);
+      ctx.translate(-canvas.width / 2, -canvas.height / 2);
+      
+      const tileWidth = 400;
+      const tileHeight = 300;
+      const cols = Math.ceil(canvas.width / tileWidth) * 2 + 2;
+      const rows = Math.ceil(canvas.height / tileHeight) * 2 + 2;
+      
+      for (let r = -rows; r < rows; r++) {
+        for (let c = -cols; c < cols; c++) {
+          const x = canvas.width / 2 + c * tileWidth + (r % 2 === 0 ? tileWidth / 2 : 0);
+          const y = canvas.height / 2 + r * tileHeight;
+          
+          ctx.save();
+          ctx.translate(x, y);
+          
+          const logoSize = 64;
+          ctx.drawImage(logoImg, -logoSize / 2, -logoSize / 2 - 20, logoSize, logoSize);
+          
+          ctx.font = 'bold 32px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillStyle = '#000000';
+          ctx.fillText('VENZOWOOD', 0, logoSize / 2 - 10);
+          
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+    }
+  } catch (e) {
+    console.error('Failed to draw watermark', e);
+  }
+
   return canvas;
 }
 
