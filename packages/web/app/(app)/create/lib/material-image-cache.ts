@@ -23,14 +23,16 @@ export function loadMaterialImage(url: string): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.decoding = 'async';
-    image.crossOrigin = 'anonymous';
+    if (url.startsWith('http')) {
+      image.crossOrigin = 'anonymous';
+    }
     image.onload = () => {
       imageCache.set(url, { status: 'loaded', image, requestedAt: Date.now() });
       resolve(image);
     };
     image.onerror = () => {
       imageCache.set(url, { status: 'error', requestedAt: Date.now() });
-      reject(new Error(`Failed to load material image: ${url}`));
+      reject(new Error(`Failed to load image: ${url}`));
     };
     image.src = url;
   });

@@ -38,6 +38,8 @@ export interface PatternDefinition {
   };
   repeatWidth?: number;
   repeatHeight?: number;
+  svgRepeatWidth?: number;
+  svgRepeatHeight?: number;
   baseRepeatStepX?: number;
   baseRepeatStepY?: number;
   artworkOffsetX?: number;
@@ -489,12 +491,10 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
       columns: { min: 1, max: 10 },
       angle: { min: 0, max: 0, step: 1 },
     },
-    defaultUnitWidth: 60.06,
-    defaultUnitHeight: 330.31,
-    repeatCompensation: {
-      x: 0,
-      y: -32,
-    },
+    defaultUnitWidth: 150.14,
+    defaultUnitHeight: 1441.36,
+    svgRepeatWidth: 150.14,
+    svgRepeatHeight: 1441.36,
   },
   ...EXTRA_VITA_COMPONENT_PATTERNS,
 ];

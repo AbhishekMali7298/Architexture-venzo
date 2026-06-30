@@ -73,11 +73,10 @@ function getFrameRepeatSize(
   layout: ReturnType<typeof getPatternLayout>,
   scale: number,
 ) {
-  // Use logical repeat dimensions from the layout engine.
-  // totalWidth/totalHeight already account for joints between modules.
+  const repeatStep = getModuleRepeatStep(config);
   return {
-    width: Math.max(1, layout.totalWidth * scale),
-    height: Math.max(1, layout.totalHeight * scale),
+    width: Math.max(1, repeatStep.x * scale * Math.max(1, config.pattern.columns)),
+    height: Math.max(1, repeatStep.y * scale * Math.max(1, config.pattern.rows)),
   };
 }
 
@@ -175,10 +174,11 @@ export function renderSheetPreview(
     jointImage,
     emboss,
   } = options;
-  const repeatWidth = Math.max(1, layout.totalWidth * scale);
-  const repeatHeight = Math.max(1, layout.totalHeight * scale);
-  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
-  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const repeatStep = getModuleRepeatStep(config);
+  const repeatWidth = Math.max(1, repeatStep.x * scale * Math.max(1, config.pattern.columns));
+  const repeatHeight = Math.max(1, repeatStep.y * scale * Math.max(1, config.pattern.rows));
+  const baseWidth = repeatStep.x * scale;
+  const baseHeight = repeatStep.y * scale;
   const worldImageDrawBox = {
     x: bounds.x,
     y: bounds.y,
@@ -1145,8 +1145,9 @@ export function renderEmbossBackground(
     return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight, scale };
   }
 
-  const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
-  const baseHeight = (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale;
+  const repeatStep = getModuleRepeatStep(config);
+  const baseWidth = repeatStep.x * scale;
+  const baseHeight = repeatStep.y * scale;
   const worldImageDrawBox = {
     x: bounds.x,
     y: bounds.y,

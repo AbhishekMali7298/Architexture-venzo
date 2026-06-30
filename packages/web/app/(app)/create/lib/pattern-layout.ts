@@ -741,8 +741,8 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
   const compensationX = patternDef?.repeatCompensation?.x ?? 0;
   const compensationY = patternDef?.repeatCompensation?.y ?? 0;
 
-  const authoredRepeatWidth = Math.max(1, module.repeatWidth ?? module.viewBoxWidth);
-  const authoredRepeatHeight = Math.max(1, module.repeatHeight ?? module.viewBoxHeight);
+  const authoredRepeatWidth = Math.max(1, patternDef?.svgRepeatWidth ?? module.repeatWidth ?? module.viewBoxWidth);
+  const authoredRepeatHeight = Math.max(1, patternDef?.svgRepeatHeight ?? module.repeatHeight ?? module.viewBoxHeight);
 
   if (layoutMode === 'viewbox-uniform-repeat') {
     const scale = tileWidth / authoredRepeatWidth;
