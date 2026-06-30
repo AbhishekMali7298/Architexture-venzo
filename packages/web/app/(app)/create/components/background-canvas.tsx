@@ -35,8 +35,8 @@ export function BackgroundCanvas() {
 
   // Measure tool state
   const [isMeasuring, setIsMeasuring] = useState(false);
-  const [measureStart, setMeasureStart] = useState<{ x: number; y: number } | null>(null);
-  const [measureEnd, setMeasureEnd] = useState<{ x: number; y: number } | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [measurePoints, setMeasurePoints] = useState<{ x: number; y: number }[]>([]);
   const [currentMouse, setCurrentMouse] = useState<{ x: number; y: number } | null>(null);
   const transformRef = useRef({ x: 0, y: 0, scale: 1 });
 
@@ -55,6 +55,16 @@ export function BackgroundCanvas() {
     customSheetWidth,
     customSheetHeight,
   );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMeasuring && isDrawing) {
+        setIsDrawing(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMeasuring, isDrawing]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -164,11 +174,11 @@ export function BackgroundCanvas() {
     const physicalX = (e.clientX - x) / scale;
     const physicalY = (e.clientY - y) / scale;
     
-    if (measureStart && !measureEnd) {
-      setMeasureEnd({ x: physicalX, y: physicalY });
+    if (!isDrawing) {
+      setMeasurePoints([{ x: physicalX, y: physicalY }]);
+      setIsDrawing(true);
     } else {
-      setMeasureStart({ x: physicalX, y: physicalY });
-      setMeasureEnd(null);
+      setMeasurePoints((prev) => [...prev, { x: physicalX, y: physicalY }]);
     }
   };
 
@@ -184,8 +194,8 @@ export function BackgroundCanvas() {
 
   const toggleMeasure = () => {
     setIsMeasuring(!isMeasuring);
-    setMeasureStart(null);
-    setMeasureEnd(null);
+    setIsDrawing(false);
+    setMeasurePoints([]);
     setCurrentMouse(null);
   };
 
@@ -202,6 +212,12 @@ export function BackgroundCanvas() {
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
+        onContextMenu={(e) => {
+          if (isMeasuring && isDrawing) {
+            e.preventDefault();
+            setIsDrawing(false);
+          }
+        }}
       />
       {isMeasuring && transformRef.current.scale > 0 && (
         <svg
@@ -214,71 +230,75 @@ export function BackgroundCanvas() {
             pointerEvents: 'none',
           }}
         >
-          {measureStart && (currentMouse || measureEnd) && (
-            <>
-              <line
-                x1={measureStart.x * transformRef.current.scale + transformRef.current.x}
-                y1={measureStart.y * transformRef.current.scale + transformRef.current.y}
-                x2={(measureEnd || currentMouse!).x * transformRef.current.scale + transformRef.current.x}
-                y2={(measureEnd || currentMouse!).y * transformRef.current.scale + transformRef.current.y}
-                stroke="#000"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-              />
-              <circle
-                cx={measureStart.x * transformRef.current.scale + transformRef.current.x}
-                cy={measureStart.y * transformRef.current.scale + transformRef.current.y}
-                r={4}
-                fill="#000"
-              />
-              <circle
-                cx={(measureEnd || currentMouse!).x * transformRef.current.scale + transformRef.current.x}
-                cy={(measureEnd || currentMouse!).y * transformRef.current.scale + transformRef.current.y}
-                r={4}
-                fill="#000"
-              />
-              
-              {/* Distance label */}
-              {(() => {
-                const endPt = measureEnd || currentMouse!;
-                const dx = endPt.x - measureStart.x;
-                const dy = endPt.y - measureStart.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                const midX = (measureStart.x + endPt.x) / 2 * transformRef.current.scale + transformRef.current.x;
-                const midY = (measureStart.y + endPt.y) / 2 * transformRef.current.scale + transformRef.current.y;
-                
-                const displayDistance = config.units === 'inches' 
-                  ? `${(distance / 25.4).toFixed(2)} inches` 
-                  : `${Math.round(distance)} mm`;
+          {measurePoints.map((pt, i) => {
+            const nextPt = i < measurePoints.length - 1 ? measurePoints[i + 1] : (isDrawing ? currentMouse : null);
+            if (!nextPt) return null;
+            
+            const x1 = pt.x * transformRef.current.scale + transformRef.current.x;
+            const y1 = pt.y * transformRef.current.scale + transformRef.current.y;
+            const x2 = nextPt.x * transformRef.current.scale + transformRef.current.x;
+            const y2 = nextPt.y * transformRef.current.scale + transformRef.current.y;
+            
+            const dx = nextPt.x - pt.x;
+            const dy = nextPt.y - pt.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            
+            const displayDistance = config.units === 'inches' 
+              ? `${(distance / 25.4).toFixed(2)} inches` 
+              : `${Math.round(distance)} mm`;
 
-                return (
-                  <g transform={`translate(${midX}, ${midY - 10})`}>
-                    <rect
-                      x={-40}
-                      y={-14}
-                      width={80}
-                      height={20}
-                      rx={4}
-                      fill="rgba(255, 255, 255, 0.9)"
-                      stroke="#e5e7eb"
-                    />
-                    <text
-                      x={0}
-                      y={0}
-                      textAnchor="middle"
-                      fill="#111827"
-                      fontSize={12}
-                      fontWeight="500"
-                      fontFamily="system-ui, -apple-system, sans-serif"
-                    >
-                      {displayDistance}
-                    </text>
-                  </g>
-                );
-              })()}
-            </>
-          )}
+            return (
+              <g key={`measure-${i}`}>
+                <line
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#000"
+                  strokeWidth={2}
+                  strokeDasharray="4 4"
+                />
+                <circle
+                  cx={x1}
+                  cy={y1}
+                  r={4}
+                  fill="#000"
+                />
+                <circle
+                  cx={x2}
+                  cy={y2}
+                  r={4}
+                  fill="#000"
+                />
+                
+                <g transform={`translate(${midX}, ${midY - 10})`}>
+                  <rect
+                    x={-40}
+                    y={-14}
+                    width={80}
+                    height={20}
+                    rx={4}
+                    fill="rgba(255, 255, 255, 0.9)"
+                    stroke="#e5e7eb"
+                  />
+                  <text
+                    x={0}
+                    y={0}
+                    textAnchor="middle"
+                    fill="#111827"
+                    fontSize={12}
+                    fontWeight="500"
+                    fontFamily="system-ui, -apple-system, sans-serif"
+                  >
+                    {displayDistance}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
         </svg>
       )}
 
@@ -293,11 +313,28 @@ export function BackgroundCanvas() {
           gap: '8px'
         }}
       >
-        {isMeasuring && (measureStart || measureEnd) && (
+        {isMeasuring && measurePoints.length > 0 && isDrawing && (
+          <button
+            onClick={() => setIsDrawing(false)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: 'white',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer',
+              fontWeight: 500,
+              color: '#4b5563',
+            }}
+          >
+            Finish Path
+          </button>
+        )}
+        {isMeasuring && measurePoints.length > 0 && (
           <button
             onClick={() => {
-              setMeasureStart(null);
-              setMeasureEnd(null);
+              setMeasurePoints([]);
+              setIsDrawing(false);
             }}
             style={{
               padding: '8px 16px',
