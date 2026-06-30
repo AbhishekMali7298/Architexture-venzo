@@ -729,6 +729,7 @@ export function renderBackground(
       y: bounds.y,
       width: frameWidth,
       height: frameHeight,
+      scale,
     };
   }
 
@@ -834,6 +835,7 @@ export function renderBackground(
       y: bounds.y,
       width: frameWidth,
       height: frameHeight,
+      scale,
     };
   }
 
@@ -939,6 +941,7 @@ export function renderBackground(
     y: bounds.y,
     width: frameWidth,
     height: frameHeight,
+    scale,
   };
 }
 
@@ -1139,7 +1142,7 @@ export function renderEmbossBackground(
       },
     });
 
-    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
+    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight, scale };
   }
 
   const baseWidth = (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale;
@@ -1252,7 +1255,7 @@ export function renderEmbossBackground(
       drawPatternStrokes(ctx, bounds.x, bounds.y, scale, layout.strokes);
     }
 
-    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
+    return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight, scale };
   }
 
   // Tiled background mode
@@ -1432,7 +1435,7 @@ export function renderEmbossBackground(
     }
   }
 
-  return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight };
+  return { x: bounds.x, y: bounds.y, width: frameWidth, height: frameHeight, scale };
 }
 
 export function drawPreviewBorder(
