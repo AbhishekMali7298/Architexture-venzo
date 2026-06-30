@@ -99,25 +99,49 @@ async function getEmbeddedMaterialAsset(config: TextureConfig) {
   }
 }
 
-export async function buildPreviewSvg(config: TextureConfig) {
-  const width = config.output.widthPx;
-  const height = config.output.heightPx;
+export async function buildPreviewSvg(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  let width = config.output.widthPx;
+  let height = config.output.heightPx;
+  let scale = 1;
+
+  const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
+  const layout = getPatternLayout(config, svgPatternModule);
+
+  if (sheetPreview) {
+    // Determine SVG viewBox dimensions based on sheet physical size
+    // Cap at 4096px for maximum dimension to prevent huge viewBoxes
+    const maxDimension = 4096;
+    if (sheetPreview.width > sheetPreview.height) {
+      width = maxDimension;
+      height = Math.round((sheetPreview.height / sheetPreview.width) * maxDimension);
+      scale = width / sheetPreview.width;
+    } else {
+      height = maxDimension;
+      width = Math.round((sheetPreview.width / sheetPreview.height) * maxDimension);
+      scale = height / sheetPreview.height;
+    }
+  } else {
+    scale = Math.min(
+      width / Math.max(layout.totalWidth, 1),
+      height / Math.max(layout.totalHeight, 1),
+    );
+  }
+
   const material = config.materials[0]!;
   const definition = material.definitionId ? getMaterialById(material.definitionId) : null;
   const fallbackFill = escapeXml(
     getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8'),
   );
-  const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
+  
   const embeddedMaterial = await getEmbeddedMaterialAsset(config);
-  const layout = getPatternLayout(config, svgPatternModule);
-  const scale = Math.min(
-    width / Math.max(layout.totalWidth, 1),
-    height / Math.max(layout.totalHeight, 1),
-  );
+  
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
-  const offsetX = (width - drawWidth) / 2;
-  const offsetY = (height - drawHeight) / 2;
+  const offsetX = sheetPreview ? 0 : (width - drawWidth) / 2;
+  const offsetY = sheetPreview ? 0 : (height - drawHeight) / 2;
   const jointFill = '#ffffff';
   const defs: string[] = [];
   const embossMode = useEditorStore.getState().embossMode;
@@ -148,8 +172,7 @@ export async function buildPreviewSvg(config: TextureConfig) {
   const matW = material.width * scale;
   const matH = material.height * scale;
 
-  const preset = useEditorStore.getState().sheetPreviewPreset;
-  const isPatternOnly = preset === 'none';
+  const isPatternOnly = !sheetPreview;
 
   // If pattern only, the SVG should match the pattern dimensions exactly
   const svgWidth = isPatternOnly ? layout.totalWidth * scale : width;
@@ -249,7 +272,14 @@ export async function buildPreviewSvg(config: TextureConfig) {
   ].join('');
 }
 
-export async function buildVectorPdf(config: TextureConfig) {
+export async function buildVectorPdf(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  // Wait for jspdf to load before we begin processing the image
+  // It's dynamically imported to reduce initial bundle size
+  const jsPDF = (await import('jspdf')).default;
+  const svgText = await buildPreviewSvg(config, sheetPreview);
   const material = config.materials[0];
   const definition = material?.definitionId ? getMaterialById(material.definitionId) : null;
   const imageUrl = material ? getMaterialRenderableImageUrl(material, definition) : null;
@@ -258,38 +288,66 @@ export async function buildVectorPdf(config: TextureConfig) {
   }
 
   const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
-  const width = config.output.widthPx;
-  const height = config.output.heightPx;
+  
+  let width = config.output.widthPx;
+  let height = config.output.heightPx;
+  let scale = 1;
   const layout = getPatternLayout(config, svgPatternModule);
-  const scale = Math.min(
-    width / Math.max(layout.totalWidth, 1),
-    height / Math.max(layout.totalHeight, 1),
-  );
+
+  if (sheetPreview) {
+    const maxDimension = 4096;
+    if (sheetPreview.width > sheetPreview.height) {
+      width = maxDimension;
+      height = Math.round((sheetPreview.height / sheetPreview.width) * maxDimension);
+      scale = width / sheetPreview.width;
+    } else {
+      height = maxDimension;
+      width = Math.round((sheetPreview.width / sheetPreview.height) * maxDimension);
+      scale = height / sheetPreview.height;
+    }
+  } else {
+    scale = Math.min(
+      width / Math.max(layout.totalWidth, 1),
+      height / Math.max(layout.totalHeight, 1),
+    );
+  }
+
   const drawWidth = layout.totalWidth * scale;
   const drawHeight = layout.totalHeight * scale;
-  const offsetX = (width - drawWidth) / 2;
-  const offsetY = (height - drawHeight) / 2;
+  const offsetX = sheetPreview ? 0 : (width - drawWidth) / 2;
+  const offsetY = sheetPreview ? 0 : (height - drawHeight) / 2;
   const fill = getMaterialRenderableColor(material.source, definition?.swatchColor ?? '#b8b0a8');
   const jointFill = '#ffffff';
   const commands = [
     'q',
     `${rgbToPdf(jointFill)} rg`,
-    `${offsetX} ${height - offsetY - drawHeight} ${drawWidth} ${drawHeight} re f`,
+    `0 0 ${width} ${height} re f`,
   ];
+  
+  const repeatW = layout.totalWidth * scale;
+  const repeatH = layout.totalHeight * scale;
+  const startX = sheetPreview ? offsetX % repeatW - repeatW : offsetX;
+  const startY = sheetPreview ? offsetY % repeatH - repeatH : offsetY;
+  const endX = sheetPreview ? width + repeatW : offsetX + drawWidth;
+  const endY = sheetPreview ? height + repeatH : offsetY + drawHeight;
 
-  for (const [tileIndex, tile] of layout.tiles.entries()) {
-    const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
-    commands.push(`${rgbToPdf(fill)} rg`);
-    const points = shape.points.map((point) => ({
-      x: offsetX + point.x * scale,
-      y: height - (offsetY + point.y * scale),
-    }));
-    const [firstPoint, ...otherPoints] = points;
-    commands.push(`${firstPoint!.x} ${firstPoint!.y} m`);
-    for (const point of otherPoints) {
-      commands.push(`${point.x} ${point.y} l`);
+  for (let y = startY; y < endY; y += repeatH) {
+    for (let x = startX; x < endX; x += repeatW) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        commands.push(`${rgbToPdf(fill)} rg`);
+        const points = shape.points.map((point) => ({
+          x: x + point.x * scale,
+          y: height - (y + point.y * scale),
+        }));
+        const [firstPoint, ...otherPoints] = points;
+        commands.push(`${firstPoint!.x} ${firstPoint!.y} m`);
+        for (const point of otherPoints) {
+          commands.push(`${point.x} ${point.y} l`);
+        }
+        commands.push('h f');
+      }
     }
-    commands.push('h f');
   }
 
   commands.push('Q');

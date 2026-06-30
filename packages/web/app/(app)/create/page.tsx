@@ -384,11 +384,12 @@ export default function CreatePage() {
   };
 
   const handleDownloadPreview = async (format: ExportFormat) => {
-    if (format === 'png') await exportPreviewPng(config);
-    if (format === 'svg') await exportPreviewSvg(config);
-    if (format === 'jpg') await exportPreviewJpg(config);
-    if (format === 'pdf') await exportPreviewPdf(config);
-    if (format === 'dxf') await exportPreviewDxf(config);
+    const activeSheetPreview = sheetPreviewPreset !== 'none' ? sheetPreview : null;
+    if (format === 'png') await exportPreviewPng(config, activeSheetPreview);
+    if (format === 'svg') await exportPreviewSvg(config, activeSheetPreview);
+    if (format === 'jpg') await exportPreviewJpg(config, activeSheetPreview);
+    if (format === 'pdf') await exportPreviewPdf(config, activeSheetPreview);
+    if (format === 'dxf') await exportPreviewDxf(config, activeSheetPreview);
     setShowSaveModal(false);
   };
 

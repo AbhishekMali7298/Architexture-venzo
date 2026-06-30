@@ -18,6 +18,7 @@ export interface PreviewDxfRasterInfo {
  */
 export async function buildPreviewDxf(
   config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null,
   rasterInfo?: PreviewDxfRasterInfo,
 ): Promise<string> {
   const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
@@ -34,11 +35,34 @@ export async function buildPreviewDxf(
     (rasterInfo?.pixelWidth ?? 0) > 0 &&
     (rasterInfo?.pixelHeight ?? 0) > 0;
 
+  const width = sheetPreview ? sheetPreview.width : layout.totalWidth;
+  const height = sheetPreview ? sheetPreview.height : layout.totalHeight;
+  const repeatW = layout.totalWidth;
+  const repeatH = layout.totalHeight;
+  const startX = sheetPreview ? (0 % repeatW) - repeatW : 0;
+  const startY = sheetPreview ? (0 % repeatH) - repeatH : 0;
+  const endX = sheetPreview ? width + repeatW : layout.totalWidth;
+  const endY = sheetPreview ? height + repeatH : layout.totalHeight;
+
+  // Calculate extents for header
+  const extMinX = sheetPreview ? 0 : 0;
+  const extMinY = sheetPreview ? 0 : 0;
+  const extMaxX = width;
+  const extMaxY = height;
+
   const header = [
     '0', 'SECTION',
     '2', 'HEADER',
     '9', '$ACADVER',
-    '1', hasRasterImage ? 'AC1015' : 'AC1009', // IMAGE entities require AutoCAD 2000+
+    '1', hasRasterImage ? 'AC1015' : 'AC1009',
+    '9', '$EXTMIN',
+    '10', extMinX.toFixed(4),
+    '20', extMinY.toFixed(4),
+    '30', '0.0000',
+    '9', '$EXTMAX',
+    '10', extMaxX.toFixed(4),
+    '20', extMaxY.toFixed(4),
+    '30', '0.0000',
     '0', 'ENDSEC',
   ];
 
@@ -48,7 +72,6 @@ export async function buildPreviewDxf(
     '0', 'TABLE',
     '2', 'LAYER',
     '70', hasRasterImage ? '4' : '3',
-    // Layer Material Image
     ...(hasRasterImage
       ? [
           '0', 'LAYER',
@@ -58,23 +81,20 @@ export async function buildPreviewDxf(
           '6', 'CONTINUOUS',
         ]
       : []),
-    // Layer Tile Fills
     '0', 'LAYER',
     '2', 'TILES_FILL',
     '70', '0',
     '62', fillColorIndex.toString(),
     '6', 'CONTINUOUS',
-    // Layer Tiles
     '0', 'LAYER',
     '2', 'TILES',
     '70', '0',
-    '62', '7', // White/Black
+    '62', '7',
     '6', 'CONTINUOUS',
-    // Layer Strokes
     '0', 'LAYER',
     '2', 'STROKES',
     '70', '0',
-    '62', '1', // Red (distinct for strokes)
+    '62', '1',
     '6', 'CONTINUOUS',
     '0', 'ENDTAB',
     '0', 'ENDSEC',
@@ -83,6 +103,8 @@ export async function buildPreviewDxf(
   const entities: string[] = ['0', 'SECTION', '2', 'ENTITIES'];
   const objects: string[] = ['0', 'SECTION', '2', 'OBJECTS'];
 
+  // Raster image export is usually not supported simultaneously with sheet tiled export right now,
+  // but if it is, we only export the FIRST tile instance to avoid creating thousands of images.
   if (hasRasterImage && rasterInfo) {
     const handles = createHandleGenerator();
     const rootDictionaryHandle = handles.next();
@@ -114,20 +136,27 @@ export async function buildPreviewDxf(
       appendImageDefReactorObject(objects, reactorHandles[index]!, imageHandles[index]!);
     }
   } else {
-    // 1. Export tile fills as triangulated SOLID entities so material is visible in CAD.
-    for (const tile of layout.tiles) {
-      appendSolidFillEntities(entities, tile.points, fillColorIndex);
+    for (let y = startY; y < endY; y += repeatH) {
+      for (let x = startX; x < endX; x += repeatW) {
+        for (const tile of layout.tiles) {
+          const shiftedPoints = tile.points.map(p => ({ x: p.x + x, y: p.y + y }));
+          appendSolidFillEntities(entities, shiftedPoints, fillColorIndex);
+        }
+      }
     }
   }
 
-  // 2. Export tile outlines as polylines.
-  for (const tile of layout.tiles) {
-    appendPolylineEntity(entities, 'TILES', tile.points, true);
-  }
-
-  // 3. Export strokes as polylines.
-  for (const stroke of layout.strokes) {
-    appendPolylineEntity(entities, 'STROKES', stroke.points, stroke.closed);
+  for (let y = startY; y < endY; y += repeatH) {
+    for (let x = startX; x < endX; x += repeatW) {
+      for (const tile of layout.tiles) {
+        const shiftedPoints = tile.points.map(p => ({ x: p.x + x, y: p.y + y }));
+        appendPolylineEntity(entities, 'TILES', shiftedPoints, true);
+      }
+      for (const stroke of layout.strokes) {
+        const shiftedPoints = stroke.points.map(p => ({ x: p.x + x, y: p.y + y }));
+        appendPolylineEntity(entities, 'STROKES', shiftedPoints, stroke.closed);
+      }
+    }
   }
 
   entities.push('0', 'ENDSEC');

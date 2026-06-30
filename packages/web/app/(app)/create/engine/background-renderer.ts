@@ -147,7 +147,7 @@ function buildSheetPreviewOverlayCache(
   };
 }
 
-function renderSheetPreview(
+export function renderSheetPreview(
   ctx: CanvasRenderingContext2D,
   config: TextureConfig,
   options: {

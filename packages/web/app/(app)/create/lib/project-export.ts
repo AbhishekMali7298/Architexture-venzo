@@ -20,6 +20,18 @@ function downloadUrl(url: string, filename: string) {
   anchor.click();
 }
 
+function getExportFileName(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null,
+  ext: string
+) {
+  const patternName = config.pattern.type.replace(/_/g, '-');
+  const dims = sheetPreview
+    ? `sheet_${sheetPreview.width}x${sheetPreview.height}`
+    : 'pattern';
+  return `${patternName}_${dims}_${config.pattern.rows}x${config.pattern.columns}.${ext}`;
+}
+
 export async function exportProjectJson(config: TextureConfig) {
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -55,27 +67,88 @@ async function resolveJointMaterialImage(config: TextureConfig): Promise<HTMLIma
   }
 }
 
-async function renderExportCanvas(config: TextureConfig) {
+async function renderExportCanvas(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
   const canvas = document.createElement('canvas');
-  canvas.width = config.output.widthPx;
-  canvas.height = config.output.heightPx;
+  let scale = 1;
+
+  if (sheetPreview) {
+    // If exporting a sheet, determine canvas size based on sheet aspect ratio
+    // Cap the maximum dimension to 4096px for performance and memory
+    const maxDimension = 4096;
+    if (sheetPreview.width > sheetPreview.height) {
+      canvas.width = maxDimension;
+      canvas.height = Math.round((sheetPreview.height / sheetPreview.width) * maxDimension);
+      scale = canvas.width / sheetPreview.width;
+    } else {
+      canvas.height = maxDimension;
+      canvas.width = Math.round((sheetPreview.width / sheetPreview.height) * maxDimension);
+      scale = canvas.height / sheetPreview.height;
+    }
+  } else {
+    canvas.width = config.output.widthPx;
+    canvas.height = config.output.heightPx;
+  }
 
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Could not initialize export canvas');
   }
 
+  // Draw background fill
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   const materialImage = await resolvePreviewMaterialImage(config);
   const jointImage = await resolveJointMaterialImage(config);
   const svgPatternModule = await loadSvgPatternModule(config.pattern.type);
-  renderToCanvas(ctx, config, canvas.width, canvas.height, {
-    materialImage,
-    jointImage,
-    backgroundFill: '#ffffff',
-    embossMode: useEditorStore.getState().embossMode,
-    embossStrength: useEditorStore.getState().embossStrength,
-    svgPatternModule,
-  });
+
+  if (sheetPreview) {
+    // We need to import getPatternLayout, getMaterialRenderableColor, renderSheetPreview, isVitaComponentPattern
+    // Wait, let's dynamically import or add them at the top of the file
+    const { getPatternLayout } = await import('./pattern-layout');
+    const { renderSheetPreview } = await import('../engine/background-renderer');
+    const { isVitaComponentPattern } = await import('./pattern-capabilities');
+    const { getMaterialRenderableColor } = await import('./material-assets');
+
+    const layout = getPatternLayout(config, svgPatternModule);
+    const material = config.materials[0];
+    const definition = material?.definitionId ? getMaterialById(material.definitionId) : null;
+    const fallbackFill = getMaterialRenderableColor(
+      material?.source ?? { type: 'solid', color: '#c8c8c8' },
+      definition?.swatchColor ?? '#c8c8c8',
+    );
+    const embossMode = useEditorStore.getState().embossMode;
+    
+    renderSheetPreview(ctx, config, {
+      layout,
+      bounds: { x: 0, y: 0, width: canvas.width, height: canvas.height },
+      scale,
+      material: material!,
+      fallbackFill,
+      jointFill: '#ffffff', // Or calculate joint color if needed
+      isVita: isVitaComponentPattern(config.pattern.type),
+      materialImage,
+      jointImage,
+      emboss: embossMode ? {
+        strength: useEditorStore.getState().embossStrength,
+        intensity: useEditorStore.getState().embossIntensity,
+        depth: useEditorStore.getState().embossDepth,
+        reverse: isVitaComponentPattern(config.pattern.type),
+      } : undefined,
+    });
+  } else {
+    renderToCanvas(ctx, config, canvas.width, canvas.height, {
+      materialImage,
+      jointImage,
+      backgroundFill: '#ffffff',
+      embossMode: useEditorStore.getState().embossMode,
+      embossStrength: useEditorStore.getState().embossStrength,
+      svgPatternModule,
+    });
+  }
 
   return canvas;
 }
@@ -93,32 +166,47 @@ function createMapCanvas(config: TextureConfig) {
   return { canvas, ctx };
 }
 
-export async function exportPreviewPng(config: TextureConfig) {
-  const canvas = await renderExportCanvas(config);
-  downloadUrl(canvas.toDataURL('image/png'), 'textura-preview.png');
+export async function exportPreviewPng(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const canvas = await renderExportCanvas(config, sheetPreview);
+  downloadUrl(canvas.toDataURL('image/png'), getExportFileName(config, sheetPreview, 'png'));
 }
 
-export async function exportAlbedoPng(config: TextureConfig) {
-  const canvas = await renderExportCanvas(config);
+export async function exportAlbedoPng(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const canvas = await renderExportCanvas(config, sheetPreview);
   downloadUrl(canvas.toDataURL('image/png'), 'textura-albedo.png');
 }
 
-export async function exportPreviewJpg(config: TextureConfig) {
-  const canvas = await renderExportCanvas(config);
-  downloadUrl(canvas.toDataURL('image/jpeg', 0.92), 'textura-preview.jpg');
+export async function exportPreviewJpg(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const canvas = await renderExportCanvas(config, sheetPreview);
+  downloadUrl(canvas.toDataURL('image/jpeg', 0.92), getExportFileName(config, sheetPreview, 'jpg'));
 }
 
-export async function exportPreviewSvg(config: TextureConfig) {
-  const svg = await buildPreviewSvg(config);
+export async function exportPreviewSvg(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const svg = await buildPreviewSvg(config, sheetPreview);
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-  downloadUrl(url, 'textura-preview.svg');
+  downloadUrl(url, getExportFileName(config, sheetPreview, 'svg'));
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-export async function exportPreviewDxf(config: TextureConfig) {
-  const dxf = await buildPreviewDxf(config);
+export async function exportPreviewDxf(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const dxf = await buildPreviewDxf(config, sheetPreview);
   const url = URL.createObjectURL(new Blob([dxf], { type: 'application/dxf' }));
-  downloadUrl(url, 'textura-preview.dxf');
+  downloadUrl(url, getExportFileName(config, sheetPreview, 'dxf'));
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
@@ -175,23 +263,26 @@ function buildPdfWithJpeg(jpegBytes: Uint8Array, width: number, height: number) 
   return new Blob([header, body, trailer], { type: 'application/pdf' });
 }
 
-export async function exportPreviewPdf(config: TextureConfig) {
-  const vectorPdf = await buildVectorPdf(config);
+export async function exportPreviewPdf(
+  config: TextureConfig,
+  sheetPreview: { width: number; height: number } | null = null
+) {
+  const vectorPdf = await buildVectorPdf(config, sheetPreview);
   if (vectorPdf) {
     const vectorUrl = URL.createObjectURL(vectorPdf);
-    downloadUrl(vectorUrl, 'textura-preview.pdf');
+    downloadUrl(vectorUrl, getExportFileName(config, sheetPreview, 'pdf'));
     window.setTimeout(() => URL.revokeObjectURL(vectorUrl), 0);
     return;
   }
 
-  const canvas = await renderExportCanvas(config);
+  const canvas = await renderExportCanvas(config, sheetPreview);
   const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
   const jpegBytes = Uint8Array.from(atob(jpegDataUrl.split(',')[1] ?? ''), (char) =>
     char.charCodeAt(0),
   );
   const blob = buildPdfWithJpeg(jpegBytes, canvas.width, canvas.height);
   const url = URL.createObjectURL(blob);
-  downloadUrl(url, 'textura-preview.pdf');
+  downloadUrl(url, getExportFileName(config, sheetPreview, 'pdf'));
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
