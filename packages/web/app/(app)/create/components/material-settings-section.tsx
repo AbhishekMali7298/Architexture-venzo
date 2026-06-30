@@ -122,7 +122,7 @@ export function MaterialSettingsSection({
         {embossAvailable ? (
           <>
             <RangeField
-              label={isVitaPattern ? 'Deboss Strength' : 'Emboss Strength'}
+              label={isVitaPattern ? '3D Deboss Strength' : '3D Emboss Strength'}
               value={embossStrength}
               min={0}
               max={100}
@@ -132,7 +132,7 @@ export function MaterialSettingsSection({
             />
             <div className={styles.gridTwo}>
               <RangeField
-                label="Intensity"
+                label="Shadow Intensity"
                 value={embossIntensity}
                 min={0}
                 max={100}
@@ -141,7 +141,7 @@ export function MaterialSettingsSection({
                 onChange={onEmbossIntensityChange}
               />
               <RangeField
-                label="Depth"
+                label="Bevel Depth"
                 value={embossDepth}
                 min={0}
                 max={100}
@@ -206,7 +206,7 @@ export function MaterialSettingsSection({
 
         <div className={styles.jointDimensionRow}>
           <NumberField
-            label="H Joint"
+            label="Horizontal Gap"
             value={jointHorizontal}
             min={-500}
             max={500}
@@ -251,7 +251,7 @@ export function MaterialSettingsSection({
             )}
           </button>
           <NumberField
-            label="V Joint"
+            label="Vertical Gap"
             value={jointVertical}
             min={-500}
             max={500}

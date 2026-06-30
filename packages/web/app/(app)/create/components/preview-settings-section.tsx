@@ -26,7 +26,7 @@ export function PreviewSettingsSection({
       </div>
       <div className={styles.sectionBody}>
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Sheet Preview</span>
+          <span className={styles.fieldLabel}>Canvas Mode</span>
           <select
             className={styles.select}
             value={sheetPreviewPreset}
