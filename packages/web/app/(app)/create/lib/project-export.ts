@@ -175,10 +175,10 @@ async function renderExportCanvas(
           ctx.save();
           ctx.translate(x, y);
           
-          const logoSize = 80;
+          const logoSize = 100;
           
           // Draw logo
-          ctx.globalAlpha = 0.25;
+          ctx.globalAlpha = 0.45;
           ctx.drawImage(logoImg, -logoSize / 2, -logoSize / 2 - 25, logoSize, logoSize);
           
           // Draw text
