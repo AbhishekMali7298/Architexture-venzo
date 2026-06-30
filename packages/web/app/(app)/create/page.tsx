@@ -14,7 +14,7 @@ import { JointMaterialModal } from './components/joint-material-modal';
 import { MaterialPickerModal } from './components/material-picker-modal';
 import { MaterialSettingsSection } from './components/material-settings-section';
 import { PatternPickerModal } from './components/pattern-picker-modal';
-import { ProductionPlanningSection } from './components/production-planning-section';
+
 import { SaveExportModal, type ExportFormat } from './components/save-export-modal';
 import { SettingsModal } from './components/settings-modal';
 import { StackSettingsSection } from './components/stack-settings-section';
@@ -31,9 +31,7 @@ import {
 } from './lib/pattern-capabilities';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
-  fitPatternToTargetSize,
-  formatMeasurement,
-  getSheetCoverageSummary,
+
   getSheetDimensions,
 } from './lib/production-metrics';
 import {
@@ -59,7 +57,7 @@ function decodeConfig(encoded: string): TextureConfig {
   return JSON.parse(decodeURIComponent(atob(encoded))) as TextureConfig;
 }
 
-const MM_PER_INCH = 25.4;
+
 
 export default function CreatePage() {
   const config = useEditorStore((state) => state.config);
@@ -105,9 +103,7 @@ export default function CreatePage() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [requestedWidth, setRequestedWidth] = useState(1000);
-  const [requestedHeight, setRequestedHeight] = useState(1000);
-  const [hasInitializedRequestedSize, setHasInitializedRequestedSize] = useState(false);
+
   const previousUnitsRef = useRef(config.units);
   const previousSheetPreviewPresetRef = useRef(sheetPreviewPreset);
   const previousPatternTypeRef = useRef(config.pattern.type);
@@ -209,56 +205,14 @@ export default function CreatePage() {
       : currentPattern?.widthLabel
         ? `${currentPattern.widthLabel} Height`
         : 'Unit Height';
-  const defaultPatternWidth = Math.max(1, currentPattern?.defaultUnitWidth ?? material.width);
-  const defaultPatternHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
-  const moduleDrivenDefaultSize = useMemo(() => {
-    if (
-      !isVitaComponentPattern(config.pattern.type) ||
-      !svgPatternModule?.referenceTileWidth ||
-      !svgPatternModule.referenceTileHeight
-    ) {
-      return null;
-    }
 
-    const baseHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
-    return {
-      width: Math.max(
-        1,
-        Math.round(
-          ((baseHeight * svgPatternModule.referenceTileWidth) /
-            Math.max(1, svgPatternModule.referenceTileHeight)) *
-            1000,
-        ) / 1000,
-      ),
-      height: baseHeight,
-    };
-  }, [
-    config.pattern.type,
-    currentPattern?.defaultUnitHeight,
-    material.height,
-    svgPatternModule,
-  ]);
-  const resolvedDefaultPatternWidth = moduleDrivenDefaultSize?.width ?? defaultPatternWidth;
-  const resolvedDefaultPatternHeight = moduleDrivenDefaultSize?.height ?? defaultPatternHeight;
-  const patternZoom = Math.max(0.1, Math.min(1, material.width / resolvedDefaultPatternWidth));
   const sheetPreview = getSheetDimensions(
     config.units,
     sheetPreviewPreset,
     customSheetWidth,
     customSheetHeight,
   );
-  const sheetCoverage = sheetPreview
-    ? getSheetCoverageSummary(
-        patternLayout.totalWidth,
-        patternLayout.totalHeight,
-        sheetPreview.width,
-        sheetPreview.height,
-      )
-    : null;
-  const fittedResult = useMemo(
-    () => fitPatternToTargetSize(config, requestedWidth, requestedHeight, svgPatternModule),
-    [config, requestedWidth, requestedHeight, svgPatternModule],
-  );
+
 
   const authoredSvgAspectRatio = useMemo(() => {
     if (!svgPatternModule) {
@@ -302,20 +256,33 @@ export default function CreatePage() {
     setMaterialHeight(nextHeight);
   };
 
-  useEffect(() => {
-    if (hasInitializedRequestedSize) return;
-    setRequestedWidth(Math.max(1, Math.round(patternLayout.totalWidth)));
-    setRequestedHeight(Math.max(1, Math.round(patternLayout.totalHeight)));
-    setHasInitializedRequestedSize(true);
-  }, [hasInitializedRequestedSize, patternLayout.totalHeight, patternLayout.totalWidth]);
+  const moduleDrivenDefaultSize = useMemo(() => {
+    if (
+      !isVitaComponentPattern(config.pattern.type) ||
+      !svgPatternModule?.referenceTileWidth ||
+      !svgPatternModule.referenceTileHeight
+    ) {
+      return null;
+    }
 
-  useEffect(() => {
-    if (previousUnitsRef.current === config.units) return;
-    const factor = config.units === 'inches' ? 1 / MM_PER_INCH : MM_PER_INCH;
-    setRequestedWidth((value) => Math.max(1, Math.round(value * factor * 100) / 100));
-    setRequestedHeight((value) => Math.max(1, Math.round(value * factor * 100) / 100));
-    previousUnitsRef.current = config.units;
-  }, [config.units]);
+    const baseHeight = Math.max(1, currentPattern?.defaultUnitHeight ?? material.height);
+    return {
+      width: Math.max(
+        1,
+        Math.round(
+          ((baseHeight * svgPatternModule.referenceTileWidth) /
+            Math.max(1, svgPatternModule.referenceTileHeight)) *
+            1000,
+        ) / 1000,
+      ),
+      height: baseHeight,
+    };
+  }, [
+    config.pattern.type,
+    currentPattern?.defaultUnitHeight,
+    material.height,
+    svgPatternModule,
+  ]);
 
   useEffect(() => {
     if (!moduleDrivenDefaultSize || !currentPattern) {
@@ -439,23 +406,7 @@ export default function CreatePage() {
     window.history.replaceState({}, '', url.toString());
   };
 
-  const handleFitPatternToRequestedSize = () => {
-    loadProjectConfig(fittedResult.config, {
-      label: `Fit pattern to ${Math.round(requestedWidth)} × ${Math.round(requestedHeight)}`,
-    });
-  };
 
-  const handlePatternZoomChange = (nextZoom: number) => {
-    const clampedZoom = Math.max(0.1, Math.min(1, nextZoom));
-    setMaterialSize(
-      Math.max(1, Math.round(resolvedDefaultPatternWidth * clampedZoom * 1000) / 1000),
-      Math.max(1, Math.round(resolvedDefaultPatternHeight * clampedZoom * 1000) / 1000),
-    );
-  };
-
-  const sheetCoverageText = sheetCoverage
-    ? `${sheetCoverage.fitAcross} across × ${sheetCoverage.fitDown} down on ${sheetPreview?.label}. Offcut: ${formatMeasurement(sheetCoverage.leftoverWidth, config.units)} by ${formatMeasurement(sheetCoverage.leftoverHeight, config.units)}.`
-    : null;
 
   return (
     <div className={styles.page}>
@@ -529,34 +480,6 @@ export default function CreatePage() {
           onEmbossDepthChange={setEmbossDepth}
         />
 
-        <ProductionPlanningSection
-          units={config.units}
-          requestedWidth={requestedWidth}
-          requestedHeight={requestedHeight}
-          onRequestedWidthChange={setRequestedWidth}
-          onRequestedHeightChange={setRequestedHeight}
-          onFitToRequestedSize={handleFitPatternToRequestedSize}
-          fittedWidth={formatMeasurement(fittedResult.actualWidth, config.units)}
-          fittedHeight={formatMeasurement(fittedResult.actualHeight, config.units)}
-          widthDelta={formatMeasurement(fittedResult.widthDelta, config.units)}
-          heightDelta={formatMeasurement(fittedResult.heightDelta, config.units)}
-          productionWidth={formatMeasurement(patternLayout.totalWidth, config.units)}
-          productionHeight={formatMeasurement(patternLayout.totalHeight, config.units)}
-          rows={config.pattern.rows}
-          columns={config.pattern.columns}
-          unitWidthLabel={widthLabel}
-          unitHeightLabel={heightLabel}
-          unitWidth={formatMeasurement(material.width, config.units)}
-          unitHeight={formatMeasurement(material.height, config.units)}
-          jointHorizontal={formatMeasurement(config.joints.horizontalSize, config.units)}
-          jointVertical={formatMeasurement(config.joints.verticalSize, config.units)}
-          sheetPreviewLabel={sheetPreview?.label ?? 'Pattern only'}
-          sheetCoverageText={sheetCoverageText}
-          zoom={patternZoom}
-          onZoomChange={handlePatternZoomChange}
-          isImpressPattern={isImpressPattern(config.pattern.type)}
-          isVitaPattern={isVitaComponentPattern(config.pattern.type)}
-        />
       </CreateEditorShell>
 
       {showMaterialModal ? (
