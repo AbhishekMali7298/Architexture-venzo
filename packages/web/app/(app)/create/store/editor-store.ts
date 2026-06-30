@@ -761,8 +761,25 @@ export const useEditorStore = create<EditorState>()(
     resetProject: () =>
       set((s) => {
         pushHistory(s, 'Reset project');
+        
+        // Preserve the current pattern type so resetting doesn't switch the pattern
+        const currentPatternType = s.config.pattern.type;
+
         s.config = JSON.parse(JSON.stringify(DEFAULT_TEXTURE_CONFIG)) as TextureConfig;
-        s.embossMode = supportsEmbossPattern(DEFAULT_TEXTURE_CONFIG.pattern.type);
+        
+        // Get the default configuration for the current pattern type (resets rows, columns, angle, etc.)
+        const nextPattern = getDefaultPatternConfig(currentPatternType);
+        if (nextPattern) {
+          s.config.pattern = {
+            ...s.config.pattern,
+            ...nextPattern,
+          };
+        }
+        
+        // Ensure the pattern's default joints are applied
+        applyPatternJointDefaults(s.config, currentPatternType);
+
+        s.embossMode = supportsEmbossPattern(currentPatternType);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
         s.embossIntensity = 100;
         s.embossDepth = 100;
