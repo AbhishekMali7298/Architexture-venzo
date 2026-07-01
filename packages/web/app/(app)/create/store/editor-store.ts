@@ -416,9 +416,9 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.config.joints.linkedDimensions = true;
   } else if (type === 'venzowood_2') {
     const moduleDefaults = getPatternModuleDefaults(type);
-    mat.width = moduleDefaults.width * 0.1;
-    mat.height = moduleDefaults.height * 0.1;
-    s.embossDepth = 15;
+    mat.width = moduleDefaults.width * 0.25;
+    mat.height = moduleDefaults.height * 0.25;
+    s.embossDepth = 40;
     s.config.joints.horizontalSize = 0;
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
@@ -431,6 +431,14 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.embossDepth = 60;
     s.config.joints.horizontalSize = 0;
     s.config.joints.verticalSize = 0;
+    s.config.joints.linkedDimensions = true;
+  } else if (isImpressPattern(type)) {
+    const moduleDefaults = getPatternModuleDefaults(type);
+    mat.width = moduleDefaults.width * 0.1;
+    mat.height = moduleDefaults.height * 0.1;
+    s.embossDepth = 50;
+    s.config.joints.horizontalSize = 5;
+    s.config.joints.verticalSize = 5;
     s.config.joints.linkedDimensions = true;
   }
 }

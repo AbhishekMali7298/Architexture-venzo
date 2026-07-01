@@ -345,7 +345,12 @@ export default function CreatePage() {
     }
 
     const isImpress = isImpressPattern(config.pattern.type);
-    const scaleFactor = config.pattern.type === 'venzowood_3' ? 0.25 : 0.1;
+    const scaleFactor =
+      config.pattern.type === 'venzowood_3'
+        ? 0.25
+        : config.pattern.type === 'venzowood_2'
+        ? 0.25
+        : 0.1;
     const targetRepeatHeight = isImpress
       ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
         scaleFactor *
