@@ -19,7 +19,7 @@ import {
 } from '../lib/pattern-capabilities';
 
 function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repeatHeight: number) {
-  if (config.pattern.type !== 'venzowood' && config.pattern.type !== 'rhombus_pattern') {
+  if (config.pattern.type !== 'venzowood') {
     return [{ x: 0, y: 0 }];
   }
 
