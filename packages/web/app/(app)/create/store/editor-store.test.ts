@@ -104,6 +104,21 @@ describe('editor store', () => {
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
+  it('uses a quarter-scale module size for chequer pattern on large sheet previews', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('chequer_pattern');
+    useEditorStore.getState().setSheetPreviewPreset('4x8');
+
+    const { config } = useEditorStore.getState();
+    const material = config.materials[0]!;
+
+    expect(material.width).toBe(50);
+    expect(material.height).toBe(100);
+  });
+
   it('applies 5 mm linked joints for Vita Pattern 3 by default', () => {
     useEditorStore
       .getState()

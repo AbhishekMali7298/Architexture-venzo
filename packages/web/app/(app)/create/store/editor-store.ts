@@ -12,6 +12,7 @@ import type {
 } from '@textura/shared';
 import { getDefaultPatternConfig, getMaterialById, getPatternByType } from '@textura/shared';
 import { isImpressPattern, isVitaComponentPattern, supportsEmbossPattern } from '../lib/pattern-capabilities';
+import { getLargeSheetPatternScaleFactor } from '../lib/large-sheet-scale-factor';
 import type { SheetPreviewPreset } from '../lib/production-metrics';
 import { getCachedSvgPatternModule } from '../lib/svg-pattern-module-cache';
 
@@ -433,7 +434,7 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.config.joints.verticalSize = 0;
     s.config.joints.linkedDimensions = true;
   } else if (isImpressPattern(type)) {
-    const scaleFactor = type === 'ripple_pattern' ? 0.25 : 0.1;
+    const scaleFactor = getLargeSheetPatternScaleFactor(type);
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;

@@ -29,6 +29,7 @@ import {
   isVitaComponentPattern,
   supportsEmbossPattern,
 } from './lib/pattern-capabilities';
+import { getLargeSheetPatternScaleFactor } from './lib/large-sheet-scale-factor';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
 
@@ -345,14 +346,7 @@ export default function CreatePage() {
     }
 
     const isImpress = isImpressPattern(config.pattern.type);
-    const scaleFactor =
-      config.pattern.type === 'venzowood_3'
-        ? 0.25
-        : config.pattern.type === 'venzowood_2'
-        ? 0.25
-        : config.pattern.type === 'ripple_pattern'
-        ? 0.25
-        : 0.1;
+    const scaleFactor = getLargeSheetPatternScaleFactor(config.pattern.type);
     const targetRepeatHeight = isImpress
       ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
         scaleFactor *
