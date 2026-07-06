@@ -29,7 +29,6 @@ import {
   isVitaComponentPattern,
   supportsEmbossPattern,
 } from './lib/pattern-capabilities';
-import { getLargeSheetPatternScaleFactor } from './lib/large-sheet-scale-factor';
 import { getPatternLayout } from './lib/pattern-layout';
 import {
 
@@ -220,6 +219,14 @@ export default function CreatePage() {
       return null;
     }
 
+    // Some authored SVG patterns intentionally use a custom module footprint
+    // instead of the raw repeat-cell aspect ratio. For those patterns, forcing
+    // the SVG aspect ratio back onto the material size breaks the tuned repeat
+    // compensation and can collapse sheet-preview tiling.
+    if (currentPattern?.repeatCompensation) {
+      return null;
+    }
+
     const repeatWidth = Math.max(1, svgPatternModule.repeatWidth ?? svgPatternModule.viewBoxWidth);
     const repeatHeight = Math.max(
       1,
@@ -231,7 +238,7 @@ export default function CreatePage() {
     }
 
     return repeatWidth / repeatHeight;
-  }, [svgPatternModule]);
+  }, [currentPattern?.repeatCompensation, svgPatternModule]);
 
   const handleMaterialWidthChange = (nextWidth: number) => {
     if (authoredSvgAspectRatio) {
@@ -346,12 +353,15 @@ export default function CreatePage() {
     }
 
     const isImpress = isImpressPattern(config.pattern.type);
-    const scaleFactor = getLargeSheetPatternScaleFactor(config.pattern.type);
-    const targetRepeatHeight = isImpress
-      ? (getPatternByType(config.pattern.type)?.defaultUnitHeight ?? material.height) *
-        scaleFactor *
-        config.pattern.rows
-      : sheetPreview.height / 4;
+
+    // Impress patterns already receive their large-sheet tuning directly in the
+    // editor store. Running a second resize pass here makes some patterns drift
+    // unpredictably and can over-shrink compensated repeat cells.
+    if (isImpress) {
+      return;
+    }
+
+    const targetRepeatHeight = sheetPreview.height / 4;
 
     const currentRepeatHeight = Math.max(1, patternLayout.totalHeight);
     const scale = targetRepeatHeight / currentRepeatHeight;

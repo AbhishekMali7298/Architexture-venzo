@@ -119,6 +119,38 @@ describe('editor store', () => {
     expect(material.height).toBe(100);
   });
 
+  it('uses the tuned rhombus sheet scale instead of the old hardcoded shrink', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('rhombus_pattern');
+    useEditorStore.getState().setSheetPreviewPreset('4x8');
+
+    const { config } = useEditorStore.getState();
+    const material = config.materials[0]!;
+
+    expect(material.width).toBe(91.5);
+    expect(material.height).toBe(91.5);
+  });
+
+  it('keeps chisel sheet previews jointless so the texture does not turn into a grid', () => {
+    useEditorStore
+      .getState()
+      .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
+
+    useEditorStore.getState().setPatternType('chisel_pattern');
+    useEditorStore.getState().setSheetPreviewPreset('4x8');
+
+    const { config } = useEditorStore.getState();
+    const material = config.materials[0]!;
+
+    expect(material.width).toBe(50);
+    expect(material.height).toBe(50);
+    expect(config.joints.horizontalSize).toBe(0);
+    expect(config.joints.verticalSize).toBe(0);
+  });
+
   it('applies 5 mm linked joints for Vita Pattern 3 by default', () => {
     useEditorStore
       .getState()

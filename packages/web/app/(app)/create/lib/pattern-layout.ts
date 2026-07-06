@@ -785,6 +785,12 @@ function getSvgPatternTiles(config: TextureConfig, module: SvgPatternModule) {
       ? effectiveStepY
       : Math.max(effectiveStepY, baseRepeatStepY);
 
+    // Guard against compensated repeat steps collapsing below zero. A
+    // non-positive repeat interval breaks sheet preview tiling and can make the
+    // entire canvas fall back to a solid fill.
+    stepX = Math.max(1, stepX);
+    stepY = Math.max(1, stepY);
+
     if (config.pattern.type === 'grate_pattern_2' || config.pattern.type === 'weave_pattern_2' || compensationX !== 0 || compensationY !== 0) {
       console.table({
         patternName: config.pattern.type,
