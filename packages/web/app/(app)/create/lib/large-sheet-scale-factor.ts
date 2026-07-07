@@ -20,7 +20,7 @@ export function getLargeSheetPatternScaleFactor(patternType: PatternType) {
     fibra_pattern: 0.5,
     matrix_pattern: 6.0,
     mesh_pattern: 6.0,
-    raffia_pattern: 0.25,
+    raffia_pattern: 3.0,
     weave_pattern_2: 0.18,
   };
 
