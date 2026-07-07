@@ -491,7 +491,7 @@ function applyPatternSheetDefaults(s: EditorState) {
   } else if (isVitaComponentPattern(type)) {
     let scaleFactor = 0.15;
     if (type === 'vita_pattern_3') scaleFactor = 0.5;
-    if (type === 'vita_pattern_14' || type === 'vita_pattern_21') scaleFactor = 1.0;
+    if (['vita_pattern_14', 'vita_pattern_21', 'vita_pattern_22'].includes(type)) scaleFactor = 1.0;
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
