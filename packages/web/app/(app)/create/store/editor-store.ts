@@ -450,16 +450,7 @@ function applyPatternSheetDefaults(s: EditorState) {
       type === 'ripple_pattern' ||
       type === 'chisel_pattern';
     s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
-    s.config.joints.verticalSize =
-      type === 'convex_pattern'
-        ? 10
-        : type === 'concave_pattern'
-          ? 8
-          : type === 'ripple_pattern'
-            ? 3
-            : isZeroJointPattern
-              ? 0
-              : 5;
+    s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
     s.config.joints.linkedDimensions = true;
   }
 }
