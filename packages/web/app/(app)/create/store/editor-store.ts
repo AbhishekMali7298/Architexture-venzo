@@ -149,9 +149,9 @@ const PATTERN_JOINT_DEFAULTS: Record<
     linkedDimensions: false,
   },
   grate_pattern_2: {
-    horizontalSize: 0,
-    verticalSize: 0,
-    linkedDimensions: true,
+    horizontalSize: -40,
+    verticalSize: -180,
+    linkedDimensions: false,
   },
   chisel_pattern: {
     horizontalSize: 0,
@@ -404,6 +404,17 @@ function applyPatternSheetDefaults(s: EditorState) {
 
   if (preset === 'none') {
     s.embossDepth = 100;
+    if (type === 'grate_pattern_2') {
+      s.config.joints.horizontalSize = -40;
+      s.config.joints.verticalSize = -180;
+      s.config.joints.linkedDimensions = false;
+    }
+  } else if (preset === 'custom') {
+    if (type === 'grate_pattern_2') {
+      s.config.joints.horizontalSize = 16;
+      s.config.joints.verticalSize = 16;
+      s.config.joints.linkedDimensions = true;
+    }
   }
 
   if (!isLargeSheet) return;
@@ -449,8 +460,14 @@ function applyPatternSheetDefaults(s: EditorState) {
       type === 'convex_pattern' ||
       type === 'ripple_pattern' ||
       type === 'chisel_pattern';
-    s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
-    s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
+    
+    if (type === 'grate_pattern_2') {
+      s.config.joints.horizontalSize = 10;
+      s.config.joints.verticalSize = 10;
+    } else {
+      s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
+      s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
+    }
     s.config.joints.linkedDimensions = true;
   }
 }
