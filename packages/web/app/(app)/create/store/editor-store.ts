@@ -402,6 +402,10 @@ function applyPatternSheetDefaults(s: EditorState) {
   const preset = s.sheetPreviewPreset;
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
+  if (preset === 'none') {
+    s.embossDepth = 100;
+  }
+
   if (!isLargeSheet) return;
 
   const mat = s.config.materials[s.activeMaterialIndex];
