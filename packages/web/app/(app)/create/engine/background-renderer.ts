@@ -96,46 +96,147 @@ function getPatternRepeatPhases(config: TextureConfig, repeatWidth: number, repe
   ];
 }
 
-function buildSheetPreviewOverlayCache(
+export function buildFullModuleCache(
+  config: TextureConfig,
   layout: ReturnType<typeof getPatternLayout>,
   scale: number,
+  fallbackFill: string,
   jointFill: string,
-  emboss: { strength: number; intensity: number; depth: number; reverse: boolean } | undefined,
+  isVita: boolean,
+  useSwappedVitaMapping: boolean,
+  useMaterialBackground: boolean,
+  materialImage?: CanvasImageSource | null,
+  jointImage?: CanvasImageSource | null,
+  emboss?: { strength: number; intensity: number; depth: number; reverse: boolean },
 ) {
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   const contentWidth = Math.max(layout.totalWidth, layout.contentWidth) * scale;
   const contentHeight = Math.max(layout.totalHeight, layout.contentHeight) * scale;
   const bleed = emboss ? 20 : 4;
+  
   const cacheCanvas = document.createElement('canvas');
   cacheCanvas.width = Math.ceil((contentWidth + bleed * 2) * dpr);
   cacheCanvas.height = Math.ceil((contentHeight + bleed * 2) * dpr);
 
-  const cacheCtx = cacheCanvas.getContext('2d');
-  if (!cacheCtx) {
-    return null;
+  const ctx = cacheCanvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.scale(dpr, dpr);
+  ctx.translate(bleed, bleed);
+
+  const offsetX = 0;
+  const offsetY = 0;
+  
+  const moduleDrawBox = {
+    x: 0,
+    y: 0,
+    width: (layout.totalWidth / Math.max(1, config.pattern.columns)) * scale,
+    height: (layout.totalHeight / Math.max(1, config.pattern.rows)) * scale,
+  };
+
+  if (layout.tiles.length > 0) {
+    if (useSwappedVitaMapping) {
+      fillClosedPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes, {
+        fallbackFill,
+        image: materialImage,
+        imageDrawBox: moduleDrawBox,
+      });
+    }
+
+    const material = config.materials[0];
+    if (material) {
+      for (const [tileIndex, tile] of layout.tiles.entries()) {
+        const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
+        fillMaterialSurface(ctx, {
+          x: offsetX + shape.bounds.x * scale,
+          y: offsetY + shape.bounds.y * scale,
+          width: shape.bounds.width * scale,
+          height: shape.bounds.height * scale,
+          radius: 0,
+          fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
+          image: useSwappedVitaMapping ? jointImage : materialImage,
+          clipPath: shape.points.map((point) => ({
+            x: offsetX + point.x * scale,
+            y: offsetY + point.y * scale,
+          })),
+          imageDrawBox: moduleDrawBox,
+        });
+      }
+    }
   }
 
-  cacheCtx.scale(dpr, dpr);
-  cacheCtx.translate(bleed, bleed);
+  if (config.pattern.type === 'venzowood_4') {
+    drawVenzowood4Holes(
+      ctx,
+      config,
+      offsetX,
+      offsetY,
+      scale,
+      layout,
+      jointFill,
+      jointImage,
+      moduleDrawBox,
+      emboss ? {
+        strength: emboss.strength,
+        intensity: emboss.intensity,
+        depth: emboss.depth,
+        reverse: emboss.reverse,
+      } : undefined,
+    );
+  }
 
-
+  if (useMaterialBackground && layout.strokes.length > 0) {
+    drawMaterialBackgroundVitaGrooves(
+      ctx,
+      offsetX,
+      offsetY,
+      scale,
+      layout.strokes,
+      jointFill,
+      jointImage,
+      moduleDrawBox,
+      emboss?.depth ?? 100,
+    );
+  }
 
   if (emboss) {
-    drawEmbossEffect(cacheCtx, 0, 0, scale, layout.tiles, emboss.strength, {
+    drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, emboss.strength, {
       intensity: emboss.intensity,
       depth: emboss.depth,
       reverse: emboss.reverse,
     });
-    drawEmbossStrokeEffect(cacheCtx, 0, 0, scale, layout.strokes, emboss.strength, {
-      intensity: emboss.intensity,
-      depth: emboss.depth,
-      reverse: emboss.reverse,
-    });
+    drawEmbossStrokeEffect(
+      ctx,
+      offsetX,
+      offsetY,
+      scale,
+      layout.strokes,
+      emboss.strength,
+      {
+        intensity: emboss.intensity,
+        depth: emboss.depth,
+        reverse: emboss.reverse,
+      },
+    );
+
+    if (isVita && layout.tiles.length === 0) {
+      drawVitaStrokeJoints(
+        ctx,
+        offsetX,
+        offsetY,
+        scale,
+        layout.strokes,
+        jointFill,
+        jointImage,
+        moduleDrawBox,
+        emboss?.depth ?? 100
+      );
+    }
     if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
-      drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
+      drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
     }
   } else {
-    drawPatternStrokes(cacheCtx, 0, 0, scale, layout.strokes);
+    drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
   }
 
   return {
@@ -226,10 +327,22 @@ export function renderSheetPreview(
   const repeatPhases = getPatternRepeatPhases(config, repeatWidth, repeatHeight);
   const totalRepeats = repeatColumns * repeatRows;
   const geometryComplexity = layout.tiles.length + layout.strokes.length;
-  const overlayCache =
-    !isVita && (geometryComplexity > 20 || totalRepeats > 10)
-      ? buildSheetPreviewOverlayCache(layout, renderScale, jointFill, emboss)
-      : null;
+  const useOverlayCache = geometryComplexity > 20 || totalRepeats > 10;
+  const overlayCache = useOverlayCache
+    ? buildFullModuleCache(
+        config,
+        layout,
+        renderScale,
+        fallbackFill,
+        jointFill,
+        isVita,
+        useSwappedVitaMapping,
+        useMaterialBackground,
+        materialImage,
+        jointImage,
+        emboss
+      )
+    : null;
 
   for (const phase of repeatPhases) {
     for (let row = -1; row < repeatRows; row++) {

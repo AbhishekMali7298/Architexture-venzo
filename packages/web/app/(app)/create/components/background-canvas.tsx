@@ -75,7 +75,7 @@ export function BackgroundCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    let timeoutId: NodeJS.Timeout;
+    let animationFrameId: number;
     let pendingTimeoutId: NodeJS.Timeout;
 
     const render = () => {
@@ -83,8 +83,12 @@ export function BackgroundCanvas() {
       clearTimeout(pendingTimeoutId);
       pendingTimeoutId = setTimeout(() => setIsPending(true), 150);
 
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
       // Execute render in the next event loop tick to allow UI to breathe
-      timeoutId = setTimeout(() => {
+      animationFrameId = requestAnimationFrame(() => {
         const dpr = window.devicePixelRatio || 1;
         const w = window.innerWidth;
         const h = window.innerHeight;
@@ -147,14 +151,14 @@ export function BackgroundCanvas() {
         
         clearTimeout(pendingTimeoutId);
         setIsPending(false);
-      }, 0);
+      });
     };
 
     render();
     window.addEventListener('resize', render);
     return () => {
       window.removeEventListener('resize', render);
-      clearTimeout(timeoutId);
+      cancelAnimationFrame(animationFrameId);
       clearTimeout(pendingTimeoutId);
     };
   }, [
