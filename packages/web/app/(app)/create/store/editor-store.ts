@@ -403,7 +403,7 @@ function applyPatternSheetDefaults(s: EditorState) {
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
   if (preset === 'none') {
-    s.embossDepth = 100;
+    s.embossDepth = type === 'boho_pattern' || type === 'chisel_pattern' ? 50 : 100;
     if (type === 'grate_pattern_2') {
       s.config.joints.horizontalSize = -40;
       s.config.joints.verticalSize = -180;
