@@ -409,8 +409,8 @@ function applyPatternSheetDefaults(s: EditorState) {
       s.config.joints.verticalSize = -180;
       s.config.joints.linkedDimensions = false;
     } else if (type === 'mesh_pattern') {
-      s.config.joints.horizontalSize = 1;
-      s.config.joints.verticalSize = 1;
+      s.config.joints.horizontalSize = 5;
+      s.config.joints.verticalSize = 5;
     }
   } else if (preset === 'custom') {
     if (type === 'grate_pattern_2') {
