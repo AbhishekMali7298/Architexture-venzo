@@ -493,7 +493,7 @@ function applyPatternSheetDefaults(s: EditorState) {
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
-    s.embossDepth = 50;
+    s.embossDepth = 20;
     // We keep the gap at 10 as per previous instructions, except for engraving
     const isEngraving = ['vita_pattern_9', 'vita_pattern_21'].includes(type);
     s.config.joints.horizontalSize = isEngraving ? 0 : 10;
