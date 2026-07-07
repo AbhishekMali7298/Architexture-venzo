@@ -408,6 +408,9 @@ function applyPatternSheetDefaults(s: EditorState) {
       s.config.joints.horizontalSize = -40;
       s.config.joints.verticalSize = -180;
       s.config.joints.linkedDimensions = false;
+    } else if (type === 'mesh_pattern') {
+      s.config.joints.horizontalSize = 1;
+      s.config.joints.verticalSize = 1;
     }
   } else if (preset === 'custom') {
     if (type === 'grate_pattern_2') {
@@ -465,6 +468,9 @@ function applyPatternSheetDefaults(s: EditorState) {
     if (type === 'grate_pattern_2') {
       s.config.joints.horizontalSize = 10;
       s.config.joints.verticalSize = 10;
+    } else if (type === 'mesh_pattern') {
+      s.config.joints.horizontalSize = 1;
+      s.config.joints.verticalSize = 1;
     } else {
       s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
       s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
