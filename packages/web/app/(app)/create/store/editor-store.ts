@@ -489,7 +489,7 @@ function applyPatternSheetDefaults(s: EditorState) {
     }
     s.config.joints.linkedDimensions = true;
   } else if (isVitaComponentPattern(type)) {
-    const scaleFactor = type === 'vita_pattern_3' ? 0.5 : 0.25;
+    const scaleFactor = type === 'vita_pattern_3' ? 0.5 : 0.15;
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
