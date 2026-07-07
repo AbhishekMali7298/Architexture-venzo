@@ -463,7 +463,8 @@ function applyPatternSheetDefaults(s: EditorState) {
       type === 'convex_pattern' ||
       type === 'ripple_pattern' ||
       type === 'chisel_pattern' ||
-      type === 'matrix_pattern';
+      type === 'matrix_pattern' ||
+      type === 'weave_pattern_2';
     
     if (type === 'grate_pattern_2') {
       s.config.joints.horizontalSize = 10;
