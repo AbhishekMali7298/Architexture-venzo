@@ -454,7 +454,7 @@ function applyPatternSheetDefaults(s: EditorState) {
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
-    s.embossDepth = 50;
+    s.embossDepth = type === 'fibra_pattern' ? 100 : 50;
     const isZeroJointPattern =
       type === 'concave_pattern' ||
       type === 'convex_pattern' ||
