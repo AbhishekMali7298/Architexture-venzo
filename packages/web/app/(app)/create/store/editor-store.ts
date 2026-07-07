@@ -403,7 +403,17 @@ function applyPatternSheetDefaults(s: EditorState) {
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
   if (preset === 'none') {
-    s.embossDepth = type === 'boho_pattern' || type === 'chisel_pattern' || type === 'matrix_pattern' ? 50 : 100;
+    const definition = getPatternByType(type);
+    s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+    
+    // Restore material dimensions that were scaled down on large sheets
+    const mat = s.config.materials[s.activeMaterialIndex];
+    if (mat) {
+      const moduleDefaults = getPatternModuleDefaults(type);
+      mat.width = moduleDefaults.width;
+      mat.height = moduleDefaults.height;
+    }
+
     if (type === 'grate_pattern_2') {
       s.config.joints.horizontalSize = -40;
       s.config.joints.verticalSize = -180;
@@ -793,6 +803,12 @@ export const useEditorStore = create<EditorState>()(
 
         s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
         s.embossMode = supportsEmbossPattern(config.pattern.type);
+        
+        const definition = getPatternByType(config.pattern.type);
+        s.embossStrength = definition?.defaults?.embossStrength ?? 100;
+        s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
+        s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+        
         bumpRender(s);
       }),
 
