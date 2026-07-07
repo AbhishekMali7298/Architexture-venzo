@@ -89,7 +89,7 @@ describe('editor store', () => {
     expect(config.joints.linkedDimensions).toBe(true);
   });
 
-  it('applies 15 mm linked joints for chequer pattern', () => {
+  it('applies 26 mm linked joints for chequer pattern', () => {
     useEditorStore
       .getState()
       .loadProjectConfig(structuredClone(DEFAULT_TEXTURE_CONFIG), { resetHistory: true });
@@ -99,8 +99,8 @@ describe('editor store', () => {
     const { config } = useEditorStore.getState();
 
     expect(config.pattern.type).toBe('chequer_pattern');
-    expect(config.joints.horizontalSize).toBe(15);
-    expect(config.joints.verticalSize).toBe(15);
+    expect(config.joints.horizontalSize).toBe(26);
+    expect(config.joints.verticalSize).toBe(26);
     expect(config.joints.linkedDimensions).toBe(true);
   });
 

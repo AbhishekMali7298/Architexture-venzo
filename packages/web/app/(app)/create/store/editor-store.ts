@@ -49,8 +49,8 @@ const PATTERN_JOINT_DEFAULTS: Record<
   },
 
   chequer_pattern: {
-    horizontalSize: 15,
-    verticalSize: 15,
+    horizontalSize: 26,
+    verticalSize: 26,
     linkedDimensions: true,
   },
   concave_pattern: {
