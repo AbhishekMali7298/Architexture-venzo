@@ -224,7 +224,7 @@ function normalizePatternColumns(patternType: PatternType, columns: number, maxC
 function applyPatternJointDefaults(config: TextureConfig, patternType: PatternType) {
   const isVita = isVitaComponentPattern(patternType);
   const isEngraving = ['vita_pattern_9', 'vita_pattern_21'].includes(patternType);
-  const defaultSize = isVita && !isEngraving ? 5 : isVita ? 0 : DEFAULT_JOINT_SIZE;
+  const defaultSize = isVita && !isEngraving ? 10 : isVita ? 0 : DEFAULT_JOINT_SIZE;
 
   const jointDefaults = PATTERN_JOINT_DEFAULTS[patternType] ?? {
     horizontalSize: defaultSize,
