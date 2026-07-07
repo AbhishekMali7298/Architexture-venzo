@@ -422,7 +422,7 @@ const ALL_PATTERN_CATALOG: PatternDefinition[] = [
     description: 'Grid-based matrix design with repeating elements',
     previewPath: '',
     previewAssetPath: 'patterns/impress/matrix pattern (1).svg',
-    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1 },
+    defaults: { rows: 1, columns: 1, angle: 0, stretchers: 1, weaves: 1, embossDepth: 50 },
     parameterRanges: {
       rows: { min: 1, max: 10 },
       columns: { min: 1, max: 10 },
