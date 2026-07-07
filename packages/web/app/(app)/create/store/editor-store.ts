@@ -491,7 +491,13 @@ function applyPatternSheetDefaults(s: EditorState) {
   } else if (isVitaComponentPattern(type)) {
     let scaleFactor = 0.15;
     if (type === 'vita_pattern_3') scaleFactor = 0.5;
-    if (['vita_pattern_14', 'vita_pattern_21', 'vita_pattern_22', 'vita_pattern_23', 'vita_pattern_24'].includes(type)) scaleFactor = 1.0;
+    
+    // Vita Pattern 14 and all patterns from 21 onwards are extremely dense SVGs
+    // that will crash the browser or turn into smudges if scaled down to 15%.
+    const patternNumMatch = type.match(/^vita_pattern_(\d+)$/);
+    if (type === 'vita_pattern_14' || (patternNumMatch && parseInt(patternNumMatch[1], 10) >= 21)) {
+      scaleFactor = 1.0;
+    }
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
@@ -507,6 +513,10 @@ function applyPatternSheetDefaults(s: EditorState) {
       s.config.joints.horizontalSize = 0;
       s.config.joints.verticalSize = 10;
       s.config.joints.linkedDimensions = false;
+    } else if (type === 'vita_pattern_38') {
+      s.config.joints.horizontalSize = 25;
+      s.config.joints.verticalSize = 25;
+      s.config.joints.linkedDimensions = true;
     } else {
       s.config.joints.horizontalSize = 0;
       s.config.joints.verticalSize = 0;
