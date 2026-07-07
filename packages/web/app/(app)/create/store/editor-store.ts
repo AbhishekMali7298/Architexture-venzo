@@ -496,9 +496,16 @@ function applyPatternSheetDefaults(s: EditorState) {
     s.embossDepth = 20;
     // We keep the gap at 10 as per previous instructions, except for engraving
     const isEngraving = ['vita_pattern_9', 'vita_pattern_21'].includes(type);
-    s.config.joints.horizontalSize = isEngraving ? 0 : 10;
-    s.config.joints.verticalSize = isEngraving ? 0 : 10;
-    s.config.joints.linkedDimensions = true;
+    
+    if (type === 'vita_pattern_4') {
+      s.config.joints.horizontalSize = 0;
+      s.config.joints.verticalSize = 6;
+      s.config.joints.linkedDimensions = false;
+    } else {
+      s.config.joints.horizontalSize = isEngraving ? 0 : 10;
+      s.config.joints.verticalSize = isEngraving ? 0 : 10;
+      s.config.joints.linkedDimensions = true;
+    }
   }
 }
 
