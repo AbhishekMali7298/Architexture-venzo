@@ -502,8 +502,8 @@ function applyPatternSheetDefaults(s: EditorState) {
       s.config.joints.verticalSize = 6;
       s.config.joints.linkedDimensions = false;
     } else {
-      s.config.joints.horizontalSize = isEngraving ? 0 : 10;
-      s.config.joints.verticalSize = isEngraving ? 0 : 10;
+      s.config.joints.horizontalSize = 0;
+      s.config.joints.verticalSize = 0;
       s.config.joints.linkedDimensions = true;
     }
   }
