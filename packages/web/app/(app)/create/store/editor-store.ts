@@ -403,8 +403,9 @@ function applyPatternSheetDefaults(s: EditorState) {
   const isLargeSheet = preset === '4x8' || preset === '4x10';
 
   if (preset === 'none') {
+    const isVita = isVitaComponentPattern(type);
     const definition = getPatternByType(type);
-    s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+    s.embossDepth = isVita ? 50 : (definition?.defaults?.embossDepth ?? 100);
     
     // Restore material dimensions that were scaled down on large sheets
     const mat = s.config.materials[s.activeMaterialIndex];
@@ -565,9 +566,10 @@ export const useEditorStore = create<EditorState>()(
           mat.width = moduleDefaults.width;
           mat.height = moduleDefaults.height;
         }
+        const isVita = isVitaComponentPattern(type);
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
-        s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
-        s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+        s.embossIntensity = isVita ? 50 : (definition?.defaults?.embossIntensity ?? 100);
+        s.embossDepth = isVita ? 50 : (definition?.defaults?.embossDepth ?? 100);
 
         applyPatternSheetDefaults(s);
 
@@ -804,10 +806,11 @@ export const useEditorStore = create<EditorState>()(
         s.config = JSON.parse(JSON.stringify(config)) as TextureConfig;
         s.embossMode = supportsEmbossPattern(config.pattern.type);
         
+        const isVita = isVitaComponentPattern(config.pattern.type);
         const definition = getPatternByType(config.pattern.type);
         s.embossStrength = definition?.defaults?.embossStrength ?? 100;
-        s.embossIntensity = definition?.defaults?.embossIntensity ?? 100;
-        s.embossDepth = definition?.defaults?.embossDepth ?? 100;
+        s.embossIntensity = isVita ? 50 : (definition?.defaults?.embossIntensity ?? 100);
+        s.embossDepth = isVita ? 50 : (definition?.defaults?.embossDepth ?? 100);
         
         bumpRender(s);
       }),
@@ -833,10 +836,11 @@ export const useEditorStore = create<EditorState>()(
         // Ensure the pattern's default joints are applied
         applyPatternJointDefaults(s.config, currentPatternType);
 
+        const isVita = isVitaComponentPattern(currentPatternType);
         s.embossMode = supportsEmbossPattern(currentPatternType);
         s.embossStrength = DEFAULT_EMBOSS_STRENGTH;
-        s.embossIntensity = 100;
-        s.embossDepth = 100;
+        s.embossIntensity = isVita ? 50 : 100;
+        s.embossDepth = isVita ? 50 : 100;
         bumpRender(s);
       }),
 
