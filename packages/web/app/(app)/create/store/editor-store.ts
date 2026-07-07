@@ -380,7 +380,7 @@ function bumpRender(state: EditorState) {
 }
 
 function roundMeasurement(value: number) {
-  return Math.round(value * 1000) / 1000;
+  return Math.round(value * 1000000) / 1000000;
 }
 
 function cloneMaterialSource(source: MaterialDefinition['source']) {

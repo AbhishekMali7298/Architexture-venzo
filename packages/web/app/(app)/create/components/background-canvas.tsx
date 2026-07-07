@@ -258,8 +258,8 @@ export function BackgroundCanvas() {
             const midY = (y1 + y2) / 2;
             
             const displayDistance = config.units === 'inches' 
-              ? `${(distance / 25.4).toFixed(2)} inches` 
-              : `${Math.round(distance)} mm`;
+              ? `${distance.toFixed(3)} inches` 
+              : `${distance.toFixed(1)} mm`;
 
             return (
               <g key={`measure-${i}`}>
