@@ -469,8 +469,8 @@ function applyPatternSheetDefaults(s: EditorState) {
       s.config.joints.horizontalSize = 10;
       s.config.joints.verticalSize = 10;
     } else if (type === 'mesh_pattern') {
-      s.config.joints.horizontalSize = 1;
-      s.config.joints.verticalSize = 1;
+      s.config.joints.horizontalSize = 5;
+      s.config.joints.verticalSize = 5;
     } else {
       s.config.joints.horizontalSize = isZeroJointPattern ? 0 : 5;
       s.config.joints.verticalSize = isZeroJointPattern ? 0 : 5;
