@@ -1,4 +1,4 @@
-import { NumberField } from './field-controls';
+import { NumberField, SelectField } from './field-controls';
 import type { SheetPreviewPreset } from '../lib/production-metrics';
 import styles from './create-editor.module.css';
 
@@ -25,19 +25,18 @@ export function PreviewSettingsSection({
         <h3 className={styles.sectionTitle}>Preview</h3>
       </div>
       <div className={styles.sectionBody}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Canvas Mode</span>
-          <select
-            className={styles.select}
-            value={sheetPreviewPreset}
-            onChange={(event) => onSheetPreviewPresetChange(event.target.value as SheetPreviewPreset)}
-          >
-            <option value="none">Pattern only</option>
-            <option value="4x8">4 × 8 ft sheet</option>
-            <option value="4x10">4 × 10 ft sheet</option>
-            <option value="custom">Custom sheet</option>
-          </select>
-        </label>
+        <SelectField
+          label="Canvas Mode"
+          value={sheetPreviewPreset}
+          direction="up"
+          options={[
+            { value: 'none', label: 'Pattern only' },
+            { value: '4x8', label: '4 × 8 ft sheet' },
+            { value: '4x10', label: '4 × 10 ft sheet' },
+            { value: 'custom', label: 'Custom sheet' },
+          ]}
+          onChange={(val) => onSheetPreviewPresetChange(val as SheetPreviewPreset)}
+        />
         {sheetPreviewPreset === 'custom' ? (
           <div className={styles.gridTwo}>
             <NumberField

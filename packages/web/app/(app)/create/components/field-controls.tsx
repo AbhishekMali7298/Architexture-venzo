@@ -152,27 +152,61 @@ export function SelectField({
   label,
   value,
   options,
+  direction = 'down',
   onChange,
 }: {
   label: string;
   value: string;
   options: { value: string; label: string }[];
+  direction?: 'up' | 'down';
   onChange: (value: string) => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLLabelElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o) => o.value === value) || options[0];
+
   return (
-    <label className={styles.field}>
+    <label className={styles.field} ref={containerRef}>
       <span className={styles.fieldLabel}>{label}</span>
-      <select
-        className={styles.select}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className={styles.customSelectContainer}>
+        <button
+          type="button"
+          className={styles.customSelectButton}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {selectedOption?.label}
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        {isOpen && (
+          <div className={direction === 'up' ? styles.customSelectDropdownUp : styles.customSelectDropdown}>
+            {options.map((option) => (
+              <div
+                key={option.value}
+                className={styles.customSelectOption}
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+              >
+                {option.label}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </label>
   );
 }
