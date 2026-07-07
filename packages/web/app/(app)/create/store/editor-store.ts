@@ -489,7 +489,9 @@ function applyPatternSheetDefaults(s: EditorState) {
     }
     s.config.joints.linkedDimensions = true;
   } else if (isVitaComponentPattern(type)) {
-    const scaleFactor = type === 'vita_pattern_3' ? 0.5 : 0.15;
+    let scaleFactor = 0.15;
+    if (type === 'vita_pattern_3') scaleFactor = 0.5;
+    if (type === 'vita_pattern_14') scaleFactor = 1.0;
     const moduleDefaults = getPatternModuleDefaults(type);
     mat.width = moduleDefaults.width * scaleFactor;
     mat.height = moduleDefaults.height * scaleFactor;
@@ -500,6 +502,10 @@ function applyPatternSheetDefaults(s: EditorState) {
     if (type === 'vita_pattern_4') {
       s.config.joints.horizontalSize = 0;
       s.config.joints.verticalSize = 6;
+      s.config.joints.linkedDimensions = false;
+    } else if (type === 'vita_pattern_14') {
+      s.config.joints.horizontalSize = 0;
+      s.config.joints.verticalSize = 10;
       s.config.joints.linkedDimensions = false;
     } else {
       s.config.joints.horizontalSize = 0;
