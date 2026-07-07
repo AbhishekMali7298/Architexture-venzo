@@ -353,11 +353,12 @@ export default function CreatePage() {
     }
 
     const isImpress = isImpressPattern(config.pattern.type);
+    const isVita = isVitaComponentPattern(config.pattern.type);
 
-    // Impress patterns already receive their large-sheet tuning directly in the
+    // Impress and Vita patterns already receive their large-sheet tuning directly in the
     // editor store. Running a second resize pass here makes some patterns drift
     // unpredictably and can over-shrink compensated repeat cells.
-    if (isImpress) {
+    if (isImpress || isVita) {
       return;
     }
 
