@@ -153,6 +153,7 @@ export function renderSheetPreview(
     layout: ReturnType<typeof getPatternLayout>;
     bounds: { x: number; y: number; width: number; height: number };
     scale: number;
+    patternZoom?: number;
     material: TextureConfig['materials'][number];
     fallbackFill: string;
     jointFill: string;
@@ -166,6 +167,7 @@ export function renderSheetPreview(
     layout,
     bounds,
     scale,
+    patternZoom = 1,
     material,
     fallbackFill,
     jointFill,
@@ -174,11 +176,18 @@ export function renderSheetPreview(
     jointImage,
     emboss,
   } = options;
+  const renderScale = scale * Math.max(1, patternZoom);
   const repeatStep = getModuleRepeatStep(config);
-  const repeatWidth = Math.max(1, repeatStep.x * scale * Math.max(1, config.pattern.columns));
-  const repeatHeight = Math.max(1, repeatStep.y * scale * Math.max(1, config.pattern.rows));
-  const baseWidth = repeatStep.x * scale;
-  const baseHeight = repeatStep.y * scale;
+  const repeatWidth = Math.max(
+    1,
+    repeatStep.x * renderScale * Math.max(1, config.pattern.columns),
+  );
+  const repeatHeight = Math.max(
+    1,
+    repeatStep.y * renderScale * Math.max(1, config.pattern.rows),
+  );
+  const baseWidth = repeatStep.x * renderScale;
+  const baseHeight = repeatStep.y * renderScale;
   const worldImageDrawBox = {
     x: bounds.x,
     y: bounds.y,
@@ -219,7 +228,7 @@ export function renderSheetPreview(
   const geometryComplexity = layout.tiles.length + layout.strokes.length;
   const overlayCache =
     !isVita && (geometryComplexity > 20 || totalRepeats > 10)
-      ? buildSheetPreviewOverlayCache(layout, scale, jointFill, emboss)
+      ? buildSheetPreviewOverlayCache(layout, renderScale, jointFill, emboss)
       : null;
 
   for (const phase of repeatPhases) {
@@ -241,7 +250,7 @@ export function renderSheetPreview(
 
         if (layout.tiles.length > 0) {
           if (useSwappedVitaMapping) {
-            fillClosedPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes, {
+            fillClosedPatternStrokes(ctx, offsetX, offsetY, renderScale, layout.strokes, {
               fallbackFill,
               image: materialImage,
               imageDrawBox: worldImageDrawBox,
@@ -251,16 +260,16 @@ export function renderSheetPreview(
           for (const [tileIndex, tile] of layout.tiles.entries()) {
             const shape = getTileRenderShape(tile, material, config.seed, tileIndex);
             fillMaterialSurface(ctx, {
-              x: offsetX + shape.bounds.x * scale,
-              y: offsetY + shape.bounds.y * scale,
-              width: shape.bounds.width * scale,
-              height: shape.bounds.height * scale,
+              x: offsetX + shape.bounds.x * renderScale,
+              y: offsetY + shape.bounds.y * renderScale,
+              width: shape.bounds.width * renderScale,
+              height: shape.bounds.height * renderScale,
               radius: 0,
               fallbackFill: useSwappedVitaMapping ? jointFill : fallbackFill,
               image: useSwappedVitaMapping ? jointImage : materialImage,
               clipPath: shape.points.map((point) => ({
-                x: offsetX + point.x * scale,
-                y: offsetY + point.y * scale,
+                x: offsetX + point.x * renderScale,
+                y: offsetY + point.y * renderScale,
               })),
               imageDrawBox: worldImageDrawBox,
             });
@@ -273,7 +282,7 @@ export function renderSheetPreview(
             config,
             offsetX,
             offsetY,
-            scale,
+            renderScale,
             layout,
             jointFill,
             jointImage,
@@ -294,7 +303,7 @@ export function renderSheetPreview(
             ctx,
             offsetX,
             offsetY,
-            scale,
+            renderScale,
             layout.strokes,
             jointFill,
             jointImage,
@@ -304,16 +313,24 @@ export function renderSheetPreview(
         }
 
         if (emboss) {
-          drawEmbossEffect(ctx, offsetX, offsetY, scale, layout.tiles, emboss.strength, {
+          drawEmbossEffect(ctx, offsetX, offsetY, renderScale, layout.tiles, emboss.strength, {
             intensity: emboss.intensity,
             depth: emboss.depth,
             reverse: emboss.reverse,
           });
-          drawEmbossStrokeEffect(ctx, offsetX, offsetY, scale, layout.strokes, emboss.strength, {
-            intensity: emboss.intensity,
-            depth: emboss.depth,
-            reverse: emboss.reverse,
-          });
+          drawEmbossStrokeEffect(
+            ctx,
+            offsetX,
+            offsetY,
+            renderScale,
+            layout.strokes,
+            emboss.strength,
+            {
+              intensity: emboss.intensity,
+              depth: emboss.depth,
+              reverse: emboss.reverse,
+            },
+          );
 
           // For engraved Vita patterns (no tiles), fill the strokes with joint material
           if (isVita && layout.tiles.length === 0) {
@@ -321,7 +338,7 @@ export function renderSheetPreview(
               ctx,
               offsetX,
               offsetY,
-              scale,
+              renderScale,
               layout.strokes,
               jointFill,
               jointImage,
@@ -330,10 +347,10 @@ export function renderSheetPreview(
             );
           }
           if (shouldDrawEmbossStrokeOutline(layout.tiles, layout.strokes)) {
-            drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+            drawPatternStrokes(ctx, offsetX, offsetY, renderScale, layout.strokes);
           }
         } else {
-          drawPatternStrokes(ctx, offsetX, offsetY, scale, layout.strokes);
+          drawPatternStrokes(ctx, offsetX, offsetY, renderScale, layout.strokes);
         }
       }
     }
@@ -674,6 +691,7 @@ export function renderBackground(
     tileBackground?: boolean;
     svgPatternModule?: SvgPatternModule | null;
     sheetPreview?: { width: number; height: number } | null;
+    sheetPatternZoom?: number;
   },
 ) {
   const material = config.materials[0];
@@ -716,6 +734,7 @@ export function renderBackground(
       layout,
       bounds,
       scale,
+      patternZoom: options?.sheetPatternZoom,
       material,
       fallbackFill,
       jointFill,
@@ -1081,6 +1100,7 @@ export function renderEmbossBackground(
     embossDepth?: number;
     svgPatternModule?: SvgPatternModule | null;
     sheetPreview?: { width: number; height: number } | null;
+    sheetPatternZoom?: number;
   },
 ) {
   const material = config.materials[0];
@@ -1128,6 +1148,7 @@ export function renderEmbossBackground(
       layout,
       bounds,
       scale,
+      patternZoom: options?.sheetPatternZoom,
       material,
       fallbackFill,
       jointFill,

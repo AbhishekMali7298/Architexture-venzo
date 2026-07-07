@@ -15,6 +15,7 @@ import {
 import { useMaterialImage } from '../lib/material-image-cache';
 import { supportsEmbossPattern } from '../lib/pattern-capabilities';
 import { getSheetDimensions } from '../lib/production-metrics';
+import { getCanvasSheetPreviewPatternZoom } from '../lib/sheet-preview-pattern-zoom';
 import { useSvgPatternModule } from '../lib/svg-pattern-module-cache';
 import styles from './create-editor.module.css';
 
@@ -54,6 +55,10 @@ export function BackgroundCanvas() {
     sheetPreviewPreset,
     customSheetWidth,
     customSheetHeight,
+  );
+  const sheetPatternZoom = getCanvasSheetPreviewPatternZoom(
+    config.pattern.type,
+    sheetPreviewPreset,
   );
 
   useEffect(() => {
@@ -111,6 +116,7 @@ export function BackgroundCanvas() {
               embossDepth,
               svgPatternModule,
               sheetPreview,
+              sheetPatternZoom,
             })
           : renderBackground(ctx, config, w, h, {
               materialImage,
@@ -118,6 +124,7 @@ export function BackgroundCanvas() {
               tileBackground,
               svgPatternModule,
               sheetPreview,
+              sheetPatternZoom,
             });
         
         if (previewBounds && showBorder) {
